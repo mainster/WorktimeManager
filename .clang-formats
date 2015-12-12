@@ -1,0 +1,15 @@
+
+--style=java
+--indent=spaces=#3
+--indent-classes
+--indent-modifiers
+--indent-switches
+--indent-cases
+--indent-namespaces
+--indent-preproc-block
+--align-pointer=name
+--break-closing-brackets
+--break-elseifs
+--max-code-length=90 
+--break-after-logical
+--align-method-colon

@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/save.png</file>
+        <file>images/paste.png</file>
+        <file>images/open.png</file>
+        <file>images/new.png</file>
+        <file>images/cut.png</file>
+        <file>images/copy.png</file>
+        <file>images/export-3.png</file>
+        <file>images/database.png</file>
+        <file>images/databaseSubmit.png</file>
+        <file>images/databaseDelegate.png</file>
+        <file>images/databaseConf.png</file>
+        <file>images/underConstruct.svg</file>
+        <file>images/settings.png</file>
+        <file>images/clear.png</file>
+        <file alias="icoExit">images/application-exit.png</file>
+        <file alias="icoDelete">images/DeleteRed.png</file>
+        <file>images/1downarrow16.png</file>
+        <file>images/1downarrow13.png</file>
+    </qresource>
+</RCC>

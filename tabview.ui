@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TabView</class>
+ <widget class="QWidget" name="TabView">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>492</width>
+    <height>463</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>2</number>
+   </property>
+   <property name="leftMargin">
+    <number>3</number>
+   </property>
+   <property name="topMargin">
+    <number>3</number>
+   </property>
+   <property name="rightMargin">
+    <number>3</number>
+   </property>
+   <property name="bottomMargin">
+    <number>3</number>
+   </property>
+   <item>
+    <widget class="QGroupBox" name="gb">
+     <property name="styleSheet">
+      <string notr="true">QGroupBox{
+   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
+   	border-radius: 5px;
+  	margin-top: 1ex; /* leave space at the top for the title */
+   	font: italic 9pt &quot;Arial&quot;;
+   	font-weight: bold;
+	border: 1px solid;    
+ 	border-color: rgb(105, 105, 105);
+   	color: black;
+}
+QGroupBox::title {
+   	subcontrol-origin: margin; /* margin boarder padding content */
+   	subcontrol-position: top center; /* position at the top center */
+   	top: 1.2ex;   
+  	padding: 0px 8px
+} 
+QGroupBox::title:hover {
+    color: rgba(235, 235, 235, 255);
+}
+ QTableView{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF);
+	border: 0px solid gray;
+	border-radius: 5px;
+	margin-top: 15px; /* leave space at the top for the title */
+ }
+QTableView[select=false]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF); }
+QGroupBox[select=false]{ border-color: rgb(105, 105, 105); }
+QTableView[select=true]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); }
+QGroupBox[select=true]{ border-color: rgb(0, 28, 170) }
+
+/*
+QGroupBox{
+   	border: 1px solid rgb(55, 55, 55);   
+}
+QGroupBox{
+   border: 0.24ex dashed rgb(55, 55, 55); 
+}*/
+</string>
+     </property>
+     <property name="title">
+      <string>GroupBox</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QTableView" name="mtv">
+        <property name="styleSheet">
+         <string notr="true">/*QTableWidget {
+	background-color: transparent;
+} QHeaderView::section {
+	background-color: transparent;
+} QHeaderView {
+	background-color: transparent;
+} QTableCornerButton::section {
+	background-color: transparent;
+}*/</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

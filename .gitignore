@@ -1,0 +1,4 @@
+*.cpp.autosave
+*.cpp.orig
+*.h.orig
+*.pro.user
