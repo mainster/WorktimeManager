@@ -6,6 +6,9 @@
 #include <QSettings>
 #include <QDebug>
 #include <QTime>
+#include <QObject>
+#include <QVariant>
+#include <QComboBox>
 
 #define CONFIG_PATH tr("/home/mainster/.config/WorkTimeManager_v" + qgetenv("APP_VERSION") + "/config")
 #define CUSTOM_QUERYS_PATH tr("/home/mainster/.config/WorkTimeManager_v" + qgetenv("APP_VERSION") + "/customQuerys")
@@ -48,16 +51,23 @@ public:
             .replace("@MSG_BODY@", msgBody);
       proc.start(STR_NOTIFY);
    }
+   static QStringList widToStrLst(QWidgetList &lst);
+   static QStringList objToStrLst(QObjectList &lst);
+   static QString widToStr(QWidgetList &lst, QString sep = ",");
+   static QString objToStr(QObjectList &lst, QString sep = ",");
 
 public:  /** Declarations */
    static QString STR_NOTIFY;
 
+public slots:
 private:
    Globals();
    static Globals * inst;
 
    QProcess proc;
    QString S_STR_NOTIFY;
+
+   static QStringList strLst;
 };
 
 #endif // GLOBALS_H

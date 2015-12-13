@@ -31,35 +31,33 @@ public:
 
    ~MainWindow();
 
+signals:
+
+
 public slots:
    void onBrowseSqlTrig(bool b);
    void addConnectionsByCmdline(const QStringList &args,
                                       Browser &browser);
-
    bool eventFilter(QObject *obj, QEvent *event);
    void about();
    void onMenuStyleShtInpFrmTrig(bool b);
    void onMenuStyleShtATrig(bool b);
    void onActExportTrig();
    void onUnderConstrTrig();
-//   void setFont(const QFont &);
-
    void onSetFont();
    void closeEvent(QCloseEvent *event);
-   //   void showEvent(QShowEvent *);
    void initDocks();
    void showEvent();
    void showEvent(QShowEvent *e);
-
    void onResizerDlgTrig();
    void onActHideSqlQueryTrig();
    void onSetAlterRowColTrig();
-
-
    void initializeMdl(QSqlQueryModel *model);
+
 protected slots:
    void makeMenuBar();
 
+   void onActCfgInpFrmTabOrdTrig();
 private slots:
    void onInputFormTrig(bool b);
    void onTblOpen(bool b);
@@ -84,7 +82,7 @@ private:
    Ui::MainWindow *ui;
    void connectActions();
    Browser  *browser;
-   InpFrm   *inpForm;
+   InpFrm   *inpFrm;
    TableWindow *tblWin;
    QMenu *cfgMenu;
    Form *form;

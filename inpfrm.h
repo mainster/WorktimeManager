@@ -9,6 +9,10 @@
 #include <QListWidget>
 #include <QInputDialog>
 #include <QDataWidgetMapper>
+#include <QWidget>
+#include <stdio.h>
+#include <QDateEdit>
+#include <typeinfo>
 
 #include "ui_tablewindow.h"
 #include "globals.h"
@@ -25,6 +29,15 @@ class InpFrm : public QDockWidget {
    Q_OBJECT
 
 public:
+   enum state {
+      state_none,
+      state_init_changeTabOrder,
+      state_running_changeTabOrder,
+      state_done_changeTabOrder,
+      state_rejected_changeTabOrder,
+   };
+   Q_DECLARE_FLAGS(states, state)
+
    explicit InpFrm(QWidget *parent = 0);
    static InpFrm *getInstance(QWidget *parent = 0x00) {
       if(inst == 0)
@@ -54,6 +67,9 @@ public:
    bool gbSqlQueryIsVisible() const;
    void gbSqlQuerySetVisible(bool vis);
 
+signals:
+    void changeInpFrmTabOrder(InpFrm::states state);
+
 public slots:
    void on_clearButton_clicked();
    void on_submitButton_clicked();
@@ -61,7 +77,6 @@ public slots:
    QString getQueryText() const;
    void saveSqlQueryInputText();
    void restoreSqlQueryInputText();
-
    void refreshCbDropDownLists();
    void onBtnOkClicked();
    void onBtnUndoClicked();
@@ -71,6 +86,7 @@ public slots:
    void onCbQueryIdentIndexChaned(int idx);
    bool eventFilter(QObject *obj, QEvent *ev);
    void initComboboxes();
+
 protected:
    void connectActions();
 
@@ -78,6 +94,8 @@ protected slots:
    void onInpFormChanges(int idx = -1);
    void onInpFormChanges(QDate date);
    void showEventDelay();
+   void onChangeTabOrderSlot(InpFrm::states state);
+   QList<QWidget *> objLstToWidLst(QList<QObject *> lst);
 
 private:
    Ui::InpFrm *ui;
@@ -93,9 +111,18 @@ private:
    QDataWidgetMapper *prjm, *clm, *wkm;
    QSqlTableModel *prjmd, *clmd, *wkmd;
    QList<QComboBox *> cbs;
+   QDateEdit *de;
 
+//   QWidgetList wsTabable, objTabOrder;
+//   QList<QWidget *> wsTabAble, objTabOrder;
+//   QList<QWidget> wsNoP;
+   QList<QObject *> objTabAble, objTabOrder;
+//   QObjectList objTabable;
+
+   InpFrm::states changeTabOrder;
 //   void buildTable__worktime();
 //   void buildTable__worktimeTst();
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(InpFrm::states)
 #endif // INPFRM_H

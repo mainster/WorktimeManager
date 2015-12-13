@@ -97,7 +97,7 @@ void TabView::onTabViewSelChanged(TabView *tv) {
     * If its not me, reset the StyleSheet for this instance
     */
    if (tv != NULL) {
-      if (objectName().contains(tv->objectName()))  {
+      if (this->objectName().contains(tv->objectName()))  {
          activeSel = true;
          return;
       }

@@ -3,8 +3,10 @@
 QString Globals::STR_NOTIFY = "notify-send --app-name=\"@APP@\" -t @MSG_TIME@ \"@MSG_HEAD@\" \"@MSG_BODY@";
 Globals * Globals::inst = 0x00;
 
-QString Globals::SQL_DB_PATH    = "/var/lib/mysql/";
-QString Globals::SQL_DB_FILE    = "delbassoSQL.db";
+QString Globals::SQL_DB_PATH     = "/var/lib/mysql/";
+QString Globals::SQL_DB_FILE     = "delbassoSQL.db";
+
+QStringList Globals::strLst      = QStringList();
 
 QString Globals::ddgbStyleShtA = "QGroupBox {"
       "background-color: qlineargradient("
@@ -113,5 +115,38 @@ QString Globals::gbStyleShtCenterPROPERTYS =
       "} ";
 
 
+
+QStringList Globals::widToStrLst(QWidgetList &lst) {
+
+   strLst.clear();
+   foreach (QWidget *w, lst) {
+      strLst << w->objectName();
+   }
+   return strLst;
+}
+QString Globals::widToStr(QWidgetList &lst, QString sep) {
+
+   strLst.clear();
+   foreach (QWidget *w, lst) {
+      strLst << w->objectName();
+   }
+   return strLst.join(sep);
+}
+QStringList Globals::objToStrLst(QObjectList &lst) {
+
+   strLst.clear();
+   foreach (QObject *o, lst) {
+      strLst << o->objectName();
+   }
+   return strLst;
+}
+QString Globals::objToStr(QObjectList &lst, QString sep) {
+
+   strLst.clear();
+   foreach (QObject *o, lst) {
+      strLst << o->objectName();
+   }
+   return strLst.join(sep);
+}
 Globals::Globals() {
 }

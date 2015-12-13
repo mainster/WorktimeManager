@@ -33,7 +33,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
    ui->setupUi(this);
 
    browser = Browser::getInstance( parent );
-   inpForm = InpFrm::getInstance( );
+   inpFrm = InpFrm::getInstance();
+
 
    makeMenuBar();
    connectActions();
@@ -93,27 +94,27 @@ void MainWindow::makeMenuBar() {
 void MainWindow::connectActions() {
    ui->actHideSqlQuery->setChecked( true );
 
-   connect(ui->actButBrowseSQL,    SIGNAL(triggered(bool)),
-           this,                   SLOT(onBrowseSqlTrig(bool)));
+   connect(ui->actButBrowseSQL,     SIGNAL(triggered(bool)),
+           this,                    SLOT(onBrowseSqlTrig(bool)));
    connect(ui->actButInpForm,       SIGNAL(triggered(bool)),
-           this,                 SLOT(onInputFormTrig(bool)));
+           this,                    SLOT(onInputFormTrig(bool)));
    connect(ui->actButShowTbl,       SIGNAL(triggered(bool)),
-           this,                 SLOT(onTblOpen(bool)));
-   connect( browser,                SIGNAL(statusMessage(QString)),
+           this,                    SLOT(onTblOpen(bool)));
+   connect( browser,                SIGNAL(stateMsg(QString)),
             statusBar(),            SLOT(showMessage(QString)));
-   connect( ui->actButClose,           SIGNAL(triggered()),
+   connect( ui->actButClose,        SIGNAL(triggered()),
             this,                   SLOT(onActCloseTrig()));
-   connect( ui->actButGbStyleShtA,     SIGNAL(triggered(bool)),
+   connect( ui->actButGbStyleShtA,  SIGNAL(triggered(bool)),
             this,                   SLOT(onMenuStyleShtATrig(bool)));
    connect( ui->actButGbStyleShtInpFrm, SIGNAL(triggered(bool)),
             this,                   SLOT(onMenuStyleShtInpFrmTrig(bool)));
-   connect( ui->actButExport,          SIGNAL(triggered()),
+   connect( ui->actButExport,       SIGNAL(triggered()),
             this,                   SLOT(onActExportTrig()));
-   connect( ui->actButUnderConstr,     SIGNAL(triggered()),
+   connect( ui->actButUnderConstr,  SIGNAL(triggered()),
             this,                   SLOT(onUnderConstrTrig()));
-   connect( ui->actButSelFont,         SIGNAL(triggered()),
+   connect( ui->actButSelFont,      SIGNAL(triggered()),
             this,                   SLOT(onSetFont()));
-   connect( ui->actButCyclicObjInfo,   SIGNAL(triggered(bool)),
+   connect( ui->actButCyclicObjInfo,SIGNAL(triggered(bool)),
             browser,                SLOT(onCyclicObjInfoTrig(bool)));
    connect( ui->actResizerDlg,      SIGNAL(triggered()),
             this,                   SLOT(onResizerDlgTrig()));
@@ -121,11 +122,16 @@ void MainWindow::connectActions() {
             this,                   SLOT(onActHideSqlQueryTrig()));
    connect( ui->actSetAlterRowCol,  SIGNAL(triggered()),
             this,                   SLOT(onSetAlterRowColTrig()));
+   connect( ui->actCfgInpFrmTabOrd, SIGNAL(triggered()),
+            this,                   SLOT(onActCfgInpFrmTabOrdTrig()));
+
 }
 void MainWindow::initDocks() {
-   QSETTINGS
-         inpForm = InpFrm::getInstance( this );
-   inpForm->setAllowedAreas(Qt::TopDockWidgetArea |
+   QSETTINGS;
+   inpFrm = InpFrm::getInstance( this );
+
+
+   inpFrm->setAllowedAreas(Qt::TopDockWidgetArea |
                             Qt::BottomDockWidgetArea);
 
    QVariant v =
@@ -134,9 +140,8 @@ void MainWindow::initDocks() {
 
    //   Qt::DockWidgetAreas dar = static_cast<Qt::DockWidgetAreas>(var.toInt());
 
-   addDockWidget(Qt::BottomDockWidgetArea, inpForm);
+   addDockWidget(Qt::BottomDockWidgetArea, inpFrm);
 }
-
 void MainWindow::onBrowseSqlTrig(bool doBrowse) {
 
    if (doBrowse) {
@@ -163,21 +168,22 @@ void MainWindow::onInputFormTrig(bool b) {
       * Fetch pointer if a InpForm instance exists, instantiate and get pointer
       * if not
       */
-   inpForm = InpFrm::getInstance();
+   inpFrm = InpFrm::getInstance();
+
    QSETTINGS;
 
    //   this->addDockWidget(Qt::BottomDockWidgetArea, inpForm);
 
    if (b) {
-      inpForm->restoreInpFrmGeometry();
+      inpFrm->restoreInpFrmGeometry();
       //      addDockWidget( static_cast<Qt::DockWidgetArea>(
       //                        config.value("inpForm/DockWidgetArea", "8").toInt) );
-      inpForm->show();
+      inpFrm->show();
    } else {
 
       //      config.setValue("inpForm/DockWidgetArea", (uint)dockWidgetArea(inpForm));
-      inpForm->saveInpFrmGeometry();
-      inpForm->hide();
+      inpFrm->saveInpFrmGeometry();
+      inpFrm->hide();
    }
 }
 void MainWindow::onTblOpen(bool b) {
@@ -225,7 +231,7 @@ void MainWindow::onActHideSqlQueryTrig() {
    bool dohide = ui->actHideSqlQuery->isChecked();
    QSETTINGS;
    config.setValue(objectName() + "/HideSqlQuery", dohide);
-   inpForm->gbSqlQuerySetVisible( !dohide );
+   inpFrm->gbSqlQuerySetVisible( !dohide );
 }
 void MainWindow::onMenuStyleShtATrig(bool b) {
    if (!b) return;
@@ -251,7 +257,9 @@ void MainWindow::onMenuStyleShtInpFrmTrig(bool b) {
 void MainWindow::onActExportTrig() {
    Q_INFO << "!";
 }
-
+void MainWindow::onActCfgInpFrmTabOrdTrig() {
+   emit inpFrm->changeInpFrmTabOrder(InpFrm::state_init_changeTabOrder);
+}
 ///** Testing (relational) editableSqlModel    19-11-2015 */
 void MainWindow::initializeMdl(QSqlQueryModel *model) {
    QSETTINGS;
@@ -328,7 +336,6 @@ void MainWindow::onSetFont() {
       browser->setFontAcc(font);
    }
 }
-
 void MainWindow::about() {
    QMessageBox::about(this, tr("About"), tr("The SQL Browser demonstration "
                                             "shows how a data browser can be used to visualize the results of SQL"
@@ -369,11 +376,11 @@ void MainWindow::showEvent(QShowEvent *e) {
    }
 
    if (!config.value("MainWindow/HideSqlQuery", true).toBool()) {
-      inpForm->gbSqlQuerySetVisible( true );
+      inpFrm->gbSqlQuerySetVisible( true );
       ui->actHideSqlQuery->setChecked( false );
    }
    else {
-      inpForm->gbSqlQuerySetVisible( false );
+      inpFrm->gbSqlQuerySetVisible( false );
       ui->actHideSqlQuery->setChecked( true );
    }
 
@@ -397,10 +404,10 @@ void MainWindow::showEvent(QShowEvent *e) {
       tv->restoreView();
    }
 
-   this->addDockWidget(dwa, inpForm, Qt::Vertical);
+   this->addDockWidget(dwa, inpFrm, Qt::Vertical);
 
    (ui->actButInpForm->isChecked())
-         ?  inpForm->show()   :  inpForm->hide();
+         ?  inpFrm->show()   :  inpFrm->hide();
 
    /// Trigger the connectionWidget treeview
    ///
@@ -441,7 +448,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 
    /**** Safe current docking area of dock widgets
     \*/
-   config.setValue("inpForm/DockWidgetArea", (uint)dockWidgetArea(inpForm));
+   config.setValue("inpForm/DockWidgetArea", (uint)dockWidgetArea(inpFrm));
    config.sync();
 
    /**** Safe content of sql query input field to config

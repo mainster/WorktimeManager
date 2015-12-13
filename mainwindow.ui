@@ -90,6 +90,7 @@ QGroupBox::title {
     <addaction name="actButCyclicObjInfo"/>
     <addaction name="actResizerDlg"/>
     <addaction name="actHideSqlQuery"/>
+    <addaction name="actCfgInpFrmTabOrd"/>
    </widget>
    <addaction name="menu_Setup"/>
   </widget>
@@ -318,6 +319,11 @@ QGroupBox::title {
    </property>
    <property name="toolTip">
     <string>Farbe für alternierenden Zeilenhintergund</string>
+   </property>
+  </action>
+  <action name="actCfgInpFrmTabOrd">
+   <property name="text">
+    <string>Config inpFrm tab order</string>
    </property>
   </action>
  </widget>

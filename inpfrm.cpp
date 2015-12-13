@@ -21,6 +21,7 @@ InpFrm* InpFrm::inst = 0;
 InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
    ui(new Ui::InpFrm) {
    ui->setupUi(this);
+   QSETTINGS;
 
    browser = Browser::getObjectPtr();
    connectActions();
@@ -42,20 +43,60 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
    /** Remove all comboboxes which are not based on sql list models */
    cbs.removeOne(ui->cbQueryIdent);
 
+   /** Request all combobox widgets within the inputFrm */
+   QList<QComboBox *> cbsTabable = findChildren<QComboBox *>();
+   QList<QDateEdit *> desTabable = findChildren<QDateEdit *>();
+
+   foreach (QComboBox *cb, cbsTabable)
+      objTabAble.append( static_cast<QObject*>(cb) );
+   foreach (QDateEdit *de, desTabable)
+      objTabAble.append( static_cast<QObject*>(de) );
+   foreach (QObject *o, objTabAble) {
+      if ((! o->objectName().contains("cbPrj")) &&
+          (! o->objectName().contains("cbClient")) &&
+          (! o->objectName().contains("cbWorker")) &&
+          (! o->objectName().contains("datePicker")))
+         objTabAble.removeOne(o);
+   }
+   Q_INFO  << "";
+   Q_INFO << tr("objTabable:") << Globals::objToStr(objTabAble);
+
    /**
     * Install event filter to capture focus changed event for
     * all input form combo boxes
     */
+   foreach (QComboBox *cbx, cbsTabable)
+      cbx->lineEdit()->installEventFilter(this);
    foreach (QComboBox *cbx, cbs)
       cbx->lineEdit()->installEventFilter(this);
 
-//   installEventFilter(this);
-   /*
-   QList<QDockWidget *>docks;
-   for (uint i=0; i<5; i++) {
-      docks.append( new QDockWidget() );
+   ui->datePicker->installEventFilter( this );
+   //   this->installEventFilter( this );
+
+   /** Check for valied tab order configuration data */
+   QStringList lst;
+   if (config.allKeys().contains(this->objectName() + tr("/TabOrder"))) {
+      Q_INFO << tr("Valied tab order configuration data found!");
+      lst = config.value(this->objectName() + tr("/TabOrder"), "").toStringList();
+
+      foreach (QString s, lst) {
+         objTabOrder.append( findChild<QComboBox*>(s) );
+      }
+      Q_INFO << lst;
+
+      QList<QWidget *> widTabOrder = objLstToWidLst( objTabOrder );
+      for (int i=0; i < widTabOrder.length()-1; i++) {
+         widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
+      }
    }
-*/
+}
+QList<QWidget *> InpFrm::objLstToWidLst(QList<QObject *> lst) {
+   QList<QWidget *> lstw;
+
+   foreach (QObject *o, lst) {
+      lstw.append( qobject_cast<QWidget *>(o));
+   }
+   return lstw;
 }
 
 InpFrm::~InpFrm() {
@@ -261,9 +302,57 @@ void InpFrm::connectActions() {
            this,                 SLOT(onSqlQuerysTextChanged()));
    connect(ui->cbQueryIdent,     SIGNAL(currentIndexChanged(int)),
            this,                 SLOT(onCbQueryIdentIndexChaned(int)));
+   connect(this,                 SIGNAL(changeInpFrmTabOrder(InpFrm::states)),
+           this,                 SLOT(onChangeTabOrderSlot(InpFrm::states)));
 
+}
+void InpFrm::onChangeTabOrderSlot(InpFrm::states state) {
+   /** Interrupt a running changeTabOrder process */
+   if ((changeTabOrder == state_running_changeTabOrder ||
+        changeTabOrder == state_rejected_changeTabOrder) &&
+       state == state_init_changeTabOrder) {
+      emit browser->stateMsg(tr("Change tab order process interrupted."
+                                "No changes in current tab order."));
+      changeTabOrder = state_none;
+      return;
+   }
 
+   /** If changeTabOrder process is not active && state == init, ... */
+   if (! (changeTabOrder == state_running_changeTabOrder) &&
+       state == state_init_changeTabOrder) {
+      objTabOrder.clear();
+      changeTabOrder = state_running_changeTabOrder;
+      emit browser->stateMsg(
+               tr("Init process to change the input form tab order..."));
+      return;
+   }
 
+   /** --> Succesfull change of tab order objects
+    * If this slot is called with parameter state_done_changeTabOrder &&
+    * current state is state_running_changeTabOrder
+    * --> Succesfull change of tab order objects, run all setTabOrder(..) now
+    */
+   if (changeTabOrder == state_running_changeTabOrder &&
+       state == state_done_changeTabOrder) {
+
+      QList<QWidget *> widTabOrder = objLstToWidLst( objTabOrder );
+      QStringList lst;
+      for (int i=0; i < widTabOrder.length()-1; i++) {
+         widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
+         lst.append(widTabOrder[i]->objectName());
+      }
+
+      Q_INFO << lst;
+      changeTabOrder = state_done_changeTabOrder;
+
+      QSETTINGS;
+      config.setValue(this->objectName() + "/TabOrder", lst.join(","));
+      emit browser->stateMsg(
+               tr("Input form tab order successfully changed!"));
+      return;
+   }
+
+   return;
 
 }
 void InpFrm::onBtnOkClicked() {
@@ -614,7 +703,6 @@ void InpFrm::showEvent(QShowEvent *) {
    refreshCbDropDownLists();
 }
 bool InpFrm::eventFilter(QObject *obj, QEvent *ev) {
-
    if (! ev)
       return true;
 
@@ -637,28 +725,95 @@ bool InpFrm::eventFilter(QObject *obj, QEvent *ev) {
    /** Event type KeyPress */
    if (ev->type() == QEvent::MouseButtonPress) {
       QMouseEvent *mev = static_cast<QMouseEvent *>(ev);
-      QComboBox *cbo = 0;
-      QLineEdit *leo = 0;
 
-
-
-      /** Test for Event objects: all combo boxes */
-      cbo = qobject_cast<QComboBox *>( obj );
-      leo = qobject_cast<QLineEdit *>( obj );
 
       if(mev->button() == Qt::LeftButton) {
-         if (cbo != 0x00) {
-            cbo->lineEdit()->selectAll();
-            return QObject::eventFilter(obj, ev);
-         }
+         /** Wenn der cast auf ein QLineEdit Object geführt hat, muss parentWidget
+       * als wid gesetzt werden um mit wid->objectName() dann cbPrjNummer ...
+       * zurück zu bekommen
+       */
+         QObject *objFoc;
+         if (obj == ui->datePicker)
+            objFoc = obj;
+         else
+            objFoc = qobject_cast<QObject *>( obj );
 
-         if (leo != 0x00) {
-            leo->selectAll();
-            return true; //QObject::eventFilter(obj, ev);
+         if (objFoc != 0x00) {
+            if ((changeTabOrder == state_running_changeTabOrder &&
+                 objTabOrder.length() < objTabAble.length())) {
+               if (objTabAble.contains(static_cast<QWidget *>(objFoc)) &&
+                   (! objTabOrder.contains(static_cast<QWidget *>(objFoc))) ) {
+                  objTabOrder.append(static_cast<QWidget *>(objFoc));
+                  emit browser->stateMsg(tr("Tab order: ")
+                                         + Globals::objToStr(objTabOrder, ", "));
+               }
+               else {
+                  emit browser->stateMsg(
+                           tr("Tab order: ") + Globals::objToStr(objTabOrder,", ")
+                           + tr(",") + objFoc->objectName() + tr("rejected!"));
+               }
+            }
+            return true;
          }
       }
    }
-
    /** standard event processing */
    return QObject::eventFilter(obj, ev);
+
+
+      /**
+       * Used to select the whole text by single click into editable combobox
+       * or to detect combobox object order if changeTabOrderInProgress is true
+       */
+      //      if(mev->button() == Qt::LeftButton) {
+
+      //         if (objFoc != 0x00) {
+
+      //            if ((changeTabOrder == state_running_changeTabOrder &&
+      //                 objTabOrder.length() < wsTabable.length())) {
+      //               /** If casted cbo is in the "tabable" list but not in order list */
+      //               if (wsTabable.contains(static_cast<QWidget *>(objFoc)) &&
+      //                   (! objTabOrder.contains(static_cast<QWidget *>(objFoc))) ) {
+      //                  objTabOrder.append(static_cast<QWidget *>(objFoc));
+      //                  emit browser->stateMsg(tr("Tab order: ")
+      //                                         + Globals::widToStr(objTabOrder, ", "));
+      //               }
+      //               else {
+      //                  emit browser->stateMsg(
+      //                           tr("Tab order: ") + Globals::widToStr(objTabOrder,", ")
+      //                           + tr(",") + objFoc->objectName() + tr("rejected!"));
+      //               }
+      //            }
+      //            if (wsTabable.length() == objTabOrder.length()) {
+      //               onChangeTabOrderSlot(state_done_changeTabOrder);
+      //            }
+
+      //            return true;
+      //         }
+
+      //         if (objFoc != 0x00) {
+      //            if ((changeTabOrder == state_running_changeTabOrder &&
+      //                 objTabOrder.length() < wsTabable.length())) {
+      //               /** If casted cbo is in the "tabable" list but not in order list */
+      //               if (wsTabable.contains(objFoc->parentWidget()) && !objTabOrder.contains(objFoc->parentWidget())) {
+      //                  objTabOrder.append(objFoc->parentWidget());
+      //                  emit browser->stateMsg(tr("Tab order: ")
+      //                                         + Globals::widToStr(objTabOrder, ", "));
+      //               }
+      //               else {
+      //                  emit browser->stateMsg(
+      //                           tr("Tab order: ") + Globals::widToStr(objTabOrder,", ")
+      //                           + tr(",") + objFoc->objectName() + tr("rejected!"));
+      //               }
+      //            }
+      //            if (wsTabable.length() == objTabOrder.length()) {
+      //               onChangeTabOrderSlot(state_done_changeTabOrder);
+      //            }
+
+      ////            led->selectAll();
+      //            return true; //QObject::eventFilter(obj, ev);
+      //         }
+      //      }
+//   }
+
 }

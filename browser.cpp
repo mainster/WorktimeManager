@@ -61,7 +61,7 @@ Browser::Browser(QWidget *parent)  :
       timCyc->start();
    }
 
-   emit statusMessage(tr("Browser Ready."));
+   emit stateMsg(tr("Browser Ready."));
 
    CustomMdl *cm = new CustomMdl();
    cm->setCCol(QVector<int>(0, 1));
@@ -159,11 +159,11 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
    tvResp->setModel( model );
 
    if (model->lastError().type() != QSqlError::NoError)
-      emit statusMessage(model->lastError().text());
+      emit stateMsg(model->lastError().text());
    else if (model->query().isSelect())
-      emit statusMessage(tr("Query OK."));
+      emit stateMsg(tr("Query OK."));
    else
-      emit statusMessage(tr("Query OK, number of affected rows: %1").arg(
+      emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
                             model->query().numRowsAffected()));
 
    tvResp->setVisible( false );
@@ -186,7 +186,7 @@ void Browser::showTable(const QString &sqlTab, TabView *tvc) {
    mod->select();
 
    if (mod->lastError().type() != QSqlError::NoError)
-      emit statusMessage(mod->lastError().text());
+      emit stateMsg(mod->lastError().text());
 
    tvc->tv()->setModel(mod);
    tvc->tv()->setEditTriggers( QAbstractItemView::DoubleClicked |
@@ -195,7 +195,7 @@ void Browser::showTable(const QString &sqlTab, TabView *tvc) {
    if (! (bool) connect( tvc->tv()->selectionModel(),
                          SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
                          this, SLOT(currentChanged()) ) )
-      emit statusMessage(tr("Slot connection returns false"));
+      emit stateMsg(tr("Slot connection returns false"));
 
    tvc->tv()->setVisible( false );
    tvc->tv()->resizeColumnsToContents();
@@ -274,7 +274,7 @@ void Browser::showRelatTable(const QString &sqlTbl, TabView *tvc) {
    if (! (bool) connect( tvs.last()->tv()->selectionModel(),
                          SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
                          this, SLOT(currentChanged()) ) )
-      emit statusMessage(tr("Slot connection returns false"));
+      emit stateMsg(tr("Slot connection returns false"));
 
    tv->setVisible( false );
    tv->resizeColumnsToContents();
@@ -329,7 +329,7 @@ void Browser::showRelatTable2(const QString &sqlTbl, QTableView *tv) {
    if (! (bool) connect( tvs.last()->tv()->selectionModel(),
                          SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
                          this, SLOT(currentChanged()) ) )
-      emit statusMessage(tr("Slot connection returns false"));
+      emit stateMsg(tr("Slot connection returns false"));
 
    tv->setVisible( false );
    tv->resizeColumnsToContents();
@@ -342,6 +342,7 @@ void Browser::showRelatTable2(const QString &sqlTbl, QTableView *tv) {
 void Browser::exec() {
    InpFrm *inpFrm = InpFrm::getObjectPtr();
 
+
    QTableView *tvq = tvm->tv();
    QSqlQueryModel *model = new QSqlQueryModel(tvq);
 
@@ -350,11 +351,11 @@ void Browser::exec() {
    tvq->setModel(model);
 
    if (model->lastError().type() != QSqlError::NoError)
-      emit statusMessage(model->lastError().text());
+      emit stateMsg(model->lastError().text());
    else if (model->query().isSelect())
-      emit statusMessage(tr("Query OK."));
+      emit stateMsg(tr("Query OK."));
    else
-      emit statusMessage(tr("Query OK, number of affected rows: %1").arg(
+      emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
                             model->query().numRowsAffected()));
 
    tvq->setSortingEnabled( true );
@@ -394,7 +395,7 @@ void Browser::showRelatTable(const QString &t, QTableView *tv) {
 
 
    if (model->lastError().type() != QSqlError::NoError)
-      emit statusMessage(model->lastError().text());
+      emit stateMsg(model->lastError().text());
 
    tv->setModel(model);
    tv->setEditTriggers(QAbstractItemView::DoubleClicked |
@@ -801,6 +802,7 @@ void Browser::SORTIT() {
    QSortFilterSqlQueryModel *model = new QSortFilterSqlQueryModel(this);
    InpFrm *inpFrm = InpFrm::getObjectPtr();
 
+
    QTableView *tvq = tvm->tv();
 
 
@@ -821,11 +823,11 @@ void Browser::SORTIT() {
    tvq->setModel(model);
 
    if (model->lastError().type() != QSqlError::NoError)
-      emit statusMessage(model->lastError().text());
+      emit stateMsg(model->lastError().text());
    else if (model->query().isSelect())
-      emit statusMessage(tr("Query OK."));
+      emit stateMsg(tr("Query OK."));
    else
-      emit statusMessage(tr("Query OK, number of affected rows: %1").arg(
+      emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
                             model->query().numRowsAffected()));
    model->setFilterColumn("wk.Vorname"); // will filter by user name
    model->setFilterFlags(Qt::MatchStartsWith);
@@ -899,7 +901,7 @@ void Browser::showTable22(const QString &t, QTableView *tv) {
    model->select();
 
    if (model->lastError().type() != QSqlError::NoError)
-      emit statusMessage(model->lastError().text());
+      emit stateMsg(model->lastError().text());
 
    tv->setModel(model);
    tv->setEditTriggers( QAbstractItemView::DoubleClicked |
@@ -908,7 +910,7 @@ void Browser::showTable22(const QString &t, QTableView *tv) {
    if (! (bool) connect( tvs.first()->tv()->selectionModel(),
                          SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
                          this, SLOT(currentChanged()) ) )
-      emit statusMessage(tr("Slot connection returns false"));
+      emit stateMsg(tr("Slot connection returns false"));
 
    tv->setVisible( false );
    tv->resizeColumnsToContents();

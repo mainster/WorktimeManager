@@ -24,7 +24,8 @@ DbConnDlg::DbConnDlg(QWidget *parent)
    ui.comboDriver->addItems(drivers);
 
    QString dbNam = QFileDialog::
-         getOpenFileName(this, tr("Open SQL database file"), Globals::SQL_DB_PATH,
+         getOpenFileName(this, tr("Open SQL database file"),
+                         Globals::SQL_DB_PATH,
                          tr("database files (*.db);;all files (*)"));
 
    ui.editDatabase->setText(dbNam);

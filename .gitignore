@@ -2,3 +2,5 @@
 *.cpp.orig
 *.h.orig
 *.pro.user
+*.h.autosave
+*.pro.user*

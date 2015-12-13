@@ -79,9 +79,11 @@ public:
    /**
     * Class accessors
     */
+signals:
+   void stateMsg(const QString &message);
+   void tabViewSelChanged(TabView *sel);
 
 public slots:
-
    void showMetaData(const QString &table);
    void addConnection();
    void currentChanged() { updateActions(); }
@@ -108,26 +110,16 @@ public slots:
    void showEvent(QShowEvent *e);
    void exec();
    void requeryWorktimeTableView(QString nonDefaulQuery = "");
-
    /** Show table view methodes */
    void showRelatTable(const QString &sqlTbl, TabView *tvc);
    void showRelatTable(const QString &t, QTableView *tv);
-
    void showRelatTable2(const QString &sqlTbl, QTableView *tv);
    QTableView *createView(QSqlQueryModel *model, const QString &title);
    void initializeMdl(QSqlQueryModel *model);
-
    QSqlDatabase getCurrentDatabase() {
       return connectionWidget->currentDatabase();
    }
-
    void SORTIT();
-signals:
-   void statusMessage(const QString &message);
-   void tabViewSelChanged(TabView *sel);
-
-protected:
-
 
 protected slots:
    bool eventFilter(QObject *obj, QEvent *e);
