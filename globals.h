@@ -38,6 +38,7 @@ public:
       if(inst == 0)
          inst = new Globals();
       return inst;
+
    }
 
    void notify_os(QString msgBody,

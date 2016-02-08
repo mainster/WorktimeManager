@@ -18,5 +18,7 @@
         <file alias="icoDelete">images/DeleteRed.png</file>
         <file>images/1downarrow16.png</file>
         <file>images/1downarrow13.png</file>
+        <file>images/up_arrow.png</file>
+        <file>images/down_arrow.png</file>
     </qresource>
 </RCC>

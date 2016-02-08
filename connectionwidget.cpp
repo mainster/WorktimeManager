@@ -130,15 +130,16 @@ void ConnectionWidget::setActive(QTreeWidgetItem *item)
     activeDb = QSqlDatabase::connectionNames().value(tree->indexOfTopLevelItem(item));
 }
 
-void ConnectionWidget::on_tree_itemActivated(QTreeWidgetItem *item, int /* column */)
-{
+void ConnectionWidget::on_tree_itemActivated(
+      QTreeWidgetItem *item, int /* column */) {
 
     if (!item)
         return;
 
     if (!item->parent()) {
         setActive(item);
-    } else {
+    }
+    else {
         setActive(item->parent());
         emit tableActivated(item->text(0));
     }
@@ -153,8 +154,8 @@ void ConnectionWidget::showMetaData()
     emit metaDataRequested(cItem->text(0));
 }
 
-void ConnectionWidget::on_tree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *)
-{
+void ConnectionWidget::on_tree_currentItemChanged(
+      QTreeWidgetItem *current, QTreeWidgetItem *) {
     metaDataAction->setEnabled(current && current->parent());
 }
 

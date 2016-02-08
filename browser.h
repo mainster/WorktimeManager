@@ -120,6 +120,7 @@ public slots:
       return connectionWidget->currentDatabase();
    }
    void SORTIT();
+   void autofitRowCol();
 
 protected slots:
    bool eventFilter(QObject *obj, QEvent *e);

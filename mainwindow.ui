@@ -64,7 +64,7 @@ QGroupBox::title {
      <x>0</x>
      <y>0</y>
      <width>458</width>
-     <height>27</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Setup">
@@ -91,6 +91,8 @@ QGroupBox::title {
     <addaction name="actResizerDlg"/>
     <addaction name="actHideSqlQuery"/>
     <addaction name="actCfgInpFrmTabOrd"/>
+    <addaction name="separator"/>
+    <addaction name="actAutoFitTables"/>
    </widget>
    <addaction name="menu_Setup"/>
   </widget>
@@ -324,6 +326,14 @@ QGroupBox::title {
   <action name="actCfgInpFrmTabOrd">
    <property name="text">
     <string>Config inpFrm tab order</string>
+   </property>
+  </action>
+  <action name="actAutoFitTables">
+   <property name="text">
+    <string>Autofit Rows/Colums</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+A</string>
    </property>
   </action>
  </widget>

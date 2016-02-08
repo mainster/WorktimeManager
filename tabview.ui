@@ -59,16 +59,36 @@ QGroupBox::title:hover {
  }
 QTableView[select=false]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF); }
 QGroupBox[select=false]{ border-color: rgb(105, 105, 105); }
+
 QTableView[select=true]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); }
 QGroupBox[select=true]{ border-color: rgb(0, 28, 170) }
 
-/*
-QGroupBox{
-   	border: 1px solid rgb(55, 55, 55);   
-}
-QGroupBox{
-   border: 0.24ex dashed rgb(55, 55, 55); 
-}*/
+
+/* Customize Table header */
+ QHeaderView::section {
+     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                       stop:    0 #616161, stop: 0.5 #505050,
+                                       stop: 0.6 #434343, stop:    1 #656565);
+     color: white;
+     padding-left: 4px;
+     padding-right: 4px;
+     padding-top: 2px;
+     padding-bottom: 2px;
+     border: 1px solid #6c6c6c;
+ }
+
+ QHeaderView::section:checked {
+     background-color: rgb(31, 94, 233);
+ }
+
+ /* style the sort indicator */
+QHeaderView::down-arrow {
+/*     image: url(:/images/down_arrow.png);*/
+ }
+
+ QHeaderView::up-arrow {
+/*     image: url(:/images/up_arrow.png);*/
+ }
 </string>
      </property>
      <property name="title">
@@ -93,16 +113,29 @@ QGroupBox{
       <item row="0" column="0">
        <widget class="QTableView" name="mtv">
         <property name="styleSheet">
-         <string notr="true">/*QTableWidget {
-	background-color: transparent;
-} QHeaderView::section {
-	background-color: transparent;
-} QHeaderView {
-	background-color: transparent;
-} QTableCornerButton::section {
-	background-color: transparent;
-}*/</string>
+         <string notr="true"/>
         </property>
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="cornerButtonEnabled">
+         <bool>false</bool>
+        </property>
+        <attribute name="horizontalHeaderMinimumSectionSize">
+         <number>10</number>
+        </attribute>
+        <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="verticalHeaderDefaultSectionSize">
+         <number>15</number>
+        </attribute>
+        <attribute name="verticalHeaderMinimumSectionSize">
+         <number>15</number>
+        </attribute>
+        <attribute name="verticalHeaderStretchLastSection">
+         <bool>false</bool>
+        </attribute>
        </widget>
       </item>
      </layout>

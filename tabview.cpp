@@ -12,9 +12,9 @@ TabView::TabView(QWidget *parent) :
    ui->setupUi(this);
 
    connect( this,    SIGNAL(objectNameChanged(QString)),
-            this,    SLOT(onObjectNameChanged(QString)));
+                  this,    SLOT(onObjectNameChanged(QString)));
    connect( this,    SIGNAL(onSelChanged(TabView*)),
-            this,    SLOT(onTabViewSelChanged(TabView*)));
+                  this,    SLOT(onTabViewSelChanged(TabView*)));
 
    /*
    connect( parent->parent()->parent(),
@@ -34,26 +34,10 @@ TabView::TabView(QWidget *parent) :
    this->m_tv->setSortingEnabled( true );
    activeSel = false;
 }
-
 TabView::~TabView() {
    delete ui;
 }
 
-void TabView::setAlternateRowCol(QColor &col, bool alternateEnabled) {
-   m_tv->setAlternatingRowColors(alternateEnabled);
-
-   if (alternateEnabled && col.isValid()) {
-      m_tv->setStyleSheet(
-               QString("alternate-background-color: rgba(%1,%2,%3,%4);")
-               .arg( col.red())
-               .arg( col.green())
-               .arg( col.blue())
-               .arg( col.alpha()) );
-      QSETTINGS;
-      config.setValue(objectName() + "/AlternateRowColEnable", alternateEnabled);
-      config.setValue(objectName() + "/AlternateRowColor", col);
-   }
-}
 void TabView::restoreView() {
    /** Make column/row position movable by dragging */
    m_tv->horizontalHeader()->setSectionsMovable(true);
@@ -61,10 +45,8 @@ void TabView::restoreView() {
 
    /** Restore alternating row color */
    QSETTINGS;
-   bool altOnOff = config.value(objectName() +
-                                "/AlternateRowColEnable", "true").toBool();
-   QColor col = config.value(objectName() +
-                             "/AlternateRowColor", "").value<QColor>();
+   bool altOnOff = config.value(objectName() + "/AlternateRowColEnable", "true").toBool();
+   QColor col = config.value(objectName() + "/AlternateRowColor", "").value<QColor>();
    if (col.isValid())
       setAlternateRowCol( col, altOnOff);
 }
@@ -106,4 +88,24 @@ void TabView::onTabViewSelChanged(TabView *tv) {
       activeSel = false;
    }
 }
+
+/* ---------------------------------------------------------------- */
+/*                      Helper methodes                          */
+/* ---------------------------------------------------------------- */
+void TabView::setAlternateRowCol(QColor &col, bool alternateEnabled) {
+   m_tv->setAlternatingRowColors(alternateEnabled);
+
+   if (alternateEnabled && col.isValid()) {
+      m_tv->setStyleSheet(
+               QString("alternate-background-color: rgba(%1,%2,%3,%4);")
+               .arg( col.red())
+               .arg( col.green())
+               .arg( col.blue())
+               .arg( col.alpha()) );
+      QSETTINGS;
+      config.setValue(objectName() + "/AlternateRowColEnable", alternateEnabled);
+      config.setValue(objectName() + "/AlternateRowColor", col);
+   }
+}
+
 

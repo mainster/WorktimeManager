@@ -45,7 +45,7 @@ TableWindow::TableWindow(QWidget *parent) {
       q.exec("insert into Names values (2, 'Donald', 'Duck', 'Andeby')");
       q.exec("insert into Names values (3, 'Buck', 'Rogers', 'Paris')");
       q.exec("insert into Names values (4, 'Sherlock', 'Holmes', 'London')");
-//      connectionWidget->refresh();
+      //      connectionWidget->refresh();
    }
    else {
       QSqlError err = addConnection(dialog.driverName(),
@@ -60,7 +60,7 @@ TableWindow::TableWindow(QWidget *parent) {
                                  "opening the connection: ") + err.text());
    }
 
-//   inpForm = InpFrm::getObjectPtr();
+   //   inpForm = InpFrm::getObjectPtr();
 
    // Create the data model
    model = new QSqlRelationalTableModel(ui.TimeTable);

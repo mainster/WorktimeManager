@@ -722,7 +722,7 @@ bool InpFrm::eventFilter(QObject *obj, QEvent *ev) {
       return QObject::eventFilter(obj, ev);
    }
 
-   /** Event type KeyPress */
+   /** Event type mouse button...*/
    if (ev->type() == QEvent::MouseButtonPress) {
       QMouseEvent *mev = static_cast<QMouseEvent *>(ev);
 
