@@ -19,7 +19,9 @@
 #define TVA    "TableLeft"
 #define TVB    "TableCenter"
 #define TVC    "TableRight"
-#define TVM    "TableMain"
+#define TVD    "TableBottom"
+#define TVL2    "TableLong1"
+#define TVL1    "TableLong2"
 
 Browser *Browser::inst = 0;
 
@@ -30,7 +32,7 @@ Browser::Browser(QWidget *parent)  :
     inst = this;
 
     QStringList accNam;
-    accNam << TVA << TVB << TVC << TVM;
+    accNam << TVA << TVB << TVC << TVD << TVL1 << TVL2;
     initTableView( inst, accNam);
 
     //   connect (ui->btnA,      SIGNAL(clicked()),
@@ -45,6 +47,10 @@ Browser::Browser(QWidget *parent)  :
             tvs[2],   SLOT(onTabViewSelChanged(TabView *)));
     connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
             tvs[3],   SLOT(onTabViewSelChanged(TabView *)));
+    connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
+            tvs[4],   SLOT(onTabViewSelChanged(TabView *)));
+    connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
+            tvs[5],   SLOT(onTabViewSelChanged(TabView *)));
 
     //   restoreBrowserUiSettings();
 
@@ -111,7 +117,9 @@ void Browser::initTableView(QWidget *parent, QStringList &accNam) {
     tvs.append( tva );
     tvs.append( tvb );
     tvs.append( tvc );
-    tvs.append( tvm );
+    tvs.append( tvd );
+    tvs.append( tvl1 );
+    tvs.append( tvl2 );
 
     int i = 0;
 
@@ -133,7 +141,7 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
     QSqlDatabase pdb = connectionWidget->currentDatabase();
 
     /** Select "tableMain" as target table view widget */
-    QTableView *tvResp = tvm->tv();
+    QTableView *tvResp = tvl1->tv();
     QSqlQueryModel *model = new QSqlQueryModel(tvResp);
     QSqlQuery query;
 
@@ -379,7 +387,7 @@ void Browser::showRelatTable2(const QString &sqlTbl, QTableView *tv) {
 void Browser::exec() {
     InpFrm *inpFrm = InpFrm::getObjectPtr();
 
-    QTableView *tvq = tvm->tv();
+    QTableView *tvq = tvl1->tv();
     QSqlQueryModel *model = new QSqlQueryModel(tvq);
 
     model->setQuery(QSqlQuery(inpFrm->getQueryText(),
@@ -738,7 +746,7 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
          * ... reset all tabviews from beeing selected and mark the obj
          * obj->parent() after static casting to TabView...
          */
-        if ( (((QStringList) TVA << TVB << TVC << TVM).join(','))
+        if ( (((QStringList) TVA << TVB << TVC << TVD << TVL1 << TVL2).join(','))
              .contains( obj->parent()->objectName()) ) {
 
             /**
@@ -824,7 +832,7 @@ void Browser::SORTIT() {
     InpFrm *inpFrm = InpFrm::getObjectPtr();
 
 
-    QTableView *tvq = tvm->tv();
+    QTableView *tvq = tvl1->tv();
 
 
     if (QMessageBox::question(this, tr("Use default query?"),

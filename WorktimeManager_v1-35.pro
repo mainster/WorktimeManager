@@ -9,7 +9,7 @@ QT       += sql widgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = WorkTimeManager_v1-35
+TARGET = WorktimeManager_v1-35
 TEMPLATE = app
 
 PLATFORM = linux
@@ -51,7 +51,7 @@ FORMS    += mainwindow.ui \
 
 
 RESOURCES += \
-    WorkTimeManager_v1-35.qrc
+    WorktimeManager_v1-35.qrc
 
 OTHER_FILES +=
 
