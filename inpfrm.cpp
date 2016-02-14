@@ -4,7 +4,7 @@
 #include "tabledelegate.h"
 #include "initdb.h"
 #include "browser.h"
-//#include "QSortFilterSqlQueryModel.h"
+////#include "QSortFilterSqlQueryModel.h"
 
 #include <QtSql>
 #include <QMessageBox>
@@ -58,8 +58,8 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
           (! o->objectName().contains("datePicker")))
          objTabAble.removeOne(o);
    }
-   Q_INFO  << "";
-   Q_INFO << tr("objTabable:") << Globals::objToStr(objTabAble);
+//   Q_INFO  << "";
+//   Q_INFO << tr("objTabable:") << Globals::objToStr(objTabAble);
 
    /**
     * Install event filter to capture focus changed event for
@@ -482,8 +482,11 @@ void InpFrm::refreshCbDropDownLists() {
       fpms.last()->setSourceModel( tms.last() );
       fpms.last()->setFilterKeyColumn(
                tms.last()->fieldIndex( tbRls.at(k).split(",").last()) );
-      cbs[k]->setModel( fpms.last() );
+
+      cbx->setModel( fpms.last() );
       cbs[k++]->setModelColumn( fpms.last()->filterKeyColumn() );
+      //      cbs[k]->setModel( fpms.last() );
+      //      cbs[k++]->setModelColumn( fpms.last()->filterKeyColumn() );
    }
 
    /** Map comboBox indexes */
@@ -527,9 +530,12 @@ void InpFrm::refreshCbDropDownLists() {
       if (true /*str.contains( QUERYPREFIX )*/)
          query_keys << str.split('/').at(1);
 
-      Q_INFO << "Query key:" << query_keys.last();
+//      Q_INFO << "Query key:" << query_keys.last();
+//      Q_INFO << configQ.value(str).toString();
+
       ui->cbQueryIdent->addItem(query_keys.last(),
                                 configQ.value(str).toString());
+
    }
 
    ui->cbQueryIdent->setDuplicatesEnabled( false );
@@ -546,18 +552,6 @@ void InpFrm::onInpFormChanges(QDate date) {
 void InpFrm::showError(const QSqlError &err) {
    QMessageBox::critical(this, "Unable to initialize Database",
                          "Error initializing database: " + err.text());
-}
-void InpFrm::on_submitButton_clicked() {
-   ui->gbSqlQuery->setVisible( true );
-
-   //   exec();
-
-   ui->teSqlQuerys->setFocus();;
-   ui->gbSqlQuery->setVisible( false );
-}
-void InpFrm::on_clearButton_clicked() {
-   ui->teSqlQuerys->clear();
-   ui->teSqlQuerys->setFocus();
 }
 bool InpFrm::gbSqlQueryIsVisible() const {
    return ui->gbSqlQuery->isVisible();

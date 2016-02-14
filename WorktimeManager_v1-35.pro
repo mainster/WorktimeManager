@@ -28,9 +28,9 @@ SOURCES += main.cpp\
     globals.cpp \
     tabview.cpp \
     form.cpp \
-    QSortFilterSqlQueryModel.cpp \
     mysortfilterproxymodel.cpp \
-    sortwindow.cpp
+    sortwindow.cpp \
+    mdstatebar.cpp
 
 HEADERS  += mainwindow.h \
     connectionwidget.h \
@@ -43,9 +43,9 @@ HEADERS  += mainwindow.h \
     tablewindow.h \
     tabview.h \
     form.h \
-    QSortFilterSqlQueryModel.h \
     mysortfilterproxymodel.h \
-    sortwindow.h
+    sortwindow.h \
+    mdstatebar.h
 
 FORMS    += mainwindow.ui \
     dbconndlg.ui \

@@ -12,6 +12,8 @@ TableWindow * TableWindow::inst = 0x00;
 
 TableWindow::TableWindow(QWidget *parent) {
    //   : QWidget(parent){
+    Q_UNUSED(parent);
+
    ui.setupUi(this);
 
    if (!QSqlDatabase::drivers().contains("QSQLITE"))
@@ -113,8 +115,12 @@ TableWindow::TableWindow(QWidget *parent) {
    mapper->addMapping(ui.genreEdit, projIdx);
    mapper->addMapping(ui.ratingEdit, model->fieldIndex("rating"));
 
-   connect(ui.TimeTable->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+   Q_INFO << tr("connect error....");
+   connect(ui.TimeTable->selectionModel(),
+           SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
            mapper, SLOT(setCurrentModelIndex(QModelIndex)));
+
+   Q_INFO << tr("... here?");
 
    ui.TimeTable->setCurrentIndex(model->index(0, 0));
 }

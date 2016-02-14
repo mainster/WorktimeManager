@@ -4,6 +4,7 @@
 
 #include "browser.h"
 #include "inpfrm.h"
+#include "mdstatebar.h"
 #include "globals.h"
 //#include "conf.h"
 #include "dbconndlg.h"
@@ -34,14 +35,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
     browser = Browser::getInstance( parent );
     inpFrm = InpFrm::getInstance();
-
+    stateBar = new MDStateBar( this );
+    setStatusBar( stateBar );
 
     makeMenuBar();
-    connectActions();
     browser->onCyclicObjInfoTrig(false);
     installEventFilter(this);
 
     this->setWindowTitle( MAINWINDOW_TITLE );
+
+    connectActions();
 }
 MainWindow::~MainWindow() {
     //   saveMainWindowUiSettings();
@@ -100,8 +103,8 @@ void MainWindow::connectActions() {
             this,                                     SLOT(onInputFormTrig(bool)));
     connect(ui->actButShowTbl,       SIGNAL(triggered(bool)),
             this,                                     SLOT(onTblOpen(bool)));
-    connect( browser,                        SIGNAL(stateMsg(QString)),
-             statusBar(),            SLOT(showMessage(QString)));
+//    connect( browser,               SIGNAL(stateMsg(QString)),
+//             stateBar,              SLOT(showMessage(QString)));
     connect( ui->actButClose,        SIGNAL(triggered()),
              this,                   SLOT(onActCloseTrig()));
     connect( ui->actButGbStyleShtA,  SIGNAL(triggered(bool)),
@@ -126,13 +129,19 @@ void MainWindow::connectActions() {
              this,                   SLOT(onActCfgInpFrmTabOrdTrig()));
     connect( ui->actAutoFitTables, SIGNAL(triggered(bool)),
              browser,           SLOT(autofitRowCol()));
-    connect(ui->actFilterTable, SIGNAL(triggered()),
-            browser,        SLOT( SORTIT()));
+//    connect(ui->actFilterTable, SIGNAL(triggered()),
+//            browser,        SLOT( SORTIT()));
 
     connect( ui->actFilterTableWindow, SIGNAL(triggered(bool)),
              browser,        SLOT(onActFilterWindowTable(bool)));
-    connect( browser->getSortwindow(), SIGNAL(close(bool)),
-             ui->actFilterTableWindow, SLOT(setDisabled(bool)));
+    connect( browser->getSortwindow0(), SIGNAL(closesUncheck(bool)),
+             ui->actFilterTableWindow, SLOT(setChecked(bool)));
+    connect( browser->getSortwindow1(), SIGNAL(closesUncheck(bool)),
+             ui->actFilterTableWindow, SLOT(setChecked(bool)));
+    connect( this,       SIGNAL(mainwindowCloses()),
+             browser->getSortwindow0(), SLOT(close()));
+    connect( this,       SIGNAL(mainwindowCloses()),
+             browser->getSortwindow1(), SLOT(close()));
 
 }
 void MainWindow::initDocks() {
@@ -374,9 +383,8 @@ void MainWindow::showEvent() {
     emit showEvent(ee);
 }
 void MainWindow::showEvent(QShowEvent *e) {
-    QSETTINGS;
     Q_UNUSED(e);
-
+    QSETTINGS;
     Q_INFO << tr("SHOW!");
 
     /**** Recall all action states for MainWindow
@@ -428,6 +436,9 @@ void MainWindow::showEvent(QShowEvent *e) {
 
     /**** Trigger the connectionWidget treeview
     \*/
+
+}
+void MainWindow::onCyclic() {
 
 }
 /*
@@ -489,6 +500,6 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 
     /**** Safe content of sql query input field to config
      \*/
-
+    emit mainwindowCloses();
     QWidget::closeEvent(e);
 }

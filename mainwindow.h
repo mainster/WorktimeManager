@@ -9,6 +9,7 @@
 #include "tabledelegate.h"
 #include "dbconndlg.h"
 #include "form.h"
+#include "mdstatebar.h"
 
 namespace Ui {
 class MainWindow;
@@ -32,7 +33,7 @@ public:
    ~MainWindow();
 
 signals:
-
+    void mainwindowCloses();
 
 public slots:
    void onBrowseSqlTrig(bool b);
@@ -45,7 +46,7 @@ public slots:
    void onActExportTrig();
    void onUnderConstrTrig();
    void onSetFont();
-   void closeEvent(QCloseEvent *event);
+   void closeEvent(QCloseEvent *e);
    void initDocks();
    void showEvent();
    void showEvent(QShowEvent *e);
@@ -54,10 +55,11 @@ public slots:
    void onSetAlterRowColTrig();
    void initializeMdl(QSqlQueryModel *model);
 
+   void onCyclic();
 protected slots:
    void makeMenuBar();
-
    void onActCfgInpFrmTabOrdTrig();
+
 private slots:
    void onInputFormTrig(bool b);
    void onTblOpen(bool b);
@@ -88,6 +90,7 @@ private:
    Form *form;
    static int fuse;
    QWidget *wid;
+   MDStateBar *stateBar;
 //   static MainWindow *inst;
 };
 

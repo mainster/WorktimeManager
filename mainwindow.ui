@@ -116,7 +116,6 @@ QGroupBox::title {
    <addaction name="actButClose"/>
    <addaction name="actButUnderConstr"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>toolBar</string>
@@ -315,6 +314,9 @@ QGroupBox::title {
    </property>
    <property name="toolTip">
     <string>Hide or show the input field to submit manuall SQL querys thru database driver backend</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Q, Ctrl+H</string>
    </property>
   </action>
   <action name="actSetAlterRowCol">

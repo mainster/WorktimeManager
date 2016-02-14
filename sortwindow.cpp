@@ -17,8 +17,8 @@
 
 SortWindow::SortWindow(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::SortWindow)
-{
+    ui(new Ui::SortWindow) {
+
     ui->setupUi(this);
     proxyModel = new MySortFilterProxyModel(this);
     proxyModel->setDynamicSortFilter(true);
@@ -99,39 +99,31 @@ SortWindow::SortWindow(QWidget *parent) :
     installEventFilter(this);
 }
 
-SortWindow::~SortWindow()
-{
+SortWindow::~SortWindow() {
     delete ui;
 }
-
-void SortWindow::setSourceModel(QAbstractItemModel *model)
-{
+void SortWindow::setSourceModel(QAbstractItemModel *model) {
     proxyModel->setSourceModel(model);
     sourceView->setModel(model);
 }
-
-void SortWindow::textFilterChanged()
-{
+void SortWindow::textFilterChanged() {
     QRegExp::PatternSyntax syntax =
             QRegExp::PatternSyntax(filterSyntaxComboBox->itemData(
                     filterSyntaxComboBox->currentIndex()).toInt());
     Qt::CaseSensitivity caseSensitivity =
-            filterCaseSensitivityCheckBox->isChecked() ? Qt::CaseSensitive
-                                                       : Qt::CaseInsensitive;
+            filterCaseSensitivityCheckBox->isChecked()
+            ? Qt::CaseSensitive
+            : Qt::CaseInsensitive;
 
     QRegExp regExp(filterPatternLineEdit->text(), caseSensitivity, syntax);
     proxyModel->setFilterRegExp(regExp);
 }
-
-void SortWindow::dateFilterChanged()
-{
+void SortWindow::dateFilterChanged() {
     proxyModel->setFilterMinimumDate(fromDateEdit->date());
     proxyModel->setFilterMaximumDate(toDateEdit->date());
 }
 void SortWindow::closeEvent(QCloseEvent *e) {
+    Q_UNUSED(e);
     QSETTINGS;
-    emit close(true);
-
-    /**** Write splitter sizes to config
-     \*/
+    emit closesUncheck(false);
 }

@@ -40,20 +40,23 @@ Browser::Browser(QWidget *parent)  :
     //            this,          SLOT(onTestBtnClicked()));
     //   connect (ui->btnB,      SIGNAL(clicked()),
     //            this,          SLOT(onTestBtnClicked()));
-    connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-            tvs[0],   SLOT(onTabViewSelChanged(TabView *)));
-    connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-            tvs[1],   SLOT(onTabViewSelChanged(TabView *)));
-    connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-            tvs[2],   SLOT(onTabViewSelChanged(TabView *)));
-    connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-            tvs[3],   SLOT(onTabViewSelChanged(TabView *)));
-    connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-            tvs[4],   SLOT(onTabViewSelChanged(TabView *)));
-    connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-            tvs[5],   SLOT(onTabViewSelChanged(TabView *)));
+    QList<bool> bl;
 
-    //   restoreBrowserUiSettings();
+    bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
+                              tvs[0],   SLOT(onTabViewSelChanged(TabView *))));
+    bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
+                              tvs[1],   SLOT(onTabViewSelChanged(TabView *))));
+    bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
+                              tvs[2],   SLOT(onTabViewSelChanged(TabView *))));
+    bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
+                              tvs[3],   SLOT(onTabViewSelChanged(TabView *))));
+    bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
+                              tvs[4],   SLOT(onTabViewSelChanged(TabView *))));
+    bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
+                              tvs[5],   SLOT(onTabViewSelChanged(TabView *))));
+
+    if (bl.contains(false))
+        Q_INFO << tr("connect.tabViewSelChanged[0...6]:") << bl;
 
     if (QSqlDatabase::drivers().isEmpty())
         QMessageBox::information
@@ -74,12 +77,14 @@ Browser::Browser(QWidget *parent)  :
     CustomMdl *cm = new CustomMdl();
     cm->setCCol(QVector<int>(0, 1));
 
-    sortwindow = new SortWindow(0);
+    sortwindow.append( new SortWindow(0) );
+    sortwindow.append( new SortWindow(0) );
 }
 
 Browser::~Browser() {
     //   saveBrowserUiSettings();
-    delete sortwindow;
+    delete sortwindow[0];
+    delete sortwindow[1];
     delete ui;
 }
 QSqlError Browser::addConnection( const QString &driver, const QString &dbName,
@@ -118,6 +123,16 @@ void Browser::initTableView(QWidget *parent, QStringList &accNam) {
     tblActs.append(revertAction);
     tblActs.append(selectAction);
 
+//    QObjectList *queryList( const char *inheritsClass = 0,
+//                            const char *objName = 0,
+//                            bool regexpMatch = TRUE,
+//                            bool recursiveSearch = TRUE );
+
+//    QObjectList *queryTvs = queryList( "TabView" );
+
+//    foreach (QObject *obj, queryTvs) {
+//        tvs.append( static_cast<TabView *>obj );
+//    }
     tvs.append( tva );
     tvs.append( tvb );
     tvs.append( tvc );
@@ -185,215 +200,6 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
     updateActions();
 
 }
-/*
-void Browser::showTable(const QString &sqlTab, TabView *tvc) {
-   //
-    * Get pointer to current active database connection
-    //
-   QSqlDatabase pDb = connectionWidget->currentDatabase();
-
-   QSqlTableModel *mod = new CustomMdl(tvc->tv(), pDb);
-   mod->setEditStrategy(QSqlTableModel::OnRowChange);
-   mod->setTable( pDb.driver()->escapeIdentifier(sqlTab, QSqlDriver::TableName));
-   mod->select();
-
-   if (mod->lastError().type() != QSqlError::NoError)
-      emit stateMsg(mod->lastError().text());
-
-   tvc->tv()->setModel(mod);
-   tvc->tv()->setEditTriggers( QAbstractItemView::DoubleClicked |
-                               QAbstractItemView::EditKeyPressed );
-
-   if (! (bool) connect( tvc->tv()->selectionModel(),
-                         SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-                         this, SLOT(currentChanged()) ) )
-      emit stateMsg(tr("Slot connection returns false"));
-
-   tvc->tv()->setVisible( false );
-   tvc->tv()->resizeColumnsToContents();
-   tvc->tv()->resizeRowsToContents();
-   tvc->tv()->setVisible( true );
-
-   updateActions();
-}
-*/
-void Browser::showRelatTable(const QString &sqlTbl, TabView *tvc) {
-    /**
-    * Get active database pointer
-    */
-    QSqlDatabase pDb = connectionWidget->currentDatabase();
-    QTableView *tv = tvc->tv();
-    QSqlRelationalTableModel *rmod = new CustomRelatMdl(tvc->tv(), pDb);
-    rmod->setEditStrategy(QSqlTableModel::OnRowChange);
-    rmod->setTable(pDb.driver()->escapeIdentifier(sqlTbl, QSqlDriver::TableName));
-    /**
-    * Because the target database contains more than one table related on
-    * foreign keys, varying process is necessary to set the different
-    * relations correctly. Which processing branch must be used depends on
-    * the table name passed by sqlTbl
-    */
-    /** Processing branch for table ... */
-    /* --------------------------------------------------------- */
-    /*                      Table worktimes                     */
-    /* --------------------------------------------------------- */
-    if (sqlTbl.contains("worktime", Qt::CaseInsensitive)) {
-        /** Remember the indexes of the columns */
-        int colEmp = rmod->fieldIndex("workerID");
-        int colPrj = rmod->fieldIndex("prjID");
-
-        /** Set the relations to the other database tables */
-        rmod->setRelation(colEmp, QSqlRelation(
-                              "worker", "workerID", "Nachname"));
-        rmod->setRelation(colPrj, QSqlRelation(
-                              "prj", "prjID", "Beschreibung"));
-
-        // Set the localized header captions
-        rmod->setHeaderData(rmod->fieldIndex("worktimID"), Qt::Horizontal, tr("ID"));
-        rmod->setHeaderData(rmod->fieldIndex("dat"), Qt::Horizontal, tr("Datum"));
-        rmod->setHeaderData(colEmp, Qt::Horizontal, tr("Mitarb"));
-        rmod->setHeaderData(colPrj, Qt::Horizontal, tr("Beschreibung"));
-        rmod->setHeaderData(rmod->fieldIndex("hours"), Qt::Horizontal, tr("Std"));
-    }
-    else {
-        /* --------------------------------------------------------- */
-        /*                      Table projects                         */
-        /* --------------------------------------------------------- */
-        if (sqlTbl.contains("prj", Qt::CaseInsensitive)) {
-            /** Remember the indexes of the columns */
-            int colClient = rmod->fieldIndex("clientID");
-
-            /** Set the relations to the other database tables */
-            rmod->setRelation(colClient, QSqlRelation(
-                                  "client", "clientID", "Name"));
-
-            // Set the localized header captions
-            rmod->setHeaderData(rmod->fieldIndex("prjID"), Qt::Horizontal, tr("ID"));
-            rmod->setHeaderData(rmod->fieldIndex("clientID"), Qt::Horizontal, tr("Kunde, Name"));
-        }
-        else {
-            /* --------------------------------------------------------- */
-            /*                      Table worker                           */
-            /* --------------------------------------------------------- */
-            if (sqlTbl.contains("worker", Qt::CaseInsensitive)) {
-                // Set the localized header captions
-                rmod->setHeaderData(rmod->fieldIndex("workerID"), Qt::Horizontal, tr("ID"));
-                rmod->setHeaderData(rmod->fieldIndex("PersonalNr"), Qt::Horizontal, tr("PN"));
-                rmod->setHeaderData(rmod->fieldIndex("Stundensatz"), Qt::Horizontal, tr("€/h"));
-            }
-            else {
-                /* --------------------------------------------------------- */
-                /*                      Table client                              */
-                /* --------------------------------------------------------- */
-                if (sqlTbl.contains("client", Qt::CaseInsensitive)) {
-                    // Set the localized header captions
-                    rmod->setHeaderData(rmod->fieldIndex("clientID"), Qt::Horizontal, tr("ID"));
-                    rmod->setHeaderData(rmod->fieldIndex("Nummer"), Qt::Horizontal, tr("Knd. #"));
-                    rmod->setHeaderData(rmod->fieldIndex("Stundensatz"), Qt::Horizontal, tr("€/h"));
-                }
-                else {
-                    if (sqlTbl.contains("fehlzeit", Qt::CaseInsensitive)) {
-                        // Set the localized header captions
-                        rmod->setHeaderData(rmod->fieldIndex("FehlID"), Qt::Horizontal, tr("ID"));
-                    }
-                    else {
-                        QMessageBox::warning(this, tr("Warnung"),
-                                             tr("Unbekannter SQL Tabellenbezeichner: %1")
-                                             .arg(sqlTbl), QMessageBox::Ok);
-                    }
-                }
-            }
-        }
-    }
-
-    // Populate the model
-    rmod->select();
-
-    // Set the model and hide the ID column
-    //   tv->setModel( rmod );
-    //   tv->setItemDelegate( new TableDelegate(tv));
-    tv->setColumnHidden(rmod->fieldIndex("ID"), true);
-    tv->setSelectionMode(QAbstractItemView::ContiguousSelection);
-
-    tv->setModel(rmod);
-    tv->setEditTriggers( QAbstractItemView::DoubleClicked |
-                         QAbstractItemView::EditKeyPressed );
-    /** !!!!!!!!!!!!!!!!!!!! tvs.first()->tv()->selectionModel() changed to
-    * tvs[3]->tv()->selectionModel()
-    */
-    if (! (bool) connect( tvs.last()->tv()->selectionModel(),
-                          SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-                          this, SLOT(currentChanged()) ) )
-        emit stateMsg(tr("Slot connection returns false"));
-
-    tv->setVisible( false );
-    tv->resizeColumnsToContents();
-    tv->resizeRowsToContents();
-    tv->setVisible( true );
-
-    updateActions();
-    /**
-    * Update TabViews group box title to match the prior activated sql
-    * table name
-    */
-    tvc->m_gb->setTitle( sqlTbl );
-}
-void Browser::showRelatTable2(const QString &sqlTbl, QTableView *tv) {
-    Q_UNUSED(sqlTbl);
-
-    /**
-    * Get active database pointer
-    */
-    QSqlDatabase pdb = connectionWidget->currentDatabase();
-
-    QSqlRelationalTableModel *rmod = new CustomRelatMdl(tvc->tv(), pdb);
-    rmod->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    rmod->setTable( tvc->tv()->objectName() );
-
-    /** Remember the indexes of the columns */
-    int colEmp = rmod->fieldIndex("workerID");
-    int colPrj = rmod->fieldIndex("prjID");
-
-    /** Set the relations to the other database tables */
-    rmod->setRelation(colEmp, QSqlRelation(
-                          "worker", "workerID", "Nachname"));
-    rmod->setRelation(colPrj, QSqlRelation(
-                          "prj", "prjID", "Beschreibung"));
-
-    // Set the localized header captions
-    rmod->setHeaderData(rmod->fieldIndex("worktimID"), Qt::Horizontal, tr("ID"));
-    rmod->setHeaderData(rmod->fieldIndex("dat"), Qt::Horizontal, tr("Datum"));
-    rmod->setHeaderData(colEmp, Qt::Horizontal, tr("Mitarb"));
-    rmod->setHeaderData(colPrj, Qt::Horizontal, tr("PrjBesch"));
-    rmod->setHeaderData(rmod->fieldIndex("hours"), Qt::Horizontal, tr("Stunden"));
-
-    // Populate the model
-    rmod->select();
-
-    // Set the model and hide the ID column
-    //   tv->setModel( rmod );
-    //   tv->setItemDelegate( new TableDelegate(tv));
-    tv->setColumnHidden(rmod->fieldIndex("ID"), true);
-    tv->setSelectionMode(QAbstractItemView::SingleSelection);
-
-    tv->setModel(rmod);
-    tv->setEditTriggers( QAbstractItemView::DoubleClicked |
-                         QAbstractItemView::EditKeyPressed );
-    /** !!!!!!!!!!!!!!!!!!!! tvs.first()->tv()->selectionModel() changed to
-    * tvs[3]->tv()->selectionModel()
-    */
-    if (! (bool) connect( tvs.last()->tv()->selectionModel(),
-                          SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-                          this, SLOT(currentChanged()) ) )
-        emit stateMsg(tr("Slot connection returns false"));
-
-    tv->setVisible( false );
-    tv->resizeColumnsToContents();
-    tv->resizeRowsToContents();
-    tv->setVisible( true );
-
-    updateActions();
-
-}
 void Browser::exec() {
     InpFrm *inpFrm = InpFrm::getObjectPtr();
 
@@ -419,49 +225,136 @@ void Browser::exec() {
     tvq->setVisible( true );
     updateActions();
 }
-/**
- * Relational table model test - View relational WORKS 12-11-2015
+/** Relational table model - View relational WORKS 12-11-2015
  */
-void Browser::showRelatTable(const QString &t, QTableView *tv) {
-    Q_UNUSED(t);
+void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
     /**
     * Get active database pointer
     */
-    QSqlDatabase currentDb = connectionWidget->currentDatabase();
-
+    QSqlDatabase pDb = connectionWidget->currentDatabase();
+    QTableView *tv = tvc->tv();
+    QSqlRelationalTableModel *rmod = new CustomRelatMdl(tvc->tv(), pDb);
+    rmod->setEditStrategy(QSqlTableModel::OnRowChange);
+    rmod->setTable(pDb.driver()->escapeIdentifier(tNam, QSqlDriver::TableName));
     /**
-    * Instantiate a new custom CustomRelatMdl(..) table view model
+    * Because the target database contains more than one table related on
+    * foreign keys, varying process is necessary to set the different
+    * relations correctly. Which processing branch must be used depends on
+    * the table name passed by sqlTbl
     */
-    QSqlRelationalTableModel *model = new CustomRelatMdl(tv, currentDb);
+    /** Processing branch for table ... */
+    while (1) {
+        /* --------------------------------------------------------- */
+        /*                      Table worktimes                      */
+        /* --------------------------------------------------------- */
+        if (tNam.contains("worktime", Qt::CaseInsensitive)) {
+            /** Remember the indexes of the columns */
+            int colEmp = rmod->fieldIndex("workerID");
+            int colPrj = rmod->fieldIndex("prjID");
 
-    model->setEditStrategy(QSqlRelationalTableModel::OnRowChange);
+            /** Set the relations to the other database tables */
+            rmod->setRelation(colEmp, QSqlRelation(
+                                  "worker", "workerID", "Nachname"));
+            rmod->setRelation(colPrj, QSqlRelation(
+                                  "prj", "prjID", "Beschreibung"));
 
-    model->setTable("worktime");
-    model->setEditStrategy(QSqlRelationalTableModel::OnManualSubmit);
-    model->setRelation(2, QSqlRelation("worker", "workerID", "Nachname"));
-    model->setRelation(3, QSqlRelation("prj", "prjID", "Kurzform"));
-    model->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
-    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Datum"));
-    model->setHeaderData(2, Qt::Horizontal, QObject::tr("worker Nachname"));
-    model->setHeaderData(3, Qt::Horizontal, QObject::tr("prj kurzform"));
-    model->setHeaderData(4, Qt::Horizontal, QObject::tr("Stunden"));
+            // Set the localized header captions
+            rmod->setHeaderData(rmod->fieldIndex("worktimID"), Qt::Horizontal, tr("ID"));
+            rmod->setHeaderData(rmod->fieldIndex("dat"), Qt::Horizontal, tr("Datum"));
+            rmod->setHeaderData(colEmp, Qt::Horizontal, tr("Mitarb"));
+            rmod->setHeaderData(colPrj, Qt::Horizontal, tr("Beschreibung"));
+            rmod->setHeaderData(rmod->fieldIndex("hours"), Qt::Horizontal, tr("Std"));
 
-    model->select();
+            break;
+        }
+        /* --------------------------------------------------------- */
+        /*                      Table projects                       */
+        /* --------------------------------------------------------- */
+        if (tNam.contains("prj", Qt::CaseInsensitive)) {
+            /** Remember the indexes of the columns */
+            int colClient = rmod->fieldIndex("clientID");
 
-    if (model->lastError().type() != QSqlError::NoError)
-        emit stateMsg(model->lastError().text());
+            /** Set the relations to the other database tables */
+            rmod->setRelation(colClient, QSqlRelation(
+                                  "client", "clientID", "Name"));
 
-    tv->setModel(model);
-    tv->setEditTriggers(QAbstractItemView::DoubleClicked |
-                        QAbstractItemView::EditKeyPressed);
+            // Set the localized header captions
+            rmod->setHeaderData(rmod->fieldIndex("prjID"), Qt::Horizontal, tr("ID"));
+            rmod->setHeaderData(rmod->fieldIndex("clientID"), Qt::Horizontal, tr("Kunde, Name"));
 
-    connect(tv->selectionModel(),
-            SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            this, SLOT(currentChanged()));
-    tv->setVisible(false);
+            break;
+        }
+        /* --------------------------------------------------------- */
+        /*                      Table worker                         */
+        /* --------------------------------------------------------- */
+        if (tNam.contains("worker", Qt::CaseInsensitive)) {
+            // Set the localized header captions
+            rmod->setHeaderData(rmod->fieldIndex("workerID"), Qt::Horizontal, tr("ID"));
+            rmod->setHeaderData(rmod->fieldIndex("PersonalNr"), Qt::Horizontal, tr("PN"));
+            rmod->setHeaderData(rmod->fieldIndex("Stundensatz"), Qt::Horizontal, tr("€/h"));
+
+            break;
+        }
+        /* --------------------------------------------------------- */
+        /*                      Table client                         */
+        /* --------------------------------------------------------- */
+        if (tNam.contains("client", Qt::CaseInsensitive)) {
+            // Set the localized header captions
+            rmod->setHeaderData(rmod->fieldIndex("clientID"), Qt::Horizontal, tr("ID"));
+            rmod->setHeaderData(rmod->fieldIndex("Nummer"), Qt::Horizontal, tr("Knd. #"));
+            rmod->setHeaderData(rmod->fieldIndex("Stundensatz"), Qt::Horizontal, tr("€/h"));
+
+            break;
+        }
+        /* --------------------------------------------------------- */
+        /*                      Table fehlzeit                       */
+        /* --------------------------------------------------------- */
+        if (tNam.contains("fehlzeit", Qt::CaseInsensitive)) {
+            // Set the localized header captions
+            rmod->setHeaderData(rmod->fieldIndex("FehlID"), Qt::Horizontal, tr("ID"));
+
+            break;
+        }
+        /* --------------------------------------------------------- */
+        /*                      Table Unknown                        */
+        /* --------------------------------------------------------- */
+        QMessageBox::warning(this, tr("Warnung"),
+                             tr("Unbekannter SQL Tabellenbezeichner: %1")
+                             .arg(tNam), QMessageBox::Ok);
+        break;
+    }
+
+    // Populate the model
+    rmod->select();
+
+    // Set the model and hide the ID column
+    tv->setColumnHidden(rmod->fieldIndex("ID"), true);
+    tv->setSelectionMode(QAbstractItemView::ContiguousSelection);
+
+    tv->setModel(rmod);
+    tv->setEditTriggers( QAbstractItemView::DoubleClicked |
+                         QAbstractItemView::EditKeyPressed );
+
+    /** !!!!!!!!!!!!!!!!!!!! tvs.first()->tv()->selectionModel() changed to
+    * tvs[3]->tv()->selectionModel()
+    */
+
+    if (! (bool) connect( tv->selectionModel(),
+                          SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+                          this, SLOT(currentChanged(QModelIndex,QModelIndex)) ) )
+        emit stateMsg(tr("Slot connection returns false"));
+
+    tv->setVisible( false );
     tv->resizeColumnsToContents();
-    tv->setVisible(true);
+    tv->resizeRowsToContents();
+    tv->setVisible( true );
+
     updateActions();
+    /**
+    * Update TabViews group box title to match the prior activated sql
+    * table name
+    */
+    tvc->m_gb->setTitle( tNam );
 }
 void Browser::showMetaData(const QString &t) {
 
@@ -836,70 +729,6 @@ void Browser::showEvent(QShowEvent *e) {
 }
 /**
  * Testing (relational) editableSqlModel    19-11-2015 */
-void Browser::SORTIT() {
-    QSETTINGS;
-
-    QString queryStr =
-            config.value("InpFrm/default_worktime_query_plain","").toString();
-
-    QSortFilterSqlQueryModel *model = new QSortFilterSqlQueryModel(this);
-    InpFrm *inpFrm = InpFrm::getObjectPtr();
-
-
-    QTableView *tvq = tvl1->tv();
-
-
-    if (QMessageBox::question(this, tr("Use default query?"),
-                              tr("Query default worktime ?"),
-                              QMessageBox::Yes |
-                              QMessageBox::No, QMessageBox::No) ==
-            QMessageBox::Yes) {
-        model->setQuery(queryStr, connectionWidget->currentDatabase());
-        Q_INFO << queryStr;
-    }
-    else {
-        model->setQuery(inpFrm->getQueryText(),
-                        connectionWidget->currentDatabase());
-        Q_INFO << inpFrm->getQueryText();
-    }
-
-    tvq->setModel(model);
-
-    if (model->lastError().type() != QSqlError::NoError)
-        emit stateMsg(model->lastError().text());
-    else if (model->query().isSelect())
-        emit stateMsg(tr("Query OK."));
-    else
-        emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
-                          model->query().numRowsAffected()));
-    model->setFilterColumn("wk.Vorname"); // will filter by user name
-    model->setFilterFlags(Qt::MatchStartsWith);
-    model->setFilter("");
-    model->select();
-
-    QFrame *frm = new QFrame(this);
-    QGridLayout *gl = new QGridLayout();
-
-    QLabel *se = new QLabel("search");
-    QLabel *co = new QLabel("FilterCol");
-
-    QLineEdit *oncol = new QLineEdit();
-    QLineEdit *search = new QLineEdit();
-    connect(oncol, SIGNAL (textChanged(QString)), model, SLOT( setFilterColumn(QString)));
-    connect(search, SIGNAL (textChanged(QString)), model, SLOT( filter(QString)));
-
-    gl->addWidget(se,0,0);
-    gl->addWidget(search,0,1);
-
-    gl->addWidget(co,1,0);
-    gl->addWidget(oncol,1,1);
-    frm->setLayout(gl);
-
-    oncol->setVisible(true);
-    search->setVisible(true);
-
-    frm->show();
-}
 void Browser::autofitRowCol() {
     foreach (TabView *tvc, tvs) {
         tvc->tv()->setVisible( false );
@@ -952,17 +781,23 @@ void Browser::onCyclic() {
         }
     }
 }
+/* ---------------------------------------------------------------- */
+/*                SQL Sort filter proxy model                 */
+/* ---------------------------------------------------------------- */
 void Browser::onActFilterWindowTable(bool b) {
     /* ---------------------------------------------------------------- */
     /*                      sort window test                             */
     /* ---------------------------------------------------------------- */
     if (b) {
-
-        sortwindow->setSourceModel(this->createMailModel(sortwindow));
-        sortwindow->show();
+        //        sortwindow->setSourceModel(this->createMailModel(sortwindow));
+        sortwindow[0]->setSourceModel( this->createMailModel(sortwindow[0]) );
+        sortwindow[1]->setSourceModel( tvs.takeLast()->tv()->model() );
+        sortwindow[0]->show();
+        sortwindow[1]->show();
     }
     else {
-        sortwindow->hide();
+        sortwindow[0]->hide();
+        sortwindow[1]->hide();
     }
 }
 void Browser::addMail(QAbstractItemModel *model, const QString &subject,
@@ -972,8 +807,11 @@ void Browser::addMail(QAbstractItemModel *model, const QString &subject,
     model->setData(model->index(0, 1), sender);
     model->setData(model->index(0, 2), date);
 }
-SortWindow *Browser::getSortwindow() const {
-    return sortwindow;
+SortWindow *Browser::getSortwindow0() const {
+    return sortwindow[0];
+}
+SortWindow *Browser::getSortwindow1() const {
+    return sortwindow[1];
 }
 QAbstractItemModel *Browser::createMailModel(QObject *parent) {
     QStandardItemModel *model = new QStandardItemModel(0, 3, parent);
@@ -1006,32 +844,231 @@ QAbstractItemModel *Browser::createMailModel(QObject *parent) {
     return model;
 }
 
-/*
-void Browser::showTable22(const QString &t, QTableView *tv) {
+#define QFOLDINGSTART {
+//void Browser::showRelatTable(/*const QString &t, */QTableView *tv) {
+////    Q_UNUSED(t);
+//    /**
+//    * Get active database pointer
+//    */
+//    QSqlDatabase currentDb = connectionWidget->currentDatabase();
 
-   QSqlDatabase pdb = connectionWidget->currentDatabase();
+//    /**
+//    * Instantiate a new custom CustomRelatMdl(..) table view model
+//    */
+//    QSqlRelationalTableModel *model = new CustomRelatMdl(tv, currentDb);
 
-   QSqlTableModel *model = new CustomMdl(tv, pdb);
-   model->setEditStrategy(QSqlTableModel::OnRowChange);
-   model->setTable( pdb.driver()->escapeIdentifier(t, QSqlDriver::TableName));
-   model->select();
+//    model->setEditStrategy(QSqlRelationalTableModel::OnRowChange);
 
-   if (model->lastError().type() != QSqlError::NoError)
-      emit stateMsg(model->lastError().text());
+//    model->setTable("worktime");
+//    model->setEditStrategy(QSqlRelationalTableModel::OnManualSubmit);
+//    model->setRelation(2, QSqlRelation("worker", "workerID", "Nachname"));
+//    model->setRelation(3, QSqlRelation("prj", "prjID", "Kurzform"));
+//    model->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
+//    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Datum"));
+//    model->setHeaderData(2, Qt::Horizontal, QObject::tr("worker Nachname"));
+//    model->setHeaderData(3, Qt::Horizontal, QObject::tr("prj kurzform"));
+//    model->setHeaderData(4, Qt::Horizontal, QObject::tr("Stunden"));
 
-   tv->setModel(model);
-   tv->setEditTriggers( QAbstractItemView::DoubleClicked |
-                        QAbstractItemView::EditKeyPressed );
+//    model->select();
 
-   if (! (bool) connect( tvs.first()->tv()->selectionModel(),
-                         SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-                         this, SLOT(currentChanged()) ) )
-      emit stateMsg(tr("Slot connection returns false"));
+//    if (model->lastError().type() != QSqlError::NoError)
+//        emit stateMsg(model->lastError().text());
 
-   tv->setVisible( false );
-   tv->resizeColumnsToContents();
-   tv->resizeRowsToContents();
-   tv->setVisible( true );
+//    tv->setModel(model);
+//    tv->setEditTriggers(QAbstractItemView::DoubleClicked |
+//                        QAbstractItemView::EditKeyPressed);
 
-   updateActions();
-}*/
+////    connect(tv->selectionModel(),
+////            SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+////            this, SLOT(currentChanged()));
+//    connect(tv->selectionModel(),
+//            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+//            this, SLOT(currentChanged()));
+//    tv->setVisible(false);
+//    tv->resizeColumnsToContents();
+//    tv->setVisible(true);
+//    updateActions();
+//}
+//void Browser::SORTIT() {
+//    QSETTINGS;
+
+//    QString queryStr =
+//            config.value("InpFrm/default_worktime_query_plain","").toString();
+
+//    QSortFilterSqlQueryModel *model = new QSortFilterSqlQueryModel(this);
+//    InpFrm *inpFrm = InpFrm::getObjectPtr();
+
+
+//    QTableView *tvq = tvl1->tv();
+
+
+//    if (QMessageBox::question(this, tr("Use default query?"),
+//                              tr("Query default worktime ?"),
+//                              QMessageBox::Yes |
+//                              QMessageBox::No, QMessageBox::No) ==
+//            QMessageBox::Yes) {
+//        model->setQuery(queryStr, connectionWidget->currentDatabase());
+//        Q_INFO << queryStr;
+//    }
+//    else {
+//        model->setQuery(inpFrm->getQueryText(),
+//                        connectionWidget->currentDatabase());
+//        Q_INFO << inpFrm->getQueryText();
+//    }
+
+//    tvq->setModel(model);
+
+//    if (model->lastError().type() != QSqlError::NoError)
+//        emit stateMsg(model->lastError().text());
+//    else if (model->query().isSelect())
+//        emit stateMsg(tr("Query OK."));
+//    else
+//        emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
+//                          model->query().numRowsAffected()));
+//    model->setFilterColumn("wk.Vorname"); // will filter by user name
+//    model->setFilterFlags(Qt::MatchStartsWith);
+//    model->setFilter("");
+//    model->select();
+
+//    QFrame *frm = new QFrame(this);
+//    QGridLayout *gl = new QGridLayout();
+
+//    QLabel *se = new QLabel("search");
+//    QLabel *co = new QLabel("FilterCol");
+
+//    QLineEdit *oncol = new QLineEdit();
+//    QLineEdit *search = new QLineEdit();
+//    connect(oncol, SIGNAL (textChanged(QString)), model, SLOT( setFilterColumn(QString)));
+//    connect(search, SIGNAL (textChanged(QString)), model, SLOT( filter(QString)));
+
+//    gl->addWidget(se,0,0);
+//    gl->addWidget(search,0,1);
+
+//    gl->addWidget(co,1,0);
+//    gl->addWidget(oncol,1,1);
+//    frm->setLayout(gl);
+
+//    oncol->setVisible(true);
+//    search->setVisible(true);
+
+//    frm->show();
+//}
+
+//void Browser::showTable22(const QString &t, QTableView *tv) {
+
+//   QSqlDatabase pdb = connectionWidget->currentDatabase();
+
+//   QSqlTableModel *model = new CustomMdl(tv, pdb);
+//   model->setEditStrategy(QSqlTableModel::OnRowChange);
+//   model->setTable( pdb.driver()->escapeIdentifier(t, QSqlDriver::TableName));
+//   model->select();
+
+//   if (model->lastError().type() != QSqlError::NoError)
+//      emit stateMsg(model->lastError().text());
+
+//   tv->setModel(model);
+//   tv->setEditTriggers( QAbstractItemView::DoubleClicked |
+//                        QAbstractItemView::EditKeyPressed );
+
+//   if (! (bool) connect( tvs.first()->tv()->selectionModel(),
+//                         SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+//                         this, SLOT(currentChanged()) ) )
+//      emit stateMsg(tr("Slot connection returns false"));
+
+//   tv->setVisible( false );
+//   tv->resizeColumnsToContents();
+//   tv->resizeRowsToContents();
+//   tv->setVisible( true );
+
+//   updateActions();
+//}
+
+//void Browser::showTable(const QString &sqlTab, TabView *tvc) {
+//   //
+//    * Get pointer to current active database connection
+//    //
+//   QSqlDatabase pDb = connectionWidget->currentDatabase();
+
+//   QSqlTableModel *mod = new CustomMdl(tvc->tv(), pDb);
+//   mod->setEditStrategy(QSqlTableModel::OnRowChange);
+//   mod->setTable( pDb.driver()->escapeIdentifier(sqlTab, QSqlDriver::TableName));
+//   mod->select();
+
+//   if (mod->lastError().type() != QSqlError::NoError)
+//      emit stateMsg(mod->lastError().text());
+
+//   tvc->tv()->setModel(mod);
+//   tvc->tv()->setEditTriggers( QAbstractItemView::DoubleClicked |
+//                               QAbstractItemView::EditKeyPressed );
+
+//   if (! (bool) connect( tvc->tv()->selectionModel(),
+//                         SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+//                         this, SLOT(currentChanged()) ) )
+//      emit stateMsg(tr("Slot connection returns false"));
+
+//   tvc->tv()->setVisible( false );
+//   tvc->tv()->resizeColumnsToContents();
+//   tvc->tv()->resizeRowsToContents();
+//   tvc->tv()->setVisible( true );
+
+//   updateActions();
+//}
+
+//void Browser::showRelatTable2(const QString &sqlTbl, QTableView *tv) {
+//    Q_UNUSED(sqlTbl);
+
+//    /**
+//    * Get active database pointer
+//    */
+//    QSqlDatabase pdb = connectionWidget->currentDatabase();
+
+//    QSqlRelationalTableModel *rmod = new CustomRelatMdl(tvc->tv(), pdb);
+//    rmod->setEditStrategy(QSqlTableModel::OnManualSubmit);
+//    rmod->setTable( tvc->tv()->objectName() );
+
+//    /** Remember the indexes of the columns */
+//    int colEmp = rmod->fieldIndex("workerID");
+//    int colPrj = rmod->fieldIndex("prjID");
+
+//    /** Set the relations to the other database tables */
+//    rmod->setRelation(colEmp, QSqlRelation(
+//                          "worker", "workerID", "Nachname"));
+//    rmod->setRelation(colPrj, QSqlRelation(
+//                          "prj", "prjID", "Beschreibung"));
+
+//    // Set the localized header captions
+//    rmod->setHeaderData(rmod->fieldIndex("worktimID"), Qt::Horizontal, tr("ID"));
+//    rmod->setHeaderData(rmod->fieldIndex("dat"), Qt::Horizontal, tr("Datum"));
+//    rmod->setHeaderData(colEmp, Qt::Horizontal, tr("Mitarb"));
+//    rmod->setHeaderData(colPrj, Qt::Horizontal, tr("PrjBesch"));
+//    rmod->setHeaderData(rmod->fieldIndex("hours"), Qt::Horizontal, tr("Stunden"));
+
+//    // Populate the model
+//    rmod->select();
+
+//    // Set the model and hide the ID column
+//    //   tv->setModel( rmod );
+//    //   tv->setItemDelegate( new TableDelegate(tv));
+//    tv->setColumnHidden(rmod->fieldIndex("ID"), true);
+//    tv->setSelectionMode(QAbstractItemView::SingleSelection);
+
+//    tv->setModel(rmod);
+//    tv->setEditTriggers( QAbstractItemView::DoubleClicked |
+//                         QAbstractItemView::EditKeyPressed );
+//    /** !!!!!!!!!!!!!!!!!!!! tvs.first()->tv()->selectionModel() changed to
+//    * tvs[3]->tv()->selectionModel()
+//    */
+//    if (! (bool) connect( tvs.last()->tv()->selectionModel(),
+//                          SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+//                          this, SLOT(currentChanged()) ) )
+//        emit stateMsg(tr("Slot connection returns false"));
+
+//    tv->setVisible( false );
+//    tv->resizeColumnsToContents();
+//    tv->resizeRowsToContents();
+//    tv->setVisible( true );
+
+//    updateActions();
+
+//}
+#define QFOLDINGEND }

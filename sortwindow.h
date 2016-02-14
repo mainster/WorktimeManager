@@ -29,7 +29,7 @@ public:
     void setSourceModel(QAbstractItemModel *model);
 
 signals:
-    void close(bool b);
+    void closesUncheck(bool b);
 
 protected slots:
     void closeEvent(QCloseEvent *e);

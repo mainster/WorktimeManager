@@ -20,11 +20,12 @@
 #include <QGroupBox>
 #include <QFrame>
 #include <QWidget>
+#include <QList>
 
 #include "ui_browser.h"
 #include "globals.h"
 #include "tabview.h"
-#include "QSortFilterSqlQueryModel.h"
+//#include "QSortFilterSqlQueryModel.h"
 #include "mysortfilterproxymodel.h"
 #include "sortwindow.h"
 
@@ -81,8 +82,8 @@ public:
    /**
     * Class accessors
     */
-   SortWindow *getSortwindow() const;
-
+   SortWindow *getSortwindow0() const;
+   SortWindow *getSortwindow1() const;
 signals:
    void stateMsg(const QString &message);
    void tabViewSelChanged(TabView *sel);
@@ -90,7 +91,7 @@ signals:
 public slots:
    void showMetaData(const QString &table);
    void addConnection();
-   void currentChanged() { updateActions(); }
+   void currentChanged(QModelIndex,QModelIndex) { updateActions(); }
    void on_insertRowAction_triggered()
    { insertRow(); }
    void on_deleteRowAction_triggered()
@@ -115,15 +116,15 @@ public slots:
    void exec();
    void requeryWorktimeTableView(QString nonDefaulQuery = "");
    /** Show table view methodes */
-   void showRelatTable(const QString &sqlTbl, TabView *tvc);
-   void showRelatTable(const QString &t, QTableView *tv);
-   void showRelatTable2(const QString &sqlTbl, QTableView *tv);
+   void showRelatTable(const QString &tNam, TabView *tvc);
+//   void showRelatTable(/*const QString &t, */QTableView *tv);
+//   void showRelatTable2(const QString &sqlTbl, QTableView *tv);
    QTableView *createView(QSqlQueryModel *model, const QString &title);
    void initializeMdl(QSqlQueryModel *model);
    QSqlDatabase getCurrentDatabase() {
       return connectionWidget->currentDatabase();
    }
-   void SORTIT();
+//   void SORTIT();
    void autofitRowCol();
    void onActFilterWindowTable(bool b);
 
@@ -149,7 +150,7 @@ private:
    TabView * dblClickFocusedTv;
 
    MySortFilterProxyModel *proxyModel;
-   SortWindow *sortwindow;
+   QList<SortWindow *> sortwindow;
 };
 
 

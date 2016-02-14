@@ -17,7 +17,7 @@
 #include "ui_tablewindow.h"
 #include "globals.h"
 #include "browser.h"
-#include "QSortFilterSqlQueryModel.h"
+//#include "QSortFilterSqlQueryModel.h"
 #include <QRadioButton>
 
 
@@ -71,8 +71,6 @@ signals:
     void changeInpFrmTabOrder(InpFrm::states state);
 
 public slots:
-   void on_clearButton_clicked();
-   void on_submitButton_clicked();
    void showEvent(QShowEvent *);
    QString getQueryText() const;
    void saveSqlQueryInputText();
@@ -86,7 +84,6 @@ public slots:
    void onCbQueryIdentIndexChaned(int idx);
    bool eventFilter(QObject *obj, QEvent *ev);
    void initComboboxes();
-
 protected:
    void connectActions();
 
