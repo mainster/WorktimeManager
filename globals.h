@@ -10,9 +10,9 @@
 #include <QVariant>
 #include <QComboBox>
 
-#define CONFIG_PATH tr("/home/mainster/.config/WorkTimeManager_v" + qgetenv("APP_VERSION") + "/config")
-#define CUSTOM_QUERYS_PATH tr("/home/mainster/.config/WorkTimeManager_v" + qgetenv("APP_VERSION") + "/customQuerys")
-#define MAINWINDOW_TITLE tr("Arbeitszeiten-Manager v" + qgetenv("APP_VERSION"))
+#define CONFIG_PATH tr("/home/mainster/.config/" +qgetenv("APP_NAME") + qgetenv("APP_VERSION") + "/config")
+#define CUSTOM_QUERYS_PATH tr("/home/mainster/.config/" +qgetenv("APP_NAME")  + qgetenv("APP_VERSION") + "/customQuerys")
+#define MAINWINDOW_TITLE tr(qgetenv("APP_NAME") + qgetenv("APP_VERSION"))
 #define Q_INFO (qDebug().noquote() << QTime::currentTime() << Q_FUNC_INFO )
 #define QSETTINGS QSettings config(CONFIG_PATH, QSettings::IniFormat);
 #define QSETTINGS_QUERYS QSettings configQ(CUSTOM_QUERYS_PATH, QSettings::IniFormat);

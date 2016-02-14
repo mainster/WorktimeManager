@@ -126,6 +126,14 @@ void MainWindow::connectActions() {
              this,                   SLOT(onActCfgInpFrmTabOrdTrig()));
     connect( ui->actAutoFitTables, SIGNAL(triggered(bool)),
              browser,           SLOT(autofitRowCol()));
+    connect(ui->actFilterTable, SIGNAL(triggered()),
+            browser,        SLOT( SORTIT()));
+
+    connect( ui->actFilterTableWindow, SIGNAL(triggered(bool)),
+             browser,        SLOT(onActFilterWindowTable(bool)));
+    connect( browser->getSortwindow(), SIGNAL(close(bool)),
+             ui->actFilterTableWindow, SLOT(setDisabled(bool)));
+
 }
 void MainWindow::initDocks() {
     QSETTINGS;
@@ -463,9 +471,11 @@ void MainWindow::closeEvent(QCloseEvent *e) {
      \*/
     int nr = 0;
     QList<QAction *> acts = findChildren<QAction *>();
+    Q_INFO << acts;
 
     foreach (QAction *ac, acts)
-        if (ac->objectName().contains("actBut", Qt::CaseSensitive)) {
+        //        if (ac->objectName().contains("actBut", Qt::CaseSensitive)) {
+        if (ac->objectName().contains("act", Qt::CaseSensitive)) {
             config.setValue("MainWindow/" + ac->objectName(), ac->isChecked());
             nr++;
         }

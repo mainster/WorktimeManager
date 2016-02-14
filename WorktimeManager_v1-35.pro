@@ -13,6 +13,8 @@ TARGET = WorktimeManager_v1-35
 TEMPLATE = app
 
 PLATFORM = linux
+#APP_NAME="WorktimeManager_v"
+#APP_VERSION="1.35"
 
 
 SOURCES += main.cpp\
@@ -26,7 +28,9 @@ SOURCES += main.cpp\
     globals.cpp \
     tabview.cpp \
     form.cpp \
-    QSortFilterSqlQueryModel.cpp
+    QSortFilterSqlQueryModel.cpp \
+    mysortfilterproxymodel.cpp \
+    sortwindow.cpp
 
 HEADERS  += mainwindow.h \
     connectionwidget.h \
@@ -39,7 +43,9 @@ HEADERS  += mainwindow.h \
     tablewindow.h \
     tabview.h \
     form.h \
-    QSortFilterSqlQueryModel.h
+    QSortFilterSqlQueryModel.h \
+    mysortfilterproxymodel.h \
+    sortwindow.h
 
 FORMS    += mainwindow.ui \
     dbconndlg.ui \
@@ -47,7 +53,8 @@ FORMS    += mainwindow.ui \
     form.ui \
     browser.ui \
     inpfrm.ui \
-    tabview.ui
+    tabview.ui \
+    sortwindow.ui
 
 
 RESOURCES += \

@@ -25,6 +25,8 @@
 #include "globals.h"
 #include "tabview.h"
 #include "QSortFilterSqlQueryModel.h"
+#include "mysortfilterproxymodel.h"
+#include "sortwindow.h"
 
 #define QFOLDINGEND }
 
@@ -79,6 +81,8 @@ public:
    /**
     * Class accessors
     */
+   SortWindow *getSortwindow() const;
+
 signals:
    void stateMsg(const QString &message);
    void tabViewSelChanged(TabView *sel);
@@ -121,9 +125,18 @@ public slots:
    }
    void SORTIT();
    void autofitRowCol();
+   void onActFilterWindowTable(bool b);
 
 protected slots:
    bool eventFilter(QObject *obj, QEvent *e);
+
+private slots:
+   QAbstractItemModel *createMailModel(QObject *parent);
+   void addMail(QAbstractItemModel *model, const QString &subject, const QString &sender, const QDateTime &date);
+
+//private slots:
+//    void textFilterChanged();
+//    void dateFilterChanged();
 
 private:
    static Browser *inst;
@@ -135,6 +148,8 @@ private:
     */
    TabView * dblClickFocusedTv;
 
+   MySortFilterProxyModel *proxyModel;
+   SortWindow *sortwindow;
 };
 
 

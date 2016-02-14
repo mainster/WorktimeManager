@@ -266,45 +266,25 @@ QString InpFrm::getQueryText() const {
    return ui->teSqlQuerys->toPlainText();
 }
 void InpFrm::connectActions() {
-   connect(ui->datePicker,       SIGNAL(dateChanged(QDate)),
-           this,                 SLOT(onInpFormChanges(QDate)));
-   connect(ui->sbID,             SIGNAL(valueChanged(int)),
-           this,                 SLOT(onInpFormChanges(int)));
-   connect(ui->cbClientKurzform, SIGNAL(currentIndexChanged(int)),
-           this,                 SLOT(onInpFormChanges(int)));
-   connect(ui->cbClientNummer,   SIGNAL(currentIndexChanged(int)),
-           this,                 SLOT(onInpFormChanges(int)));
-   connect(ui->cbPrjKurzform,    SIGNAL(currentIndexChanged(int)),
-           this,                 SLOT(onInpFormChanges(int)));
-   connect(ui->cbPrjNummer,      SIGNAL(currentIndexChanged(int)),
-           this,                 SLOT(onInpFormChanges(int)));
-   connect(ui->cbWorkerNachname, SIGNAL(currentIndexChanged(int)),
-           this,                 SLOT(onInpFormChanges(int)));
-   connect(ui->cbWorkerVorname,  SIGNAL(currentIndexChanged(int)),
-           this,                 SLOT(onInpFormChanges(int)));
-   connect(ui->cbWorkerPersonalNr,  SIGNAL(currentIndexChanged(int)),
-           this,                 SLOT(onInpFormChanges(int)));
-   connect(ui->btnSubmitQuery,   SIGNAL(clicked()),
-           browser,              SLOT(exec()));
-   connect(ui->btnSaveQuery,     SIGNAL(clicked()),
-           this,                 SLOT(saveSqlQueryInputText()));
-   connect(ui->btnRestoreQuery,  SIGNAL(clicked()),
-           this,                 SLOT(restoreSqlQueryInputText()));
-   connect(ui->btnOk,            SIGNAL(clicked()),
-           this,                 SLOT(onBtnOkClicked()));
-   connect(ui->btnUndo,          SIGNAL(clicked()),
-           this,                 SLOT(onBtnUndoClicked()));
-   connect(ui->btnRedo,          SIGNAL(clicked()),
-           this,                 SLOT(onBtnRedoClicked()));
-   connect(ui->btnClear,         SIGNAL(clicked()),
-           this,                 SLOT(onBtnClearClicked()));
-   connect(ui->teSqlQuerys,      SIGNAL(textChanged()),
-           this,                 SLOT(onSqlQuerysTextChanged()));
-   connect(ui->cbQueryIdent,     SIGNAL(currentIndexChanged(int)),
-           this,                 SLOT(onCbQueryIdentIndexChaned(int)));
-   connect(this,                 SIGNAL(changeInpFrmTabOrder(InpFrm::states)),
-           this,                 SLOT(onChangeTabOrderSlot(InpFrm::states)));
-
+    connect(ui->datePicker, SIGNAL(dateChanged(QDate)), this, SLOT(onInpFormChanges(QDate)));
+    connect(ui->sbID, SIGNAL(valueChanged(int)), this, SLOT(onInpFormChanges(int)));
+    connect(ui->cbClientKurzform, SIGNAL(currentIndexChanged(int)), this, SLOT(onInpFormChanges(int)));
+    connect(ui->cbClientNummer, SIGNAL(currentIndexChanged(int)), this, SLOT(onInpFormChanges(int)));
+    connect(ui->cbPrjKurzform, SIGNAL(currentIndexChanged(int)), this, SLOT(onInpFormChanges(int)));
+    connect(ui->cbPrjNummer, SIGNAL(currentIndexChanged(int)), this, SLOT(onInpFormChanges(int)));
+    connect(ui->cbWorkerNachname, SIGNAL(currentIndexChanged(int)), this, SLOT(onInpFormChanges(int)));
+    connect(ui->cbWorkerVorname, SIGNAL(currentIndexChanged(int)), this, SLOT(onInpFormChanges(int)));
+    connect(ui->cbWorkerPersonalNr, SIGNAL(currentIndexChanged(int)), this, SLOT(onInpFormChanges(int)));
+    connect(ui->btnSubmitQuery, SIGNAL(clicked()), browser, SLOT(exec()));
+    connect(ui->btnSaveQuery, SIGNAL(clicked()), this, SLOT(saveSqlQueryInputText()));
+    connect(ui->btnRestoreQuery, SIGNAL(clicked()), this, SLOT(restoreSqlQueryInputText()));
+    connect(ui->btnOk, SIGNAL(clicked()), this, SLOT(onBtnOkClicked()));
+    connect(ui->btnUndo, SIGNAL(clicked()), this, SLOT(onBtnUndoClicked()));
+    connect(ui->btnRedo, SIGNAL(clicked()), this, SLOT(onBtnRedoClicked()));
+    connect(ui->btnClear, SIGNAL(clicked()), this, SLOT(onBtnClearClicked()));
+    connect(ui->teSqlQuerys, SIGNAL(textChanged()), this, SLOT(onSqlQuerysTextChanged()));
+    connect(ui->cbQueryIdent, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbQueryIdentIndexChaned(int)));
+    connect(this, SIGNAL(changeInpFrmTabOrder(InpFrm::states)), this, SLOT(onChangeTabOrderSlot(InpFrm::states)));
 }
 void InpFrm::onChangeTabOrderSlot(InpFrm::states state) {
    /** Interrupt a running changeTabOrder process */
@@ -458,7 +438,10 @@ void InpFrm::onBtnUndoClicked() {
 
 }
 void InpFrm::onBtnRedoClicked() {
-   browser->SORTIT();
+    QProcessEnvironment env;
+    Q_INFO  << env.value(tr("PLATFORM"), "env PLATFORM not found");
+    Q_INFO  << env.value(tr("APP_NAME"), "env APP_NAME not found");
+    Q_INFO  << env.value(tr("APP_VERSION"), "env APP_VERSION not found");
 }
 void InpFrm::onBtnClearClicked() {
 
@@ -543,6 +526,8 @@ void InpFrm::refreshCbDropDownLists() {
    foreach (QString str, configQ.allKeys()) {
       if (true /*str.contains( QUERYPREFIX )*/)
          query_keys << str.split('/').at(1);
+
+      Q_INFO << "Query key:" << query_keys.last();
       ui->cbQueryIdent->addItem(query_keys.last(),
                                 configQ.value(str).toString());
    }

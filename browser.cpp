@@ -2,6 +2,7 @@
 #include "dbconndlg.h"
 #include "globals.h"
 #include "tabview.h"
+#include "sortwindow.h"
 
 #include <QtWidgets>
 #include <QMessageBox>
@@ -72,10 +73,13 @@ Browser::Browser(QWidget *parent)  :
 
     CustomMdl *cm = new CustomMdl();
     cm->setCCol(QVector<int>(0, 1));
+
+    sortwindow = new SortWindow(0);
 }
 
 Browser::~Browser() {
     //   saveBrowserUiSettings();
+    delete sortwindow;
     delete ui;
 }
 QSqlError Browser::addConnection( const QString &driver, const QString &dbName,
@@ -287,9 +291,15 @@ void Browser::showRelatTable(const QString &sqlTbl, TabView *tvc) {
                     rmod->setHeaderData(rmod->fieldIndex("Stundensatz"), Qt::Horizontal, tr("€/h"));
                 }
                 else {
-                    QMessageBox::warning(this, tr("Warnung"),
-                                         tr("Unbekannter SQL Tabellenbezeichner: %1")
-                                         .arg(sqlTbl), QMessageBox::Ok);
+                    if (sqlTbl.contains("fehlzeit", Qt::CaseInsensitive)) {
+                        // Set the localized header captions
+                        rmod->setHeaderData(rmod->fieldIndex("FehlID"), Qt::Horizontal, tr("ID"));
+                    }
+                    else {
+                        QMessageBox::warning(this, tr("Warnung"),
+                                             tr("Unbekannter SQL Tabellenbezeichner: %1")
+                                             .arg(sqlTbl), QMessageBox::Ok);
+                    }
                 }
             }
         }
@@ -766,6 +776,10 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
                 emit tabViewSelChanged(tv);
             }
         }
+        else {
+            Q_INFO << tr("event receiver obj has NON of the known table names!  ")
+                    <<  widget->parentWidget()->objectName();
+        }
 
         if (false) {
             QList<QObject *> objs = obj->children();
@@ -863,17 +877,16 @@ void Browser::SORTIT() {
     model->setFilter("");
     model->select();
 
-    QFrame *frm = new QFrame();
+    QFrame *frm = new QFrame(this);
     QGridLayout *gl = new QGridLayout();
-
-    QLineEdit *oncol = new QLineEdit();
-    connect(oncol, SIGNAL (textChanged(QString)), model, SLOT( setFilterColumn(QString)));
-
-    QLineEdit *search = new QLineEdit();
-    connect(search, SIGNAL (textChanged(QString)), model, SLOT( filter(QString)));
 
     QLabel *se = new QLabel("search");
     QLabel *co = new QLabel("FilterCol");
+
+    QLineEdit *oncol = new QLineEdit();
+    QLineEdit *search = new QLineEdit();
+    connect(oncol, SIGNAL (textChanged(QString)), model, SLOT( setFilterColumn(QString)));
+    connect(search, SIGNAL (textChanged(QString)), model, SLOT( filter(QString)));
 
     gl->addWidget(se,0,0);
     gl->addWidget(search,0,1);
@@ -938,6 +951,59 @@ void Browser::onCyclic() {
             Q_INFO << widName << widget->children();
         }
     }
+}
+void Browser::onActFilterWindowTable(bool b) {
+    /* ---------------------------------------------------------------- */
+    /*                      sort window test                             */
+    /* ---------------------------------------------------------------- */
+    if (b) {
+
+        sortwindow->setSourceModel(this->createMailModel(sortwindow));
+        sortwindow->show();
+    }
+    else {
+        sortwindow->hide();
+    }
+}
+void Browser::addMail(QAbstractItemModel *model, const QString &subject,
+             const QString &sender, const QDateTime &date) {
+    model->insertRow(0);
+    model->setData(model->index(0, 0), subject);
+    model->setData(model->index(0, 1), sender);
+    model->setData(model->index(0, 2), date);
+}
+SortWindow *Browser::getSortwindow() const {
+    return sortwindow;
+}
+QAbstractItemModel *Browser::createMailModel(QObject *parent) {
+    QStandardItemModel *model = new QStandardItemModel(0, 3, parent);
+
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("Subject"));
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Sender"));
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Date"));
+
+    addMail(model, "Happy New Year!", "Grace K. <grace@software-inc.com>",
+            QDateTime(QDate(2006, 12, 31), QTime(17, 03)));
+    addMail(model, "Radically new concept", "Grace K. <grace@software-inc.com>",
+            QDateTime(QDate(2006, 12, 22), QTime(9, 44)));
+    addMail(model, "Accounts", "pascale@nospam.com",
+            QDateTime(QDate(2006, 12, 31), QTime(12, 50)));
+    addMail(model, "Expenses", "Joe Bloggs <joe@bloggs.com>",
+            QDateTime(QDate(2006, 12, 25), QTime(11, 39)));
+    addMail(model, "Re: Expenses", "Andy <andy@nospam.com>",
+            QDateTime(QDate(2007, 01, 02), QTime(16, 05)));
+    addMail(model, "Re: Accounts", "Joe Bloggs <joe@bloggs.com>",
+            QDateTime(QDate(2007, 01, 03), QTime(14, 18)));
+    addMail(model, "Re: Accounts", "Andy <andy@nospam.com>",
+            QDateTime(QDate(2007, 01, 03), QTime(14, 26)));
+    addMail(model, "Sports", "Linda Smith <linda.smith@nospam.com>",
+            QDateTime(QDate(2007, 01, 05), QTime(11, 33)));
+    addMail(model, "AW: Sports", "Rolf Newschweinstein <rolfn@nospam.com>",
+            QDateTime(QDate(2007, 01, 05), QTime(12, 00)));
+    addMail(model, "RE: Sports", "Petra Schmidt <petras@nospam.com>",
+            QDateTime(QDate(2007, 01, 05), QTime(12, 01)));
+
+    return model;
 }
 
 /*
