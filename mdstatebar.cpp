@@ -14,8 +14,8 @@
 /* --------------------------------------------------------------------------
 |     Long time msg     |     msg changes all 5sec       |    Error msg      |
  --------------------------------------------------------------------------- */
-#define N_MSG_SLOTS     3
-#define CLOCK_SLOT      1
+#define N_MSG_SLOTS         3
+#define CLOCK_SLOT          1
 
 MDStateBar * MDStateBar::inst = 0x0;
 int MDStateBar::PRIVATE_REFRESH_INTERVAL = 250;     // [ms]

@@ -47,12 +47,14 @@ SortWindow::SortWindow(QWidget *parent) :
     filterSyntaxComboBox->addItem(tr("Fixed string"), QRegExp::FixedString);
 
     fromDateEdit = new QDateEdit;
-    fromDateEdit->setDate(QDate(1970, 01, 01));
+    fromDateEdit->setDate( QDate::currentDate().addYears(-2));
+    fromDateEdit->setDisplayFormat("dd.MM.yyyy");
     fromLabel = new QLabel(tr("F&rom:"));
     fromLabel->setBuddy(fromDateEdit);
 
     toDateEdit = new QDateEdit;
-    toDateEdit->setDate(QDate(2099, 12, 31));
+    toDateEdit->setDate( QDate::currentDate().addYears(2));
+    toDateEdit->setDisplayFormat("dd.MM.yyyy");
     toLabel = new QLabel(tr("&To:"));
     toLabel->setBuddy(toDateEdit);
 
@@ -97,6 +99,7 @@ SortWindow::SortWindow(QWidget *parent) :
     resize(500, 450);
 
     installEventFilter(this);
+
 }
 
 SortWindow::~SortWindow() {
@@ -117,8 +120,13 @@ void SortWindow::textFilterChanged() {
 
     QRegExp regExp(filterPatternLineEdit->text(), caseSensitivity, syntax);
     proxyModel->setFilterRegExp(regExp);
+
+//    qDebug().noquote() << tr("from") << fromDateEdit->dateTime()
+//                       << tr("to") << toDateEdit->dateTime();
 }
 void SortWindow::dateFilterChanged() {
+//    qDebug().noquote() << fromDateEdit->date().toString("MM/dd/yy");
+
     proxyModel->setFilterMinimumDate(fromDateEdit->date());
     proxyModel->setFilterMaximumDate(toDateEdit->date());
 }

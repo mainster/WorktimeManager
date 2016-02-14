@@ -77,14 +77,14 @@ Browser::Browser(QWidget *parent)  :
     CustomMdl *cm = new CustomMdl();
     cm->setCCol(QVector<int>(0, 1));
 
-    sortwindow.append( new SortWindow(0) );
+//    sortwindow.append( new SortWindow(0) );
     sortwindow.append( new SortWindow(0) );
 }
 
 Browser::~Browser() {
     //   saveBrowserUiSettings();
     delete sortwindow[0];
-    delete sortwindow[1];
+//    delete sortwindow[1];
     delete ui;
 }
 QSqlError Browser::addConnection( const QString &driver, const QString &dbName,
@@ -789,15 +789,15 @@ void Browser::onActFilterWindowTable(bool b) {
     /*                      sort window test                             */
     /* ---------------------------------------------------------------- */
     if (b) {
-        //        sortwindow->setSourceModel(this->createMailModel(sortwindow));
-        sortwindow[0]->setSourceModel( this->createMailModel(sortwindow[0]) );
-        sortwindow[1]->setSourceModel( tvs.takeLast()->tv()->model() );
+//        sortwindow[0]->setSourceModel(this->createMailModel(sortwindow[0]));
+        sortwindow[0]->setSourceModel( tvs.takeLast()->tv()->model() );
+        //sortwindow[1]->setSourceModel( tvs.takeLast()->tv()->model() );
         sortwindow[0]->show();
-        sortwindow[1]->show();
+        //sortwindow[1]->show();
     }
     else {
         sortwindow[0]->hide();
-        sortwindow[1]->hide();
+        //sortwindow[1]->hide();
     }
 }
 void Browser::addMail(QAbstractItemModel *model, const QString &subject,
@@ -811,7 +811,7 @@ SortWindow *Browser::getSortwindow0() const {
     return sortwindow[0];
 }
 SortWindow *Browser::getSortwindow1() const {
-    return sortwindow[1];
+    return 0;//sortwindow[1];
 }
 QAbstractItemModel *Browser::createMailModel(QObject *parent) {
     QStandardItemModel *model = new QStandardItemModel(0, 3, parent);

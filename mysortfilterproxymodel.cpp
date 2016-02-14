@@ -3,43 +3,65 @@
 #include "mysortfilterproxymodel.h"
 
 MySortFilterProxyModel::MySortFilterProxyModel(QObject *parent)
-    : QSortFilterProxyModel(parent)
-{
+    : QSortFilterProxyModel(parent) {
 }
 
-void MySortFilterProxyModel::setFilterMinimumDate(const QDate &date)
-{
+void MySortFilterProxyModel::setFilterMinimumDate(const QDate &date) {
     minDate = date;
     invalidateFilter();
+    qDebug() << tr("min date:") << minDate.toString("dd.MM.yyyy");
 }
 
-void MySortFilterProxyModel::setFilterMaximumDate(const QDate &date)
-{
+void MySortFilterProxyModel::setFilterMaximumDate(const QDate &date) {
     maxDate = date;
     invalidateFilter();
+    qDebug() << tr("max date:") << maxDate.toString("dd.MM.yyyy");
 }
 
-bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow,
-        const QModelIndex &sourceParent) const
-{
-    QModelIndex index0 = sourceModel()->index(sourceRow, 0, sourceParent);
-    QModelIndex index1 = sourceModel()->index(sourceRow, 1, sourceParent);
-    QModelIndex index2 = sourceModel()->index(sourceRow, 2, sourceParent);
+#define     ID              0
+#define     Datum           1
+#define     Mitarb          2
+#define     Beschreibung    3
 
-    return (sourceModel()->data(index0).toString().contains(filterRegExp())
-            || sourceModel()->data(index1).toString().contains(filterRegExp()))
-           && dateInRange(sourceModel()->data(index2).toDate());
+bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow,
+                                              const QModelIndex &sourceParent) const {
+    QModelIndex idxDate = sourceModel()->index(sourceRow, Datum, sourceParent);
+    QModelIndex idxMitarb = sourceModel()->index(sourceRow, Mitarb, sourceParent);
+    QModelIndex idxBesch = sourceModel()->index(sourceRow, Beschreibung, sourceParent);
+
+//    qDebug().noquote() << tr("sourceModel()->data(idxDate).toDate()")
+//                       << sourceModel()->data(idxDate).toDate();
+//    qDebug().noquote() << idxDate << dateInRange(sourceModel()->data(idxDate).toDate());
+//    qDebug().noquote() << sourceModel()->data(idxDate).toString()
+//                       << sourceModel()->data(idxMitarb).toString()
+//                       << sourceModel()->data(idxBesch).toString();
+
+
+//    return (
+//                sourceModel()->data(idxMitarb).toString().contains(filterRegExp()) ||
+//                sourceModel()->data(idxBesch).toString().contains(filterRegExp()));
+
+//    QModelIndex idxself = sourceModel()->index(sourceRow,1,sourceParent);
+//    QString form;
+//    form = "mm/dd/yy";
+//    qDebug().noquote() << QDate::fromString(
+//                              sourceModel()->data(idxself).toString(),form);
+    return (
+                sourceModel()->data(idxMitarb).toString().contains(filterRegExp()) ||
+                sourceModel()->data(idxBesch).toString().contains(filterRegExp())) &&
+            dateInRange(sourceModel()->data(idxDate).toDate());
+
 }
 
 bool MySortFilterProxyModel::lessThan(const QModelIndex &left,
-                                      const QModelIndex &right) const
-{
+                                      const QModelIndex &right) const {
     QVariant leftData = sourceModel()->data(left);
     QVariant rightData = sourceModel()->data(right);
 
     if (leftData.type() == QVariant::DateTime) {
         return leftData.toDateTime() < rightData.toDateTime();
-    } else {
+    }
+    else {
         QRegExp *emailPattern = new QRegExp("([\\w\\.]*@[\\w\\.]*)");
 
         QString leftString = leftData.toString();
@@ -54,8 +76,11 @@ bool MySortFilterProxyModel::lessThan(const QModelIndex &left,
     }
 }
 
-bool MySortFilterProxyModel::dateInRange(const QDate &date) const
-{
+bool MySortFilterProxyModel::dateInRange(const QDate &date) const {
+    qDebug().noquote() << tr("min: ") << minDate
+                     << tr(" date: ") << date
+                     << tr(" max: ") << maxDate;
+
     return (!minDate.isValid() || date > minDate)
            && (!maxDate.isValid() || date < maxDate);
 }
