@@ -29,28 +29,9 @@ bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow,
     QModelIndex idxMitarb = sourceModel()->index(sourceRow, Mitarb, sourceParent);
     QModelIndex idxBesch = sourceModel()->index(sourceRow, Beschreibung, sourceParent);
 
-//    qDebug().noquote() << tr("sourceModel()->data(idxDate).toDate()")
-//                       << sourceModel()->data(idxDate).toDate();
-//    qDebug().noquote() << idxDate << dateInRange(sourceModel()->data(idxDate).toDate());
-//    qDebug().noquote() << sourceModel()->data(idxDate).toString()
-//                       << sourceModel()->data(idxMitarb).toString()
-//                       << sourceModel()->data(idxBesch).toString();
-
-
-//    return (
-//                sourceModel()->data(idxMitarb).toString().contains(filterRegExp()) ||
-//                sourceModel()->data(idxBesch).toString().contains(filterRegExp()));
-
-//    QModelIndex idxself = sourceModel()->index(sourceRow,1,sourceParent);
-//    QString form;
-//    form = "mm/dd/yy";
-//    qDebug().noquote() << QDate::fromString(
-//                              sourceModel()->data(idxself).toString(),form);
-    return (
-                sourceModel()->data(idxMitarb).toString().contains(filterRegExp()) ||
-                sourceModel()->data(idxBesch).toString().contains(filterRegExp())) &&
+    return (sourceModel()->data(idxMitarb).toString().contains(filterRegExp()) ||
+            sourceModel()->data(idxBesch).toString().contains(filterRegExp())) &&
             dateInRange(sourceModel()->data(idxDate).toDate());
-
 }
 
 bool MySortFilterProxyModel::lessThan(const QModelIndex &left,
@@ -77,9 +58,9 @@ bool MySortFilterProxyModel::lessThan(const QModelIndex &left,
 }
 
 bool MySortFilterProxyModel::dateInRange(const QDate &date) const {
-    qDebug().noquote() << tr("min: ") << minDate
-                     << tr(" date: ") << date
-                     << tr(" max: ") << maxDate;
+//    qDebug().noquote() << tr("min: ") << minDate
+//                     << tr(" date: ") << date
+//                     << tr(" max: ") << maxDate;
 
     return (!minDate.isValid() || date > minDate)
            && (!maxDate.isValid() || date < maxDate);

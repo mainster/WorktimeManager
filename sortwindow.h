@@ -3,7 +3,6 @@
 
 #include <QWidget>
 
-
 class QAbstractItemModel;
 class QCheckBox;
 class QComboBox;
@@ -26,11 +25,21 @@ class SortWindow : public QWidget
 public:
     explicit SortWindow(QWidget *parent = 0);
     ~SortWindow();
+    static SortWindow *getInstance(QWidget *parent = 0x00) {
+       if(inst == 0)
+          inst = new SortWindow(parent);
+       return inst;
+    }
     void setSourceModel(QAbstractItemModel *model);
+
+public slots:
+//    void onActFilterForm(bool b);
+    bool eventFilter(QObject *obj, QEvent *ev);
 
 signals:
     void closesUncheck(bool b);
 
+protected:
 protected slots:
     void closeEvent(QCloseEvent *e);
 private slots:
@@ -38,6 +47,8 @@ private slots:
     void dateFilterChanged();
 
 private:
+    static SortWindow *inst;
+
     Ui::SortWindow *ui;
     MySortFilterProxyModel *proxyModel;
 
@@ -53,6 +64,7 @@ private:
     QComboBox *filterSyntaxComboBox;
     QDateEdit *fromDateEdit;
     QDateEdit *toDateEdit;
+    QAction *deleteAct;
 
 };
 

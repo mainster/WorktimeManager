@@ -14,6 +14,9 @@
 #include <QDateEdit>
 #include <QtCore>
 #include <QComboBox>
+#include <QMainWindow>
+
+SortWindow *SortWindow::inst = 0;
 
 SortWindow::SortWindow(QWidget *parent) :
     QWidget(parent),
@@ -98,8 +101,7 @@ SortWindow::SortWindow(QWidget *parent) :
     setWindowTitle(tr("Custom Sort/Filter Model"));
     resize(500, 450);
 
-    installEventFilter(this);
-
+//    installEventFilter(this);
 }
 
 SortWindow::~SortWindow() {
@@ -134,4 +136,14 @@ void SortWindow::closeEvent(QCloseEvent *e) {
     Q_UNUSED(e);
     QSETTINGS;
     emit closesUncheck(false);
+}
+bool SortWindow::eventFilter(QObject *obj, QEvent *ev) {
+    if (ev->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
+        Q_INFO << tr("Ate key press %1").arg(keyEvent->key());
+        return QObject::eventFilter(obj, ev);
+    }
+
+    // pass the event on to the parent class
+    return QObject::eventFilter(obj, ev);
 }

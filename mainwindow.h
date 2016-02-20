@@ -54,8 +54,9 @@ public slots:
    void onActHideSqlQueryTrig();
    void onSetAlterRowColTrig();
    void initializeMdl(QSqlQueryModel *model);
-
+   void connectActions();
    void onCyclic();
+
 protected slots:
    void makeMenuBar();
    void onActCfgInpFrmTabOrdTrig();
@@ -82,15 +83,18 @@ private slots:
 
 private:
    Ui::MainWindow *ui;
-   void connectActions();
-   Browser  *browser;
-   InpFrm   *inpFrm;
-   TableWindow *tblWin;
-   QMenu *cfgMenu;
-   Form *form;
-   static int fuse;
-   QWidget *wid;
-   MDStateBar *stateBar;
+   static int   fuse;
+   Browser      *browser;
+   InpFrm       *inpFrm;
+   TableWindow  *tblWin;
+   QMenu        *cfgMenu;
+   Form         *form;
+   QWidget      *wid;
+   MDStateBar   *stateBar;
+   SortWindow   *sortwindow;
+   QMenu        *mBar;
+
+
 //   static MainWindow *inst;
 };
 
