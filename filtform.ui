@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FiltForm</class>
+ <widget class="QFrame" name="FiltForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>704</width>
+    <height>743</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>704</width>
+    <height>743</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Frame</string>
+  </property>
+  <property name="frameShape">
+   <enum>QFrame::StyledPanel</enum>
+  </property>
+  <property name="frameShadow">
+   <enum>QFrame::Raised</enum>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_4">
+   <item row="0" column="0">
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <widget class="QGroupBox" name="gbSrcView">
+      <property name="title">
+       <string>Quelldaten ungefiltert</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QTreeView" name="treeSrcMdl"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QGroupBox" name="gbProxyView">
+      <property name="title">
+       <string>Gefiltert / Sortiert</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QTreeView" name="treeProxyMdl"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="gridLayoutWidget">
+      <layout class="QGridLayout" name="glayoutInp">
+       <property name="leftMargin">
+        <number>15</number>
+       </property>
+       <property name="rightMargin">
+        <number>9</number>
+       </property>
+       <item row="3" column="1">
+        <widget class="QDateEdit" name="dateEditTo">
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QDateEdit" name="dateEditFrom">
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <layout class="QHBoxLayout" name="hLay"/>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="lblDateTo">
+         <property name="text">
+          <string>Bis:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="lblDateFrom">
+         <property name="text">
+          <string>Von:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="leFilter"/>
+       </item>
+       <item row="1" column="2">
+        <widget class="QComboBox" name="cbxFiltSyntax"/>
+       </item>
+       <item row="2" column="2">
+        <widget class="QCheckBox" name="caseSensSel">
+         <property name="text">
+          <string>CheckBox</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -33,17 +33,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
-    browser = Browser::getInstance( parent );
-    inpFrm = InpFrm::getInstance();
-    stateBar = new MDStateBar( this );
-    setStatusBar( stateBar );
+    browser =   Browser::getInstance( parent );
+    inpFrm =    InpFrm::getInstance();
+    stateBar =  new MDStateBar( this );
+    filtform =  new FiltForm();
 
+    setStatusBar( stateBar );
     makeMenuBar();
+
     browser->onCyclicObjInfoTrig(false);
     installEventFilter(this);
 
-    this->setWindowTitle( MAINWINDOW_TITLE );
-
+    setWindowTitle( MAINWINDOW_TITLE );
     connectActions();
 }
 MainWindow::~MainWindow() {
@@ -97,52 +98,51 @@ void MainWindow::makeMenuBar() {
 void MainWindow::connectActions() {
     ui->actHideSqlQuery->setChecked( true );
 
-    connect(ui->actButBrowseSQL,  SIGNAL(triggered(bool)),
-            this,                                     SLOT(onBrowseSqlTrig(bool)));
-    connect(ui->actButInpForm,       SIGNAL(triggered(bool)),
-            this,                                     SLOT(onInputFormTrig(bool)));
-    connect(ui->actButShowTbl,       SIGNAL(triggered(bool)),
-            this,                                     SLOT(onTblOpen(bool)));
-//    connect( browser,               SIGNAL(stateMsg(QString)),
-//             stateBar,              SLOT(showMessage(QString)));
-    connect( ui->actButClose,        SIGNAL(triggered()),
-             this,                   SLOT(onActCloseTrig()));
-    connect( ui->actButGbStyleShtA,  SIGNAL(triggered(bool)),
-             this,                   SLOT(onMenuStyleShtATrig(bool)));
-    connect( ui->actButGbStyleShtInpFrm, SIGNAL(triggered(bool)),
-             this,                   SLOT(onMenuStyleShtInpFrmTrig(bool)));
-    connect( ui->actButExport,       SIGNAL(triggered()),
-             this,                   SLOT(onActExportTrig()));
-    connect( ui->actButUnderConstr,  SIGNAL(triggered()),
-             this,                   SLOT(onUnderConstrTrig()));
-    connect( ui->actButSelFont,      SIGNAL(triggered()),
-             this,                   SLOT(onSetFont()));
-    connect( ui->actButCyclicObjInfo, SIGNAL(triggered(bool)),
-             browser,                SLOT(onCyclicObjInfoTrig(bool)));
-    connect( ui->actResizerDlg,      SIGNAL(triggered()),
-             this,                   SLOT(onResizerDlgTrig()));
-    connect( ui->actHideSqlQuery,    SIGNAL(triggered()),
-             this,                   SLOT(onActHideSqlQueryTrig()));
-    connect( ui->actSetAlterRowCol,  SIGNAL(triggered()),
-             this,                   SLOT(onSetAlterRowColTrig()));
-    connect( ui->actCfgInpFrmTabOrd, SIGNAL(triggered()),
-             this,                   SLOT(onActCfgInpFrmTabOrdTrig()));
-    connect( ui->actAutoFitTables, SIGNAL(triggered(bool)),
-             browser,           SLOT(autofitRowCol()));
-//    connect(ui->actFilterTable, SIGNAL(triggered()),
-//            browser,        SLOT( SORTIT()));
 
-    connect( ui->actFilterTableWindow, SIGNAL(triggered(bool)),
-             browser,        SLOT(onActFilterWindowTable(bool)));
-    connect( browser->getSortwindow0(), SIGNAL(closesUncheck(bool)),
-             ui->actFilterTableWindow, SLOT(setChecked(bool)));
-    connect( browser->getSortwindow1(), SIGNAL(closesUncheck(bool)),
-             ui->actFilterTableWindow, SLOT(setChecked(bool)));
-    connect( this,       SIGNAL(mainwindowCloses()),
-             browser->getSortwindow0(), SLOT(close()));
-    connect( this,       SIGNAL(mainwindowCloses()),
-             browser->getSortwindow1(), SLOT(close()));
-
+    connect(	ui->actButBrowseSQL,	SIGNAL(triggered(bool)),
+                this,					SLOT(onBrowseSqlTrig(bool)));
+    connect(	ui->actButInpForm,		SIGNAL(triggered(bool)),
+                this,					SLOT(onInputFormTrig(bool)));
+    connect(	ui->actButClose,		SIGNAL(triggered()),
+                this,					SLOT(onActCloseTrig()));
+    connect(	ui->actButGbStyleShtA,	SIGNAL(triggered(bool)),
+                this,					SLOT(onMenuStyleShtATrig(bool)));
+    connect(	ui->actButGbStyleShtInpFrm,	SIGNAL(triggered(bool)),
+                this,					SLOT(onMenuStyleShtInpFrmTrig(bool)));
+    connect(	ui->actButExport,		SIGNAL(triggered()),
+                this,					SLOT(onActExportTrig()));
+    connect(	ui->actButUnderConstr,	SIGNAL(triggered()),
+                this,					SLOT(onUnderConstrTrig()));
+    connect(	ui->actButSelFont,		SIGNAL(triggered()),
+                this,					SLOT(onSetFont()));
+    connect(	ui->actResizerDlg,		SIGNAL(triggered()),
+                this,					SLOT(onResizerDlgTrig()));
+    connect(	ui->actHideSqlQuery,	SIGNAL(triggered(bool)),
+                this,					SLOT(onActHideSqlQueryTrig(bool)));
+    connect(	ui->actSetAlterRowCol,	SIGNAL(triggered()),
+                this,					SLOT(onSetAlterRowColTrig()));
+    connect(	ui->actCfgInpFrmTabOrd, SIGNAL(triggered()),
+                this,					SLOT(onActCfgInpFrmTabOrdTrig()));
+    connect(	ui->actButCyclicObjInfo,SIGNAL(triggered(bool)),
+                browser,SLOT(onCyclicObjInfoTrig(bool)));
+    connect(	ui->actAutoFitTables,	SIGNAL(triggered(bool)),
+                browser,SLOT(autofitRowCol()));
+    connect(    ui->actFilterForm,          SIGNAL(triggered(bool)),
+                browser,                    SLOT(onActFilterForm(bool)));
+//    connect(	ui->actFilterTableWindow,	SIGNAL(triggered(bool)),
+//                browser,					SLOT(onActFilterWindowTable(bool)));
+//    connect(	this,						SIGNAL(mainwindowCloses()),
+//                browser->getSortwindow0(),	SLOT(close()));
+//    connect(	this,						SIGNAL(mainwindowCloses()),
+//                browser->getSortwindow1(),	SLOT(close()));
+//    connect(	browser->getSortwindow0(),	SIGNAL(closesUncheck(bool)),
+//                ui->actFilterTableWindow,	SLOT(setChecked(bool)));
+//    connect(	browser->getSortwindow1(),	SIGNAL(closesUncheck(bool)),
+//                ui->actFilterTableWindow,	SLOT(setChecked(bool)));
+    //    connect( browser,               SIGNAL(stateMsg(QString)),
+    //             stateBar,              SLOT(showMessage(QString)));
+    //    connect(ui->actFilterTable, SIGNAL(triggered()),
+    //            browser,        SLOT( SORTIT()));
 }
 void MainWindow::initDocks() {
     QSETTINGS;
@@ -204,18 +204,6 @@ void MainWindow::onInputFormTrig(bool b) {
         inpFrm->hide();
     }
 }
-void MainWindow::onTblOpen(bool b) {
-    //   if (tblWin == 0x00)
-    tblWin = TableWindow::getInstance();
-
-    if (b) {
-        tblWin->restoreTableWinGeometry();
-        tblWin->show();
-    } else {
-        tblWin->saveTableWinGeometry();
-        tblWin->hide();
-    }
-}
 void MainWindow::onSetAlterRowColTrig() {
     QPalette pal = browser->tvs.first()->tv()->palette();
 
@@ -241,11 +229,12 @@ void MainWindow::onResizerDlgTrig() {
         resize(QDesktopWidget().availableGeometry(this)
                .size() * text.toDouble() / 100);
 }
-void MainWindow::onActHideSqlQueryTrig() {
-    bool dohide = ui->actHideSqlQuery->isChecked();
+void MainWindow::onActHideSqlQueryTrig(bool b) {
+//    bool dohide = ui->actHideSqlQuery->isChecked();
     QSETTINGS;
-    config.setValue(objectName() + "/HideSqlQuery", dohide);
-    inpFrm->gbSqlQuerySetVisible( !dohide );
+//    config.setValue(objectName() + "/HideSqlQuery", dohide);
+    config.setValue(objectName() + "/actHideSqlQuery", b);
+    inpFrm->gbSqlQuerySetVisible( !b );
 }
 void MainWindow::onMenuStyleShtATrig(bool b) {
     if (!b) return;
@@ -274,7 +263,6 @@ void MainWindow::onActExportTrig() {
 void MainWindow::onActCfgInpFrmTabOrdTrig() {
     emit inpFrm->changeInpFrmTabOrder(InpFrm::state_init_changeTabOrder);
 }
-///** Testing (relational) editableSqlModel    19-11-2015 */
 void MainWindow::initializeMdl(QSqlQueryModel *model) {
     QSETTINGS;
     QSqlDatabase pDb = browser->getCurrentDatabase();
@@ -359,24 +347,12 @@ void MainWindow::about() {
                                              "shows how a data browser can be used to visualize the results of SQL"
                                              "statements on a live database"));
 }
-bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
-    if ((event->type() == QEvent::MouseButtonDblClick) ||
-            (event->type() == QEvent::MouseButtonPress) ||
-            (event->type() == QEvent::MouseButtonRelease) ||
-            (event->type() == QEvent::MouseMove) ||
-            (event->type() == QEvent::MouseTrackingChange)) {
-        Q_INFO << event->type() << "    FROM MOUSE!";
-        return QObject::eventFilter(obj, event);
-    }
+void MainWindow::onCyclic() {
 
-    if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        qDebug("Ate key press %d", keyEvent->key());
-        return QObject::eventFilter(obj, event);
-    }
-
-    // standard event processing
-    return QObject::eventFilter(obj, event);
+}
+void MainWindow::onActCloseTrig() {
+    //    qApp->closeAllWindows();
+    this->close();
 }
 void MainWindow::showEvent() {
     QShowEvent *ee = NULL;
@@ -398,13 +374,16 @@ void MainWindow::showEvent(QShowEvent *e) {
 
     /**** Recall visibility flag for the SQL command interface
     \*/
-    if (!config.value("MainWindow/HideSqlQuery", true).toBool()) {
-        inpFrm->gbSqlQuerySetVisible( true );
-        ui->actHideSqlQuery->setChecked( false );
-    } else {
-        inpFrm->gbSqlQuerySetVisible( false );
-        ui->actHideSqlQuery->setChecked( true );
-    }
+//    if (!config.value("MainWindow/HideSqlQuery", true).toBool()) {
+//        inpFrm->gbSqlQuerySetVisible( true );
+//        ui->actHideSqlQuery->setChecked( false );
+//    }
+
+    ui->actHideSqlQuery->setChecked(
+                config.value(objectName() + "/actHideSqlQuery", true).toBool() );
+
+//    inpFrm->gbSqlQuerySetVisible( false );
+//    ui->actHideSqlQuery->setChecked( true );
 
     /**** Recall mainWindow geometry and window state
     \*/
@@ -438,18 +417,25 @@ void MainWindow::showEvent(QShowEvent *e) {
     \*/
 
 }
-void MainWindow::onCyclic() {
+bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
+    if ((event->type() == QEvent::MouseButtonDblClick) ||
+            (event->type() == QEvent::MouseButtonPress) ||
+            (event->type() == QEvent::MouseButtonRelease) ||
+            (event->type() == QEvent::MouseMove) ||
+            (event->type() == QEvent::MouseTrackingChange)) {
+        Q_INFO << event->type() << "    FROM MOUSE!";
+        return QObject::eventFilter(obj, event);
+    }
 
-}
-/*
- \brief MainWindow closeEvent() is used to refresh the gui settings rfile
- before the program exits.
+//    if (event->type() == QEvent::KeyPress) {
+//        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+//        Q_INFO << tr("Ate key press %1").arg(keyEvent->key());
+//        return QObject::eventFilter(obj, event);
+//    }
 
- \param e
-*/
-void MainWindow::onActCloseTrig() {
-    //    qApp->closeAllWindows();
-    this->close();
+    // standard event processing
+//    return false;
+    return QObject::eventFilter(obj, event);
 }
 void MainWindow::closeEvent(QCloseEvent *e) {
     QSETTINGS;

@@ -24,13 +24,12 @@ SOURCES += main.cpp\
     inpfrm.cpp \
     dbconndlg.cpp \
     tabledelegate.cpp \
-    tablewindow.cpp \
     globals.cpp \
     tabview.cpp \
     form.cpp \
-    mysortfilterproxymodel.cpp \
-    sortwindow.cpp \
-    mdstatebar.cpp
+    mdstatebar.cpp \
+    sortfiltproxymdl.cpp \
+    filtform.cpp
 
 HEADERS  += mainwindow.h \
     connectionwidget.h \
@@ -40,12 +39,11 @@ HEADERS  += mainwindow.h \
     initdb.h \
     dbconndlg.h \
     tabledelegate.h \
-    tablewindow.h \
     tabview.h \
     form.h \
-    mysortfilterproxymodel.h \
-    sortwindow.h \
-    mdstatebar.h
+    mdstatebar.h \
+    sortfiltproxymdl.h \
+    filtform.h
 
 FORMS    += mainwindow.ui \
     dbconndlg.ui \
@@ -54,7 +52,8 @@ FORMS    += mainwindow.ui \
     browser.ui \
     inpfrm.ui \
     tabview.ui \
-    sortwindow.ui
+    sortwindow.ui \
+    filtform.ui
 
 
 RESOURCES += \

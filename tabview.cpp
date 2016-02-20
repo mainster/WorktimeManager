@@ -7,8 +7,7 @@
 class Browser;
 
 TabView::TabView(QWidget *parent) :
-   QWidget(parent),
-   ui(new Ui::TabView) {
+    QWidget(parent), ui(new Ui::TabView) {
    ui->setupUi(this);
 
    connect( this,    SIGNAL(objectNameChanged(QString)),
@@ -88,7 +87,6 @@ void TabView::onTabViewSelChanged(TabView *tv) {
       activeSel = false;
    }
 }
-
 /* ---------------------------------------------------------------- */
 /*                      Helper methodes                          */
 /* ---------------------------------------------------------------- */

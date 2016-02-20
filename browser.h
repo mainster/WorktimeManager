@@ -26,8 +26,8 @@
 #include "globals.h"
 #include "tabview.h"
 //#include "QSortFilterSqlQueryModel.h"
-#include "mysortfilterproxymodel.h"
-#include "sortwindow.h"
+#include "sortfiltproxymdl.h"
+#include "filtform.h"
 
 #define QFOLDINGEND }
 
@@ -48,7 +48,9 @@ class TabView;
  * \date
  */
 class Browser : public QWidget, private Ui::Browser {
-   Q_OBJECT
+
+    Q_OBJECT
+
 public:
    explicit Browser(QWidget *parent = 0);
    static Browser *getInstance(QWidget *parent = 0x00) {
@@ -82,8 +84,6 @@ public:
    /**
     * Class accessors
     */
-   SortWindow *getSortwindow0() const;
-   SortWindow *getSortwindow1() const;
 signals:
    void stateMsg(const QString &message);
    void tabViewSelChanged(TabView *sel);
@@ -108,49 +108,36 @@ public slots:
    void onCyclic();
    void customMenuRequested(QPoint pos);
    void initTableView(QWidget *parent, QStringList &accNam);
-   QFont selectFont();
-   int setFontAcc(QFont &font);
    void onCyclicObjInfoTrig(bool b)
    { cyclicObjInfo = b; }
-   void showEvent(QShowEvent *e);
    void exec();
-   void requeryWorktimeTableView(QString nonDefaulQuery = "");
-   /** Show table view methodes */
-   void showRelatTable(const QString &tNam, TabView *tvc);
-//   void showRelatTable(/*const QString &t, */QTableView *tv);
-//   void showRelatTable2(const QString &sqlTbl, QTableView *tv);
+   QFont selectFont();
+   int setFontAcc(QFont &font);
    QTableView *createView(QSqlQueryModel *model, const QString &title);
-   void initializeMdl(QSqlQueryModel *model);
    QSqlDatabase getCurrentDatabase() {
       return connectionWidget->currentDatabase();
    }
-//   void SORTIT();
+   void requeryWorktimeTableView(QString nonDefaulQuery = "");
+   void showRelatTable(const QString &tNam, TabView *tvc);
+   void initializeMdl(QSqlQueryModel *model);
    void autofitRowCol();
-   void onActFilterWindowTable(bool b);
+   void onActFilterForm(bool b);
 
 protected slots:
+   void showEvent(QShowEvent *e);
    bool eventFilter(QObject *obj, QEvent *e);
 
-private slots:
-   QAbstractItemModel *createMailModel(QObject *parent);
-   void addMail(QAbstractItemModel *model, const QString &subject, const QString &sender, const QDateTime &date);
-
-//private slots:
-//    void textFilterChanged();
-//    void dateFilterChanged();
-
 private:
-   static Browser *inst;
-   Ui::Browser *ui;
-   QTimer *timCyc;
-   bool cyclicObjInfo;
+   static Browser   * inst;
+   Ui::Browser      * ui;
+   QTimer           * timCyc;
+   bool             cyclicObjInfo;
    /**
     * This pointer gots manipulated by the double click event handler.
     */
-   TabView * dblClickFocusedTv;
-
-   MySortFilterProxyModel *proxyModel;
-   QList<SortWindow *> sortwindow;
+   TabView          * dblClickFocusedTv;
+   SortFiltProxyMdl * proxyModel;
+   FiltForm         * filterForm;
 };
 
 

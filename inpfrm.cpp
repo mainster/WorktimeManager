@@ -38,19 +38,28 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
    db.setDatabaseName(Globals::SQL_DB_PATH + Globals::SQL_DB_FILE);
 
-   /** Request all combobox widgets within the inputFrm */
+   /**
+    * Request all combobox widgets within the inputFrm
+    */
    cbs = findChildren<QComboBox *>();
-   /** Remove all comboboxes which are not based on sql list models */
+
+   /**
+    * Remove all comboboxes which are not based on sql list models
+    */
    cbs.removeOne(ui->cbQueryIdent);
 
-   /** Request all combobox widgets within the inputFrm */
+   /**
+    * Request all combobox widgets within the inputFrm
+    */
    QList<QComboBox *> cbsTabable = findChildren<QComboBox *>();
    QList<QDateEdit *> desTabable = findChildren<QDateEdit *>();
 
    foreach (QComboBox *cb, cbsTabable)
       objTabAble.append( static_cast<QObject*>(cb) );
+
    foreach (QDateEdit *de, desTabable)
       objTabAble.append( static_cast<QObject*>(de) );
+
    foreach (QObject *o, objTabAble) {
       if ((! o->objectName().contains("cbPrj")) &&
           (! o->objectName().contains("cbClient")) &&
@@ -58,8 +67,6 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
           (! o->objectName().contains("datePicker")))
          objTabAble.removeOne(o);
    }
-//   Q_INFO  << "";
-//   Q_INFO << tr("objTabable:") << Globals::objToStr(objTabAble);
 
    /**
     * Install event filter to capture focus changed event for
@@ -67,14 +74,18 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
     */
    foreach (QComboBox *cbx, cbsTabable)
       cbx->lineEdit()->installEventFilter(this);
+
    foreach (QComboBox *cbx, cbs)
       cbx->lineEdit()->installEventFilter(this);
 
    ui->datePicker->installEventFilter( this );
-   //   this->installEventFilter( this );
+   this->installEventFilter( this );
 
-   /** Check for valied tab order configuration data */
+   /**
+    * Check for valied tab order configuration data
+    */
    QStringList lst;
+
    if (config.allKeys().contains(this->objectName() + tr("/TabOrder"))) {
       Q_INFO << tr("Valied tab order configuration data found!");
       lst = config.value(this->objectName() + tr("/TabOrder"), "").toStringList();

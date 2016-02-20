@@ -5,7 +5,7 @@
 #include "globals.h"
 #include "browser.h"
 #include "inpfrm.h"
-#include "tablewindow.h"
+//#include "tablewindow.h"
 #include "tabledelegate.h"
 #include "dbconndlg.h"
 #include "form.h"
@@ -26,10 +26,6 @@ class MainWindow : public QMainWindow {
 
 public:
    explicit MainWindow(QWidget *parent = 0);
-//   static MainWindow *getObjectPtr() {
-//      return inst;
-//   }
-
    ~MainWindow();
 
 signals:
@@ -39,30 +35,30 @@ public slots:
    void onBrowseSqlTrig(bool b);
    void addConnectionsByCmdline(const QStringList &args,
                                       Browser &browser);
-   bool eventFilter(QObject *obj, QEvent *event);
    void about();
    void onMenuStyleShtInpFrmTrig(bool b);
    void onMenuStyleShtATrig(bool b);
    void onActExportTrig();
    void onUnderConstrTrig();
    void onSetFont();
-   void closeEvent(QCloseEvent *e);
    void initDocks();
    void showEvent();
-   void showEvent(QShowEvent *e);
    void onResizerDlgTrig();
-   void onActHideSqlQueryTrig();
+   void onActHideSqlQueryTrig(bool b);
    void onSetAlterRowColTrig();
    void initializeMdl(QSqlQueryModel *model);
-
+   void connectActions();
    void onCyclic();
+   void showEvent(QShowEvent *e);
+   void closeEvent(QCloseEvent *e);
+   bool eventFilter(QObject *obj, QEvent *event);
+
 protected slots:
    void makeMenuBar();
    void onActCfgInpFrmTabOrdTrig();
 
 private slots:
    void onInputFormTrig(bool b);
-   void onTblOpen(bool b);
    void onActCloseTrig();
    void restoreMainWindowGeometry() {
       QSETTINGS;
@@ -81,16 +77,18 @@ private slots:
    }
 
 private:
-   Ui::MainWindow *ui;
-   void connectActions();
-   Browser  *browser;
-   InpFrm   *inpFrm;
-   TableWindow *tblWin;
-   QMenu *cfgMenu;
-   Form *form;
-   static int fuse;
-   QWidget *wid;
-   MDStateBar *stateBar;
+   Ui::MainWindow   *ui;
+   static int       fuse;
+   Browser          *browser;
+   InpFrm           *inpFrm;
+   QMenu            *cfgMenu;
+   Form             *form;
+   QWidget          *wid;
+   MDStateBar       *stateBar;
+   FiltForm       *filtform;
+   QMenu            *mBar;
+
+
 //   static MainWindow *inst;
 };
 

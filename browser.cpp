@@ -2,7 +2,7 @@
 #include "dbconndlg.h"
 #include "globals.h"
 #include "tabview.h"
-#include "sortwindow.h"
+#include "filtform.h"
 
 #include <QtWidgets>
 #include <QMessageBox>
@@ -35,11 +35,6 @@ Browser::Browser(QWidget *parent)  :
     QStringList accNam;
     accNam << TVA << TVB << TVC << TVD << TVL1 << TVL2;
     initTableView( inst, accNam);
-
-    //   connect (ui->btnA,      SIGNAL(clicked()),
-    //            this,          SLOT(onTestBtnClicked()));
-    //   connect (ui->btnB,      SIGNAL(clicked()),
-    //            this,          SLOT(onTestBtnClicked()));
     QList<bool> bl;
 
     bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
@@ -77,13 +72,17 @@ Browser::Browser(QWidget *parent)  :
     CustomMdl *cm = new CustomMdl();
     cm->setCCol(QVector<int>(0, 1));
 
-//    sortwindow.append( new SortWindow(0) );
-    sortwindow.append( new SortWindow(0) );
+    filterForm = new FiltForm(parent);
+    filterForm->setVisible(false);
+
+
+    connect( filterForm,    SIGNAL(showFiltForm(bool)),
+             this,          SLOT(onActFilterForm(bool)));
 }
 
 Browser::~Browser() {
     //   saveBrowserUiSettings();
-    delete sortwindow[0];
+//    delete sortwindow[0];
 //    delete sortwindow[1];
     delete ui;
 }
@@ -225,7 +224,8 @@ void Browser::exec() {
     tvq->setVisible( true );
     updateActions();
 }
-/** Relational table model - View relational WORKS 12-11-2015
+/**
+ * Relational table model - View relational WORKS 12-11-2015
  */
 void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
     /**
@@ -479,19 +479,6 @@ void Browser::updateActions(/*QTableView &tv*/) {
         }
     }
 }
-QFont Browser::selectFont() {
-    bool ok;
-    QFont font = QFontDialog::getFont(
-                &ok, QFont("Helvetica [Cronyx]", 10), this);
-
-    if (ok) {
-        Q_INFO << font;
-    } else {
-        Q_INFO << font;
-    }
-
-    return QFont();
-}
 void Browser::customMenuRequested(QPoint pos) {
     QModelIndex index = this->tvs.first()->tv()->indexAt(pos);
     Q_UNUSED(index);
@@ -628,6 +615,71 @@ int  Browser::setFontAcc(QFont &font) {
     this->tva->tv()->setFont(font);
     return 0;
 }
+void Browser::autofitRowCol() {
+    foreach (TabView *tvc, tvs) {
+        tvc->tv()->setVisible( false );
+        tvc->tv()->resizeColumnsToContents();
+        tvc->tv()->resizeRowsToContents();
+        tvc->tv()->setVisible( true );
+    }
+}
+void Browser::initializeMdl(QSqlQueryModel *model) {
+    QSqlDatabase pDb = connectionWidget->currentDatabase();
+    model->setQuery("select * from worker", pDb);
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("workerID"));
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Nachname"));
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Vorname"));
+    Q_INFO << model->lastError().databaseText();
+    Q_INFO << model->lastError().driverText();
+    Q_INFO << model->lastError();
+
+    ////   mdl->setQuery("SELECT prjID, clientID, SubID, Beschreibung, Kurzform "
+    ////                 "FROM prj", pDb);
+    //   mdl->setQuery("SELECT * FROM prj");
+    //   mdl->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
+    //   mdl->setHeaderData(1, Qt::Horizontal, QObject::tr("clId"));
+    //   mdl->setHeaderData(2, Qt::Horizontal, QObject::tr("subId"));
+}
+QFont Browser::selectFont() {
+    bool ok;
+    QFont font = QFontDialog::getFont(
+                &ok, QFont("Helvetica [Cronyx]", 10), this);
+
+    if (ok) {
+        Q_INFO << font;
+    } else {
+        Q_INFO << font;
+    }
+
+    return QFont();
+}
+QTableView* Browser::createView(QSqlQueryModel *model, const QString &title) {
+    QTableView *view = new QTableView(0);
+    view->setModel(model);
+    static int offset = 0;
+
+    view->setWindowTitle(title);
+    view->move(100 + offset, 100 + offset);
+    offset += 20;
+    view->show();
+
+    return view;
+}
+void Browser::onCyclic() {
+
+    //   currentChanged();
+    /* ---------------------------------------------------------------- */
+    /*         Get the name of object under the mouse pointer           */
+    /* ----------------------------------------------------------------*/
+    if (cyclicObjInfo) {
+        QWidget *widget = qApp->widgetAt(QCursor::pos());
+
+        if (widget != 0x00) {
+            QString widName = widget->objectName();
+            Q_INFO << widName << widget->children();
+        }
+    }
+}
 bool Browser::eventFilter(QObject *obj, QEvent *e) {
     QPoint pos;
 
@@ -685,8 +737,7 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
         return true;
     }
 
-    if ((e->type() == QEvent::KeyPress)
-            && false) {
+    if ((e->type() == QEvent::KeyPress) && false) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(e);
         Q_INFO << "Keypress " << kev->key() << "by obj:" ;
         Q_INFO << "obj name:" << obj->objectName();
@@ -701,16 +752,12 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 
     }
 
+    return false;
+
     /**
      * standard event processing
      */
     return QObject::eventFilter(obj, e);
-}
-QVector<int> CustomMdl::getCCol() const {
-    return cCol;
-}
-void CustomMdl::setCCol(const QVector<int> &value) {
-    cCol = value;
 }
 void Browser::showEvent(QShowEvent *e) {
     Q_UNUSED(e)
@@ -727,124 +774,62 @@ void Browser::showEvent(QShowEvent *e) {
         }
     }
 }
+/* ---------------------------------------------------------------- */
+/*                SQL Sort filter proxy model                       */
+/* ---------------------------------------------------------------- */
 /**
- * Testing (relational) editableSqlModel    19-11-2015 */
-void Browser::autofitRowCol() {
-    foreach (TabView *tvc, tvs) {
-        tvc->tv()->setVisible( false );
-        tvc->tv()->resizeColumnsToContents();
-        tvc->tv()->resizeRowsToContents();
-        tvc->tv()->setVisible( true );
-    }
-}
-void Browser::initializeMdl(QSqlQueryModel *model) {
-    QSqlDatabase pDb = connectionWidget->currentDatabase();
-    model->setQuery("select * from worker", pDb);
-    model->setHeaderData(0, Qt::Horizontal, QObject::tr("workerID"));
-    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Nachname"));
-    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Vorname"));
-    Q_INFO << model->lastError().databaseText();
-    Q_INFO << model->lastError().driverText();
-    Q_INFO << model->lastError();
-
-    ////   mdl->setQuery("SELECT prjID, clientID, SubID, Beschreibung, Kurzform "
-    ////                 "FROM prj", pDb);
-    //   mdl->setQuery("SELECT * FROM prj");
-    //   mdl->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
-    //   mdl->setHeaderData(1, Qt::Horizontal, QObject::tr("clId"));
-    //   mdl->setHeaderData(2, Qt::Horizontal, QObject::tr("subId"));
-}
-QTableView* Browser::createView(QSqlQueryModel *model, const QString &title) {
-    QTableView *view = new QTableView(0);
-    view->setModel(model);
-    static int offset = 0;
-
-    view->setWindowTitle(title);
-    view->move(100 + offset, 100 + offset);
-    offset += 20;
-    view->show();
-
-    return view;
-}
-void Browser::onCyclic() {
-
-    //   currentChanged();
-    /* ---------------------------------------------------------------- */
-    /*         Get the name of object under the mouse pointer           */
-    /* ----------------------------------------------------------------*/
-    if (cyclicObjInfo) {
-        QWidget *widget = qApp->widgetAt(QCursor::pos());
-
-        if (widget != 0x00) {
-            QString widName = widget->objectName();
-            Q_INFO << widName << widget->children();
+ * Show / Hide filter form action handler
+ */
+void Browser::onActFilterForm(bool b) {
+    if (b) {
+        foreach (TabView *tv, tvs) {
+            if (tv->isActiveSelected()) {
+                filterForm->setSourceModel( tv->tv()->model() );
+                filterForm->buildCustomUis( tv->tv()->model() );
+                filterForm->setVisible(b);
+                filterForm->raise();
+                filterForm->activateWindow();
+                break;
+            }
         }
     }
-}
-/* ---------------------------------------------------------------- */
-/*                SQL Sort filter proxy model                 */
-/* ---------------------------------------------------------------- */
-void Browser::onActFilterWindowTable(bool b) {
-    /* ---------------------------------------------------------------- */
-    /*                      sort window test                             */
-    /* ---------------------------------------------------------------- */
-    if (b) {
-//        sortwindow[0]->setSourceModel(this->createMailModel(sortwindow[0]));
-        sortwindow[0]->setSourceModel( tvs.takeLast()->tv()->model() );
-        //sortwindow[1]->setSourceModel( tvs.takeLast()->tv()->model() );
-        sortwindow[0]->show();
-        //sortwindow[1]->show();
-    }
     else {
-        sortwindow[0]->hide();
-        //sortwindow[1]->hide();
+        filterForm->hide();
     }
 }
-void Browser::addMail(QAbstractItemModel *model, const QString &subject,
-             const QString &sender, const QDateTime &date) {
-    model->insertRow(0);
-    model->setData(model->index(0, 0), subject);
-    model->setData(model->index(0, 1), sender);
-    model->setData(model->index(0, 2), date);
+QVector<int> CustomMdl::getCCol() const {
+    return cCol;
 }
-SortWindow *Browser::getSortwindow0() const {
-    return sortwindow[0];
+void CustomMdl::setCCol(const QVector<int> &value) {
+    cCol = value;
 }
-SortWindow *Browser::getSortwindow1() const {
-    return 0;//sortwindow[1];
-}
-QAbstractItemModel *Browser::createMailModel(QObject *parent) {
-    QStandardItemModel *model = new QStandardItemModel(0, 3, parent);
 
-    model->setHeaderData(0, Qt::Horizontal, QObject::tr("Subject"));
-    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Sender"));
-    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Date"));
-
-    addMail(model, "Happy New Year!", "Grace K. <grace@software-inc.com>",
-            QDateTime(QDate(2006, 12, 31), QTime(17, 03)));
-    addMail(model, "Radically new concept", "Grace K. <grace@software-inc.com>",
-            QDateTime(QDate(2006, 12, 22), QTime(9, 44)));
-    addMail(model, "Accounts", "pascale@nospam.com",
-            QDateTime(QDate(2006, 12, 31), QTime(12, 50)));
-    addMail(model, "Expenses", "Joe Bloggs <joe@bloggs.com>",
-            QDateTime(QDate(2006, 12, 25), QTime(11, 39)));
-    addMail(model, "Re: Expenses", "Andy <andy@nospam.com>",
-            QDateTime(QDate(2007, 01, 02), QTime(16, 05)));
-    addMail(model, "Re: Accounts", "Joe Bloggs <joe@bloggs.com>",
-            QDateTime(QDate(2007, 01, 03), QTime(14, 18)));
-    addMail(model, "Re: Accounts", "Andy <andy@nospam.com>",
-            QDateTime(QDate(2007, 01, 03), QTime(14, 26)));
-    addMail(model, "Sports", "Linda Smith <linda.smith@nospam.com>",
-            QDateTime(QDate(2007, 01, 05), QTime(11, 33)));
-    addMail(model, "AW: Sports", "Rolf Newschweinstein <rolfn@nospam.com>",
-            QDateTime(QDate(2007, 01, 05), QTime(12, 00)));
-    addMail(model, "RE: Sports", "Petra Schmidt <petras@nospam.com>",
-            QDateTime(QDate(2007, 01, 05), QTime(12, 01)));
-
-    return model;
-}
 
 #define QFOLDINGSTART {
+//void Browser::addMail(QAbstractItemModel *model, const QString &subject,
+//                      const QString &sender, const QDateTime &date) {
+//    model->insertRow(0);
+//    model->setData(model->index(0, 0), subject);
+//    model->setData(model->index(0, 1), sender);
+//    model->setData(model->index(0, 2), date);
+//}
+
+//void Browser::onActFilterWindowTable(bool b) {
+//    /* ---------------------------------------------------------------- */
+//    /*                      sort window test                             */
+//    /* ---------------------------------------------------------------- */
+//    if (b) {
+////        sortwindow[0]->setSourceModel(this->createMailModel(sortwindow[0]));
+//        sortwindow[0]->setSourceModel( tvs.takeLast()->tv()->model() );
+//        //sortwindow[1]->setSourceModel( tvs.takeLast()->tv()->model() );
+//        sortwindow[0]->show();
+//        //sortwindow[1]->show();
+//    }
+//    else {
+//        sortwindow[0]->hide();
+//        //sortwindow[1]->hide();
+//    }
+//}
 //void Browser::showRelatTable(/*const QString &t, */QTableView *tv) {
 ////    Q_UNUSED(t);
 //    /**
