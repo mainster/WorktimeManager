@@ -1,19 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>FiltForm</class>
- <widget class="QWidget" name="FiltForm">
+ <widget class="QFrame" name="FiltForm">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>761</width>
-    <height>748</height>
+    <width>704</width>
+    <height>743</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Form</string>
+  <property name="minimumSize">
+   <size>
+    <width>704</width>
+    <height>743</height>
+   </size>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3">
+  <property name="windowTitle">
+   <string>Frame</string>
+  </property>
+  <property name="frameShape">
+   <enum>QFrame::StyledPanel</enum>
+  </property>
+  <property name="frameShadow">
+   <enum>QFrame::Raised</enum>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_4">
    <item row="0" column="0">
     <widget class="QSplitter" name="splitter">
      <property name="orientation">

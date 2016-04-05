@@ -93,14 +93,12 @@ void FiltForm::buildCustomUis(QAbstractItemModel *model) {
     connect(toDateEdit,     SIGNAL(dateChanged(QDate)),
             this,           SLOT(dateFilterChanged()));
 
-    srcView = new QTreeView(ui->treeProxyMdl);
+    proxyView = new QTreeView(ui->treeProxyMdl);
     proxyView->setRootIsDecorated(false);
     proxyView->setAlternatingRowColors(true);
     proxyView->setModel(proxyModel);
     proxyView->setSortingEnabled(true);
     proxyView->sortByColumn(1, Qt::AscendingOrder);
-
-    QGridLayout lay = this->layout();
 
 //    QGridLayout *proxyLayout = this->layout()
 //    proxyLayout->addWidget(proxyView,       0, 0, 1, 3);

@@ -3,7 +3,8 @@
 QString Globals::STR_NOTIFY = "notify-send --app-name=\"@APP@\" -t @MSG_TIME@ \"@MSG_HEAD@\" \"@MSG_BODY@";
 Globals * Globals::inst = 0x00;
 
-QString Globals::SQL_DB_PATH     = "/var/lib/mysql/";
+//QString Globals::SQL_DB_PATH     = "/var/lib/mysql/";
+QString Globals::SQL_DB_PATH     = "/home/mainster/CODES_local/mysql/";
 QString Globals::SQL_DB_FILE     = "delbassoSQL.db";
 
 QStringList Globals::strLst      = QStringList();
