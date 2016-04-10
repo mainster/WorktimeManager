@@ -64,7 +64,7 @@ QGroupBox::title {
      <x>0</x>
      <y>0</y>
      <width>458</width>
-     <height>23</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Setup">
@@ -211,6 +211,9 @@ QGroupBox::title {
    </property>
    <property name="toolTip">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Öffnet die &lt;span style=&quot; font-weight:600;&quot;&gt;Eingabeform&lt;/span&gt; um neue Einträge in die in die Arbeitszeitentabelle einzutragen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C, E</string>
    </property>
   </action>
   <action name="actButShowTbl">

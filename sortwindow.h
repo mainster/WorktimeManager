@@ -52,16 +52,16 @@ private:
     Ui::SortWindow *ui;
     MySortFilterProxyModel *proxyModel;
 
-    QGroupBox *sourceGroupBox;
-    QGroupBox *proxyGroupBox;
+    QGroupBox *sourceGB;
+    QGroupBox *proxyGB;
     QTreeView *sourceView;
     QTreeView *proxyView;
-    QCheckBox *filterCaseSensitivityCheckBox;
+    QCheckBox *filtCaseSensCB;
     QLabel *filterPatternLabel;
     QLabel *fromLabel;
     QLabel *toLabel;
-    QLineEdit *filterPatternLineEdit;
-    QComboBox *filterSyntaxComboBox;
+    QLineEdit *filtPattLE;
+    QComboBox *filtSyntaxCB;
     QDateEdit *fromDateEdit;
     QDateEdit *toDateEdit;
     QAction *deleteAct;

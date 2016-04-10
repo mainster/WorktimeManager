@@ -6,23 +6,74 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>646</width>
-    <height>512</height>
+    <width>729</width>
+    <height>646</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QTreeView" name="sourceView">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>30</y>
-     <width>256</width>
-     <height>192</height>
-    </rect>
-   </property>
-  </widget>
+  <layout class="QGridLayout" name="gridLayout_4">
+   <item row="0" column="0">
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <widget class="QGroupBox" name="sourceGB">
+      <property name="title">
+       <string>Original Model</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QTreeView" name="sourceView"/>
+       </item>
+      </layout>
+      <zorder>sourceView</zorder>
+      <zorder>sourceView</zorder>
+     </widget>
+     <widget class="QGroupBox" name="proxyGB">
+      <property name="title">
+       <string>Proxy Model</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QTreeView" name="proxyView"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLineEdit" name="filtPattLE">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="placeholderText">
+          <string>search pattern</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="QDateEdit" name="fromDateEdit"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QDateEdit" name="toDateEdit"/>
+         </item>
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="filtCaseSensCB">
+           <property name="text">
+            <string>Case sensitive</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="filtSyntaxCB"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>
