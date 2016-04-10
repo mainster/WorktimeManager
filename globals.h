@@ -17,6 +17,14 @@
 #define QSETTINGS QSettings config(CONFIG_PATH, QSettings::IniFormat);
 #define QSETTINGS_QUERYS QSettings configQ(CUSTOM_QUERYS_PATH, QSettings::IniFormat);
 
+/**
+ * Env vars:
+ *
+ * APP_NAME=WorktimeManager_v
+ * APP_VERSION=1.35
+ */
+
+
 
 class Globals {
 

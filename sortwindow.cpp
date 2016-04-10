@@ -26,20 +26,21 @@ SortWindow::SortWindow(QWidget *parent) :
     proxyModel = new MySortFilterProxyModel(this);
     proxyModel->setDynamicSortFilter(true);
 
-    sourceView = new QTreeView;
+//    sourceView = new QTreeView;
+    sourceView = ui->sourceView;
     sourceView->setRootIsDecorated(false);
     sourceView->setAlternatingRowColors(true);
 
     QHBoxLayout *sourceLayout = new QHBoxLayout;
     sourceLayout->addWidget(sourceView);
-    sourceGroupBox = new QGroupBox(tr("Original Model"));
+//    sourceGroupBox = new QGroupBox(tr("Original Model"));
     sourceGroupBox->setLayout(sourceLayout);
 
-    filterCaseSensitivityCheckBox = new QCheckBox(tr("Case sensitive filter"));
+//    filterCaseSensitivityCheckBox = new QCheckBox(tr("Case sensitive filter"));
     filterCaseSensitivityCheckBox->setChecked(true);
 
-    filterPatternLineEdit = new QLineEdit;
-    filterPatternLineEdit->setText("Grace|Sports");
+//    filterPatternLineEdit = new QLineEdit;
+//    filterPatternLineEdit->setText("Grace|Sports");
 
     filterPatternLabel = new QLabel(tr("&Filter pattern:"));
     filterPatternLabel->setBuddy(filterPatternLineEdit);
@@ -49,28 +50,28 @@ SortWindow::SortWindow(QWidget *parent) :
     filterSyntaxComboBox->addItem(tr("Wildcard"), QRegExp::Wildcard);
     filterSyntaxComboBox->addItem(tr("Fixed string"), QRegExp::FixedString);
 
-    fromDateEdit = new QDateEdit;
+//    fromDateEdit = new QDateEdit;
     fromDateEdit->setDate( QDate::currentDate().addYears(-2));
     fromDateEdit->setDisplayFormat("dd.MM.yyyy");
     fromLabel = new QLabel(tr("F&rom:"));
     fromLabel->setBuddy(fromDateEdit);
 
-    toDateEdit = new QDateEdit;
+//    toDateEdit = new QDateEdit;
     toDateEdit->setDate( QDate::currentDate().addYears(2));
     toDateEdit->setDisplayFormat("dd.MM.yyyy");
     toLabel = new QLabel(tr("&To:"));
     toLabel->setBuddy(toDateEdit);
 
-    connect(filterPatternLineEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(textFilterChanged()));
-    connect(filterSyntaxComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(textFilterChanged()));
+    connect(filterPatternLineEdit,  SIGNAL(textChanged(QString)),
+            this,                   SLOT(textFilterChanged()));
+    connect(filterSyntaxComboBox,   SIGNAL(currentIndexChanged(int)),
+            this,                   SLOT(textFilterChanged()));
     connect(filterCaseSensitivityCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(textFilterChanged()));
-    connect(fromDateEdit, SIGNAL(dateChanged(QDate)),
-            this, SLOT(dateFilterChanged()));
-    connect(toDateEdit, SIGNAL(dateChanged(QDate)),
-            this, SLOT(dateFilterChanged()));
+            this,                   SLOT(textFilterChanged()));
+    connect(fromDateEdit,           SIGNAL(dateChanged(QDate)),
+            this,                   SLOT(dateFilterChanged()));
+    connect(toDateEdit,             SIGNAL(dateChanged(QDate)),
+            this,                   SLOT(dateFilterChanged()));
 
     proxyView = new QTreeView;
     proxyView->setRootIsDecorated(false);

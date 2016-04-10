@@ -387,7 +387,7 @@ void MainWindow::showEvent(QShowEvent *e) {
 
     /**** Recall visibility flag for the SQL command interface
     \*/
-    if (!config.value("MainWindow/HideSqlQuery", true).toBool()) {
+    if (!config.value("MainWindow/actHideSqlQuery", true).toBool()) {
         inpFrm->gbSqlQuerySetVisible( true );
         ui->actHideSqlQuery->setChecked( false );
     } else {
