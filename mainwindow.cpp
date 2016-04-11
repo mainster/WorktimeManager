@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     stateBar = new MDStateBar( this );
     setStatusBar( stateBar );
     sortwindow = new SortWindow();
+    stateBar->setClockVisible(true);
 
     makeMenuBar();
     browser->onCyclicObjInfoTrig(false);
@@ -141,8 +142,8 @@ void MainWindow::connectActions() {
 //                ui->actFilterTableWindow,	SLOT(setChecked(bool)));
 //    connect(	browser->getSortwindow1(),	SIGNAL(closesUncheck(bool)),
 //                ui->actFilterTableWindow,	SLOT(setChecked(bool)));
-    //    connect( browser,               SIGNAL(stateMsg(QString)),
-    //             stateBar,              SLOT(showMessage(QString)));
+        connect( browser,               SIGNAL(stateMsg(QString)),
+                 stateBar,              SLOT(showMessage(QString)));
     //    connect(ui->actFilterTable, SIGNAL(triggered()),
     //            browser,        SLOT( SORTIT()));
 }

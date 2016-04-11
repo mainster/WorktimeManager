@@ -28,6 +28,7 @@
 //#include "QSortFilterSqlQueryModel.h"
 #include "mysortfilterproxymodel.h"
 #include "sortwindow.h"
+#include "mdstatebar.h"
 
 #define QFOLDINGEND }
 
@@ -147,6 +148,7 @@ private:
    MySortFilterProxyModel *proxyModel;
 //   QList<SortWindow *> sortwindow;
    SortWindow * filterForm;
+   MDStateBar * stateBar;
 };
 
 

@@ -3,6 +3,7 @@
 #include "globals.h"
 #include "tabview.h"
 #include "sortwindow.h"
+#include "mdstatebar.h"
 
 #include <QtWidgets>
 #include <QMessageBox>
@@ -94,6 +95,8 @@ Browser::~Browser() {
 QSqlError Browser::addConnection( const QString &driver, const QString &dbName,
                                   const QString &host, const QString &user,
                                   const QString &passwd, int port) {
+    stateBar = MDStateBar::getObjectPtr();
+
     static int cCount = 0;
 
     QSqlError err;
@@ -788,6 +791,8 @@ QAbstractItemModel *Browser::createMailModel(QObject *parent) {
     model->setHeaderData(0, Qt::Horizontal, QObject::tr("Subject"));
     model->setHeaderData(1, Qt::Horizontal, QObject::tr("Sender"));
     model->setHeaderData(2, Qt::Horizontal, QObject::tr("Date"));
+
+    stateBar->showMessage(tr("createMailModel"));
 
 //    addMail(model, "Happy New Year!", "Grace K. <grace@software-inc.com>",
 //            QDateTime(QDate(2006, 12, 31), QTime(17, 03)));

@@ -257,6 +257,9 @@ QGroupBox::title {
    <property name="toolTip">
     <string>Alle Fenster schließen </string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
   </action>
   <action name="actButGbStyleShtA">
    <property name="checkable">

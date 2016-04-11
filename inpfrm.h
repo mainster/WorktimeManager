@@ -13,13 +13,14 @@
 #include <stdio.h>
 #include <QDateEdit>
 #include <typeinfo>
+#include <QSqlQuery>
 
 #include "ui_tablewindow.h"
 #include "globals.h"
 #include "browser.h"
 //#include "QSortFilterSqlQueryModel.h"
 #include <QRadioButton>
-
+#include "mdstatebar.h"
 
 namespace Ui {
 class InpFrm;
@@ -67,6 +68,8 @@ public:
    bool gbSqlQueryIsVisible() const;
    void gbSqlQuerySetVisible(bool vis);
 
+   void onBtnOkClicked2();
+   void onBtnOkClickedOLD();
 signals:
     void changeInpFrmTabOrder(InpFrm::states state);
 
@@ -109,7 +112,7 @@ private:
    QSqlTableModel *prjmd, *clmd, *wkmd;
    QList<QComboBox *> cbs;
    QDateEdit *de;
-
+    MDStateBar * stateBar;
 //   QWidgetList wsTabable, objTabOrder;
 //   QList<QWidget *> wsTabAble, objTabOrder;
 //   QList<QWidget> wsNoP;
@@ -119,6 +122,7 @@ private:
    InpFrm::states changeTabOrder;
 //   void buildTable__worktime();
 //   void buildTable__worktimeTst();
+   QSqlQuery query;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(InpFrm::states)

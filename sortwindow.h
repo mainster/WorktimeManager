@@ -18,8 +18,7 @@ namespace Ui {
 class SortWindow;
 }
 
-class SortWindow : public QWidget
-{
+class SortWindow : public QWidget {
     Q_OBJECT
 
 public:
