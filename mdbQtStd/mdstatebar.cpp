@@ -65,21 +65,21 @@ MDStateBar::~MDStateBar() {}
 
 void MDStateBar::showError(const QString s, int timeout) {
 	mslot[type_err]->setText(prefix.str[type_err] + s);
-	INFO << s;
+	Q_INFO << s;
 	if (!timeout) return;
 
 	QTimer::singleShot(timeout, Qt::CoarseTimer, this, SLOT(clearError()));
 }
 void MDStateBar::showMessage(QString s, int timeout) {
 	mslot[type_msg]->setText(prefix.str[type_msg] + s);
-	INFO << s;
+	Q_INFO << s;
 	if (!timeout) return;
 
 	QTimer::singleShot(timeout, Qt::CoarseTimer, this, SLOT(clearMessage()));
 }
 void MDStateBar::showInfo(const QString s, int timeout) {
 	mslot[type_info]->setText(prefix.str[type_info] + s);
-	INFO << s;
+	Q_INFO << s;
 	if (!timeout) return;
 
 	QTimer::singleShot(timeout, Qt::CoarseTimer, this, SLOT(clearInfo()));
@@ -89,7 +89,7 @@ void MDStateBar::showInSlot(const QVariant var, int slotNo) {
 	slotNo--;
 
 	if (slotNo > N_MSG_SLOTS + CLOCK_SLOT) {
-		INFO << tr("Message slot index %1 out of bounds!!! mslot.length(): %2")
+		Q_INFO << tr("Message slot index %1 out of bounds!!! mslot.length(): %2")
 				.arg(slotNo)
 				.arg(mslot.length());
 		return;
@@ -104,7 +104,7 @@ void MDStateBar::showInSlot(const QVariant var, int slotNo) {
 										  var.toDate().toString(Qt::TextDate));
 			return;
 		} else {
-			INFO << tr("Can not decode QVariant message !!!");
+			Q_INFO << tr("Can not decode QVariant message !!!");
 			return;
 		}
 	}
@@ -117,17 +117,17 @@ void MDStateBar::showInSlot(const QVariant var, int slotNo) {
 void MDStateBar::appendError(const QString s, const QString sep) {
 	mslot[type_err]
 			->setText(tr("%1%2").arg(mslot[type_err]->text()).arg(sep + s));
-	INFO << s;
+	Q_INFO << s;
 }
 void MDStateBar::appendMessage(const QString s, const QString sep) {
 	mslot[type_msg]
 			->setText(tr("%1%2").arg(mslot[type_msg]->text()).arg(sep + s));
-	INFO << s;
+	Q_INFO << s;
 }
 void MDStateBar::appendInfo(const QString s, const QString sep) {
 	mslot[type_info]
 			->setText(tr("%1%2").arg(mslot[type_info]->text()).arg(sep + s));
-	INFO << s;
+	Q_INFO << s;
 }
 void MDStateBar::appendInSlot(const QVariant var, int slotNo,
 										const QString sep) {
@@ -137,7 +137,7 @@ void MDStateBar::appendInSlot(const QVariant var, int slotNo,
 	slotNo--;
 
 	if (slotNo > N_MSG_SLOTS + CLOCK_SLOT) {
-		INFO << tr("Append message slot index %1 out of bounds!!! "
+		Q_INFO << tr("Append message slot index %1 out of bounds!!! "
 						 "mslot.length(): %2")
 				.arg(slotNo)
 				.arg(mslot.length());
@@ -151,7 +151,7 @@ void MDStateBar::appendInSlot(const QVariant var, int slotNo,
 			decod = var.toDate().toString(Qt::TextDate);
 			return;
 		} else {
-			INFO << tr("Can not decode QVariant append message !!!");
+			Q_INFO << tr("Can not decode QVariant append message !!!");
 			return;
 		}
 	}
@@ -189,7 +189,7 @@ void MDStateBar::onCyclic() {
 		appendInSlot(clock.date, clock.slotNo, tr("  "));
 	}
 
-	//    INFO << clock.time << clock.date << tr("visible: ")
+	//    Q_INFO << clock.time << clock.date << tr("visible: ")
 	//                         << clock.visible;
 }
 QTextEdit *MDStateBar::getTeStat() const { return new QTextEdit(); }

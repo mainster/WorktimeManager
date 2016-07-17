@@ -48,16 +48,23 @@ QString dbgFuncNameMdb(QString name);
 
 #if QT_VERSION >= 0x050500
 	#define Q_INFO	(qInfo().noquote() << dbgFuncName(Q_FUNC_INFO).toStdString().c_str() << ":" )
-	#define INFO	(qInfo().noquote() << dbgFuncNameMdb(Q_FUNC_INFO).toStdString().c_str() << ":" )
+#define INFO	(qInfo().noquote() << dbgFuncNameMdb(Q_FUNC_INFO).toStdString().c_str() << ":" )
+//#define INFOmdb	(qInfo().noquote() << dbgFuncNameMdb(Q_FUNC_INFO).toStdString().c_str() << ":" )
 	#define DEBUG	(qDebug().noquote() << dbgFuncName(Q_FUNC_INFO).toStdString().c_str() << ":" )
 #else
 	#define INFO	(qDebug().noquote() << dbgFuncName(Q_FUNC_INFO).toStdString().c_str() << ":" )
 #endif
 
 #define WARN	(qWarning().noquote() << dbgFuncNameMdb(Q_FUNC_INFO).toStdString().c_str() << ":" )
+
 #define CRIT	(qCritical().noquote() << dbgFuncNameMdb(Q_FUNC_INFO).toStdString().c_str() << ":" )
+
 #define FATAL(m)	(qFatal("%s : %s", dbgFuncName(Q_FUNC_INFO).toStdString().c_str(), \
 	QString(m).toStdString().c_str())), (void)0
+
+//#define TIC()	(Q_INFO << tr("tic 1: %1:%2").arg( QTime::currentTime().second() ).arg( QTime::currentTime().msec() ))
+
+//#define TOC()	(Q_INFO << tr("toc 1: %1:%2").arg( QTime::currentTime().second() ).arg( QTime::currentTime().msec() ))
 
 #define TIC TicToc::tic(tr("try 1"));
 #define TICs(s) TicToc::tic(tr(s));
