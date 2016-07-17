@@ -154,7 +154,7 @@ QGroupBox{
          </property>
          <property name="maximumSize">
           <size>
-           <width>373</width>
+           <width>200</width>
            <height>16777215</height>
           </size>
          </property>

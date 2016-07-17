@@ -1,0 +1,60 @@
+QSqlDatabase: QMYSQL driver not loaded / Build MySQL Plugin
+------------------------------------------------------------
+https://forum.qt.io/topic/59449/qsqldatabase-qmysql-driver-not-loaded-build-mysql-plugin/2
+
+How to (step-by-step guide):
+
+Clean Ubuntu 14.04 installation / Linux Mind 17 32bit
+if you are using 64bit, x86_64-linux-gnu would be the correct path for most things, instead of i386-linux-gnu as you are going to read in this thread
+
+Installed QT in the user Home from http://www.qt.io/download-open-source
+Useful for unexperienced future readers:
+chmod u+x qtInstallerName.run
+./qtInstallerName.run
+
+During the installation select all "Source Components". This will download and install the sources useful to build plugins
+
+Install a compiler
+sudo apt-get install g++
+sudo apt-get install libgl1-mesa-dev libglu1-mesa-dev
+
+Write you project and you will face problems with:
+db = QSqlDatabase::addDatabase("QMYSQL");
+
+When you try to build your project you have this problem
+QSqlDatabase: QMYSQL driver not loaded
+QSqlDatabase: available drivers: QSQLITE QMYSQL QMYSQL3 QPSQL QPSQL7
+
+Understand the problem running the commands:
+cd /home/[yourUsername]/Qt/[QtVersion]/gcc/plugins/sqldrivers
+ldd libqsqlmysql.so
+
+Read this line of the output:
+libmysqlclient_r.so.16 => not found
+
+Install these packages
+sudo apt-get install libssl-dev
+sudo apt-get install libmysqlclient-dev
+
+Now you should build the MYSQL plugin, according to http://doc.qt.io/qt-5/sql-driver.html documentation:
+cd /home/[yourUsername]/Qt/[QtVersion]/Src/qtbase/src/plugins/sqldrivers/mysql
+Then use the qmake provided in your Qt5.5 installation
+/home/[yourUsername]/Qt/[QtVersion]/gcc/bin/qmake
+Finally,
+make
+But it gives this error:
+/usr/bin/ld: cannot find -lmysqlclient_r
+
+Make some symbolic links to make it working (please check mysql version, it could not be 18.1.0 in the future).
+sudo ln -s /usr/lib/i386-linux-gnu/libmysqlclient.so /usr/lib/i386-linux-gnu/libmysqlclient_r.so
+sudo ln -s /usr/lib/i386-linux-gnu/libmysqlclient.so /usr/lib/i386-linux-gnu/libmysqlclient_r.so.18
+sudo ln -s /usr/lib/i386-linux-gnu/libmysqlclient.so /usr/lib/i386-linux-gnu/libmysqlclient_r.so.18.1.0
+
+Run again:
+make
+It seems that the plugin have been built correctly. Last output is:
+mv -f libqsqlmysql.so ../../../../plugins/sqldrivers/
+and finally run:
+make install
+
+Test your application.

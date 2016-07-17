@@ -160,7 +160,12 @@ void InpFrm::initComboboxes() {
     /** Remove all comboboxes which are not based on sql list models */
     cbLst.removeOne(ui->cbQueryIdent);
 
-
+	 /*!
+	  * QSqlTableModel is a high-level interface for reading and writing database
+	  * records from a single table. It is built on top of the lower-level QSqlQuery and can
+	  * be used to provide data to view classes such as QTableView.
+	  * http://doc.qt.io/qt-5/qsqltablemodel.html#details
+	  */
     prjmd = new QSqlTableModel();
     clmd = new QSqlTableModel();
     wkmd = new QSqlTableModel();

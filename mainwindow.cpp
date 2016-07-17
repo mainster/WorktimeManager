@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	QSETTINGS_INIT; QSETTINGS;
 
 	browser = Browser::getInstance( parent );
-	inpFrm = InpFrm::getInstance();
+//	inpFrm = InpFrm::getInstance();
 	stateBar = new MDStateBar( this );
 	setStatusBar( stateBar );
 	sortwindow = new SortWindow();
@@ -35,7 +35,7 @@ MainWindow::~MainWindow() {
 	//   saveMainWindowUiSettings();
 	delete ui;
 }
-void MainWindow::addConnectionsByCmdline(QVariant args, Browser &browser) {
+bool MainWindow::addConnectionsByCmdline(QVariant args, Browser &browser) {
 	QSqlError err;
 
 	foreach (QString s, args.toStringList()) {
@@ -47,14 +47,25 @@ void MainWindow::addConnectionsByCmdline(QVariant args, Browser &browser) {
 			continue;
 		}
 
-		err = browser.addConnection(
-					url.scheme().toUpper(), url.path(), url.host(),
-					url.userName(), url.password(), url.port(-1));
+		if (QSqlError::NoError != (browser.addConnection(
+				 url.scheme().toUpper(), url.path(), url.host(),
+				 url.userName(), url.password(), url.port(-1))).type()) {
 
-		if (err.type() != QSqlError::NoError)
-			qDebug() << "Unable to open connection:" << err;
+				url = QUrl(Locals::SQL_DATABASE.filePath(), QUrl::TolerantMode);
+				url.setScheme("QMYSQL");
 
+				QSqlError sqlErr = browser.addConnection(
+						 url.scheme().toUpper(), url.path(), url.host(),
+						 url.userName(), url.password(), url.port(-1));
+				if (sqlErr.type() != QSqlError::NoError) {
+					bReturn(tr("Unable to open connection: %s")
+							  .arg(sqlErr.text()));
+				}
+				return true;
+		}
+		return true;
 	}
+	return false;
 }
 void MainWindow::makeMenuBar() {
 	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&File"));

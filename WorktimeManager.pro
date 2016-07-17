@@ -76,3 +76,6 @@ OTHER_FILES +=
 wince*: {
     DEPLOYMENT_PLUGIN += qsqlite
 }
+
+DISTFILES += \
+    NOTES
