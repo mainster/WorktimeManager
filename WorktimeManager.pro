@@ -9,7 +9,7 @@ QT       += sql widgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = WorktimeManager_v1-35
+TARGET = WorktimeManager
 TEMPLATE = app
 
 PLATFORM = linux
@@ -28,9 +28,9 @@ SOURCES += main.cpp\
     globals.cpp \
     tabview.cpp \
     form.cpp \
+    QSortFilterSqlQueryModel.cpp \
     mysortfilterproxymodel.cpp \
-    sortwindow.cpp \
-    mdstatebar.cpp
+    sortwindow.cpp
 
 HEADERS  += mainwindow.h \
     connectionwidget.h \
@@ -43,9 +43,9 @@ HEADERS  += mainwindow.h \
     tablewindow.h \
     tabview.h \
     form.h \
+    QSortFilterSqlQueryModel.h \
     mysortfilterproxymodel.h \
-    sortwindow.h \
-    mdstatebar.h
+    sortwindow.h
 
 FORMS    += mainwindow.ui \
     dbconndlg.ui \
@@ -58,7 +58,7 @@ FORMS    += mainwindow.ui \
 
 
 RESOURCES += \
-    WorktimeManager_v1-35.qrc
+    WorktimeManager.qrc
 
 OTHER_FILES +=
 
