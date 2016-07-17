@@ -115,12 +115,12 @@ TableWindow::TableWindow(QWidget *parent) {
    mapper->addMapping(ui.genreEdit, projIdx);
    mapper->addMapping(ui.ratingEdit, model->fieldIndex("rating"));
 
-   Q_INFO << tr("connect error....");
+   INFO << tr("connect error....");
    connect(ui.TimeTable->selectionModel(),
            SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
            mapper, SLOT(setCurrentModelIndex(QModelIndex)));
 
-   Q_INFO << tr("... here?");
+   INFO << tr("... here?");
 
    ui.TimeTable->setCurrentIndex(model->index(0, 0));
 }

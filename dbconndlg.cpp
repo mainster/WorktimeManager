@@ -23,10 +23,10 @@ DbConnDlg::DbConnDlg(QWidget *parent)
 
    ui.comboDriver->addItems(drivers);
 
-   QString dbNam = QFileDialog::
-         getOpenFileName(this, tr("Open SQL database file"),
-								 Locals::SQL_DB_PATH,
-                         tr("database files (*.db);;all files (*)"));
+	QString dbNam = QFileDialog::getOpenFileName(
+							 this, tr("Open SQL database file"),
+							 Locals::SQL_DATABASE.baseName(),
+							 tr("database files (*.db);;all files (*)"));
 
    ui.editDatabase->setText(dbNam);
 }

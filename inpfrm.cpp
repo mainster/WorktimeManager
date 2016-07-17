@@ -41,7 +41,7 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
     this->setFixedHeight(125);
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-	 db.setDatabaseName(Locals::SQL_DB_PATH + Locals::SQL_DB_FILE);
+	 db.setDatabaseName(Locals::SQL_DATABASE.absoluteFilePath());
 
     /** Request all combobox widgets within the inputFrm */
     cbs = findChildren<QComboBox *>();
@@ -63,8 +63,8 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
                 (! o->objectName().contains("datePicker")))
             objTabAble.removeOne(o);
     }
-    //   Q_INFO  << "";
-    Q_INFO << tr("objTabable:") << Globals::objToStr(objTabAble);
+    //   INFO  << "";
+    INFO << tr("objTabable:") << Globals::objToStr(objTabAble);
 
     /**
     * Install event filter to capture focus changed event for
@@ -81,14 +81,14 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
     /** Check for valied tab order configuration data */
     QStringList lst;
     if (config.allKeys().contains(this->objectName() + tr("/TabOrder"))) {
-        Q_INFO << tr("Valied tab order configuration data found!");
+        INFO << tr("Valied tab order configuration data found!");
 //        stateBar->showMessage(tr("Valied tab order configuration data found!"));
         lst = config.value(this->objectName() + tr("/TabOrder"), "").toString().split(",");
         foreach (QString s, lst) {
             objTabOrder.append( findChild<QComboBox*>(s) );
         }
-        Q_INFO << lst;
-        Q_INFO << objTabOrder;
+        INFO << lst;
+        INFO << objTabOrder;
 
         QList<QWidget *> widTabOrder = objLstToWidLst( objTabOrder );
         for (int i=0; i < widTabOrder.length()-1; i++) {
@@ -234,21 +234,21 @@ void InpFrm::initComboboxes() {
     //      if (s.contains("prj")) {
     //         dms[0]->addMapping(cbLst[i], tms[0]->fieldIndex(kLst[i]));
     //         i++;
-    ////         Q_INFO << tms[i-1] << kLst[i-1];
+    ////         INFO << tms[i-1] << kLst[i-1];
     //         continue;
     //      }
 
     //      if (s.contains("client")) {
     //         dms[1]->addMapping(cbLst[i], tms[1]->fieldIndex(kLst[i]));
     //         i++;
-    ////         Q_INFO << tms[i-1] << kLst[i-1];
+    ////         INFO << tms[i-1] << kLst[i-1];
     //         continue;
     //      }
 
     //      if (s.contains("worker")) {
     //         dms[2]->addMapping(cbLst[i], tms[2]->fieldIndex(kLst[i]));
     //         i++;
-    ////         Q_INFO << tms[i-1] << kLst[i-1];
+    ////         INFO << tms[i-1] << kLst[i-1];
     //         continue;
     //      }
 
@@ -267,7 +267,7 @@ void InpFrm::initComboboxes() {
 
     //   dms[k]->addMapping( );
     //   foreach (QComboBox *cbx, cbLst) {
-    //      //      Q_INFO << cbx->objectName() << cbx->accessibleName();
+    //      //      INFO << cbx->objectName() << cbx->accessibleName();
 
     //      tms.append( new QSqlTableModel(this) );
     //      tms.last()->setTable( tbRls.at(k).split(",").first() );
@@ -363,7 +363,7 @@ void InpFrm::onChangeTabOrderSlot(InpFrm::states state) {
             lst.append(widTabOrder[i]->objectName());
         }
 
-        Q_INFO << lst;
+        INFO << lst;
         changeTabOrder = state_done_changeTabOrder;
 
         QSETTINGS;
@@ -389,7 +389,7 @@ void InpFrm::onBtnOkClicked() {
 //                             "query.lastError().type() != QSqlError::NoError");
 //        return;
 //    }
-//    Q_INFO << tr("query size:") << query.size();
+//    INFO << tr("query size:") << query.size();
 //    if (query.next())
 //        worktimRowCount = query.value(0).toInt(&ok);
 //    else
@@ -486,7 +486,7 @@ void InpFrm::onBtnOkClicked() {
     }
 
     browser->requeryWorktimeTableView(tr(""));
-    Q_INFO.noquote() << query.lastQuery();
+    INFO.noquote() << query.lastQuery();
 
 }
 void InpFrm::onBtnOkClickedOLD() {
@@ -502,7 +502,7 @@ void InpFrm::onBtnOkClickedOLD() {
                              "query.lastError().type() != QSqlError::NoError");
         return;
     }
-    Q_INFO << query.last();
+    INFO << query.last();
 
     /** Select actual worktimIDs
     * ------------------------- */
@@ -582,7 +582,7 @@ void InpFrm::onBtnOkClickedOLD() {
     query.exec();
     browser->requeryWorktimeTableView();
 
-    Q_INFO.noquote() << query.lastQuery();
+    INFO.noquote() << query.lastQuery();
 
     if (query.lastError().type() != QSqlError::NoError) {
         QMessageBox::warning(this, "Fehler bei SQL Query",
@@ -596,9 +596,9 @@ void InpFrm::onBtnUndoClicked() {
 }
 void InpFrm::onBtnRedoClicked() {
     QProcessEnvironment env;
-    Q_INFO  << env.value(tr("PLATFORM"), "env PLATFORM not found");
-    Q_INFO  << env.value(tr("APP_NAME"), "env APP_NAME not found");
-    Q_INFO  << env.value(tr("APP_VERSION"), "env APP_VERSION not found");
+    INFO  << env.value(tr("PLATFORM"), "env PLATFORM not found");
+    INFO  << env.value(tr("APP_NAME"), "env APP_NAME not found");
+    INFO  << env.value(tr("APP_VERSION"), "env APP_VERSION not found");
 }
 void InpFrm::onBtnClearClicked() {
 
@@ -628,7 +628,7 @@ void InpFrm::refreshCbDropDownLists() {
 
     int k=0;
     foreach (QComboBox *cbx, cbs) {
-        //      Q_INFO << cbx->objectName() << cbx->accessibleName();
+        //      INFO << cbx->objectName() << cbx->accessibleName();
 
         tms.append( new QSqlTableModel(this) );
         tms.last()->setTable( tbRls.at(k).split(",").first() );
@@ -687,8 +687,8 @@ void InpFrm::refreshCbDropDownLists() {
         if (true /*str.contains( QUERYPREFIX )*/)
             query_keys << str.split('/').at(1);
 
-        //      Q_INFO << "Query key:" << query_keys.last();
-        //      Q_INFO << configQ.value(str).toString();
+        //      INFO << "Query key:" << query_keys.last();
+        //      INFO << configQ.value(str).toString();
 
         ui->cbQueryIdent->addItem(query_keys.last(),
                                   configQ.value(str).toString());
@@ -700,11 +700,11 @@ void InpFrm::refreshCbDropDownLists() {
 }
 void InpFrm::onInpFormChanges(int idx) {
     Q_UNUSED(idx);
-    //   Q_INFO << idx;
+    //   INFO << idx;
 }
 void InpFrm::onInpFormChanges(QDate date) {
     Q_UNUSED(date);
-    //   Q_INFO << date;
+    //   INFO << date;
 }
 void InpFrm::showError(const QSqlError &err) {
     QMessageBox::critical(this, "Unable to initialize Database",

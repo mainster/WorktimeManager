@@ -9,9 +9,7 @@
 
 class Locals {
 public:
-	static QString
-	SQL_DB_PATH,
-	SQL_DB_FILE;
+	static QFileInfo	SQL_DATABASE;
 
 	Locals();
 };

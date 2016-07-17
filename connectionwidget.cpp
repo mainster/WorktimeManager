@@ -275,7 +275,7 @@ void ConnectionWidget::on_tree_currentItemChanged(
 // on_tree_current_Item_Changed(QTreeWidgetItem *,
 //                             QTreeWidgetItem *) {
 //   metaDataAction->setEnabled(current && current->parent());
-//   Q_INFO << "!";
+//   INFO << "!";
 //}
 
 

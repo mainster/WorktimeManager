@@ -112,7 +112,7 @@ void SortWindow::closeEvent(QCloseEvent *e) {
 bool SortWindow::eventFilter(QObject *obj, QEvent *ev) {
     if (ev->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
-        Q_INFO << tr("Ate key press %1").arg(keyEvent->key());
+        INFO << tr("Ate key press %1").arg(keyEvent->key());
         return QObject::eventFilter(obj, ev);
     }
 

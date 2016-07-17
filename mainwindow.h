@@ -46,8 +46,8 @@ signals:
 
 public slots:
    void onBrowseSqlTrig(bool b);
-   void addConnectionsByCmdline(const QStringList &args,
-                                      Browser &browser);
+	void addConnectionsByCmdline(QVariant args,
+												  Browser &browser);
    bool eventFilter(QObject *obj, QEvent *event);
    void about();
    void onMenuStyleShtInpFrmTrig(bool b);

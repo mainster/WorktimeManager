@@ -57,9 +57,12 @@ Browser::Browser(QWidget *parent)  :
                               tvs[5],   SLOT(onTabViewSelChanged(TabView *))));
 
     if (bl.contains(false))
-        Q_INFO << tr("connect.tabViewSelChanged[0...6]:") << bl;
+        INFO << tr("connect.tabViewSelChanged[0...6]:") << bl;
 
-    if (QSqlDatabase::drivers().isEmpty())
+	 INFO << QSqlDatabase::connectionNames()
+			<< QSqlDatabase::drivers();
+
+	 if (QSqlDatabase::drivers().isEmpty())
         QMessageBox::information
                 (this, tr("No database drivers found"),
                  tr("This demo requires at least one Qt database driver. "
@@ -100,8 +103,8 @@ QSqlError Browser::addConnection( const QString &driver, const QString &dbName,
     static int cCount = 0;
 
     QSqlError err;
-    QSqlDatabase db = QSqlDatabase::addDatabase(driver, QString("Browser%1")
-                                                .arg(++cCount));
+	 QSqlDatabase db =
+			 QSqlDatabase::addDatabase(driver, QString("Browser%1").arg(++cCount));
     db.setDatabaseName(dbName);
     db.setHostName(host);
     db.setPort(port);
@@ -116,7 +119,29 @@ QSqlError Browser::addConnection( const QString &driver, const QString &dbName,
 
     return err;
 }
+void Browser::addConnection() {
+	 DbConnDlg dialog(this);
 
+	 if (dialog.exec() != QDialog::Accepted)
+		  return;
+
+	 if (dialog.useInMemoryDatabase()) {
+		  QMessageBox::warning(
+						  this, tr("Add connection"), tr("dialog.useInMemoryDatabase()"));
+	 } else {
+		  QSqlError err = addConnection(dialog.driverName(),
+												  dialog.databaseName(),
+												  dialog.hostName(),
+												  dialog.userName(),
+												  dialog.password(),
+												  dialog.port());
+
+		  if (err.type() != QSqlError::NoError)
+				QMessageBox::warning(
+								this,  tr("Unable to open database"),
+								tr("An error occurred while opening the connection: ") + err.text());
+	 }
+}
 void Browser::initTableView(QWidget *parent, QStringList &accNam) {
     Q_UNUSED(parent)
     QList<QAction *> tblActs;
@@ -411,7 +436,7 @@ void Browser::insertRow(/*QTableView &tv*/) {
         //      QTableView *childa = qobject_cast<QTableView *>(objs.at(i));
 
         if ( tvs.at(i)->hasFocus() )
-            Q_INFO << "table" << i << "has focus";
+            INFO << "table" << i << "has focus";
     }
 
     TabView *locTabView = qobject_cast<TabView *>( tvs.first() );
@@ -429,10 +454,10 @@ void Browser::insertRow(/*QTableView &tv*/) {
     locTabView->tv()->edit(insertIndex);
 
     QWidget *wid = QWidget::focusWidget();
-    Q_INFO << wid->accessibleName();
+    INFO << wid->accessibleName();
 
     wid = QApplication::focusWidget(),
-            Q_INFO << wid->accessibleName();
+            INFO << wid->accessibleName();
 }
 void Browser::deleteRow(/*QTableView &tv*/) {
     TabView *locTabView = qobject_cast<TabView *>( tvs.first() );
@@ -514,7 +539,7 @@ void Browser::on_rowStrategyAction_triggered() {
         tm->setEditStrategy(QSqlTableModel::OnRowChange);
 
     QWidget *wid = focusWidget();
-    Q_INFO << wid->objectName();
+    INFO << wid->objectName();
 }
 void Browser::on_manualStrategyAction_triggered() {
     TabView *locTabView = qobject_cast<TabView *>( tvs.first() );
@@ -592,31 +617,8 @@ void Browser::on_connectionWidget_tableActivated(const QString &sqlTbl) {
                 tv->m_gb->setTitle( sqlTbl );
                 return;
             }
-            Q_INFO << tr("No model-less table view widget found!");
+            INFO << tr("No model-less table view widget found!");
         }
-    }
-}
-void Browser::addConnection() {
-    DbConnDlg dialog(this);
-
-    if (dialog.exec() != QDialog::Accepted)
-        return;
-
-    if (dialog.useInMemoryDatabase()) {
-        QMessageBox::warning(
-                    this, tr("Add connection"), tr("dialog.useInMemoryDatabase()"));
-    } else {
-        QSqlError err = addConnection(dialog.driverName(),
-                                      dialog.databaseName(),
-                                      dialog.hostName(),
-                                      dialog.userName(),
-                                      dialog.password(),
-                                      dialog.port());
-
-        if (err.type() != QSqlError::NoError)
-            QMessageBox::warning(
-                        this,  tr("Unable to open database"),
-                        tr("An error occurred while opening the connection: ") + err.text());
     }
 }
 int  Browser::setFontAcc(QFont &font) {
@@ -637,9 +639,9 @@ void Browser::initializeMdl(QSqlQueryModel *model) {
     model->setHeaderData(0, Qt::Horizontal, QObject::tr("workerID"));
     model->setHeaderData(1, Qt::Horizontal, QObject::tr("Nachname"));
     model->setHeaderData(2, Qt::Horizontal, QObject::tr("Vorname"));
-    Q_INFO << model->lastError().databaseText();
-    Q_INFO << model->lastError().driverText();
-    Q_INFO << model->lastError();
+    INFO << model->lastError().databaseText();
+    INFO << model->lastError().driverText();
+    INFO << model->lastError();
 
     ////   mdl->setQuery("SELECT prjID, clientID, SubID, Beschreibung, Kurzform "
     ////                 "FROM prj", pDb);
@@ -654,9 +656,9 @@ QFont Browser::selectFont() {
                 &ok, QFont("Helvetica [Cronyx]", 10), this);
 
     if (ok) {
-        Q_INFO << font;
+        INFO << font;
     } else {
-        Q_INFO << font;
+        INFO << font;
     }
 
     return QFont();
@@ -684,7 +686,7 @@ void Browser::onCyclic() {
 
         if (widget != 0x00) {
             QString widName = widget->objectName();
-            Q_INFO << widName << widget->children();
+            INFO << widName << widget->children();
         }
     }
 }
@@ -692,7 +694,7 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
     QPoint pos;
 
     if (e->type() == QEvent::MouseButtonPress) {
-        Q_INFO << "obj parent name:" << obj->parent()->objectName();
+        INFO << "obj parent name:" << obj->parent()->objectName();
 
         QMouseEvent *me = static_cast<QMouseEvent *>(e);
         pos = me->pos();
@@ -700,8 +702,8 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
         QWidget *widget = qApp->widgetAt(QCursor::pos());
 
         if (widget != 0x00) {
-            Q_INFO << widget->parentWidget()->objectName();
-            Q_INFO << widget->objectName();
+            INFO << widget->parentWidget()->objectName();
+            INFO << widget->objectName();
         }
 
         /**
@@ -730,7 +732,7 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
             }
         }
         else {
-            Q_INFO << tr("event receiver obj has NON of the known table names!  ")
+            INFO << tr("event receiver obj has NON of the known table names!  ")
                     <<  widget->parentWidget()->objectName();
         }
 
@@ -738,7 +740,7 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
             QList<QObject *> objs = obj->children();
 
             for (int i = 0; i < objs.length(); i++) {
-                Q_INFO << "obj child no." << i << objs[i]->objectName();
+                INFO << "obj child no." << i << objs[i]->objectName();
             }
         }
 
@@ -747,15 +749,15 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 
     if ((e->type() == QEvent::KeyPress) && false) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(e);
-        Q_INFO << "Keypress " << kev->key() << "by obj:" ;
-        Q_INFO << "obj name:" << obj->objectName();
-        Q_INFO << "obj parent name:" << obj->parent()->objectName();
+        INFO << "Keypress " << kev->key() << "by obj:" ;
+        INFO << "obj name:" << obj->objectName();
+        INFO << "obj parent name:" << obj->parent()->objectName();
 
         QList<QObject *> objs = obj->children();
 
         for (int i = 0; i < objs.length(); i++) {
-            Q_INFO << "obj child no." << i << objs[i]->objectName();
-            Q_INFO << "obj child no." << i << objs[i]->isWidgetType();
+            INFO << "obj child no." << i << objs[i]->objectName();
+            INFO << "obj child no." << i << objs[i]->isWidgetType();
         }
 
     }
@@ -775,7 +777,7 @@ void Browser::showEvent(QShowEvent *e) {
 
         foreach (QSplitter *sp, spls) {
             QString objn = sp->objectName();
-            //         Q_INFO << objn;
+            //         INFO << objn;
 
             sp->restoreState(
                         config.value("Browser/" + objn, " ").toByteArray());
@@ -926,12 +928,12 @@ void CustomMdl::setCCol(const QVector<int> &value) {
 //                              QMessageBox::No, QMessageBox::No) ==
 //            QMessageBox::Yes) {
 //        model->setQuery(queryStr, connectionWidget->currentDatabase());
-//        Q_INFO << queryStr;
+//        INFO << queryStr;
 //    }
 //    else {
 //        model->setQuery(inpFrm->getQueryText(),
 //                        connectionWidget->currentDatabase());
-//        Q_INFO << inpFrm->getQueryText();
+//        INFO << inpFrm->getQueryText();
 //    }
 
 //    tvq->setModel(model);

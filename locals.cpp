@@ -2,9 +2,7 @@
 #include "locals.h"
 
 
-QString Locals::SQL_DB_PATH     = "/var/lib/mysql/";
-QString Locals::SQL_DB_FILE     = "delbassoSQL.db";
-
+QFileInfo Locals::SQL_DATABASE = QString("~/CODES_local/mysql/delbassoSQL.db");
 
 Locals::Locals()
 {

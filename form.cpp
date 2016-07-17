@@ -48,15 +48,15 @@ void Form::onTimTimeout() {
    QWidget *widget = qApp->widgetAt(QCursor::pos());
    if (widget != 0) {
       QString widName = widget->objectName();
-      Q_INFO << widName << widget;
+      INFO << widName << widget;
 
 //      QPushButton *pbn = static_cast<QPushButton *>(widget);
 //      if ((pbn != 0) && pbn1 !=0)
-//         Q_INFO << pbn->styleSheet();
+//         INFO << pbn->styleSheet();
 
 ////      TabView *tv = static_cast<TabView *>(widget);
 ////      if (tv != 0) {
-////         Q_INFO << tv->styleSheet();
+////         INFO << tv->styleSheet();
 
 //      }
    }
