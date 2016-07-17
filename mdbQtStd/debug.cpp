@@ -38,14 +38,11 @@ void messageHandler(QtMsgType type,
 struct TicToc::type_t TicToc::t = { QString(), QTime()};
 struct TicToc::type_t2 *TicToc::t2 = { new TicToc::type_t2()};
 
-QString stuff(QString s, int length, QChar sc = ' ') {
-	while (s.length() < length)
-		s += sc;
+QString stuff(QString s, int length, QChar fillChar = ' ') {
+	QString fillstr;
+	fillstr.fill(fillChar, length);
 
-	while (s.length() >= length)
-		s.remove(s.length() - 1, 1);
-
-	return s;
+	return QString(s + fillstr).left(length);
 }
 
 QString dbgFuncName(QString name) {
@@ -141,7 +138,7 @@ QString dbgFuncNameMdb(QString name) {
 
 	output.append(o.c1a + stuff(o.returnType, 12) + o.c1b +
 					  o.c2a + stuff(o.className, 12) + o.c2b +
-					  o.c3a + stuff(o.functionName, 15) + o.c3b + " ");
+					  o.c3a + stuff(o.functionName, 20) + o.c3b + " ");
 
 	return output;
 }

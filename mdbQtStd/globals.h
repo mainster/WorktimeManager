@@ -64,6 +64,7 @@
 	cfg.setValue(QString("OrganisationName"), QCoreApplication::organizationName()); \
 	if (! cfg.allKeys().contains(QString("ApplicationName"))) \
 	cfg.setValue(QString("ApplicationName"), QCoreApplication::applicationName()); \
+	qDebug().noquote() << QString("ini: ") << CONFIG_PATH << cfg.fileName(); \
 	}
 
 #define     QSPLT_STORE     { QSETTINGS \
