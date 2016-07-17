@@ -1,28 +1,10 @@
-#define QFOLDINGSTART {
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
-#include "browser.h"
-#include "inpfrm.h"
-#include "mdstatebar.h"
-#include "globals.h"
-//#include "conf.h"
-#include "dbconndlg.h"
-#include "ui_dbconndlg.h"
-#include "connectionwidget.h"
-#include "form.h"
-
-#include <QtCore>
-#include <QtWidgets>
-#include <QtSql>
-#include <QFlags>
-#include <QFlag>
 
 #define  UNIX
 #undef   UNIX
 #define  RESTORE_SQL_DATABASE_PATH
 
-#define QFOLDINGEND }
 class Browser;
 class Conf;
 class ConnectionWidget;
@@ -61,7 +43,7 @@ void MainWindow::addConnectionsByCmdline(const QStringList &args,
 #ifdef UNIX
         QUrl url(args.at(i), QUrl::TolerantMode);
 #elif defined RESTORE_SQL_DATABASE_PATH
-        QUrl url(Globals::SQL_DB_PATH, QUrl::TolerantMode);
+        QUrl url(Locals::SQL_DB_PATH, QUrl::TolerantMode);
         url.setScheme("QSQLITE");
 #endif
 
@@ -171,7 +153,7 @@ void MainWindow::onBrowseSqlTrig(bool doBrowse) {
 
         if (QSqlDatabase::connectionNames().length() == 0 + 1) // default + ...
             addConnectionsByCmdline(
-                        QStringList(Globals::SQL_DB_PATH), *browser);
+                        QStringList(Locals::SQL_DB_PATH), *browser);
 
         if (QSqlDatabase::connectionNames().isEmpty())
             QMetaObject::invokeMethod(

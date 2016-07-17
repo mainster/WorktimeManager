@@ -1,15 +1,24 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QFlag>
+#include <QFlags>
 #include <QMainWindow>
-#include "globals.h"
+#include <QtSql>
+#include <QtWidgets>
+
+#include "ui_dbconndlg.h"
 #include "browser.h"
-#include "inpfrm.h"
-#include "tablewindow.h"
-#include "tabledelegate.h"
+#include "connectionwidget.h"
 #include "dbconndlg.h"
 #include "form.h"
+#include "globals.h"
+#include "inpfrm.h"
+#include "locals.h"
 #include "mdstatebar.h"
+#include "tabledelegate.h"
+#include "tablewindow.h"
+
 
 namespace Ui {
 class MainWindow;

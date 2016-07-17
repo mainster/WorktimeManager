@@ -7,54 +7,60 @@
 QT       += core gui
 QT       += sql widgets
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 TARGET = WorktimeManager
+QMAKE_CXX = ccache g++
 TEMPLATE = app
-
-PLATFORM = linux
-#APP_NAME="WorktimeManager_v"
-#APP_VERSION="1.35"
+CONFIG+=c++11
+INCLUDEPATH += mdbQtStd
 
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
-    connectionwidget.cpp \
-    browser.cpp \
-    inpfrm.cpp \
-    dbconndlg.cpp \
-    tabledelegate.cpp \
-    tablewindow.cpp \
-    globals.cpp \
-    tabview.cpp \
-    form.cpp \
-    QSortFilterSqlQueryModel.cpp \
-    mysortfilterproxymodel.cpp \
-    sortwindow.cpp
+SOURCES +=	\
+	browser.cpp \
+	connectionwidget.cpp \
+	dbconndlg.cpp \
+	form.cpp \
+	inpfrm.cpp \
+	locals.cpp \
+	main.cpp \
+	mainwindow.cpp \
+	mdbQtStd/debug.cpp \
+	mdbQtStd/globals.cpp \
+	mysortfilterproxymodel.cpp \
+	sortwindow.cpp \
+	tabledelegate.cpp \
+	tablewindow.cpp \
+	tabview.cpp \
+	mdbQtStd/mdstatebar.cpp
 
-HEADERS  += mainwindow.h \
-    connectionwidget.h \
-    browser.h \
-    globals.h \
-    inpfrm.h \
-    initdb.h \
-    dbconndlg.h \
-    tabledelegate.h \
-    tablewindow.h \
-    tabview.h \
-    form.h \
-    QSortFilterSqlQueryModel.h \
-    mysortfilterproxymodel.h \
-    sortwindow.h
+HEADERS  += \
+	browser.h \
+	connectionwidget.h \
+	dbconndlg.h \
+	form.h \
+	initdb.h \
+	inpfrm.h \
+	locals.h \
+	mainwindow.h \
+	mdbQtStd/debug.h \
+	mdbQtStd/globals.h \
+	mysortfilterproxymodel.h \
+	sortwindow.h \
+	tabledelegate.h \
+	tablewindow.h \
+	tabview.h \
+	mdbQtStd/mdstatebar.h
 
-FORMS    += mainwindow.ui \
-    dbconndlg.ui \
-    tablewindow.ui \
-    form.ui \
-    browser.ui \
-    inpfrm.ui \
-    tabview.ui \
-    sortwindow.ui
+FORMS    += \
+	browser.ui \
+	dbconndlg.ui \
+	form.ui \
+	inpfrm.ui \
+	mainwindow.ui \
+	sortwindow.ui \
+	tablewindow.ui \
+	tabview.ui
 
 
 RESOURCES += \

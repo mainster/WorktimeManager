@@ -41,7 +41,7 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
     this->setFixedHeight(125);
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(Globals::SQL_DB_PATH + Globals::SQL_DB_FILE);
+	 db.setDatabaseName(Locals::SQL_DB_PATH + Locals::SQL_DB_FILE);
 
     /** Request all combobox widgets within the inputFrm */
     cbs = findChildren<QComboBox *>();
@@ -673,7 +673,7 @@ void InpFrm::refreshCbDropDownLists() {
     /**
     * Set CUSTOM_QUERY_COMMANDS combo box items
     */
-    QSETTINGS_QUERYS;
+	 QSETTINGS_QUERYS
     QStringList query_keys;
 
     //   /** Remove all items except "NewQuery" item */

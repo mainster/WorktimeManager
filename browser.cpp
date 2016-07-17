@@ -1,10 +1,3 @@
-#include "browser.h"
-#include "dbconndlg.h"
-#include "globals.h"
-#include "tabview.h"
-#include "sortwindow.h"
-#include "mdstatebar.h"
-
 #include <QtWidgets>
 #include <QMessageBox>
 #include <QFrame>
@@ -13,6 +6,13 @@
 #include <QGroupBox>
 #include <QtEvents>
 #include <QCloseEvent>
+
+#include "browser.h"
+#include "dbconndlg.h"
+#include "globals.h"
+#include "tabview.h"
+#include "sortwindow.h"
+#include "mdstatebar.h"
 #include "inpfrm.h"
 
 #define T_CYCLIC 250e-3
