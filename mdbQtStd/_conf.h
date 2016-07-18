@@ -31,8 +31,8 @@ public:
       QSETTINGS;
 
       if ( var.canConvert<Browser>() ) {
-         browser(qvariant_cast<Browser>(var));
-         config.setValue( ARG_GEO.arg("Browser"), browser.saveGeometry() );
+			browser = qvariant_cast<Browser*>(var);
+			config.setValue( ARG_GEO.arg("Browser"), browser->saveGeometry() );
       }
       else return -1;
 

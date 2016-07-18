@@ -23,7 +23,7 @@ SortWindow::SortWindow(QWidget *parent) :
     ui(new Ui::SortWindow) {
 
     ui->setupUi(this);
-    proxyModel = new MySortFilterProxyModel(this);
+    proxyModel = new SfiltMdl(this);
     proxyModel->setDynamicSortFilter(true);
 
     sourceView = ui->sourceView;

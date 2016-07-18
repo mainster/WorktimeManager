@@ -4,12 +4,12 @@
 #include <QDate>
 #include <QSortFilterProxyModel>
 
-class MySortFilterProxyModel : public QSortFilterProxyModel
+class SfiltMdl : public QSortFilterProxyModel
 {
     Q_OBJECT
 
 public:
-    MySortFilterProxyModel(QObject *parent = 0);
+    SfiltMdl(QObject *parent = 0);
 
     QDate filterMinimumDate() const { return minDate; }
     void setFilterMinimumDate(const QDate &date);

@@ -12,7 +12,7 @@ class QLabel;
 class QLineEdit;
 class QTreeView;
 
-class MySortFilterProxyModel;
+class SfiltMdl;
 
 namespace Ui {
 class SortWindow;
@@ -49,7 +49,7 @@ private:
     static SortWindow *inst;
 
     Ui::SortWindow *ui;
-    MySortFilterProxyModel *proxyModel;
+    SfiltMdl *proxyModel;
 
     QGroupBox *sourceGB;
     QGroupBox *proxyGB;

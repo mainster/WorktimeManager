@@ -1,36 +1,63 @@
-/** \file
- * [] browser.h
+/**
+ ** This file is part of the WorktimeManager project.
+ ** Copyright 2016 Manuel Del Basso <manuel.delbasso@gmail.com>.
+ **
+ ** This program is free software: you can redistribute it and/or modify
+ ** it under the terms of the GNU General Public License as published by
+ ** the Free Software Foundation, either version 3 of the License, or
+ ** (at your option) any later version.
+ **
+ ** This program is distributed in the hope that it will be useful,
+ ** but WITHOUT ANY WARRANTY; without even the implied warranty of
+ ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ ** GNU General Public License for more details.
+ **
+ ** You should have received a copy of the GNU General Public License
+ ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ **/
+/*!
+ * @file browser.h
+ * @author Manuel Del Basso
+ * @date 18-07-2016
+ * @brief File containing ???????????????????????????????.
  *
- * @author mainster
+ * Here typically goes a more extensive explanation of what the header
+ * defines. Doxygens tags are words preceeded by either a backslash @TAG
+ * or by an at symbol @@TAG.
  */
-
 #ifndef BROWSER_H
 #define BROWSER_H
 
-#define QFOLDINGSTART {
-
-#include <QObject>
-#include <QtGui>
-#include <QtCore>
-#include <QTableWidget>
-#include <QTableView>
-#include <QSqlTableModel>
-#include <QSqlRelationalTableModel>
+#include <QCloseEvent>
 #include <QDockWidget>
-#include <QGroupBox>
 #include <QFrame>
-#include <QWidget>
+#include <QGroupBox>
 #include <QList>
+#include <QMessageBox>
+#include <QObject>
+#include <QSqlRelationalTableModel>
+#include <QSqlTableModel>
+#include <QTableView>
+#include <QTableWidget>
+#include <QtCore>
+#include <QtEvents>
+#include <QtGui>
+#include <QtSql>
+#include <QtWidgets>
+#include <QWidget>
 
-#include "ui_browser.h"
+#include "dbconndlg.h"
 #include "globals.h"
-#include "tabview.h"
-//#include "QSortFilterSqlQueryModel.h"
+#include "inpfrm.h"
+#include "mdstatebar.h"
+#include "models.h"
 #include "mysortfilterproxymodel.h"
 #include "sortwindow.h"
-#include "mdstatebar.h"
+#include "tabview.h"
+#include "ui_browser.h"
 
-#define QFOLDINGEND }
+
+
 
 namespace Ui {
 class Browser;
@@ -49,7 +76,9 @@ class TabView;
  * \date
  */
 class Browser : public QWidget, private Ui::Browser {
+
    Q_OBJECT
+
 public:
    explicit Browser(QWidget *parent = 0);
    static Browser *getInstance(QWidget *parent = 0x00) {
@@ -149,124 +178,6 @@ private:
 //   QList<SortWindow *> sortwindow;
    SortWindow * filterForm;
    MDStateBar * stateBar;
-};
-
-
-/*!
- \brief Class declaration of an relational custom table model used as delegate.
-
- \class CustomRelatMdl browser.h "browser.h"
-*/
-class CustomRelatMdl: public QSqlRelationalTableModel {
-
-   Q_OBJECT
-
-public:
-   /** 
-    * Hold a list of columns which shold be center aligned 
-    */
-   QVector<int> getCCol() const;
-   void setCCol(const QVector<int> &value);
-
-   /*!
-    \brief Constructor of custom relational table model inherited from
-    QSqlRelationalTableModel. Subclass only a table model and override some
-    base methods to prevent subclassing a complete delegate.
-
-    \param parent
-    \param db
-   */
-   explicit CustomRelatMdl(QObject *parent = 0,
-                           QSqlDatabase db = QSqlDatabase())
-      : QSqlRelationalTableModel(parent, db) { }
-
-
-   /*!
-   \brief This methode overrides data() methode from its base class
-   QSqlTableModel. Text alignment could be controlled by this extended methode.
-
-    \param idx
-    \param role
-    \return QVariant
-   */
-   QVariant data(const QModelIndex& idx, int role) const Q_DECL_OVERRIDE {
-      if ( role == Qt::TextAlignmentRole )
-         return QVariant( Qt::AlignCenter | Qt::AlignVCenter );
-      /**
-       * The extension is the ability to return a QBrush object rather then
-       * pure data handeling.
-       */
-      if (role == Qt::BackgroundRole && isDirty(idx))
-         return QBrush(QColor(Qt::yellow));
-
-      return QSqlTableModel::data(idx, role);
-   }
-
-private:
-   QVector<int> cCol;
-
-};
-
-
-/*!
- \brief An alternative to subclussing QItemDelegate is to subclass the model
- and override data() method.
-
- \class CustomMdl browser.h "browser.h"
-*/
-class CustomMdl: public QSqlTableModel{
-   Q_OBJECT
-
-public:
-
-   QVector<int> getCCol() const;
-   void setCCol(const QVector<int> &value);
-
-   /*!
-    \brief Constructor of custom table model inherited from QSqlTableModel.
-    Subclassing only a table model and override some base methods to prevent
-    subclassing a complete delegate.
-
-    \param parent
-    \param db
-   */
-   explicit CustomMdl (QObject *parent = 0,
-                         QSqlDatabase db = QSqlDatabase()) 
-      : QSqlTableModel(parent, db) { }
-
-   /*!
-   \brief This methode overrides data() methode from its base class
-   QSqlTableModel. Text alignment could be controlled by this extended methode.
-
-    \param idx
-    \param role
-    \return QVariant
-   */
-   QVariant data(const QModelIndex& idx, int role) const Q_DECL_OVERRIDE {
-
-      Qt::ItemDataRole idr = static_cast<Qt::ItemDataRole>(role);
-
-      if ( idr == Qt::TextAlignmentRole ) {
-         return QVariant( Qt::AlignCenter | Qt::AlignVCenter );
-      }
-      
-      /**
-       * The extension is the ability to return a QBrush object rather then
-       * pure data handeling.
-       */
-      if (idr == Qt::BackgroundRole && isDirty(idx)) {
-         return QBrush(QColor(Qt::yellow));
-      }
-
-      return QSqlTableModel::data(idx, role);
-   }
-
-private:
-   /**
-    * Hold a list of columns which shold be center aligned
-    */
-   QVector<int> cCol;
-
 };
 
 

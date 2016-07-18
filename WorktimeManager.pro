@@ -15,54 +15,14 @@ TEMPLATE = app
 CONFIG+=c++11
 INCLUDEPATH += mdbQtStd
 
+DISTFILES += \
+	 NOTES
 
-SOURCES +=	\
-	browser.cpp \
-	connectionwidget.cpp \
-	dbconndlg.cpp \
-	form.cpp \
-	inpfrm.cpp \
-	locals.cpp \
-	main.cpp \
-	mainwindow.cpp \
-	mdbQtStd/debug.cpp \
-	mdbQtStd/globals.cpp \
-	mysortfilterproxymodel.cpp \
-	sortwindow.cpp \
-	tabledelegate.cpp \
-	tablewindow.cpp \
-	tabview.cpp \
-	mdbQtStd/mdstatebar.cpp \
-    dbcontroller.cpp
-
-HEADERS  += \
-	browser.h \
-	connectionwidget.h \
-	dbconndlg.h \
-	form.h \
-	initdb.h \
-	inpfrm.h \
-	locals.h \
-	mainwindow.h \
-	mdbQtStd/debug.h \
-	mdbQtStd/globals.h \
-	mysortfilterproxymodel.h \
-	sortwindow.h \
-	tabledelegate.h \
-	tablewindow.h \
-	tabview.h \
-	mdbQtStd/mdstatebar.h \
-    dbcontroller.h
-
-FORMS    += \
-	browser.ui \
-	dbconndlg.ui \
-	form.ui \
-	inpfrm.ui \
-	mainwindow.ui \
-	sortwindow.ui \
-	tablewindow.ui \
-	tabview.ui
+INCLUDEPATH += \
+		delegates \
+		headers \
+		mdbQtStd \
+		models ui
 
 
 RESOURCES += \
@@ -79,5 +39,56 @@ wince*: {
     DEPLOYMENT_PLUGIN += qsqlite
 }
 
-DISTFILES += \
-    NOTES
+FORMS += \
+    uis/browser.ui \
+    uis/dbconndlg.ui \
+    uis/inpfrm.ui \
+    uis/mainwindow.ui \
+    uis/mwBrowser.ui \
+    uis/sortwindow.ui \
+    uis/tablewindow.ui \
+    uis/tabview.ui
+
+HEADERS += \
+    delegates/tabledelegate.h \
+    headers/locals.h \
+    mdbQtStd/debug.h \
+    mdbQtStd/globals.h \
+    mdbQtStd/mdstatebar.h \
+    mdbQtStd/types.h \
+    models/editablesqlmdl.h \
+    models/mysortfilterproxymodel.h \
+    browser.h \
+    connectionwidget.h \
+    dbconndlg.h \
+    dbcontroller.h \
+    initdb.h \
+    inpfrm.h \
+    mainwindow.h \
+    sortwindow.h \
+    tablewindow.h \
+    tabview.h \
+    models/models.h
+
+SOURCES += \
+    delegates/tabledelegate.cpp \
+    headers/locals.cpp \
+    mdbQtStd/debug.cpp \
+    mdbQtStd/globals.cpp \
+    mdbQtStd/mdstatebar.cpp \
+    mdbQtStd/types.cpp \
+    models/editablesqlmdl.cpp \
+    models/mysortfilterproxymodel.cpp \
+    browser.cpp \
+    connectionwidget.cpp \
+    dbconndlg.cpp \
+    dbcontroller.cpp \
+    inpfrm.cpp \
+    main.cpp \
+    mainwindow.cpp \
+    sortwindow.cpp \
+    tablewindow.cpp \
+    tabview.cpp \
+    models/models.cpp
+
+

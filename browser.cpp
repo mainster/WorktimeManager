@@ -1,22 +1,9 @@
-#include <QtWidgets>
-#include <QMessageBox>
-#include <QFrame>
-#include <QWidget>
-#include <QtSql>
-#include <QGroupBox>
-#include <QtEvents>
-#include <QCloseEvent>
-
 #include "browser.h"
-#include "dbconndlg.h"
-#include "globals.h"
-#include "tabview.h"
-#include "sortwindow.h"
-#include "mdstatebar.h"
-#include "inpfrm.h"
+#include "ui_browser.h"
 
 #define T_CYCLIC 250e-3
 
+#define	COMMENT_OUT_UNUSED
 
 #define TVA    "TableLeft"
 #define TVB    "TableCenter"
@@ -80,7 +67,7 @@ Browser::Browser(QWidget *parent)  :
 
     emit stateMsg(tr("Browser Ready."));
 
-    CustomMdl *cm = new CustomMdl();
+    SqlTm *cm = new SqlTm();
     cm->setCCol(QVector<int>(0, 1));
 
 //    sortwindow.append( new SortWindow(0) );
@@ -97,97 +84,97 @@ Browser::~Browser() {
 //    delete sortwindow[1];
     delete ui;
 }
-QSqlError Browser::addConnection( const QString &driver, const QString &dbName,
-                                  const QString &host, const QString &user,
-                                  const QString &passwd, int port) {
-    stateBar = MDStateBar::getObjectPtr();
+//QSqlError Browser::addConnection( const QString &driver, const QString &dbName,
+//                                  const QString &host, const QString &user,
+//                                  const QString &passwd, int port) {
+//    stateBar = MDStateBar::getObjectPtr();
 
-    static int cCount = 0;
+//    static int cCount = 0;
 
-    QSqlError err;
-	 QSqlDatabase db =
-			 QSqlDatabase::addDatabase(driver, QString("Browser%1").arg(++cCount));
-    db.setDatabaseName(dbName);
-    db.setHostName(host);
-    db.setPort(port);
+//    QSqlError err;
+//	 QSqlDatabase db =
+//			 QSqlDatabase::addDatabase(driver, QString("Browser%1").arg(++cCount));
+//    db.setDatabaseName(dbName);
+//    db.setHostName(host);
+//    db.setPort(port);
 
-    if (!db.open(user, passwd)) {
-        err = db.lastError();
-        db = QSqlDatabase();
-        QSqlDatabase::removeDatabase(QString("Browser%1").arg(cCount));
-    }
-
-    connectionWidget->refresh();
-
-    return err;
-}
-void Browser::addConnection() {
-	 DbConnDlg dialog(this);
-
-	 if (dialog.exec() != QDialog::Accepted)
-		  return;
-
-	 if (dialog.useInMemoryDatabase()) {
-		  QMessageBox::warning(
-						  this, tr("Add connection"), tr("dialog.useInMemoryDatabase()"));
-	 } else {
-		  QSqlError err = addConnection(dialog.driverName(),
-												  dialog.databaseName(),
-												  dialog.hostName(),
-												  dialog.userName(),
-												  dialog.password(),
-												  dialog.port());
-
-		  if (err.type() != QSqlError::NoError)
-				QMessageBox::warning(
-								this,  tr("Unable to open database"),
-								tr("An error occurred while opening the connection: ") + err.text());
-	 }
-}
-void Browser::initTableView(QWidget *parent, QStringList &accNam) {
-    Q_UNUSED(parent)
-    QList<QAction *> tblActs;
-
-    tblActs.append(insertRowAction);
-    tblActs.append(deleteRowAction);
-    tblActs.append(fieldStrategyAction);
-    tblActs.append(rowStrategyAction);
-    tblActs.append(manualStrategyAction);
-    tblActs.append(submitAction);
-    tblActs.append(revertAction);
-    tblActs.append(selectAction);
-
-//    QObjectList *queryList( const char *inheritsClass = 0,
-//                            const char *objName = 0,
-//                            bool regexpMatch = TRUE,
-//                            bool recursiveSearch = TRUE );
-
-//    QObjectList *queryTvs = queryList( "TabView" );
-
-//    foreach (QObject *obj, queryTvs) {
-//        tvs.append( static_cast<TabView *>obj );
+//    if (!db.open(user, passwd)) {
+//        err = db.lastError();
+//        db = QSqlDatabase();
+//        QSqlDatabase::removeDatabase(QString("Browser%1").arg(cCount));
 //    }
-    tvs.append( tva );
-    tvs.append( tvb );
-    tvs.append( tvc );
-    tvs.append( tvd );
-    tvs.append( tvl1 );
-    tvs.append( tvl2 );
 
-    int i = 0;
+//    connectionWidget->refresh();
 
-    foreach (TabView *tv, tvs) {
-        tv->addActions( tblActs );
-        tv->setAccessibleName( accNam[i] );
-        tv->setObjectName( accNam[i] );
+//    return err;
+//}
+//void Browser::addConnection() {
+//	 DbConnDlg dialog(this);
 
-        tv->setToolTip( tr("Tooltip: ") + accNam[i++]);
-        tv->setContextMenuPolicy(Qt::ActionsContextMenu);
-        tv->m_gb->installEventFilter( this );
-        tv->m_gb->setObjectName("gb");
-        //      tv->m_gb->setStyleSheet( Globals::gbStyleShtCenterPROPERTYS );
-    }
-}
+//	 if (dialog.exec() != QDialog::Accepted)
+//		  return;
+
+//	 if (dialog.useInMemoryDatabase()) {
+//		  QMessageBox::warning(
+//						  this, tr("Add connection"), tr("dialog.useInMemoryDatabase()"));
+//	 } else {
+//		  QSqlError err = addConnection(dialog.driverName(),
+//												  dialog.databaseName(),
+//												  dialog.hostName(),
+//												  dialog.userName(),
+//												  dialog.password(),
+//												  dialog.port());
+
+//		  if (err.type() != QSqlError::NoError)
+//				QMessageBox::warning(
+//								this,  tr("Unable to open database"),
+//								tr("An error occurred while opening the connection: ") + err.text());
+//	 }
+//}
+//void Browser::initTableView(QWidget *parent, QStringList &accNam) {
+//    Q_UNUSED(parent)
+//    QList<QAction *> tblActs;
+
+//    tblActs.append(insertRowAction);
+//    tblActs.append(deleteRowAction);
+//    tblActs.append(fieldStrategyAction);
+//    tblActs.append(rowStrategyAction);
+//    tblActs.append(manualStrategyAction);
+//    tblActs.append(submitAction);
+//    tblActs.append(revertAction);
+//    tblActs.append(selectAction);
+
+////    QObjectList *queryList( const char *inheritsClass = 0,
+////                            const char *objName = 0,
+////                            bool regexpMatch = TRUE,
+////                            bool recursiveSearch = TRUE );
+
+////    QObjectList *queryTvs = queryList( "TabView" );
+
+////    foreach (QObject *obj, queryTvs) {
+////        tvs.append( static_cast<TabView *>obj );
+////    }
+//    tvs.append( tva );
+//    tvs.append( tvb );
+//    tvs.append( tvc );
+//    tvs.append( tvd );
+//    tvs.append( tvl1 );
+//    tvs.append( tvl2 );
+
+//    int i = 0;
+
+//    foreach (TabView *tv, tvs) {
+//        tv->addActions( tblActs );
+//        tv->setAccessibleName( accNam[i] );
+//        tv->setObjectName( accNam[i] );
+
+//        tv->setToolTip( tr("Tooltip: ") + accNam[i++]);
+//        tv->setContextMenuPolicy(Qt::ActionsContextMenu);
+//        tv->m_gb->installEventFilter( this );
+//        tv->m_gb->setObjectName("gb");
+//        //      tv->m_gb->setStyleSheet( Globals::gbStyleShtCenterPROPERTYS );
+//    }
+//}
 void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
     QSETTINGS_QUERYS;
     /** Get pointer to current active database connection */
@@ -268,7 +255,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
     */
     QSqlDatabase pDb = connectionWidget->currentDatabase();
     QTableView *tv = tvc->tv();
-    QSqlRelationalTableModel *rmod = new CustomRelatMdl(tvc->tv(), pDb);
+    QSqlRelationalTableModel *rmod = new SqlRtm(tvc->tv(), pDb);
     rmod->setEditStrategy(QSqlTableModel::OnRowChange);
     rmod->setTable(pDb.driver()->escapeIdentifier(tNam, QSqlDriver::TableName));
     /**
@@ -602,7 +589,7 @@ void Browser::on_connectionWidget_tableActivated(const QString &sqlTbl) {
             //          * Update TabViews group box title to match the prior activated sql
             //          * table name
             //          */
-            //         tv->m_gb->setTitle( sqlTbl );
+							tv->m_gb->setTitle( sqlTbl );
             return;
         }
         else {
@@ -787,9 +774,14 @@ void Browser::showEvent(QShowEvent *e) {
         }
     }
 }
-/* ---------------------------------------------------------------- */
-/*                SQL Sort filter proxy model                       */
-/* ---------------------------------------------------------------- */
+void Browser::keyPressEvent(QKeyEvent *) {
+}
+void Browser::keyReleaseEvent(QKeyEvent *) {
+}
+void Browser::hideEvent(QHideEvent *) {
+}
+
+#ifndef COMMENT_OUT_UNUSED
 QAbstractItemModel *Browser::createMailModel(QObject *parent) {
     QStandardItemModel *model = new QStandardItemModel(0, 3, parent);
 
@@ -826,7 +818,7 @@ void Browser::onActFilterForm(bool b) {
     filterForm->setVisible(b);
 
     if (b) {
-        filterForm->setSourceModel( tvs.takeLast()->tv()->model() );
+		  filterForm->setSourceModel( tvs.last()->tv()->model() );
         filterForm->raise();
         filterForm->activateWindow();
     }
@@ -834,264 +826,4 @@ void Browser::onActFilterForm(bool b) {
         filterForm->hide();
     }
 }
-
-QVector<int> CustomMdl::getCCol() const {
-    return cCol;
-}
-void CustomMdl::setCCol(const QVector<int> &value) {
-    cCol = value;
-}
-
-
-#define QFOLDINGSTART {
-//void Browser::addMail(QAbstractItemModel *model, const QString &subject,
-//                      const QString &sender, const QDateTime &date) {
-//    model->insertRow(0);
-//    model->setData(model->index(0, 0), subject);
-//    model->setData(model->index(0, 1), sender);
-//    model->setData(model->index(0, 2), date);
-//}
-
-//void Browser::onActFilterWindowTable(bool b) {
-//    /* ---------------------------------------------------------------- */
-//    /*                      sort window test                             */
-//    /* ---------------------------------------------------------------- */
-//    if (b) {
-////        sortwindow[0]->setSourceModel(this->createMailModel(sortwindow[0]));
-//        sortwindow[0]->setSourceModel( tvs.takeLast()->tv()->model() );
-//        //sortwindow[1]->setSourceModel( tvs.takeLast()->tv()->model() );
-//        sortwindow[0]->show();
-//        //sortwindow[1]->show();
-//    }
-//    else {
-//        sortwindow[0]->hide();
-//        //sortwindow[1]->hide();
-//    }
-//}
-//void Browser::showRelatTable(/*const QString &t, */QTableView *tv) {
-////    Q_UNUSED(t);
-//    /**
-//    * Get active database pointer
-//    */
-//    QSqlDatabase currentDb = connectionWidget->currentDatabase();
-
-//    /**
-//    * Instantiate a new custom CustomRelatMdl(..) table view model
-//    */
-//    QSqlRelationalTableModel *model = new CustomRelatMdl(tv, currentDb);
-
-//    model->setEditStrategy(QSqlRelationalTableModel::OnRowChange);
-
-//    model->setTable("worktime");
-//    model->setEditStrategy(QSqlRelationalTableModel::OnManualSubmit);
-//    model->setRelation(2, QSqlRelation("worker", "workerID", "Nachname"));
-//    model->setRelation(3, QSqlRelation("prj", "prjID", "Kurzform"));
-//    model->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
-//    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Datum"));
-//    model->setHeaderData(2, Qt::Horizontal, QObject::tr("worker Nachname"));
-//    model->setHeaderData(3, Qt::Horizontal, QObject::tr("prj kurzform"));
-//    model->setHeaderData(4, Qt::Horizontal, QObject::tr("Stunden"));
-
-//    model->select();
-
-//    if (model->lastError().type() != QSqlError::NoError)
-//        emit stateMsg(model->lastError().text());
-
-//    tv->setModel(model);
-//    tv->setEditTriggers(QAbstractItemView::DoubleClicked |
-//                        QAbstractItemView::EditKeyPressed);
-
-////    connect(tv->selectionModel(),
-////            SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-////            this, SLOT(currentChanged()));
-//    connect(tv->selectionModel(),
-//            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-//            this, SLOT(currentChanged()));
-//    tv->setVisible(false);
-//    tv->resizeColumnsToContents();
-//    tv->setVisible(true);
-//    updateActions();
-//}
-//void Browser::SORTIT() {
-//    QSETTINGS;
-
-//    QString queryStr =
-//            config.value("InpFrm/default_worktime_query_plain","").toString();
-
-//    QSortFilterSqlQueryModel *model = new QSortFilterSqlQueryModel(this);
-//    InpFrm *inpFrm = InpFrm::instance();
-
-
-//    QTableView *tvq = tvl1->tv();
-
-
-//    if (QMessageBox::question(this, tr("Use default query?"),
-//                              tr("Query default worktime ?"),
-//                              QMessageBox::Yes |
-//                              QMessageBox::No, QMessageBox::No) ==
-//            QMessageBox::Yes) {
-//        model->setQuery(queryStr, connectionWidget->currentDatabase());
-//        INFO << queryStr;
-//    }
-//    else {
-//        model->setQuery(inpFrm->getQueryText(),
-//                        connectionWidget->currentDatabase());
-//        INFO << inpFrm->getQueryText();
-//    }
-
-//    tvq->setModel(model);
-
-//    if (model->lastError().type() != QSqlError::NoError)
-//        emit stateMsg(model->lastError().text());
-//    else if (model->query().isSelect())
-//        emit stateMsg(tr("Query OK."));
-//    else
-//        emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
-//                          model->query().numRowsAffected()));
-//    model->setFilterColumn("wk.Vorname"); // will filter by user name
-//    model->setFilterFlags(Qt::MatchStartsWith);
-//    model->setFilter("");
-//    model->select();
-
-//    QFrame *frm = new QFrame(this);
-//    QGridLayout *gl = new QGridLayout();
-
-//    QLabel *se = new QLabel("search");
-//    QLabel *co = new QLabel("FilterCol");
-
-//    QLineEdit *oncol = new QLineEdit();
-//    QLineEdit *search = new QLineEdit();
-//    connect(oncol, SIGNAL (textChanged(QString)), model, SLOT( setFilterColumn(QString)));
-//    connect(search, SIGNAL (textChanged(QString)), model, SLOT( filter(QString)));
-
-//    gl->addWidget(se,0,0);
-//    gl->addWidget(search,0,1);
-
-//    gl->addWidget(co,1,0);
-//    gl->addWidget(oncol,1,1);
-//    frm->setLayout(gl);
-
-//    oncol->setVisible(true);
-//    search->setVisible(true);
-
-//    frm->show();
-//}
-
-//void Browser::showTable22(const QString &t, QTableView *tv) {
-
-//   QSqlDatabase pdb = connectionWidget->currentDatabase();
-
-//   QSqlTableModel *model = new CustomMdl(tv, pdb);
-//   model->setEditStrategy(QSqlTableModel::OnRowChange);
-//   model->setTable( pdb.driver()->escapeIdentifier(t, QSqlDriver::TableName));
-//   model->select();
-
-//   if (model->lastError().type() != QSqlError::NoError)
-//      emit stateMsg(model->lastError().text());
-
-//   tv->setModel(model);
-//   tv->setEditTriggers( QAbstractItemView::DoubleClicked |
-//                        QAbstractItemView::EditKeyPressed );
-
-//   if (! (bool) connect( tvs.first()->tv()->selectionModel(),
-//                         SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-//                         this, SLOT(currentChanged()) ) )
-//      emit stateMsg(tr("Slot connection returns false"));
-
-//   tv->setVisible( false );
-//   tv->resizeColumnsToContents();
-//   tv->resizeRowsToContents();
-//   tv->setVisible( true );
-
-//   updateActions();
-//}
-
-//void Browser::showTable(const QString &sqlTab, TabView *tvc) {
-//   //
-//    * Get pointer to current active database connection
-//    //
-//   QSqlDatabase pDb = connectionWidget->currentDatabase();
-
-//   QSqlTableModel *mod = new CustomMdl(tvc->tv(), pDb);
-//   mod->setEditStrategy(QSqlTableModel::OnRowChange);
-//   mod->setTable( pDb.driver()->escapeIdentifier(sqlTab, QSqlDriver::TableName));
-//   mod->select();
-
-//   if (mod->lastError().type() != QSqlError::NoError)
-//      emit stateMsg(mod->lastError().text());
-
-//   tvc->tv()->setModel(mod);
-//   tvc->tv()->setEditTriggers( QAbstractItemView::DoubleClicked |
-//                               QAbstractItemView::EditKeyPressed );
-
-//   if (! (bool) connect( tvc->tv()->selectionModel(),
-//                         SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-//                         this, SLOT(currentChanged()) ) )
-//      emit stateMsg(tr("Slot connection returns false"));
-
-//   tvc->tv()->setVisible( false );
-//   tvc->tv()->resizeColumnsToContents();
-//   tvc->tv()->resizeRowsToContents();
-//   tvc->tv()->setVisible( true );
-
-//   updateActions();
-//}
-
-//void Browser::showRelatTable2(const QString &sqlTbl, QTableView *tv) {
-//    Q_UNUSED(sqlTbl);
-
-//    /**
-//    * Get active database pointer
-//    */
-//    QSqlDatabase pdb = connectionWidget->currentDatabase();
-
-//    QSqlRelationalTableModel *rmod = new CustomRelatMdl(tvc->tv(), pdb);
-//    rmod->setEditStrategy(QSqlTableModel::OnManualSubmit);
-//    rmod->setTable( tvc->tv()->objectName() );
-
-//    /** Remember the indexes of the columns */
-//    int colEmp = rmod->fieldIndex("workerID");
-//    int colPrj = rmod->fieldIndex("prjID");
-
-//    /** Set the relations to the other database tables */
-//    rmod->setRelation(colEmp, QSqlRelation(
-//                          "worker", "workerID", "Nachname"));
-//    rmod->setRelation(colPrj, QSqlRelation(
-//                          "prj", "prjID", "Beschreibung"));
-
-//    // Set the localized header captions
-//    rmod->setHeaderData(rmod->fieldIndex("worktimID"), Qt::Horizontal, tr("ID"));
-//    rmod->setHeaderData(rmod->fieldIndex("dat"), Qt::Horizontal, tr("Datum"));
-//    rmod->setHeaderData(colEmp, Qt::Horizontal, tr("Mitarb"));
-//    rmod->setHeaderData(colPrj, Qt::Horizontal, tr("PrjBesch"));
-//    rmod->setHeaderData(rmod->fieldIndex("hours"), Qt::Horizontal, tr("Stunden"));
-
-//    // Populate the model
-//    rmod->select();
-
-//    // Set the model and hide the ID column
-//    //   tv->setModel( rmod );
-//    //   tv->setItemDelegate( new TableDelegate(tv));
-//    tv->setColumnHidden(rmod->fieldIndex("ID"), true);
-//    tv->setSelectionMode(QAbstractItemView::SingleSelection);
-
-//    tv->setModel(rmod);
-//    tv->setEditTriggers( QAbstractItemView::DoubleClicked |
-//                         QAbstractItemView::EditKeyPressed );
-//    /** !!!!!!!!!!!!!!!!!!!! tvs.first()->tv()->selectionModel() changed to
-//    * tvs[3]->tv()->selectionModel()
-//    */
-//    if (! (bool) connect( tvs.last()->tv()->selectionModel(),
-//                          SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-//                          this, SLOT(currentChanged()) ) )
-//        emit stateMsg(tr("Slot connection returns false"));
-
-//    tv->setVisible( false );
-//    tv->resizeColumnsToContents();
-//    tv->resizeRowsToContents();
-//    tv->setVisible( true );
-
-//    updateActions();
-
-//}
-#define QFOLDINGEND }
+#endif

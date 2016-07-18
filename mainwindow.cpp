@@ -18,13 +18,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	 */
 	QStringList drivers = QSqlDatabase::drivers();
 
-	// remove compat names
-	drivers.removeAll("QMYSQL3");
-	drivers.removeAll("QOCI8");
-	drivers.removeAll("QODBC3");
-	drivers.removeAll("QPSQL7");
-	drivers.removeAll("QTDS7");
-
 	if (!drivers.contains("QSQLITE"))
 		CRIT << tr("empty");
 
@@ -36,8 +29,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	setStatusBar( stateBar );
 	sortwindow = new SortWindow();
 	stateBar->setClockVisible(true);
-
-
 
 
 	makeMenuBar();
@@ -456,8 +447,9 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
 	}
 
 	// standard event processing
-	return false;
-	//    return QObject::eventFilter(obj, event);
+//	return false;
+
+	return QObject::eventFilter(obj, event);
 }
 void MainWindow::closeEvent(QCloseEvent *e) {
 	QSETTINGS;
@@ -496,8 +488,6 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 			config.setValue("MainWindow/" + ac->objectName(), ac->isChecked());
 			acts << ac;
 		}
-
-	INFO << acts;
 	config.setValue("MainWindow/actionCtr", acts.length());
 
 	/**** Safe current docking area of dock widgets

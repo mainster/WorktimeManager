@@ -2,17 +2,17 @@
 
 #include "mysortfilterproxymodel.h"
 
-MySortFilterProxyModel::MySortFilterProxyModel(QObject *parent)
+SfiltMdl::SfiltMdl(QObject *parent)
     : QSortFilterProxyModel(parent) {
 }
 
-void MySortFilterProxyModel::setFilterMinimumDate(const QDate &date) {
+void SfiltMdl::setFilterMinimumDate(const QDate &date) {
     minDate = date;
     invalidateFilter();
     qDebug() << tr("min date:") << minDate.toString("dd.MM.yyyy");
 }
 
-void MySortFilterProxyModel::setFilterMaximumDate(const QDate &date) {
+void SfiltMdl::setFilterMaximumDate(const QDate &date) {
     maxDate = date;
     invalidateFilter();
     qDebug() << tr("max date:") << maxDate.toString("dd.MM.yyyy");
@@ -23,7 +23,7 @@ void MySortFilterProxyModel::setFilterMaximumDate(const QDate &date) {
 #define     Mitarb          2
 #define     Beschreibung    3
 
-bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow,
+bool SfiltMdl::filterAcceptsRow(int sourceRow,
                                               const QModelIndex &sourceParent) const {
     QModelIndex idxDate = sourceModel()->index(sourceRow, Datum, sourceParent);
     QModelIndex idxMitarb = sourceModel()->index(sourceRow, Mitarb, sourceParent);
@@ -34,7 +34,7 @@ bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow,
             dateInRange(sourceModel()->data(idxDate).toDate());
 }
 
-bool MySortFilterProxyModel::lessThan(const QModelIndex &left,
+bool SfiltMdl::lessThan(const QModelIndex &left,
                                       const QModelIndex &right) const {
     QVariant leftData = sourceModel()->data(left);
     QVariant rightData = sourceModel()->data(right);
@@ -57,7 +57,7 @@ bool MySortFilterProxyModel::lessThan(const QModelIndex &left,
     }
 }
 
-bool MySortFilterProxyModel::dateInRange(const QDate &date) const {
+bool SfiltMdl::dateInRange(const QDate &date) const {
 //    qDebug().noquote() << tr("min: ") << minDate
 //                     << tr(" date: ") << date
 //                     << tr(" max: ") << maxDate;

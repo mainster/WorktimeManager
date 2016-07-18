@@ -97,7 +97,6 @@ private:
    InpFrm       *inpFrm;
    TableWindow  *tblWin;
    QMenu        *cfgMenu;
-   Form         *form;
    QWidget      *wid;
    MDStateBar   *stateBar;
    SortWindow   *sortwindow;

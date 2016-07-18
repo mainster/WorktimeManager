@@ -40,9 +40,10 @@ public slots:
    void setGrBoxStyleSht(const QString &ss);
    void setGrBoxTitle(QString s);
    void onTabViewSelChanged(TabView *tv);
-
-   void setAlternateRowCol(QColor &col, bool alternateEnabled = true);
+	void setAlternateRowCol(
+			QColor &col, bool alternateEnabled = true);
    void restoreView();
+
 signals:
    void onSelChanged(TabView *tv);
 
