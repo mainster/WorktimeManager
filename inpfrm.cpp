@@ -24,7 +24,7 @@ InpFrm* InpFrm::inst = 0;
 
 InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
     ui(new Ui::InpFrm) {
-    ui->setupUi(this);
+	 ui->setupUi(this); inst = this;
     QSETTINGS;
 
     browser = Browser::getObjectPtr();
@@ -33,15 +33,17 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
     ui->cbQueryIdent->setDuplicatesEnabled( false );
     ui->datePicker->setDate(QDate::currentDate());
 
-    if (!QSqlDatabase::drivers().contains("QSQLITE"))
+	 ui->gbSqlQuery->hide();
+	 this->setFixedHeight(125);
+
+#ifdef SQL_INIT_INPFRM
+	 if (!QSqlDatabase::drivers().contains("QSQLITE"))
         QMessageBox::critical(this, "Unable to load database",
                               "This program needs the SQLITE driver");
 
-    ui->gbSqlQuery->hide();
-    this->setFixedHeight(125);
-
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
 	 db.setDatabaseName(Locals::SQL_DATABASE.absoluteFilePath());
+#endif
 
     /** Request all combobox widgets within the inputFrm */
     cbs = findChildren<QComboBox *>();
@@ -108,14 +110,6 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
     }
 
     initComboboxes();
-}
-QList<QWidget *> InpFrm::objLstToWidLst(QList<QObject *> lst) {
-    QList<QWidget *> lstw;
-
-    foreach (QObject *o, lst) {
-        lstw.append( qobject_cast<QWidget *>(o));
-    }
-    return lstw;
 }
 
 InpFrm::~InpFrm() {
@@ -719,11 +713,11 @@ bool InpFrm::gbSqlQueryIsVisible() const {
     return ui->gbSqlQuery->isVisible();
 }
 void InpFrm::gbSqlQuerySetVisible(bool vis) {
-    ui->gbSqlQuery->setVisible( vis );
+		ui->gbSqlQuery->setVisible( vis );
 
     if (vis) {
         setSizePolicy(QSizePolicy(QSizePolicy::Expanding,
-                                  QSizePolicy::Expanding));
+											 QSizePolicy::Expanding));
         this->setMaximumHeight(300);
     }
     else {
@@ -754,6 +748,14 @@ void InpFrm::onSqlQuerysTextChanged() {
         ui->cbQueryIdent->setItemData(0, ui->teSqlQuerys->toHtml());
 
     ui->cbQueryIdent->setCurrentIndex(0);
+}
+QList<QWidget *> InpFrm::objLstToWidLst(QList<QObject *> lst) {
+	 QList<QWidget *> lstw;
+
+	 foreach (QObject *o, lst) {
+		  lstw.append( qobject_cast<QWidget *>(o));
+	 }
+	 return lstw;
 }
 /**
  * Different SQL query commands could be saved in config file. A unique query

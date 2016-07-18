@@ -39,13 +39,9 @@ public:
    };
    Q_DECLARE_FLAGS(states, state)
 
-   explicit InpFrm(QWidget *parent = 0);
-   static InpFrm *getInstance(QWidget *parent = 0x00) {
+	static InpFrm *instance(QWidget *parent = 0x00) {
       if(inst == 0)
          inst = new InpFrm(parent);
-      return inst;
-   }
-   static InpFrm *getObjectPtr() {
       return inst;
    }
    ~InpFrm();
@@ -98,6 +94,8 @@ protected slots:
    QList<QWidget *> objLstToWidLst(QList<QObject *> lst);
 
 private:
+	explicit InpFrm(QWidget *parent = 0);
+
    Ui::InpFrm *ui;
    static InpFrm *inst;
    void showError(const QSqlError &err);
