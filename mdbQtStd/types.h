@@ -1,7 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include <QWidget>
+//#include <QWidget>
 #include <QVariant>
 #include <QTypeInfo>
 #include <QtGui>

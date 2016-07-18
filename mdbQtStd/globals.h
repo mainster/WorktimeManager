@@ -1,7 +1,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <QWidget>
+//#include <QWidget>
 #include <QVariant>
 #include <QTypeInfo>
 #include <QTime>

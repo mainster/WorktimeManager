@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
 	stateBar = new MDStateBar( this );
 	browser = Browser::getInstance( parent );
+	mDbc		= new DbController(this);
 
 	/*!
 	 * Init SQL classes
@@ -21,9 +22,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	if (!drivers.contains("QSQLITE"))
 		CRIT << tr("empty");
 
-	if (QSqlDatabase::connectionNames().isEmpty())
-		browser->addConnection(drivers.first(), QString("/var/lib/mysql/delBassoSQL.db"),
-									  tr(""), tr(""), tr(""));
+	QSqlError ret = mDbc->addConnection(Locals::SQL_DRIVER,
+													Locals::SQL_DATABASE.filePath());
+	INFO << tr("Establish SQL database connection: %1").arg(ret.text());
 
 	inpFrm = InpFrm::instance( this );
 	setStatusBar( stateBar );
@@ -43,38 +44,35 @@ MainWindow::~MainWindow() {
 	//   saveMainWindowUiSettings();
 	delete ui;
 }
-bool MainWindow::addConnectionsByCmdline(QVariant args, Browser &browser) {
-	QSqlError err;
+//bool MainWindow::addConnectionsByCmdline(QVariant args, Browser &browser) {
+//	QSqlError err;
 
-	foreach (QString s, args.toStringList()) {
-		QUrl url(Locals::SQL_DATABASE.baseName(), QUrl::TolerantMode);
-		url.setScheme("QMYSQL");
+//	foreach (QString s, args.toStringList()) {
+//		QUrl u(Locals::SQL_DATABASE.baseName(), QUrl::TolerantMode);
+//		u.setScheme("QMYSQL");
 
-		if (!url.isValid()) {
-			qWarning("Invalid URL: %s", qPrintable(s));
-			continue;
-		}
+//		if (! u.isValid()) {
+//			qWarning("Invalid URL: %s", qPrintable(s));
+//			continue;
+//		}
 
-		if (QSqlError::NoError != (browser.addConnection(
-												url.scheme().toUpper(), url.path(), url.host(),
-												url.userName(), url.password(), url.port(-1))).type()) {
+//		QSqlError err =
+//		      mDbc->addConnection(u.scheme().toUpper(), u.path(), u.host(), u.userName(),
+//		                          u.password(), u.port(-1))).type()) {
 
-			url = QUrl(Locals::SQL_DATABASE.filePath(), QUrl::TolerantMode);
-			url.setScheme("QMYSQL");
+//			u = QUrl(Locals::SQL_DATABASE.filePath(), QUrl::TolerantMode);
+//			u.setScheme("QMYSQL");
 
-			QSqlError sqlErr = browser.addConnection(
-										 url.scheme().toUpper(), url.path(), url.host(),
-										 url.userName(), url.password(), url.port(-1));
-			if (sqlErr.type() != QSqlError::NoError) {
-				bReturn(tr("Unable to open connection: %s")
-						  .arg(sqlErr.text()));
-			}
-			return true;
-		}
-		return true;
-	}
-	return false;
-}
+//			if (sqlErr.type() != QSqlError::NoError) {
+//				bReturn(tr("Unable to open connection: %s")
+//						  .arg(sqlErr.text()));
+//			}
+//			return true;
+//		}
+//		return true;
+//	}
+//	return false;
+//}
 void MainWindow::makeMenuBar() {
 	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&File"));
 	fileMenu->addAction(QObject::tr("Add &Connection..."),
@@ -166,17 +164,13 @@ void MainWindow::onBrowseSqlTrig(bool doBrowse) {
 		this->setCentralWidget(browser);
 		browser->show();
 
-		INFO << QSqlDatabase::connectionNames();
-		if (! QSqlDatabase::connectionNames().length())
-			addConnectionsByCmdline(Locals::SQL_DATABASE.filePath(), *browser);
-
-		if (QSqlDatabase::connectionNames().isEmpty())
-			QMetaObject::invokeMethod(
-						browser, "addConnection", Qt::QueuedConnection);
+		if ((! mDbc->getDb().isOpen()) ||
+			 (mDbc->getDb().isOpenError()))
+			mDbc->getConnectionState();
 	}
 	else {
-		QSETTINGS
-				saveMainWindowGeometry();
+		QSETTINGS;
+		saveMainWindowGeometry();
 		QMetaObject::invokeMethod(browser, "close");
 
 		browser->hide();

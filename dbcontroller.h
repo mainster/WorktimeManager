@@ -21,9 +21,12 @@ public:
 
 	QSqlDatabase db() const { return mDb; }
 
-signals:
+	QList<bool> getConnectionState(bool beQuiet = false);
+	QSqlDatabase getDb() const;
 
-public slots:
+	signals:
+
+	public slots:
 	QSqlError addConnection(const QString &driver = "", const QString &dbName = "",
 									const QString &host = "", const QString &user = "",
 									const QString &passwd = "", int port = -1);

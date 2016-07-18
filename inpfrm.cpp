@@ -1,20 +1,5 @@
 #include "inpfrm.h"
 #include "ui_inpfrm.h"
-#include "tablewindow.h"
-#include "tabledelegate.h"
-#include "initdb.h"
-#include "browser.h"
-////#include "QSortFilterSqlQueryModel.h"
-
-#include <QtSql>
-#include <QSqlQuery>
-#include <QMessageBox>
-#include <QDockWidget>
-#include <QDataWidgetMapper>
-#include <QInputDialog>
-#include <qalgorithms.h>
-
-#include "mdstatebar.h"
 
 #define QUERYPREFIX  tr("CUSTOM_QUERY_")
 #define NEWQUERY     tr("NewQuery")
@@ -27,7 +12,7 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 	 ui->setupUi(this); inst = this;
     QSETTINGS;
 
-    browser = Browser::getObjectPtr();
+//    browser = Browser::getObjectPtr();
     connectActions();
 
     ui->cbQueryIdent->setDuplicatesEnabled( false );
@@ -121,9 +106,20 @@ InpFrm::~InpFrm() {
 
     delete ui;
 }
+
+void InpFrm::restoreInpFrmGeometry() {
+	QSETTINGS;
+	this->restoreGeometry( config.value("InpFrm/Geometry", " ")
+								  .toByteArray() );
+}
+
+void InpFrm::saveInpFrmGeometry() {
+	QSETTINGS;
+	config.setValue("InpFrm/Geometry", this->saveGeometry());
+}
 QSqlError InpFrm::addConnection(const QString &driver, const QString &dbName,
-                                const QString &host, const QString &user,
-                                const QString &passwd, int port) {
+										  const QString &host, const QString &user,
+										  const QString &passwd, int port) {
     static int cCount = 0;
 
     QSqlError err;
@@ -304,8 +300,8 @@ void InpFrm::connectActions() {
     connect(ui->cbWorkerPersonalNr, SIGNAL(currentIndexChanged(int)),
             this,                   SLOT(onInpFormChanges(int)));
 
-    connect(ui->btnSubmitQuery,     SIGNAL(clicked()),
-            browser,                SLOT(exec()));
+//    connect(ui->btnSubmitQuery,     SIGNAL(clicked()),
+//            browser,                SLOT(exec()));
     connect(ui->btnSaveQuery,       SIGNAL(clicked()),
             this,                   SLOT(saveSqlQueryInputText()));
     connect(ui->btnRestoreQuery,    SIGNAL(clicked()),
@@ -331,7 +327,7 @@ void InpFrm::onChangeTabOrderSlot(InpFrm::states state) {
     if ((changeTabOrder == state_running_changeTabOrder ||
          changeTabOrder == state_rejected_changeTabOrder) &&
             state == state_init_changeTabOrder) {
-        emit browser->stateMsg(tr("Change tab order process interrupted."
+		  emit stateMessage(tr("Change tab order process interrupted."
                                   "No changes in current tab order."));
         changeTabOrder = state_none;
         return;
@@ -342,7 +338,7 @@ void InpFrm::onChangeTabOrderSlot(InpFrm::states state) {
             state == state_init_changeTabOrder) {
         objTabOrder.clear();
         changeTabOrder = state_running_changeTabOrder;
-        emit browser->stateMsg(
+		  emit stateMessage(
                     tr("Init process to change the input form tab order..."));
         return;
     }
@@ -367,7 +363,7 @@ void InpFrm::onChangeTabOrderSlot(InpFrm::states state) {
 
         QSETTINGS;
         config.setValue(this->objectName() + "/TabOrder", lst.join(","));
-        emit browser->stateMsg(
+		  emit stateMessage(
                     tr("Input form tab order successfully changed!"));
         return;
     }
@@ -392,9 +388,9 @@ void InpFrm::onBtnOkClicked() {
 //    if (query.next())
 //        worktimRowCount = query.value(0).toInt(&ok);
 //    else
-//        emit browser->stateMsg(tr("No \"next query\" result"));
+//        emit stateMessage(tr("No \"next query\" result"));
 //    if (! ok)
-//        emit browser->stateMsg(tr("toInt() of query result fails"));
+//        emit stateMessage(tr("toInt() of query result fails"));
 
     /** Query ID column and find max value. This MAY not be equal
      * to actual count
@@ -409,7 +405,7 @@ void InpFrm::onBtnOkClicked() {
     while (query.next()) {
         ints.append( query.value(0).toInt(&ok) );
         if (! ok)
-            emit browser->stateMsg(tr("toInt() of query result fails"));
+				emit stateMessage(tr("toInt() of query result fails"));
     }
 
     /** Find the most high worktimID entry value */
@@ -484,7 +480,8 @@ void InpFrm::onBtnOkClicked() {
         return;
     }
 
-    browser->requeryWorktimeTableView(tr(""));
+//    browser->requeryWorktimeTableView(tr(""));
+	 emit requeryTableView();
     INFO.noquote() << query.lastQuery();
 
 }
@@ -579,7 +576,9 @@ void InpFrm::onBtnOkClickedOLD() {
     query.bindValue(":hours", ui->leHrs->text().toInt());
 
     query.exec();
-    browser->requeryWorktimeTableView();
+//    browser->requeryWorktimeTableView();
+	 emit requeryTableView();
+
 
     INFO.noquote() << query.lastQuery();
 
@@ -889,11 +888,11 @@ bool InpFrm::eventFilter(QObject *obj, QEvent *ev) {
                     if (objTabAble.contains(static_cast<QWidget *>(objFoc)) &&
                             (! objTabOrder.contains(static_cast<QWidget *>(objFoc))) ) {
                         objTabOrder.append(static_cast<QWidget *>(objFoc));
-                        emit browser->stateMsg(tr("Tab order: ")
+								emit stateMessage(tr("Tab order: ")
                                                + Globals::objToStr(objTabOrder, ", "));
                     }
                     else {
-                        emit browser->stateMsg(
+								emit stateMessage(
                                     tr("Tab order: ") + Globals::objToStr(objTabOrder,", ")
                                     + tr(",") + objFoc->objectName() + tr("rejected!"));
                     }
@@ -920,11 +919,11 @@ bool InpFrm::eventFilter(QObject *obj, QEvent *ev) {
     //               if (wsTabable.contains(static_cast<QWidget *>(objFoc)) &&
     //                   (! objTabOrder.contains(static_cast<QWidget *>(objFoc))) ) {
     //                  objTabOrder.append(static_cast<QWidget *>(objFoc));
-    //                  emit browser->stateMsg(tr("Tab order: ")
+	 //                  emit stateMessage(tr("Tab order: ")
     //                                         + Globals::widToStr(objTabOrder, ", "));
     //               }
     //               else {
-    //                  emit browser->stateMsg(
+	 //                  emit stateMessage(
     //                           tr("Tab order: ") + Globals::widToStr(objTabOrder,", ")
     //                           + tr(",") + objFoc->objectName() + tr("rejected!"));
     //               }
@@ -942,11 +941,11 @@ bool InpFrm::eventFilter(QObject *obj, QEvent *ev) {
     //               /** If casted cbo is in the "tabable" list but not in order list */
     //               if (wsTabable.contains(objFoc->parentWidget()) && !objTabOrder.contains(objFoc->parentWidget())) {
     //                  objTabOrder.append(objFoc->parentWidget());
-    //                  emit browser->stateMsg(tr("Tab order: ")
+	 //                  emit stateMessage(tr("Tab order: ")
     //                                         + Globals::widToStr(objTabOrder, ", "));
     //               }
     //               else {
-    //                  emit browser->stateMsg(
+	 //                  emit stateMessage(
     //                           tr("Tab order: ") + Globals::widToStr(objTabOrder,", ")
     //                           + tr(",") + objFoc->objectName() + tr("rejected!"));
     //               }

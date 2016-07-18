@@ -5,6 +5,7 @@
 #include <QFlags>
 #include <QMainWindow>
 #include <QtSql>
+#include <QSqlError>
 #include <QtWidgets>
 
 #include "ui_dbconndlg.h"
@@ -46,8 +47,8 @@ signals:
 
 public slots:
    void onBrowseSqlTrig(bool b);
-	bool addConnectionsByCmdline(QVariant args,
-												  Browser &browser);
+//	bool addConnectionsByCmdline(QVariant args,
+//												  Browser &browser);
    bool eventFilter(QObject *obj, QEvent *event);
    void about();
    void onMenuStyleShtInpFrmTrig(bool b);
@@ -101,6 +102,7 @@ private:
    MDStateBar   *stateBar;
    SortWindow   *sortwindow;
    QMenu        *mBar;
+	DbController *mDbc;
 
 
 //   static MainWindow *inst;

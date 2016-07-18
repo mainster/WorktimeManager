@@ -31,7 +31,7 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include <qapplication.h>
+//#include <qapplication.h>
 #include <QDebug>
 #include <QString>
 #include <QStringList>

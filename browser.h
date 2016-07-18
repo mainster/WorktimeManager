@@ -57,8 +57,6 @@
 #include "ui_browser.h"
 
 
-
-
 namespace Ui {
 class Browser;
 }
@@ -89,12 +87,12 @@ public:
    static Browser *getObjectPtr() {
       return inst;
    }
-   /*virtual*/ ~Browser();
+	virtual ~Browser();
 
-   QSqlError
-   addConnection(const QString &driver, const QString &dbName,
-                 const QString &host, const QString &user,
-                 const QString &passwd, int port = -1);
+//   QSqlError
+//   addConnection(const QString &driver, const QString &dbName,
+//                 const QString &host, const QString &user,
+//                 const QString &passwd, int port = -1);
 
    void insertRow();
    void deleteRow();
@@ -113,19 +111,17 @@ public:
     * Class accessors
     */
 //   SortWindow *getSortwindow0() const;
-//   SortWindow *getSortwindow1() const;
+	//   SortWindow *getSortwindow1() const;
 signals:
    void stateMsg(const QString &message);
    void tabViewSelChanged(TabView *sel);
 
 public slots:
    void showMetaData(const QString &table);
-   void addConnection();
+//   void addConnection();
    void currentChanged(QModelIndex,QModelIndex) { updateActions(); }
-   void on_insertRowAction_triggered()
-   { insertRow(); }
-   void on_deleteRowAction_triggered()
-   { deleteRow(); }
+	void on_insertRowAction_triggered() { insertRow(); }
+	void on_deleteRowAction_triggered() { deleteRow(); }
    void on_fieldStrategyAction_triggered();
    void on_rowStrategyAction_triggered();
    void on_manualStrategyAction_triggered();
@@ -133,15 +129,13 @@ public slots:
    void on_revertAction_triggered();
    void on_selectAction_triggered();
    void on_connectionWidget_tableActivated(const QString &sqlTab);
-   void on_connectionWidget_metaDataRequested(const QString &table)
-   { showMetaData(table); }
+	void on_connectionWidget_metaDataRequested(const QString &table) { showMetaData(table); }
    void onCyclic();
    void customMenuRequested(QPoint pos);
    void initTableView(QWidget *parent, QStringList &accNam);
    QFont selectFont();
    int setFontAcc(QFont &font);
-   void onCyclicObjInfoTrig(bool b)
-   { cyclicObjInfo = b; }
+	void onCyclicObjInfoTrig(bool b) { cyclicObjInfo = b; }
    void exec();
 
    void requeryWorktimeTableView(QString nonDefaulQuery = "");
@@ -159,28 +153,26 @@ protected slots:
    bool eventFilter(QObject *obj, QEvent *e);
 
 private slots:
-   QAbstractItemModel *createMailModel(QObject *parent);
-
-//private slots:
-//    void textFilterChanged();
-//    void dateFilterChanged();
+//   QAbstractItemModel *createMailModel(QObject *parent);
 
 private:
-   static Browser *inst;
-   Ui::Browser *ui;
-   QTimer *timCyc;
-   bool cyclicObjInfo;
+	static Browser	*inst;
+	Ui::Browser		*ui;
+	QTimer			*timCyc;
+	bool				cyclicObjInfo;
    /**
     * This pointer gots manipulated by the double click event handler.
     */
-   TabView * dblClickFocusedTv;
-   MySortFilterProxyModel *proxyModel;
-//   QList<SortWindow *> sortwindow;
-   SortWindow * filterForm;
-   MDStateBar * stateBar;
+	TabView			* dblClickFocusedTv;
+	SfiltMdl			*proxyModel;
+	SortWindow		*filterForm;
+	MDStateBar		*stateBar;
+
+protected:
+	virtual void keyPressEvent(QKeyEvent *) override;
+	virtual void keyReleaseEvent(QKeyEvent *) override;
+	virtual void hideEvent(QHideEvent *) override;
 };
-
-
 
 #endif
 

@@ -4,10 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
-QT       += sql widgets
+QT       += core gui sql
 
-greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = WorktimeManager
 QMAKE_CXX = ccache g++
@@ -44,7 +43,6 @@ FORMS += \
     uis/dbconndlg.ui \
     uis/inpfrm.ui \
     uis/mainwindow.ui \
-    uis/mwBrowser.ui \
     uis/sortwindow.ui \
     uis/tablewindow.ui \
     uis/tabview.ui
@@ -68,7 +66,9 @@ HEADERS += \
     sortwindow.h \
     tablewindow.h \
     tabview.h \
-    models/models.h
+    models/models.h \
+#    views/tabview.h \
+    delegates/sqlreldel.h
 
 SOURCES += \
     delegates/tabledelegate.cpp \
@@ -89,6 +89,8 @@ SOURCES += \
     sortwindow.cpp \
     tablewindow.cpp \
     tabview.cpp \
-    models/models.cpp
+    models/models.cpp \
+#    views/tabview.cpp \
+    delegates/sqlreldel.cpp
 
 

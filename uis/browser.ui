@@ -29,7 +29,7 @@
    <string>Qt SQL Browser</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="WorktimeManager.qrc">
+   <iconset resource="../../WorktimeManagerR3/WorktimeManagerR3.qrc">
     <normaloff>:/images/database.png</normaloff>:/images/database.png</iconset>
   </property>
   <property name="styleSheet">
@@ -300,7 +300,7 @@ QGroupBox{
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="WorktimeManager.qrc"/>
+  <include location="../../WorktimeManagerR3/WorktimeManagerR3.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -14,7 +14,7 @@
    <string>title</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="WorktimeManager.qrc">
+   <iconset resource="../../WorktimeManagerR3/WorktimeManagerR3.qrc">
     <normaloff>:/images/database.png</normaloff>:/images/database.png</iconset>
   </property>
   <property name="styleSheet">
@@ -137,7 +137,7 @@ QGroupBox::title {
   </widget>
   <action name="actButNew">
    <property name="icon">
-    <iconset resource="WorktimeManager.qrc">
+    <iconset resource="../../WorktimeManagerR3/WorktimeManagerR3.qrc">
      <normaloff>:/images/new.png</normaloff>:/images/new.png</iconset>
    </property>
    <property name="text">
@@ -149,7 +149,7 @@ QGroupBox::title {
   </action>
   <action name="actButOpen">
    <property name="icon">
-    <iconset resource="WorktimeManager.qrc">
+    <iconset resource="../../WorktimeManagerR3/WorktimeManagerR3.qrc">
      <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
    </property>
    <property name="text">
@@ -161,7 +161,7 @@ QGroupBox::title {
   </action>
   <action name="actButSave">
    <property name="icon">
-    <iconset resource="WorktimeManager.qrc">
+    <iconset resource="../../WorktimeManagerR3/WorktimeManagerR3.qrc">
      <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
    </property>
    <property name="text">
@@ -173,7 +173,7 @@ QGroupBox::title {
   </action>
   <action name="actButExport">
    <property name="icon">
-    <iconset resource="WorktimeManager.qrc">
+    <iconset resource="../../WorktimeManagerR3/WorktimeManagerR3.qrc">
      <normaloff>:/images/export-3.png</normaloff>:/images/export-3.png</iconset>
    </property>
    <property name="text">
@@ -188,7 +188,7 @@ QGroupBox::title {
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="WorktimeManager.qrc">
+    <iconset resource="../../WorktimeManagerR3/WorktimeManagerR3.qrc">
      <normaloff>:/images/database.png</normaloff>:/images/database.png</iconset>
    </property>
    <property name="text">
@@ -203,7 +203,7 @@ QGroupBox::title {
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="WorktimeManager.qrc">
+    <iconset resource="../../WorktimeManagerR3/WorktimeManagerR3.qrc">
      <normaloff>:/images/databaseSubmit.png</normaloff>:/images/databaseSubmit.png</iconset>
    </property>
    <property name="text">
@@ -221,7 +221,7 @@ QGroupBox::title {
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="WorktimeManager.qrc">
+    <iconset resource="../../WorktimeManagerR3/WorktimeManagerR3.qrc">
      <normaloff>:/images/databaseDelegate.png</normaloff>:/images/databaseDelegate.png</iconset>
    </property>
    <property name="text">
@@ -236,7 +236,7 @@ QGroupBox::title {
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="WorktimeManager.qrc">
+    <iconset resource="../../WorktimeManagerR3/WorktimeManagerR3.qrc">
      <normaloff>:/images/databaseConf.png</normaloff>:/images/databaseConf.png</iconset>
    </property>
    <property name="text">
@@ -248,7 +248,7 @@ QGroupBox::title {
   </action>
   <action name="actButClose">
    <property name="icon">
-    <iconset resource="WorktimeManager.qrc">
+    <iconset resource="../../WorktimeManagerR3/WorktimeManagerR3.qrc">
      <normaloff>:/icoDelete</normaloff>:/icoDelete</iconset>
    </property>
    <property name="text">
@@ -285,7 +285,7 @@ QGroupBox::title {
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="WorktimeManager.qrc">
+    <iconset resource="../../WorktimeManagerR3/WorktimeManagerR3.qrc">
      <normaloff>:/images/underConstruct.svg</normaloff>:/images/underConstruct.svg</iconset>
    </property>
    <property name="text">
@@ -381,7 +381,7 @@ QGroupBox::title {
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="WorktimeManager.qrc"/>
+  <include location="../../WorktimeManagerR3/WorktimeManagerR3.qrc"/>
  </resources>
  <connections/>
 </ui>

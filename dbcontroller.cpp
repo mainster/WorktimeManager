@@ -42,6 +42,7 @@ QSqlError DbController::addConnection( const QString &driver, const QString &dbN
 		mDb = QSqlDatabase();
 		INFO << tr("No db access");
 		QSqlDatabase::removeDatabase(dbName);
+		return err;
 	}
 	else INFO << tr("db is open");
 
@@ -52,6 +53,10 @@ QSqlError DbController::addConnection( const QString &driver, const QString &dbN
 }
 void DbController::onDriverMessage (const QString& name) {
 	WARN << name;
+}
+
+QSqlDatabase DbController::getDb() const {
+	return mDb;
 }
 bool DbController::addConnectionsByCmdline(QVariant args) {
 	QSqlError err;
@@ -86,3 +91,13 @@ bool DbController::addConnectionsByCmdline(QVariant args) {
 	return false;
 }
 
+QList<bool> DbController::getConnectionState(bool beQuiet) {
+	QList<bool> summary;
+
+	summary << mDb.isDriverAvailable(Locals::SQL_DRIVER)
+			  << mDb.isOpen() << mDb.isOpenError() << mDb.isValid();
+
+	if (! beQuiet)		INFO << summary << mDb.connectionNames();
+
+	return summary;
+}
