@@ -9,8 +9,8 @@
 
 class Locals {
 public:
-	static QFileInfo	SQL_DATABASE;
-
+	static QFileInfo SQL_DATABASE;
+	static QString SQL_DRIVER;
 	Locals();
 };
 

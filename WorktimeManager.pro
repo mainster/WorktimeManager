@@ -32,7 +32,8 @@ SOURCES +=	\
 	tabledelegate.cpp \
 	tablewindow.cpp \
 	tabview.cpp \
-	mdbQtStd/mdstatebar.cpp
+	mdbQtStd/mdstatebar.cpp \
+    dbcontroller.cpp
 
 HEADERS  += \
 	browser.h \
@@ -50,7 +51,8 @@ HEADERS  += \
 	tabledelegate.h \
 	tablewindow.h \
 	tabview.h \
-	mdbQtStd/mdstatebar.h
+	mdbQtStd/mdstatebar.h \
+    dbcontroller.h
 
 FORMS    += \
 	browser.ui \

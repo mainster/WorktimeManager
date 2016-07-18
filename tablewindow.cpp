@@ -62,7 +62,7 @@ TableWindow::TableWindow(QWidget *parent) {
                                  "opening the connection: ") + err.text());
    }
 
-   //   inpForm = InpFrm::getObjectPtr();
+   //   inpForm = InpFrm::instance();
 
    // Create the data model
    model = new QSqlRelationalTableModel(ui.TimeTable);

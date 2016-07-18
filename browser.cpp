@@ -62,12 +62,14 @@ Browser::Browser(QWidget *parent)  :
 	 INFO << QSqlDatabase::connectionNames()
 			<< QSqlDatabase::drivers();
 
-	 if (QSqlDatabase::drivers().isEmpty())
+	 if (QSqlDatabase::drivers().isEmpty()) {
         QMessageBox::information
                 (this, tr("No database drivers found"),
                  tr("This demo requires at least one Qt database driver. "
                     "Please check the documentation how to build the "
                     "Qt SQL plugins."));
+		  qApp->quit();
+	 }
     else {
         timCyc = new QTimer();
         timCyc->setInterval(T_CYCLIC * 1e3);
@@ -233,7 +235,7 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 
 }
 void Browser::exec() {
-    InpFrm *inpFrm = InpFrm::getObjectPtr();
+	 InpFrm *inpFrm = InpFrm::instance();
 
     QTableView *tvq = tvl1->tv();
     QSqlQueryModel *model = new QSqlQueryModel(tvq);
@@ -686,7 +688,8 @@ void Browser::onCyclic() {
 
         if (widget != 0x00) {
             QString widName = widget->objectName();
-            INFO << widName << widget->children();
+				if (!widName.isEmpty())
+					INFO << widName << widget->children();
         }
     }
 }
@@ -916,7 +919,7 @@ void CustomMdl::setCCol(const QVector<int> &value) {
 //            config.value("InpFrm/default_worktime_query_plain","").toString();
 
 //    QSortFilterSqlQueryModel *model = new QSortFilterSqlQueryModel(this);
-//    InpFrm *inpFrm = InpFrm::getObjectPtr();
+//    InpFrm *inpFrm = InpFrm::instance();
 
 
 //    QTableView *tvq = tvl1->tv();

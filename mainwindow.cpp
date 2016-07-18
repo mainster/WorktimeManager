@@ -1,13 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#define  UNIX
-#undef   UNIX
 #define  RESTORE_SQL_DATABASE_PATH
-
-class Browser;
-class Conf;
-class ConnectionWidget;
 
 int MainWindow::fuse = 5;
 
@@ -16,12 +10,35 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	ui->setupUi(this);
 	QSETTINGS_INIT; QSETTINGS;
 
-	browser = Browser::getInstance( parent );
-//	inpFrm = InpFrm::getInstance();
 	stateBar = new MDStateBar( this );
+	browser = Browser::getInstance( parent );
+
+	/*!
+	 * Init SQL classes
+	 */
+	QStringList drivers = QSqlDatabase::drivers();
+
+	// remove compat names
+	drivers.removeAll("QMYSQL3");
+	drivers.removeAll("QOCI8");
+	drivers.removeAll("QODBC3");
+	drivers.removeAll("QPSQL7");
+	drivers.removeAll("QTDS7");
+
+	if (!drivers.contains("QSQLITE"))
+		CRIT << tr("empty");
+
+	if (QSqlDatabase::connectionNames().isEmpty())
+		browser->addConnection(drivers.first(), QString("/var/lib/mysql/delBassoSQL.db"),
+									  tr(""), tr(""), tr(""));
+
+	inpFrm = InpFrm::instance( this );
 	setStatusBar( stateBar );
 	sortwindow = new SortWindow();
 	stateBar->setClockVisible(true);
+
+
+
 
 	makeMenuBar();
 	browser->onCyclicObjInfoTrig(false);
@@ -48,20 +65,20 @@ bool MainWindow::addConnectionsByCmdline(QVariant args, Browser &browser) {
 		}
 
 		if (QSqlError::NoError != (browser.addConnection(
-				 url.scheme().toUpper(), url.path(), url.host(),
-				 url.userName(), url.password(), url.port(-1))).type()) {
+												url.scheme().toUpper(), url.path(), url.host(),
+												url.userName(), url.password(), url.port(-1))).type()) {
 
-				url = QUrl(Locals::SQL_DATABASE.filePath(), QUrl::TolerantMode);
-				url.setScheme("QMYSQL");
+			url = QUrl(Locals::SQL_DATABASE.filePath(), QUrl::TolerantMode);
+			url.setScheme("QMYSQL");
 
-				QSqlError sqlErr = browser.addConnection(
-						 url.scheme().toUpper(), url.path(), url.host(),
-						 url.userName(), url.password(), url.port(-1));
-				if (sqlErr.type() != QSqlError::NoError) {
-					bReturn(tr("Unable to open connection: %s")
-							  .arg(sqlErr.text()));
-				}
-				return true;
+			QSqlError sqlErr = browser.addConnection(
+										 url.scheme().toUpper(), url.path(), url.host(),
+										 url.userName(), url.password(), url.port(-1));
+			if (sqlErr.type() != QSqlError::NoError) {
+				bReturn(tr("Unable to open connection: %s")
+						  .arg(sqlErr.text()));
+			}
+			return true;
 		}
 		return true;
 	}
@@ -138,7 +155,7 @@ void MainWindow::connectActions() {
 }
 void MainWindow::initDocks() {
 	QSETTINGS;
-	inpFrm = InpFrm::getInstance( this );
+	inpFrm = InpFrm::instance( this );
 	inpFrm->hide();
 
 	inpFrm->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
@@ -157,6 +174,7 @@ void MainWindow::onBrowseSqlTrig(bool doBrowse) {
 	if (doBrowse) {
 		this->setCentralWidget(browser);
 		browser->show();
+
 		INFO << QSqlDatabase::connectionNames();
 		if (! QSqlDatabase::connectionNames().length())
 			addConnectionsByCmdline(Locals::SQL_DATABASE.filePath(), *browser);
@@ -175,21 +193,21 @@ void MainWindow::onBrowseSqlTrig(bool doBrowse) {
 }
 void MainWindow::onInputFormTrig(bool b) {
 	/**
-		 * Fetch pointer if a InpForm instance exists, instantiate and get pointer
-		 * if not
-		 */
-	inpFrm = InpFrm::getInstance();
+	 * Fetch pointer if a InpForm instance exists, instantiate and get pointer
+	 * if not
+	 */
 
 	QSETTINGS;
 
 	//   this->addDockWidget(Qt::BottomDockWidgetArea, inpForm);
 
 	if (b) {
-		inpFrm->restoreInpFrmGeometry();
+		InpFrm::instance()->restoreInpFrmGeometry();
 		//      addDockWidget( static_cast<Qt::DockWidgetArea>(
 		//                        config.value("inpForm/DockWidgetArea", "8").toInt) );
 		inpFrm->show();
-	} else {
+	}
+	else {
 
 		//      config.setValue("inpForm/DockWidgetArea", (uint)dockWidgetArea(inpForm));
 		inpFrm->saveInpFrmGeometry();
@@ -375,14 +393,18 @@ void MainWindow::showEvent(QShowEvent *e) {
 			emit ac->trigger();
 	}
 
-	/**** Recall visibility flag for the SQL command interface
+	try {
+		/**** Recall visibility flag for the SQL command interface
 	 \*/
-	if (!config.value("MainWindow/actHideSqlQuery", true).toBool()) {
-		inpFrm->gbSqlQuerySetVisible( true );
-		ui->actHideSqlQuery->setChecked( false );
-	} else {
-		inpFrm->gbSqlQuerySetVisible( false );
-		ui->actHideSqlQuery->setChecked( true );
+		if (!config.value("MainWindow/actHideSqlQuery", true).toBool()) {
+			inpFrm->gbSqlQuerySetVisible( true );
+			ui->actHideSqlQuery->setChecked( false );
+		} else {
+			inpFrm->gbSqlQuerySetVisible( false );
+			ui->actHideSqlQuery->setChecked( true );
+		}
+	} catch (...) {
+		CRIT << tr("!");
 	}
 
 	/**** Recall mainWindow geometry and window state
@@ -439,6 +461,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
 }
 void MainWindow::closeEvent(QCloseEvent *e) {
 	QSETTINGS;
+
 
 	/**** Write splitter sizes to config
 	  \*/

@@ -18,7 +18,7 @@
 #include "mdstatebar.h"
 #include "tabledelegate.h"
 #include "tablewindow.h"
-
+#include "dbcontroller.h"
 
 namespace Ui {
 class MainWindow;
