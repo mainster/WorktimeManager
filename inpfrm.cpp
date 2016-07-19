@@ -78,7 +78,7 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 		foreach (QString s, lst)
 			objTabOrder.append( findChild<QComboBox*>(s) );
 
-		QList<QWidget *> widTabOrder = objListCast<QWidget*,QObject*>( objTabOrder );
+		QList<QWidget *> widTabOrder = listCast<QWidget*,QObject*>( objTabOrder );
 
 		for (int i=0; i < widTabOrder.length()-1; i++)
 			widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
@@ -327,7 +327,7 @@ void InpFrm::onChangeTabOrderSlot(InpFrm::states state) {
 	if (changeTabOrder == state_running_changeTabOrder &&
 		 state == state_done_changeTabOrder) {
 
-		QList<QWidget *> widTabOrder = objListCast<QWidget*, QObject*>( objTabOrder );
+		QList<QWidget *> widTabOrder = listCast<QWidget*, QObject*>( objTabOrder );
 		QStringList lst;
 		for (int i=0; i < widTabOrder.length()-1; i++) {
 			widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
@@ -461,7 +461,7 @@ void InpFrm::onInpFormUserCommit() {
 	INFO.noquote() << query.lastQuery();
 
 }
-void InpFrm::aButtonClick(bool b) {
+void InpFrm::aButtonClick(bool) {
 	QPushButton *pbSender = qobject_cast<QPushButton *>(QObject::sender());
 
 	if (pbSender == ui->btnSaveQuery) { saveSqlQueryInputText(); return; }
