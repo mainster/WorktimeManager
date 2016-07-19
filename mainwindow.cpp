@@ -35,7 +35,7 @@ MainWindow::~MainWindow() {
 	//   saveMainWindowUiSettings();
 	delete ui;
 }
-void MainWindow::onInpFrmButtonClick(bool b) {
+void MainWindow::onInpFrmButtonClick(bool ) {
 
 }
 void MainWindow::makeMenuBar() {
@@ -145,7 +145,7 @@ void MainWindow::onOpenCloseInpFrm(bool onOff) {
 //		inpFrm->hide();
 //	}
 }
-void MainWindow::onTblOpen(bool b) {
+void MainWindow::onTblOpen(bool) {
 	INFO << tr("I am an empty slot, use me!!!");
 }
 void MainWindow::onSetAlterRowColTrig() {

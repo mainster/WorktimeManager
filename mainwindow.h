@@ -61,14 +61,14 @@ public slots:
    void connectActions();
    void onCyclic();
 
-	void onInpFrmButtonClick(bool b);
+	void onInpFrmButtonClick(bool);
 protected slots:
    void makeMenuBar();
    void onActCfgInpFrmTabOrdTrig();
 
 private slots:
 	void onOpenCloseInpFrm(bool onOff);
-   void onTblOpen(bool b);
+	void onTblOpen(bool);
    void onActCloseTrig();
    void restoreMainWindowGeometry() {
       QSETTINGS;

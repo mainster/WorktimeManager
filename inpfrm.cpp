@@ -22,55 +22,54 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 	ui->gbSqlQuery->hide();
 	this->setFixedHeight(125);
 
-	/*!
-	 * Request all combobox widgets within the inputFrm
-	 */
-	mCbs = findChildren<QComboBox *>();
-	/*!
-	 * Remove all comboboxes which are not based on sql list models
-	 */
-	mCbs.removeOne(ui->cbQueryIdent);
-	/*!
-	 * Request all combobox widgets within the inputFrm
-	 */
-	QList<QComboBox *> cbsTabable = findChildren<QComboBox *>();
-	QList<QDateEdit *> desTabable = findChildren<QDateEdit *>();
+#define QFOLDINGSTART {
+	//	mCbs = findChildren<QComboBox *>(QString(), Qt::FindChildrenRecursively)
+	//	       .removeOne(ui->cbQueryIdent);
+//	/*!
+//	 * Request all combobox widgets within the inputFrm
+//	 * Remove all comboboxes which are not based on sql list models
+//	 */
+//	mCbs = findChildren<QComboBox *>(QString(), Qt::FindChildrenRecursively)
+//	       .removeOne(ui->cbQueryIdent);
 
-	foreach (QComboBox *cb, cbsTabable)
-		objTabAble.append( static_cast<QObject*>(cb) );
+//	QList<QComboBox *> cbsTabable = findChildren<QComboBox *>();
+//	QList<QDateEdit *> desTabable = findChildren<QDateEdit *>();
 
-	foreach (QDateEdit *de, desTabable)
-		objTabAble.append( static_cast<QObject*>(de) );
+//	foreach (QComboBox *cb, cbsTabable)
+//		objTabAble.append( static_cast<QObject*>(cb) );
 
-	foreach (QObject *o, objTabAble) {
-		if ((! o->objectName().contains("cbPrj")) &&
-			 (! o->objectName().contains("cbClient")) &&
-			 (! o->objectName().contains("cbWorker")) &&
-			 (! o->objectName().contains("datePicker")))
-			objTabAble.removeOne(o);
-	}
+//	foreach (QDateEdit *de, desTabable)
+//		objTabAble.append( static_cast<QObject*>(de) );
 
-	INFO << tr("objTabable:") << Globals::objToStr(objTabAble);
+//	foreach (QObject *o, objTabAble) {
+//		if ((! o->objectName().contains("cbPrj")) &&
+//			 (! o->objectName().contains("cbClient")) &&
+//			 (! o->objectName().contains("cbWorker")) &&
+//			 (! o->objectName().contains("datePicker")))
+//			objTabAble.removeOne(o);
+//	}
 
-	/**
-	 * Install event filter to capture focus changed event for
-	 * all input form combo boxes
-	 */
-	foreach (QComboBox *cbx, cbsTabable)
-		cbx->lineEdit()->installEventFilter(this);
+//	INFO << tr("objTabable:") << Globals::objToStr(objTabAble);
 
-	foreach (QComboBox *cbx, mCbs)
-		cbx->lineEdit()->installEventFilter(this);
+//	/**
+//	 * Install event filter to capture focus changed event for
+//	 * all input form combo boxes
+//	 */
+//	foreach (QComboBox *cbx, cbsTabable)
+//		cbx->lineEdit()->installEventFilter(this);
 
-	ui->datePicker->installEventFilter( this );
+//	foreach (QComboBox *cbx, mCbs)
+//		cbx->lineEdit()->installEventFilter(this);
 
+//	ui->datePicker->installEventFilter( this );
+#define QFOLDINGEND }
 	/*!
 	 * Check for valied tab order configuration data
 	 */
 	QSETTINGS;
 	QStringList lst;
 
-	if (config.allKeys().contains(this->objectName() + tr("/TabOrder"))) {
+	if (config.allKeys().contains(this->objectName() + Md::keys.focusOrder)) {
 		INFO << tr("Valied tab order configuration data found!");
 
 		emit stateMessage(tr("Valied tab order configuration data found!"), 4000);
@@ -78,7 +77,7 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 		foreach (QString s, lst)
 			objTabOrder.append( findChild<QComboBox*>(s) );
 
-		QList<QWidget *> widTabOrder = objListCast<QWidget*,QObject*>( objTabOrder );
+		QList<QWidget *> widTabOrder = listCast<QWidget*,QObject*>( objTabOrder );
 
 		for (int i=0; i < widTabOrder.length()-1; i++)
 			widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
@@ -327,7 +326,7 @@ void InpFrm::onChangeTabOrderSlot(InpFrm::states state) {
 	if (changeTabOrder == state_running_changeTabOrder &&
 		 state == state_done_changeTabOrder) {
 
-		QList<QWidget *> widTabOrder = objListCast<QWidget*, QObject*>( objTabOrder );
+		QList<QWidget *> widTabOrder = listCast<QWidget*, QObject*>( objTabOrder );
 		QStringList lst;
 		for (int i=0; i < widTabOrder.length()-1; i++) {
 			widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
@@ -461,7 +460,7 @@ void InpFrm::onInpFormUserCommit() {
 	INFO.noquote() << query.lastQuery();
 
 }
-void InpFrm::aButtonClick(bool b) {
+void InpFrm::aButtonClick(bool) {
 	QPushButton *pbSender = qobject_cast<QPushButton *>(QObject::sender());
 
 	if (pbSender == ui->btnSaveQuery) { saveSqlQueryInputText(); return; }

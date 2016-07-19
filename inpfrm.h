@@ -56,7 +56,7 @@ public slots:
 	void onCbQueryIdentIndexChaned(int idx);
 	bool eventFilter(QObject *obj, QEvent *ev);
 	void showEvent(QShowEvent *);
-	void aButtonClick(bool b);
+	void aButtonClick(bool);
 	void onInpFormChanges(int idx);
 
 protected:

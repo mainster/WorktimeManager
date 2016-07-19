@@ -57,7 +57,8 @@ HEADERS += \
     sortwindow.h \
     tabview.h \
     models/models.h \
-	 delegates/sqlreldel.h
+	 delegates/sqlreldel.h \
+    mdcombobox.h
 #    mpushbutton.h
 
 SOURCES += \
@@ -79,7 +80,8 @@ SOURCES += \
     sortwindow.cpp \
     tabview.cpp \
     models/models.cpp \
-	 delegates/sqlreldel.cpp
+	 delegates/sqlreldel.cpp \
+    mdcombobox.cpp
 #    mpushbutton.cpp
 
 FORMS += \

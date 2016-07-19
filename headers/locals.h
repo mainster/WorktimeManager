@@ -6,6 +6,14 @@
 
 #define MAINWINDOW_TITLE QString(qApp->applicationName())
 
+class Md {
+public:
+	static struct confKeys_t {
+		QString
+		focusOrder,
+		test;
+	} keys;
+};
 
 class Locals {
 public:

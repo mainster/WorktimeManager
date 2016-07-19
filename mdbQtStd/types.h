@@ -1,8 +1,9 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-//#include <QWidget>
+#include <QWidget>
 #include <QVariant>
+#include <QMetaObject>
 #include <QTypeInfo>
 #include <QtGui>
 #include <QString>
@@ -62,6 +63,18 @@ QList<U> listCast (QList<T> ts) {
 	return us;
 }
 
+
+
+/* ======================================================================== */
+/*                            under construction                            */
+/* ======================================================================== */
+template<class T>
+QList<QString> listObjectNames (QList<T> ts/*, const QString methodeName*/) {
+	QList<QString> l;
+	foreach (T t, ts)
+		l << t->objectName();
+	return l;
+}
 
 /* ======================================================================== */
 /*										u_ID_t						                      */
