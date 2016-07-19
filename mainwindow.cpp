@@ -177,7 +177,7 @@ void MainWindow::onActHideSqlQueryTrig() {
 	bool dohide = ui->actHideSqlQuery->isChecked();
 	QSETTINGS;
 	config.setValue(objectName() + "/HideSqlQuery", dohide);
-	inpFrm->gbSqlQuerySetVisible( !dohide );
+	inpFrm->setSqlQueryTextboxVisible( !dohide );
 }
 void MainWindow::onMenuStyleShtATrig(bool b) {
 	if (!b) return;
@@ -322,11 +322,11 @@ void MainWindow::showEvent(QShowEvent *e) {
 		/**** Recall visibility flag for the SQL command interface
 	 \*/
 		if (!config.value("MainWindow/actHideSqlQuery", true).toBool()) {
-			inpFrm->gbSqlQuerySetVisible( true );
+			inpFrm->setSqlQueryTextboxVisible( true );
 			ui->actHideSqlQuery->setChecked( false );
 		}
 		else {
-			inpFrm->gbSqlQuerySetVisible( false );
+			inpFrm->setSqlQueryTextboxVisible( false );
 			ui->actHideSqlQuery->setChecked( true );
 		}
 	}

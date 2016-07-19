@@ -36,8 +36,7 @@ public:
 	}
 	~InpFrm();
 
-	bool gbSqlQueryIsVisible() const;
-	void gbSqlQuerySetVisible(bool vis);
+	void setSqlQueryTextboxVisible(bool visible);
 	void onInpFormUserCommit();
 	void onInpFormUserCommitOLD();
 
@@ -67,9 +66,8 @@ protected:
 protected slots:
 	void onInpFormChanges(QDate date);
 	void onChangeTabOrderSlot(InpFrm::states state);
-	QList<QWidget *> objLstToWidLst(QList<QObject *> lst);
-
 	void hideEvent(QShowEvent *);
+
 private slots:
 
 private:
@@ -89,6 +87,7 @@ private:
 	QSqlQuery						query;
 	QStringList						tblLst;
 	QTextEdit						*gbSqlQuery;
+	bool								mEscapeTrigger;
 
 };
 

@@ -7,8 +7,11 @@
 InpFrm* InpFrm::inst = 0;
 
 
+/* ======================================================================== */
+/*                              InpFrm::InpFrm                              */
+/* ======================================================================== */
 InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
-	ui(new Ui::InpFrm) {
+	ui(new Ui::InpFrm), mEscapeTrigger(false) {
 	ui->setupUi(this);
 	inst = this;
 
@@ -75,7 +78,7 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 		foreach (QString s, lst)
 			objTabOrder.append( findChild<QComboBox*>(s) );
 
-		QList<QWidget *> widTabOrder = objLstToWidLst( objTabOrder );
+		QList<QWidget *> widTabOrder = objListCast<QWidget*,QObject*>( objTabOrder );
 
 		for (int i=0; i < widTabOrder.length()-1; i++)
 			widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
@@ -294,6 +297,7 @@ void InpFrm::connectActions() {
 	//            browser,                SLOT(exec()));
 
 }
+
 void InpFrm::onChangeTabOrderSlot(InpFrm::states state) {
 	/** Interrupt a running changeTabOrder process */
 	if ((changeTabOrder == state_running_changeTabOrder ||
@@ -323,7 +327,7 @@ void InpFrm::onChangeTabOrderSlot(InpFrm::states state) {
 	if (changeTabOrder == state_running_changeTabOrder &&
 		 state == state_done_changeTabOrder) {
 
-		QList<QWidget *> widTabOrder = objLstToWidLst( objTabOrder );
+		QList<QWidget *> widTabOrder = objListCast<QWidget*, QObject*>( objTabOrder );
 		QStringList lst;
 		for (int i=0; i < widTabOrder.length()-1; i++) {
 			widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
@@ -342,6 +346,7 @@ void InpFrm::onChangeTabOrderSlot(InpFrm::states state) {
 	return;
 
 }
+
 void InpFrm::onInpFormUserCommit() {
 	QSqlQuery query;
 	QString q;
@@ -463,6 +468,7 @@ void InpFrm::aButtonClick(bool b) {
 	if (pbSender == ui->btnRestoreQuery) { restoreSqlQueryInputText(); return; }
 
 }
+
 void InpFrm::refreshCbDropDownLists() {
 	QList<QSqlTableModel *> tms;
 	QList<QSortFilterProxyModel *> fpms;
@@ -560,6 +566,7 @@ void InpFrm::refreshCbDropDownLists() {
 	ui->cbQueryIdent->setDuplicatesEnabled( false );
 
 }
+
 void InpFrm::onInpFormChanges(int idx) {
 	 Q_UNUSED(idx);
 	 //   INFO << idx;
@@ -567,25 +574,6 @@ void InpFrm::onInpFormChanges(int idx) {
 void InpFrm::onInpFormChanges(QDate date) {
 	 Q_UNUSED(date);
 	 //   INFO << date;
-}
-bool InpFrm::gbSqlQueryIsVisible() const {
-	return ui->gbSqlQuery->isVisible();
-}
-void InpFrm::gbSqlQuerySetVisible(bool vis) {
-	ui->gbSqlQuery->setVisible( vis );
-
-	if (vis) {
-		setSizePolicy(QSizePolicy(QSizePolicy::Expanding,
-										  QSizePolicy::Expanding));
-		this->setMaximumHeight(300);
-	}
-	else {
-		this->setFixedHeight(125);
-	}
-}
-void InpFrm::onCbQueryIdentIndexChaned(int idx) {
-	Q_UNUSED(idx);
-	ui->teSqlQuerys->setHtml( ui->cbQueryIdent->currentData().toString() );
 }
 void InpFrm::onSqlQuerysTextChanged() {
 	/**
@@ -608,13 +596,17 @@ void InpFrm::onSqlQuerysTextChanged() {
 
 	ui->cbQueryIdent->setCurrentIndex(0);
 }
-QList<QWidget *> InpFrm::objLstToWidLst(QList<QObject *> lst) {
-	QList<QWidget *> lstw;
+void InpFrm::setSqlQueryTextboxVisible(bool visible) {
+	ui->gbSqlQuery->setVisible( visible );
 
-	foreach (QObject *o, lst) {
-		lstw.append( qobject_cast<QWidget *>(o));
-	}
-	return lstw;
+	(visible) ? (setSizePolicy(QSizePolicy(QSizePolicy::Expanding,
+														QSizePolicy::Expanding)),
+					 setMaximumHeight(300))
+				 : (setFixedHeight(125));
+}
+void InpFrm::onCbQueryIdentIndexChaned(int idx) {
+	Q_UNUSED(idx);
+	ui->teSqlQuerys->setHtml( ui->cbQueryIdent->currentData().toString() );
 }
 void InpFrm::saveSqlQueryInputText() {
 	/**
@@ -693,39 +685,39 @@ void InpFrm::restoreSqlQueryInputText() {
 	ui->teSqlQuerys->setHtml(
 				configQ.value(objectName() + "/SqlQueryText", "").toString());
 }
+
+/* ======================================================================== */
+/*                             Event callbacks                              */
+/* ======================================================================== */
 void InpFrm::hideEvent(QShowEvent *) {
 
 }
 void InpFrm::showEvent(QShowEvent *) {
-//	QSETTINGS; WIN_RESTORE(this);
-//	setFocus(Qt::PopupFocusReason);
-	grabKeyboard();
+	mEscapeTrigger = false;
 	refreshCbDropDownLists();
 }
 void InpFrm::keyPressEvent(QKeyEvent *e) {
-	if (e->key() == Qt::Key_Escape)
-		hide();
+	/**
+	 * If key press event for "Enter" is detected, emit a btnOk Clicked()
+	 * signal to access onBtnOkClicked()
+	 */
+	if (e->key() == Qt::Key_Enter)
+		emit ui->btnOk->clicked();
+
+	/*!
+	 * First escape key press event resets the current InpFrm widget focus to initial.
+	 * Second escape key press event within 800ms hides the InpFrm::
+	 */
+	if (e->key() == Qt::Key_Escape) {
+		if (! mEscapeTrigger)
+			INFO << tr("start singledshot");
+		else hide();
+	}
 }
 bool InpFrm::eventFilter(QObject *obj, QEvent *ev) {
 	if (! ev)	return true;
 
 	QObject *objFoc;
-
-	/** Event type KeyPress */
-	if (ev->type() == QEvent::KeyPress) {
-		QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
-
-		/**
-		 * If key press event for "Enter" is detected, emit a btnOk Clicked()
-		 * signal to access onBtnOkClicked()
-		 */
-		if (keyEvent->key() == Qt::Key_Enter)
-			emit ui->btnOk->clicked();
-
-		if (keyEvent->key() == Qt::Key_Escape)
-			ui->cbPrjKurzform->lineEdit()->selectAll();
-		return QObject::eventFilter(obj, ev);
-	}
 
 	/** Event type mouse button...*/
 	if (ev->type() == QEvent::MouseButtonPress) {

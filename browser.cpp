@@ -14,9 +14,6 @@
 
 Browser *Browser::inst = 0;
 
-/* ======================================================================== */
-/*                     Browser:: default constructors                       */
-/* ======================================================================== */
 
 Browser::Browser(QWidget *parent) : QWidget(parent),
 	ui(new Ui::Browser), cyclicObjInfo(false) {
