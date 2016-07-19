@@ -32,8 +32,8 @@ public:
     void setSourceModel(QAbstractItemModel *model);
 
 public slots:
-//    void onActFilterForm(bool b);
-    bool eventFilter(QObject *obj, QEvent *ev);
+//    bool eventFilter(QObject *obj, QEvent *ev);
+	 virtual void keyPressEvent(QKeyEvent *) override;
 
 signals:
     void closesUncheck(bool b);
@@ -65,6 +65,9 @@ private:
     QDateEdit *toDateEdit;
     QAction *deleteAct;
 
+
+	 // QWidget interface
+protected:
 };
 
 #endif // SORTWINDOW_H

@@ -109,6 +109,14 @@ void SortWindow::closeEvent(QCloseEvent *e) {
     QSETTINGS;
     emit closesUncheck(false);
 }
+void SortWindow::keyPressEvent(QKeyEvent *e) {
+	switch (e->key()) {
+		case Qt::Key_Escape: this->close();	break;
+		default:
+			break;
+	}
+}
+#ifdef DEFAULT_EVENT_FILTER
 bool SortWindow::eventFilter(QObject *obj, QEvent *ev) {
     if (ev->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
@@ -119,7 +127,7 @@ bool SortWindow::eventFilter(QObject *obj, QEvent *ev) {
     // pass the event on to the parent class
     return QObject::eventFilter(obj, ev);
 }
-
+#endif
 
 
 
@@ -205,3 +213,4 @@ bool SortWindow::eventFilter(QObject *obj, QEvent *ev) {
 //    mainLayout->addWidget(sourceGB);
 //    mainLayout->addWidget(proxyGB);
 //    setLayout(mainLayout);
+

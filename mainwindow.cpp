@@ -41,7 +41,7 @@ void MainWindow::onInpFrmButtonClick(bool b) {
 void MainWindow::makeMenuBar() {
 	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&File"));
 	fileMenu->addAction(QObject::tr("Add &Connection..."),
-							  browser, SLOT(addConnection()));
+							  mDbc, SLOT(addConnection()));
 	fileMenu->addSeparator();
 	fileMenu->addAction(QObject::tr("&Quit"), qApp, SLOT(quit()));
 
@@ -315,8 +315,8 @@ void MainWindow::onActCloseTrig() {
 /*                     Event handler implementation                         */
 /* ======================================================================== */
 void MainWindow::showEvent() {
-	QShowEvent *ee = NULL;
-	emit showEvent(ee);
+//	QShowEvent *ee = NULL;
+//	emit showEvent(ee);
 }
 void MainWindow::showEvent(QShowEvent *e) {
 	Q_UNUSED(e);
@@ -338,11 +338,13 @@ void MainWindow::showEvent(QShowEvent *e) {
 		if (!config.value("MainWindow/actHideSqlQuery", true).toBool()) {
 			inpFrm->gbSqlQuerySetVisible( true );
 			ui->actHideSqlQuery->setChecked( false );
-		} else {
+		}
+		else {
 			inpFrm->gbSqlQuerySetVisible( false );
 			ui->actHideSqlQuery->setChecked( true );
 		}
-	} catch (...) {
+	}
+	catch (...) {
 		CRIT << tr("!");
 	}
 
@@ -351,18 +353,10 @@ void MainWindow::showEvent(QShowEvent *e) {
 	this->restoreGeometry(config.value(objectName() + "/Geometry", "").toByteArray());
 	this->restoreState(config.value(objectName() + "/State", "").toByteArray());
 
-	/**** Recall dock states
-	 \*/
-	Qt::DockWidgetArea dwa = static_cast<Qt::DockWidgetArea>(
-										 config.value("inpForm/DockWidgetArea",
-														  Qt::BottomDockWidgetArea).toUInt());
-	this->addDockWidget(dwa, inpFrm, Qt::Vertical);
-
 	/**** Restore custom TabView instance settings
 	 \*/
-	foreach (TabView *tv, browser->tvs) {
+	foreach (TabView *tv, browser->tvs)
 		tv->restoreView();
-	}
 
 	/**** Restore tabview <-> SQL table assignements
 	 \*/
@@ -372,7 +366,16 @@ void MainWindow::showEvent(QShowEvent *e) {
 		browser->showRelatTable( tabNam, tv );
 	}
 
-	(ui->actButInpForm->isChecked())  ?  inpFrm->show()   :  inpFrm->hide();
+	/**** Recall dock states
+	 \*/
+	if (ui->actButInpForm->isChecked()) {
+		inpFrm->show();
+		Qt::DockWidgetArea dwa = static_cast<Qt::DockWidgetArea>(
+											 config.value("inpForm/DockWidgetArea",
+															  Qt::BottomDockWidgetArea).toUInt());
+	}
+	else inpFrm->hide();
+//		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
 
 	/**** Trigger the connectionWidget treeview
 	 \*/

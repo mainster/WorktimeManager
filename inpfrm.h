@@ -58,6 +58,7 @@ public slots:
 	bool eventFilter(QObject *obj, QEvent *ev);
 	void showEvent(QShowEvent *);
 	void aButtonClick(bool b);
+	void onInpFormChanges(int idx);
 
 protected:
 	void connectActions();
@@ -68,6 +69,7 @@ protected slots:
 	void onChangeTabOrderSlot(InpFrm::states state);
 	QList<QWidget *> objLstToWidLst(QList<QObject *> lst);
 
+	void hideEvent(QShowEvent *);
 private slots:
 
 private:

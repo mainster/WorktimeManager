@@ -250,47 +250,44 @@ void InpFrm::initComboboxes() {
 	//      cbLst[k++]->setModelColumn( fpms.last()->filterKeyColumn() );
 	//   }
 }
-
 QString InpFrm::getQueryText() const { return ui->teSqlQuerys->toPlainText(); }
 void InpFrm::connectActions() {
+
 	connect(ui->datePicker,         SIGNAL(dateChanged(QDate)),
 			  this,                   SLOT(onInpFormChanges(QDate)));
 	connect(ui->sbID,               SIGNAL(valueChanged(int)),
 			  this,                   SLOT(onInpFormChanges(int)));
-	connect(ui->cbClientKurzform,   SIGNAL(currentIndexChanged(int)),
-			  this,                   SLOT(onInpFormChanges(int)));
-	connect(ui->cbClientNummer,     SIGNAL(currentIndexChanged(int)),
-			  this,                   SLOT(onInpFormChanges(int)));
-	connect(ui->cbPrjKurzform,      SIGNAL(currentIndexChanged(int)),
-			  this,                   SLOT(onInpFormChanges(int)));
-	connect(ui->cbPrjNummer,        SIGNAL(currentIndexChanged(int)),
-			  this,                   SLOT(onInpFormChanges(int)));
-	connect(ui->cbWorkerNachname,   SIGNAL(currentIndexChanged(int)),
-			  this,                   SLOT(onInpFormChanges(int)));
-	connect(ui->cbWorkerVorname,    SIGNAL(currentIndexChanged(int)),
-			  this,                   SLOT(onInpFormChanges(int)));
-	connect(ui->cbWorkerPersonalNr, SIGNAL(currentIndexChanged(int)),
-			  this,                   SLOT(onInpFormChanges(int)));
-
-	QList<QPushButton *> pbs = objLstToWidLst<QPushButton*, QObject*>
-			(findChildren(tr(""), Qt::FindDirectChildrenOnly));
-
-	foreach (QPushButton *pb, pbs){
-		if (! (bool)connect(pb, &QPushButton::clicked, this, &InpFrm::aButtonClick))
-			CRIT << tr("QObject::connect(..) returned false "
-						  "for button %1").arg(pb->objectName())
-	}
-
-	QList<QComboBox *> cbs = static_cast<QComboBox *>
-									 (findChildren(tr(""), Qt::FindDirectChildrenOnly));
-
-
 	connect(ui->teSqlQuerys,        SIGNAL(textChanged()),
 			  this,                   SLOT(onSqlQuerysTextChanged()));
 	connect(ui->cbQueryIdent,       SIGNAL(currentIndexChanged(int)),
 			  this,                   SLOT(onCbQueryIdentIndexChaned(int)));
 	connect(this,                   SIGNAL(changeInpFrmTabOrder(InpFrm::states)),
 			  this,                   SLOT(onChangeTabOrderSlot(InpFrm::states)));
+
+	QList<QComboBox*> cbs = findChildren<QComboBox *>
+									(QString(), Qt::FindDirectChildrenOnly);
+	QList<QPushButton*> pbs = findChildren<QPushButton *>
+									  (QString(), Qt::FindDirectChildrenOnly);
+
+	foreach (QComboBox *cb, cbs)
+		connect(cb, SIGNAL(currentIndexChanged(int)), this, SLOT(onInpFormChanges(int)));
+
+	foreach (QPushButton *pb, pbs) {
+		if (pb->objectName() == tr("btnSaveQuery")) {
+			connect(pb, &QPushButton::clicked, this, &InpFrm::saveSqlQueryInputText);
+			continue;
+		}
+
+		if (pb->objectName() == tr("btnRestoreQuery")) {
+			connect(pb, &QPushButton::clicked, this, &InpFrm::restoreSqlQueryInputText);
+			continue;
+		}
+
+		if (! (bool)connect(pb, &QPushButton::clicked, this, &InpFrm::aButtonClick))
+			CRIT << tr("connect(..) returned false or button %1").arg(pb->objectName());
+	}
+
+
 
 	//	connect(ui->btnSubmitQuery, &QPushButton::clicked, this, &InpFrm::onTest);
 	//    connect(ui->btnSubmitQuery,     SIGNAL(clicked()),
@@ -563,9 +560,13 @@ void InpFrm::refreshCbDropDownLists() {
 	ui->cbQueryIdent->setDuplicatesEnabled( false );
 
 }
+void InpFrm::onInpFormChanges(int idx) {
+	 Q_UNUSED(idx);
+	 //   INFO << idx;
+}
 void InpFrm::onInpFormChanges(QDate date) {
-	Q_UNUSED(date);
-	//   INFO << date;
+	 Q_UNUSED(date);
+	 //   INFO << date;
 }
 bool InpFrm::gbSqlQueryIsVisible() const {
 	return ui->gbSqlQuery->isVisible();
@@ -693,11 +694,11 @@ void InpFrm::restoreSqlQueryInputText() {
 				configQ.value(objectName() + "/SqlQueryText", "").toString());
 }
 void InpFrm::hideEvent(QShowEvent *) {
-	QSETTINGS; WIN_STORE;
+//	QSETTINGS; WIN_STORE(this);
 	refreshCbDropDownLists();
 }
 void InpFrm::showEvent(QShowEvent *) {
-	QSETTINGS; WIN_RESTORE;
+//	QSETTINGS; WIN_RESTORE(this);
 	refreshCbDropDownLists();
 }
 void InpFrm::keyPressEvent(QKeyEvent *e) {
@@ -928,6 +929,5 @@ void InpFrm::onInpFormUserCommitOLD() {
 }
 
 #define QFOLDINGEND }
-}
 
 

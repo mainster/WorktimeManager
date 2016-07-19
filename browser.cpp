@@ -53,14 +53,10 @@ Browser::Browser(QWidget *parent) : QWidget(parent),
 	SqlRtm *cm = new SqlRtm();
 	cm->setCenterCols(QVector<int>(0, 1));
 
-	//    sortwindow.append( new SortWindow(0) );
-	//    sortwindow.append( new SortWindow(0) );
 	filterForm = SortWindow::getInstance();
-
-	//    sortwindow.last()->setVisible(false);
+	filterForm->setWindowTitle(filterForm->objectName());
 	filterForm->setVisible(false);
 }
-
 Browser::~Browser() {
 	delete ui;
 }
