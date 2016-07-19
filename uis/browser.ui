@@ -29,7 +29,7 @@
    <string>Qt SQL Browser</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../WorktimeManagerR3/WorktimeManagerR3.qrc">
+   <iconset resource="../WorktimeManager.qrc">
     <normaloff>:/images/database.png</normaloff>:/images/database.png</iconset>
   </property>
   <property name="styleSheet">
@@ -104,18 +104,6 @@ QGroupBox{
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
-      <widget class="QDockWidget" name="dockWidget">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="allowedAreas">
-        <set>Qt::BottomDockWidgetArea|Qt::RightDockWidgetArea|Qt::TopDockWidgetArea</set>
-       </property>
-       <widget class="QWidget" name="dockWidgetContents"/>
-      </widget>
       <widget class="QSplitter" name="splitter_3">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -300,7 +288,7 @@ QGroupBox{
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../WorktimeManagerR3/WorktimeManagerR3.qrc"/>
+  <include location="../WorktimeManager.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -63,21 +63,26 @@ MDStateBar::MDStateBar(QWidget *parent) : QStatusBar(parent) {
 MDStateBar *MDStateBar::getObjectPtr() { return inst; }
 MDStateBar::~MDStateBar() {}
 
-void MDStateBar::showError(const QString s, int timeout) {
+void MDStateBar::showError(const QString s, const int timeout) {
 	mslot[type_err]->setText(prefix.str[type_err] + s);
 	Q_INFO << s;
 	if (!timeout) return;
 
 	QTimer::singleShot(timeout, Qt::CoarseTimer, this, SLOT(clearError()));
 }
-void MDStateBar::showMessage(QString s, int timeout) {
+void MDStateBar::showMessage(const QString s, const int timeout) {
 	mslot[type_msg]->setText(prefix.str[type_msg] + s);
 	Q_INFO << s;
 	if (!timeout) return;
 
 	QTimer::singleShot(timeout, Qt::CoarseTimer, this, SLOT(clearMessage()));
 }
-void MDStateBar::showInfo(const QString s, int timeout) {
+void MDStateBar::showMessage2sec(QString &s) {
+	mslot[type_msg]->setText(prefix.str[type_msg] + s);
+	Q_INFO << s;
+	QTimer::singleShot(2000, Qt::CoarseTimer, this, SLOT(clearMessage()));
+}
+void MDStateBar::showInfo(const QString s, const int timeout) {
 	mslot[type_info]->setText(prefix.str[type_info] + s);
 	Q_INFO << s;
 	if (!timeout) return;
@@ -98,12 +103,14 @@ void MDStateBar::showInSlot(const QVariant var, int slotNo) {
 	if (var.canConvert(QMetaType::QTime)) {
 		mslot[slotNo]
 				->setText(prefix.str[type_clock] + var.toTime().toString(Qt::TextDate));
-	} else {
+	}
+	else {
 		if (var.canConvert(QMetaType::QDate)) {
 			mslot[slotNo]->setText(prefix.str[type_clock] +
 										  var.toDate().toString(Qt::TextDate));
 			return;
-		} else {
+		}
+		else {
 			Q_INFO << tr("Can not decode QVariant message !!!");
 			return;
 		}
@@ -129,8 +136,7 @@ void MDStateBar::appendInfo(const QString s, const QString sep) {
 			->setText(tr("%1%2").arg(mslot[type_info]->text()).arg(sep + s));
 	Q_INFO << s;
 }
-void MDStateBar::appendInSlot(const QVariant var, int slotNo,
-										const QString sep) {
+void MDStateBar::appendInSlot(const QVariant var, int slotNo, const QString sep) {
 	QString decod;
 
 	/* Index of message slot starts counting from 1, not 0 */

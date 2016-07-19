@@ -53,6 +53,15 @@ QString listToString(QList<T> list, int fieldwidth = 1, int base = 10,
 			: s.join(joinSep);
 }
 
+template<class U, class T>
+QList<U> objListCast (QList<T>& ts) {
+	QList<U> us;
+	foreach (T t, ts) {
+		us << static_cast<U>(t);
+	}
+	return us;
+}
+
 /* ======================================================================== */
 /*										u_ID_t						                      */
 /* ======================================================================== */

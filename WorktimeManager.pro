@@ -38,15 +38,6 @@ wince*: {
     DEPLOYMENT_PLUGIN += qsqlite
 }
 
-FORMS += \
-    uis/browser.ui \
-    uis/dbconndlg.ui \
-    uis/inpfrm.ui \
-    uis/mainwindow.ui \
-    uis/sortwindow.ui \
-    uis/tablewindow.ui \
-    uis/tabview.ui
-
 HEADERS += \
     delegates/tabledelegate.h \
     headers/locals.h \
@@ -64,11 +55,10 @@ HEADERS += \
     inpfrm.h \
     mainwindow.h \
     sortwindow.h \
-    tablewindow.h \
     tabview.h \
     models/models.h \
-#    views/tabview.h \
-    delegates/sqlreldel.h
+	 delegates/sqlreldel.h
+#    mpushbutton.h
 
 SOURCES += \
     delegates/tabledelegate.cpp \
@@ -87,10 +77,17 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     sortwindow.cpp \
-    tablewindow.cpp \
     tabview.cpp \
     models/models.cpp \
-#    views/tabview.cpp \
-    delegates/sqlreldel.cpp
+	 delegates/sqlreldel.cpp
+#    mpushbutton.cpp
+
+FORMS += \
+	 uis/browser.ui \
+	 uis/dbconndlg.ui \
+	 uis/inpfrm.ui \
+	 uis/mainwindow.ui \
+	 uis/sortwindow.ui \
+	 uis/tabview.ui
 
 

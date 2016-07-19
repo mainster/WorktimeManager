@@ -18,7 +18,8 @@ Browser *Browser::inst = 0;
 /*                     Browser:: default constructors                       */
 /* ======================================================================== */
 
-Browser::Browser(QWidget *parent) : QWidget(parent), ui(new Ui::Browser) {
+Browser::Browser(QWidget *parent) : QWidget(parent),
+	ui(new Ui::Browser), cyclicObjInfo(false) {
 	setupUi(this);  inst = this;
 
 	initTableView( inst, QStringList() << TVA << TVB << TVC << TVD << TVL1 << TVL2);
@@ -129,53 +130,6 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 	filterForm->setVisible(false);
 }
 #endif
-//QSqlError Browser::addConnection( const QString &driver, const QString &dbName,
-//                                  const QString &host, const QString &user,
-//                                  const QString &passwd, int port) {
-//    stateBar = MDStateBar::getObjectPtr();
-
-//    static int cCount = 0;
-
-//    QSqlError err;
-//	 QSqlDatabase db =
-//			 QSqlDatabase::addDatabase(driver, QString("Browser%1").arg(++cCount));
-//    db.setDatabaseName(dbName);
-//    db.setHostName(host);
-//    db.setPort(port);
-
-//    if (!db.open(user, passwd)) {
-//        err = db.lastError();
-//        db = QSqlDatabase();
-//        QSqlDatabase::removeDatabase(QString("Browser%1").arg(cCount));
-//    }
-
-//    connectionWidget->refresh();
-
-//    return err;
-//}
-//void Browser::addConnection() {
-//	 DbConnDlg dialog(this);
-
-//	 if (dialog.exec() != QDialog::Accepted)
-//		  return;
-
-//	 if (dialog.useInMemoryDatabase()) {
-//		  QMessageBox::warning(
-//						  this, tr("Add connection"), tr("dialog.useInMemoryDatabase()"));
-//	 } else {
-//		  QSqlError err = addConnection(dialog.driverName(),
-//												  dialog.databaseName(),
-//												  dialog.hostName(),
-//												  dialog.userName(),
-//												  dialog.password(),
-//												  dialog.port());
-
-//		  if (err.type() != QSqlError::NoError)
-//				QMessageBox::warning(
-//								this,  tr("Unable to open database"),
-//								tr("An error occurred while opening the connection: ") + err.text());
-//	 }
-//}
 void Browser::initTableView(QWidget *parent, QStringList &accNam) {
 	 Q_UNUSED(parent)
 	 QList<QAction *> tblActs;

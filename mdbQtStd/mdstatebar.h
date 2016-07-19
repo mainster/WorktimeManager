@@ -45,20 +45,21 @@ public:
 	static MDStateBar *getObjectPtr();
 
 public slots:
-	void showError(const QString s, int timeout = 0);
-	void showMessage(const QString s, int timeout = 0);
-	void showInfo(const QString s, int timeout = 0);
-   void showInSlot(const QVariant var, int slotNo);
+	void showError(const QString s, const int timeout = 0);
+	void showMessage2sec(QString &s);
+	void showMessage(const QString s, const int timeout);
+	void showInfo(const QString s, const int timeout = 0);
+	void showInSlot(const QVariant var, int slotNo);
 	void appendError(const QString s, const QString sep = " ");
 	void appendMessage(const QString s, const QString sep = " ");
 	void appendInfo(const QString s, const QString sep = " ");
-   void appendInSlot(const QVariant var, int slotNo, const QString sep);
+	void appendInSlot(const QVariant var, int slotNo, const QString sep);
 	void clearError();
 	void clearMessage();
 	void clearInfo();
    void clearClock();
 
-   void setClockVisible(const bool onoff, int slotNo = -1);
+	void setClockVisible(const bool onoff, const int slotNo = -1);
 
 private slots:
    void onCyclic();

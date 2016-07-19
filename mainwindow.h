@@ -18,7 +18,7 @@
 #include "locals.h"
 #include "mdstatebar.h"
 #include "tabledelegate.h"
-#include "tablewindow.h"
+
 #include "dbcontroller.h"
 
 namespace Ui {
@@ -36,10 +36,6 @@ class MainWindow : public QMainWindow {
 
 public:
    explicit MainWindow(QWidget *parent = 0);
-//   static MainWindow *getObjectPtr() {
-//      return inst;
-//   }
-
    ~MainWindow();
 
 signals:
@@ -47,8 +43,6 @@ signals:
 
 public slots:
    void onBrowseSqlTrig(bool b);
-//	bool addConnectionsByCmdline(QVariant args,
-//												  Browser &browser);
    bool eventFilter(QObject *obj, QEvent *event);
    void about();
    void onMenuStyleShtInpFrmTrig(bool b);
@@ -67,12 +61,13 @@ public slots:
    void connectActions();
    void onCyclic();
 
+	void onInpFrmButtonClick(bool b);
 protected slots:
    void makeMenuBar();
    void onActCfgInpFrmTabOrdTrig();
 
 private slots:
-   void onInputFormTrig(bool b);
+	void onOpenCloseInpFrm(bool onOff);
    void onTblOpen(bool b);
    void onActCloseTrig();
    void restoreMainWindowGeometry() {
@@ -91,12 +86,14 @@ private slots:
                                     "/State", " ").toByteArray() );
    }
 
+protected:
+	void initial();
+
 private:
    Ui::MainWindow *ui;
    static int   fuse;
    Browser      *browser;
    InpFrm       *inpFrm;
-   TableWindow  *tblWin;
    QMenu        *cfgMenu;
    QWidget      *wid;
    MDStateBar   *stateBar;
@@ -105,7 +102,6 @@ private:
 	DbController *mDbc;
 
 
-//   static MainWindow *inst;
 };
 
 #endif // MAINWINDOW_H

@@ -79,20 +79,12 @@ class Browser : public QWidget, private Ui::Browser {
 
 public:
    explicit Browser(QWidget *parent = 0);
-   static Browser *getInstance(QWidget *parent = 0x00) {
+	static Browser *instance(QWidget *parent = 0x00) {
       if(inst == 0)
          inst = new Browser(parent);
       return inst;
    }
-   static Browser *getObjectPtr() {
-      return inst;
-   }
 	virtual ~Browser();
-
-//   QSqlError
-//   addConnection(const QString &driver, const QString &dbName,
-//                 const QString &host, const QString &user,
-//                 const QString &passwd, int port = -1);
 
    void insertRow();
    void deleteRow();
@@ -118,7 +110,6 @@ signals:
 
 public slots:
    void showMetaData(const QString &table);
-//   void addConnection();
    void currentChanged(QModelIndex,QModelIndex) { updateActions(); }
 	void on_insertRowAction_triggered() { insertRow(); }
 	void on_deleteRowAction_triggered() { deleteRow(); }

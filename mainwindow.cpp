@@ -10,30 +10,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	ui->setupUi(this);
 	QSETTINGS_INIT; QSETTINGS;
 
-	stateBar = new MDStateBar( this );
-	browser = Browser::getInstance( parent );
-	mDbc		= new DbController(this);
+	stateBar		= new MDStateBar( this );
+	browser		= new Browser( parent );
+	mDbc			= new DbController(this);
+	inpFrm		= new InpFrm( this );
+	sortwindow  = new SortWindow();
+	stateBar->setClockVisible(true);
+	setStatusBar( stateBar );
 
 	/*!
-	 * Init SQL classes
+	 * Connect the inpFrm's statusMessage signal to the statebar message slot
 	 */
-	QStringList drivers = QSqlDatabase::drivers();
-
-	if (!drivers.contains("QSQLITE"))
-		CRIT << tr("empty");
-
-	QSqlError ret = mDbc->addConnection(Locals::SQL_DRIVER,
-													Locals::SQL_DATABASE.filePath());
-	INFO << tr("Establish SQL database connection: %1").arg(ret.text());
-
-	inpFrm = InpFrm::instance( this );
-	setStatusBar( stateBar );
-	sortwindow = new SortWindow();
-	stateBar->setClockVisible(true);
+	connect(inpFrm, &InpFrm::stateMessage, stateBar, &MDStateBar::showMessage);
 
 
 	makeMenuBar();
-	browser->onCyclicObjInfoTrig(false);
 	installEventFilter(this);
 
 	this->setWindowTitle( MAINWINDOW_TITLE );
@@ -44,35 +35,9 @@ MainWindow::~MainWindow() {
 	//   saveMainWindowUiSettings();
 	delete ui;
 }
-//bool MainWindow::addConnectionsByCmdline(QVariant args, Browser &browser) {
-//	QSqlError err;
+void MainWindow::onInpFrmButtonClick(bool b) {
 
-//	foreach (QString s, args.toStringList()) {
-//		QUrl u(Locals::SQL_DATABASE.baseName(), QUrl::TolerantMode);
-//		u.setScheme("QMYSQL");
-
-//		if (! u.isValid()) {
-//			qWarning("Invalid URL: %s", qPrintable(s));
-//			continue;
-//		}
-
-//		QSqlError err =
-//		      mDbc->addConnection(u.scheme().toUpper(), u.path(), u.host(), u.userName(),
-//		                          u.password(), u.port(-1))).type()) {
-
-//			u = QUrl(Locals::SQL_DATABASE.filePath(), QUrl::TolerantMode);
-//			u.setScheme("QMYSQL");
-
-//			if (sqlErr.type() != QSqlError::NoError) {
-//				bReturn(tr("Unable to open connection: %s")
-//						  .arg(sqlErr.text()));
-//			}
-//			return true;
-//		}
-//		return true;
-//	}
-//	return false;
-//}
+}
 void MainWindow::makeMenuBar() {
 	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&File"));
 	fileMenu->addAction(QObject::tr("Add &Connection..."),
@@ -98,7 +63,7 @@ void MainWindow::connectActions() {
 	connect(	ui->actButBrowseSQL,	SIGNAL(triggered(bool)),
 				this,					SLOT(onBrowseSqlTrig(bool)));
 	connect(	ui->actButInpForm,		SIGNAL(triggered(bool)),
-				this,					SLOT(onInputFormTrig(bool)));
+				this,					SLOT(onOpenCloseInpFrm(bool)));
 	connect(	ui->actButShowTbl,		SIGNAL(triggered(bool)),
 				this,					SLOT(onTblOpen(bool)));
 	connect(	ui->actButClose,		SIGNAL(triggered()),
@@ -176,40 +141,26 @@ void MainWindow::onBrowseSqlTrig(bool doBrowse) {
 		browser->hide();
 	}
 }
-void MainWindow::onInputFormTrig(bool b) {
-	/**
-	 * Fetch pointer if a InpForm instance exists, instantiate and get pointer
-	 * if not
-	 */
-
+void MainWindow::onOpenCloseInpFrm(bool onOff) {
 	QSETTINGS;
-
+	inpFrm->setVisible(onOff);
 	//   this->addDockWidget(Qt::BottomDockWidgetArea, inpForm);
 
-	if (b) {
-		InpFrm::instance()->restoreInpFrmGeometry();
-		//      addDockWidget( static_cast<Qt::DockWidgetArea>(
-		//                        config.value("inpForm/DockWidgetArea", "8").toInt) );
-		inpFrm->show();
-	}
-	else {
+//	if (b) {
+////		InpFrm::instance()->restoreInpFrmGeometry();
+//		//      addDockWidget( static_cast<Qt::DockWidgetArea>(
+//		//                        config.value("inpForm/DockWidgetArea", "8").toInt) );
+//		inpFrm->show();
+//	}
+//	else {
 
-		//      config.setValue("inpForm/DockWidgetArea", (uint)dockWidgetArea(inpForm));
-		inpFrm->saveInpFrmGeometry();
-		inpFrm->hide();
-	}
+//		//      config.setValue("inpForm/DockWidgetArea", (uint)dockWidgetArea(inpForm));
+//		inpFrm->saveInpFrmGeometry();
+//		inpFrm->hide();
+//	}
 }
 void MainWindow::onTblOpen(bool b) {
-	//   if (tblWin == 0x00)
-	tblWin = TableWindow::getInstance();
-
-	if (b) {
-		tblWin->restoreTableWinGeometry();
-		tblWin->show();
-	} else {
-		tblWin->saveTableWinGeometry();
-		tblWin->hide();
-	}
+	INFO << tr("I am an empty slot, use me!!!");
 }
 void MainWindow::onSetAlterRowColTrig() {
 	QPalette pal = browser->tvs.first()->tv()->palette();
@@ -360,6 +311,9 @@ void MainWindow::onActCloseTrig() {
 	//    qApp->closeAllWindows();
 	this->close();
 }
+/* ======================================================================== */
+/*                     Event handler implementation                         */
+/* ======================================================================== */
 void MainWindow::showEvent() {
 	QShowEvent *ee = NULL;
 	emit showEvent(ee);
@@ -493,4 +447,10 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	  \*/
 	emit mainwindowCloses();
 	QWidget::closeEvent(e);
+}
+/* ======================================================================== */
+/*									    Init methodes										    */
+/* ======================================================================== */
+void MainWindow::initial() {
+
 }
