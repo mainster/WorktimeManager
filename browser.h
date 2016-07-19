@@ -104,9 +104,12 @@ public:
     */
 //   SortWindow *getSortwindow0() const;
 	//   SortWindow *getSortwindow1() const;
+
+
 signals:
-   void stateMsg(const QString &message);
+	void stateMsg(const QString &message, const int delay = 0);
    void tabViewSelChanged(TabView *sel);
+	void visibilityChanged(bool b);
 
 public slots:
    void showMetaData(const QString &table);
@@ -128,7 +131,6 @@ public slots:
    int setFontAcc(QFont &font);
 	void onCyclicObjInfoTrig(bool b) { cyclicObjInfo = b; }
    void exec();
-
    void requeryWorktimeTableView(QString nonDefaulQuery = "");
    void showRelatTable(const QString &tNam, TabView *tvc);
    QTableView *createView(QSqlQueryModel *model, const QString &title);
@@ -142,6 +144,7 @@ public slots:
 protected slots:
    void showEvent(QShowEvent *e);
    bool eventFilter(QObject *obj, QEvent *e);
+	void hideEvent(QShowEvent *);
 
 private slots:
 //   QAbstractItemModel *createMailModel(QObject *parent);
@@ -159,10 +162,6 @@ private:
 	SortWindow		*filterForm;
 	MDStateBar		*stateBar;
 
-protected:
-	virtual void keyPressEvent(QKeyEvent *) override;
-	virtual void keyReleaseEvent(QKeyEvent *) override;
-	virtual void hideEvent(QHideEvent *) override;
 };
 
 #endif

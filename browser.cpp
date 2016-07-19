@@ -127,48 +127,48 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 }
 #endif
 void Browser::initTableView(QWidget *parent, QStringList &accNam) {
-	 Q_UNUSED(parent)
-	 QList<QAction *> tblActs;
+	Q_UNUSED(parent)
+	QList<QAction *> tblActs;
 
-	 tblActs.append(insertRowAction);
-	 tblActs.append(deleteRowAction);
-	 tblActs.append(fieldStrategyAction);
-	 tblActs.append(rowStrategyAction);
-	 tblActs.append(manualStrategyAction);
-	 tblActs.append(submitAction);
-	 tblActs.append(revertAction);
-	 tblActs.append(selectAction);
+	tblActs.append(insertRowAction);
+	tblActs.append(deleteRowAction);
+	tblActs.append(fieldStrategyAction);
+	tblActs.append(rowStrategyAction);
+	tblActs.append(manualStrategyAction);
+	tblActs.append(submitAction);
+	tblActs.append(revertAction);
+	tblActs.append(selectAction);
 
-//    QObjectList *queryList( const char *inheritsClass = 0,
-//                            const char *objName = 0,
-//                            bool regexpMatch = TRUE,
-//                            bool recursiveSearch = TRUE );
+	//    QObjectList *queryList( const char *inheritsClass = 0,
+	//                            const char *objName = 0,
+	//                            bool regexpMatch = TRUE,
+	//                            bool recursiveSearch = TRUE );
 
-//    QObjectList *queryTvs = queryList( "TabView" );
+	//    QObjectList *queryTvs = queryList( "TabView" );
 
-//    foreach (QObject *obj, queryTvs) {
-//        tvs.append( static_cast<TabView *>obj );
-//    }
-	 tvs.append( tva );
-	 tvs.append( tvb );
-	 tvs.append( tvc );
-	 tvs.append( tvd );
-	 tvs.append( tvl1 );
-	 tvs.append( tvl2 );
+	//    foreach (QObject *obj, queryTvs) {
+	//        tvs.append( static_cast<TabView *>obj );
+	//    }
+	tvs.append( tva );
+	tvs.append( tvb );
+	tvs.append( tvc );
+	tvs.append( tvd );
+	tvs.append( tvl1 );
+	tvs.append( tvl2 );
 
-	 int i = 0;
+	int i = 0;
 
-	 foreach (TabView *tv, tvs) {
-		  tv->addActions( tblActs );
-		  tv->setAccessibleName( accNam[i] );
-		  tv->setObjectName( accNam[i] );
+	foreach (TabView *tv, tvs) {
+		tv->addActions( tblActs );
+		tv->setAccessibleName( accNam[i] );
+		tv->setObjectName( accNam[i] );
 
-		  tv->setToolTip( tr("Tooltip: ") + accNam[i++]);
-		  tv->setContextMenuPolicy(Qt::ActionsContextMenu);
-		  tv->m_gb->installEventFilter( this );
-		  tv->m_gb->setObjectName("gb");
-		  //      tv->m_gb->setStyleSheet( Globals::gbStyleShtCenterPROPERTYS );
-	 }
+		tv->setToolTip( tr("Tooltip: ") + accNam[i++]);
+		tv->setContextMenuPolicy(Qt::ActionsContextMenu);
+		tv->m_gb->installEventFilter( this );
+		tv->m_gb->setObjectName("gb");
+		//      tv->m_gb->setStyleSheet( Globals::gbStyleShtCenterPROPERTYS );
+	}
 }
 #define QFOLDINGEND }
 void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
@@ -755,26 +755,19 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 	  */
 	return QObject::eventFilter(obj, e);
 }
-void Browser::showEvent(QShowEvent *e) {
-	Q_UNUSED(e)
-	if (true) {
-		QSETTINGS;
-		QList<QSplitter *> spls = findChildren<QSplitter *>();
+void Browser::hideEvent(QShowEvent *) {
+	QSPLT_STORE;
+	emit visibilityChanged( false );
+}
+void Browser::showEvent(QShowEvent *) {
+	QSPLT_RESTORE;
+	emit visibilityChanged( true );
+//	QSETTINGS;
 
-		foreach (QSplitter *sp, spls) {
-			QString objn = sp->objectName();
-			//         INFO << objn;
-
-			sp->restoreState(
-						config.value("Browser/" + objn, " ").toByteArray());
-		}
-	}
-}
-void Browser::keyPressEvent(QKeyEvent *) {
-}
-void Browser::keyReleaseEvent(QKeyEvent *) {
-}
-void Browser::hideEvent(QHideEvent *) {
+//	foreach (QSplitter *sp, findChildren<QSplitter *>()) {
+//		QString objn = sp->objectName();
+//		sp->restoreState(config.value("Browser/" + objn, " ").toByteArray());
+//	}
 }
 void Browser::onActFilterForm(bool b) {
 	filterForm->setVisible(b);

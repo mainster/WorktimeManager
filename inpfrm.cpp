@@ -694,11 +694,12 @@ void InpFrm::restoreSqlQueryInputText() {
 				configQ.value(objectName() + "/SqlQueryText", "").toString());
 }
 void InpFrm::hideEvent(QShowEvent *) {
-//	QSETTINGS; WIN_STORE(this);
-	refreshCbDropDownLists();
+
 }
 void InpFrm::showEvent(QShowEvent *) {
 //	QSETTINGS; WIN_RESTORE(this);
+//	setFocus(Qt::PopupFocusReason);
+	grabKeyboard();
 	refreshCbDropDownLists();
 }
 void InpFrm::keyPressEvent(QKeyEvent *e) {

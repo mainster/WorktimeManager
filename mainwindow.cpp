@@ -59,39 +59,27 @@ void MainWindow::makeMenuBar() {
 void MainWindow::connectActions() {
 	ui->actHideSqlQuery->setChecked( true );
 
+	connect(ui->actButBrowseSQL, &QAction::triggered, this, &MainWindow::onBrowseSqlTrig);
+	connect(ui->actButInpForm, &QAction::triggered, this, &MainWindow::onOpenCloseInpFrm);
+	connect(ui->actButShowTbl, &QAction::triggered, this, &MainWindow::onTblOpen);
+	connect(ui->actButClose, &QAction::triggered, this, &MainWindow::onActCloseTrig);
+	connect(ui->actButGbStyleShtA, &QAction::triggered, this, &MainWindow::onMenuStyleShtATrig);
+	connect(ui->actGbSShtInpFrm, &QAction::triggered, this, &MainWindow::onMenuStyleShtInpFrmTrig);
+	connect(ui->actButExport, &QAction::triggered, this, &MainWindow::onActExportTrig);
+	connect(ui->actButUnderConstr, &QAction::triggered, this, &MainWindow::onUnderConstrTrig);
+	connect(ui->actButSelFont, &QAction::triggered, this, &MainWindow::onSetFont);
+	connect(ui->actResizerDlg, &QAction::triggered, this, &MainWindow::onResizerDlgTrig);
+	connect(ui->actHideSqlQuery, &QAction::triggered, this, &MainWindow::onActHideSqlQueryTrig);
+	connect(ui->actSetAlterRowCol, &QAction::triggered, this, &MainWindow::onSetAlterRowColTrig);
+	connect(ui->actCfgInpFrmTabOrd,  &QAction::triggered, this, &MainWindow::onActCfgInpFrmTabOrdTrig);
+	connect(ui->actButCyclicObjInfo, &QAction::triggered, browser, &Browser::onCyclicObjInfoTrig);
+	connect(ui->actAutoFitTables,	&QAction::triggered, browser, &Browser::autofitRowCol);
+	connect(ui->actFilterForm, &QAction::triggered, browser, &Browser::onActFilterForm);
+	connect(browser, &Browser::stateMsg, stateBar, &MDStateBar::showMessage);
 
-	connect(	ui->actButBrowseSQL,	SIGNAL(triggered(bool)),
-				this,					SLOT(onBrowseSqlTrig(bool)));
-	connect(	ui->actButInpForm,		SIGNAL(triggered(bool)),
-				this,					SLOT(onOpenCloseInpFrm(bool)));
-	connect(	ui->actButShowTbl,		SIGNAL(triggered(bool)),
-				this,					SLOT(onTblOpen(bool)));
-	connect(	ui->actButClose,		SIGNAL(triggered()),
-				this,					SLOT(onActCloseTrig()));
-	connect(	ui->actButGbStyleShtA,	SIGNAL(triggered(bool)),
-				this,					SLOT(onMenuStyleShtATrig(bool)));
-	connect(	ui->actButGbStyleShtInpFrm,	SIGNAL(triggered(bool)),
-				this,					SLOT(onMenuStyleShtInpFrmTrig(bool)));
-	connect(	ui->actButExport,		SIGNAL(triggered()),
-				this,					SLOT(onActExportTrig()));
-	connect(	ui->actButUnderConstr,	SIGNAL(triggered()),
-				this,					SLOT(onUnderConstrTrig()));
-	connect(	ui->actButSelFont,		SIGNAL(triggered()),
-				this,					SLOT(onSetFont()));
-	connect(	ui->actResizerDlg,		SIGNAL(triggered()),
-				this,					SLOT(onResizerDlgTrig()));
-	connect(	ui->actHideSqlQuery,	SIGNAL(triggered()),
-				this,					SLOT(onActHideSqlQueryTrig()));
-	connect(	ui->actSetAlterRowCol,	SIGNAL(triggered()),
-				this,					SLOT(onSetAlterRowColTrig()));
-	connect(	ui->actCfgInpFrmTabOrd, SIGNAL(triggered()),
-				this,					SLOT(onActCfgInpFrmTabOrdTrig()));
-	connect(	ui->actButCyclicObjInfo,SIGNAL(triggered(bool)),
-				browser,SLOT(onCyclicObjInfoTrig(bool)));
-	connect(	ui->actAutoFitTables,	SIGNAL(triggered(bool)),
-				browser,SLOT(autofitRowCol()));
-	connect(    ui->actFilterForm,          SIGNAL(triggered(bool)),
-					browser,                    SLOT(onActFilterForm(bool)));
+	connect(inpFrm, &InpFrm::visibilityChanged, ui->actButInpForm, &QAction::setChecked);
+	connect(browser, &Browser::visibilityChanged, ui->actButBrowseSQL, &QAction::setChecked);
+
 	//    connect(	ui->actFilterTableWindow,	SIGNAL(triggered(bool)),
 	//                browser,					SLOT(onActFilterWindowTable(bool)));
 	//    connect(	this,						SIGNAL(mainwindowCloses()),
@@ -102,8 +90,6 @@ void MainWindow::connectActions() {
 	//                ui->actFilterTableWindow,	SLOT(setChecked(bool)));
 	//    connect(	browser->getSortwindow1(),	SIGNAL(closesUncheck(bool)),
 	//                ui->actFilterTableWindow,	SLOT(setChecked(bool)));
-	connect( browser,               SIGNAL(stateMsg(QString)),
-				stateBar,              SLOT(showMessage(QString)));
 	//    connect(ui->actFilterTable, SIGNAL(triggered()),
 	//            browser,        SLOT( SORTIT()));
 }
@@ -196,7 +182,7 @@ void MainWindow::onActHideSqlQueryTrig() {
 void MainWindow::onMenuStyleShtATrig(bool b) {
 	if (!b) return;
 
-	ui->actButGbStyleShtInpFrm->setChecked( !b );
+	ui->actGbSShtInpFrm->setChecked( !b );
 	ui->actButGbStyleShtA->setChecked( b );
 
 	foreach (TabView *tv, browser->tvs) {
