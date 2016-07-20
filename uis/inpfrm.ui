@@ -21,18 +21,23 @@
 ^\s{1,}([0-9a-zA-Z\- \(\)\,\#\.:\*\/\;\&quot;\!$]+)[^\{]
 \t\1\n
 */
-QComboBox, QComboBox [hasFocus=false] {
+/* ----------------------------------------------------------------------------------------------- */
+QComboBox, QLineEdit, QSpinBox, QDateEdit {	
+	border: 1px solid gray;
+}  [hasFocus=true] {
+	border: 2px solid red;
+}
+QRadioButton {
+	boarder: 2px solid red;
+}
+/* ----------------------------------------------------------------------------------------------- */
+QComboBox, QLineEdit, QSpinBox, QDateEdit {
 	border: 1px solid gray;
 	border-radius: 3px;
 	padding: 0px 3px 0px 3px;
 	min-width: 3em;
-}  [hasFocus=true] {
-	border: 2px solid red;
-	border-radius: 3px;
-	padding: 0px 2px 0px 2px;
-	min-width: 3em;
-}
-QComboBox:editable {
+} 
+QComboBox:editable, QDateEdit:editable	{ 
 	background: white;
 }
 QComboBox:!editable, QComboBox::drop-down:editable {
@@ -68,28 +73,42 @@ QComboBox::down-arrow:on { /* shift the arrow when popup is open */
 	top: 1px;
 	left: 1px;
 }
-/* ------------------- */
-QDateEdit {
-	border: 1px solid gray;
-	border-radius: 3px;
-	padding: 1px 8px 1px 3px;
-	min-width: 3em;
+/* ----------------------------------------------------------------------------------------------- */
+QGroupBox, QTextEdit {
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
+	border: 2px solid rgb(140,140,140);
+	border-radius: 5px;
+	margin-top: 1ex; /* leave space at the top for the title */
 }
-QDateEdit:editable {
-	background: white;
+QGroupBox {
+	font: italic 10pt &quot;Arial&quot;;
+	color: rgb(55,55,55);
+	font-weight: bold;
 }
+QGroupBox::title {
+	subcontrol-origin: margin; /* margin boarder padding content */
+	subcontrol-position: top center; /* position at the top center */
+	top: 1.2ex;
+	padding: 0 8px
+}
+/* ----------------------------------------------------------------------------------------------- */
+QLabel {
+	color: rgb(70, 70, 70);
+}
+/* ----------------------------------------------------------------------------------------------- */
 QDateEdit:!editable, QDateEdit::drop-down:editable {
 	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
 	stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
 	stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
-} /* QDateEdit gets the &quot;on&quot; state when the popup is open */
-	QDateEdit:!editable:on, QDateEdit::drop-down:editable:on
-{
+} 
+/* QDateEdit gets the &quot;on&quot; state when the popup is open */
+QDateEdit:!editable:on, QDateEdit::drop-down:editable:on {
 	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
 	stop: 0 #D3D3D3, stop: 0.4 #D8D8D8,
 	stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);
 }
-QDateEdit:on { /* shift the text when the popup opens */
+ /* shift the text when the popup opens */
+QDateEdit:on {
 	padding-top: 3px;
 	padding-left: 4px;
 }
@@ -106,29 +125,11 @@ QDateEdit::drop-down {
 QDateEdit::down-arrow {
 	image: url(://images/1downarrow13.png);
 }
-QDateEdit::down-arrow:on { /* shift the arrow when popup is open */
+/* shift the arrow when popup is open */
+QDateEdit::down-arrow:on { 
 	top: 1px;
 	left: 1px;
 }
-/*
-QDateEdit::down-arrow {
-	image: url(://images/1downarrow13.png);
-	width: 10px;
-}
-QDateEdit::down-arrow:on {
-	top: 1px;
-	left: 1px;
-}
-	QSpinBox::down-button
-{
-	subcontrol-origin: border;
-	subcontrol-position: bottom right;
-	width: 12px;
-	border-image: url(:/images/spindown.png) 1;
-	border-width: 1px;
-	border-top-width: 0;
-}
-*/
 QDockWidget {
 	border: 1px solid black;
 	titlebar-close-icon: url(close.png);
@@ -149,30 +150,6 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover {
 }
 QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
 	padding: 1px -1px -1px 1px;
-}
-QGroupBox{
-	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
-	border-radius: 5px;
-	margin-top: 1ex; /* leave space at the top for the title */
-	font: italic 10pt &quot;Arial&quot;;
-	border: 2px solid rgb(140,140,140);
-	color: rgb(55,55,55);
-	font-weight: bold;
-}
-QGroupBox::title {
-	subcontrol-origin: margin; /* margin boarder padding content */
-	subcontrol-position: top center; /* position at the top center */
-	top: 1.2ex;
-	padding: 0 8px
-}
-QTextEdit {
-	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
-	border: 1px solid gray;
-	border-radius: 5px;
-	margin-top: 3ex; /* leave space at the top for the title */
-}
-QLabel {
-	color: rgb(70, 70, 70);
 }
 </string>
   </property>
@@ -226,7 +203,7 @@ QLabel {
           <widget class="QSpinBox" name="sbID">
            <property name="minimumSize">
             <size>
-             <width>0</width>
+             <width>59</width>
              <height>30</height>
             </size>
            </property>
@@ -328,7 +305,7 @@ color: ;
           <widget class="QDateEdit" name="datePicker">
            <property name="minimumSize">
             <size>
-             <width>64</width>
+             <width>59</width>
              <height>30</height>
             </size>
            </property>
@@ -414,7 +391,7 @@ color: ;
           <number>8</number>
          </property>
          <item row="0" column="1">
-          <widget class="MdComboBox" name="cbPrjNummer">
+          <widget class="QComboBox" name="cbPrjNummer">
            <property name="minimumSize">
             <size>
              <width>59</width>
@@ -454,7 +431,7 @@ color: ;
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="MdComboBox" name="cbPrjKurzform">
+          <widget class="QComboBox" name="cbPrjKurzform">
            <property name="minimumSize">
             <size>
              <width>59</width>
@@ -601,7 +578,7 @@ color: ;
           <number>8</number>
          </property>
          <item row="0" column="0">
-          <widget class="MdComboBox" name="cbClientKurzform">
+          <widget class="QComboBox" name="cbClientKurzform">
            <property name="minimumSize">
             <size>
              <width>59</width>
@@ -672,7 +649,7 @@ color: ;
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="MdComboBox" name="cbClientNummer">
+          <widget class="QComboBox" name="cbClientNummer">
            <property name="minimumSize">
             <size>
              <width>59</width>
@@ -788,7 +765,7 @@ color: ;
           <number>8</number>
          </property>
          <item row="0" column="2">
-          <widget class="MdComboBox" name="cbWorkerPersonalNr">
+          <widget class="QComboBox" name="cbWorkerPersonalNr">
            <property name="minimumSize">
             <size>
              <width>59</width>
@@ -831,7 +808,7 @@ color: ;
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="MdComboBox" name="cbWorkerNachname">
+          <widget class="QComboBox" name="cbWorkerNachname">
            <property name="minimumSize">
             <size>
              <width>59</width>
@@ -871,7 +848,7 @@ color: ;
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="MdComboBox" name="cbWorkerVorname">
+          <widget class="QComboBox" name="cbWorkerVorname">
            <property name="minimumSize">
             <size>
              <width>59</width>
@@ -1041,9 +1018,12 @@ color: ;
          </property>
          <item row="0" column="0">
           <widget class="QLineEdit" name="leHrs">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <property name="minimumSize">
             <size>
-             <width>0</width>
+             <width>59</width>
              <height>30</height>
             </size>
            </property>
@@ -1481,13 +1461,6 @@ QGroupBox::indicator:unchecked {
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>MdComboBox</class>
-   <extends>QComboBox</extends>
-   <header>mdcombobox.h</header>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>datePicker</tabstop>
   <tabstop>sbID</tabstop>

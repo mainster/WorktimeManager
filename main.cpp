@@ -1,13 +1,14 @@
-#include "mainwindow.h"
 #include <QApplication>
-
-#include "browser.h"
-
 #include <QtCore>
 #include <QtWidgets>
 #include <QtSql>
 #include <QDebug>
 #include <QObject>
+
+#include "mainwindow.h"
+#include "browser.h"
+// #include "mdcombobox.h"
+#include "mdglobaleventfilter.h"
 
 
 int main(int argc, char *argv[]) {
@@ -15,6 +16,7 @@ int main(int argc, char *argv[]) {
 
    qDebug() << a.arguments();
 
+	a.installEventFilter(new GlobalEventFilter(/*true*/));
    MainWindow w;
    w.show();
 

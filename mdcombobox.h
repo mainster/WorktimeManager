@@ -12,11 +12,14 @@ class MdComboBox : public QComboBox {
 	Q_OBJECT
 
 public:
-//	static const struct stylesSheets_t {
-//		QString redBoarder;
-//	} styleSheets;
-
 	explicit MdComboBox(QWidget *parent = 0) : QComboBox(parent) {}
+	~MdComboBox() {}
+
+	void update() {
+		style()->unpolish(this);
+		style()->polish(this);
+		QComboBox::update();
+	}
 
 signals:
 
@@ -32,11 +35,7 @@ protected:
 		update();
 		QComboBox::focusOutEvent(e);
 	}
-	void update() {
-		style()->unpolish(this);
-		style()->polish(this);
-		QComboBox::update();
-	}
+
 };
 
 #endif // MDCOMBOBOX_H
