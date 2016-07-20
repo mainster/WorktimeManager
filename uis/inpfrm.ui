@@ -159,7 +159,7 @@ QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <layout class="QHBoxLayout" name="layoutUpperHalf">
+     <layout class="QHBoxLayout" name="userCtrlsLayout">
       <item>
        <widget class="QGroupBox" name="gboxDateID">
         <property name="minimumSize">

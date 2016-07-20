@@ -65,59 +65,10 @@ InpFrm::InpFrm(QWidget *parent) :
 	/*!
 	 * Create list of all comboboxes which are based on sql list models
 	 */
-	mSqlCbs = findChildren<QComboBox *>();
-	mSqlCbs.removeOne(ui->cbQueryIdent);
-
-	/*!
-	 * Check for valied tab order configuration data
-	 */
-	QSETTINGS;
-	QStringList lst;
-
-	/*!
-	 * Check config file for a valied tab order key
-	 */
-	if (config.allKeys().contains(this->objectName() + Md::keys.focusOrder)) {
-		INFO << tr("Valied tab order configuration data found!");
-
-		emit stateMessage(tr("Valied tab order configuration data found!"), 4000);
-		lst = config.value(this->objectName() + tr("/TabOrder"), "").toString().split(",");
-
-		QList<QObject *> tabOrderList;
-		QWidget *w ;
-
-		foreach (QString s, lst) {
-			if (findChild<QComboBox*>(s))
-				w = qobject_cast<QWidget *>(findChild<QComboBox*>(s));
-			else {
-				if (findChild<QDateEdit*>(s))
-					w = qobject_cast<QWidget *>(findChild<QDateEdit*>(s));
-				else continue;
-			}
-			tabOrderList << w;
-		}
-
-		setFocusOrder(tabOrderList);
-//		QList<QWidget *> widTabOrder = listCast<QWidget*,QObject*>( mObjFocusOrder );
-
-//		for (int i=0; i < widTabOrder.length()-1; i++)
-//			widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
-
-
-	}
-	else {
-		/*!
-		 * This should produce a valied tab order config entry.
-		 */
-		lst.clear();
-
-		foreach (QObject *obj, objTabAble)
-			lst << obj->objectName();
-
-		config.setValue(this->objectName() + "/TabOrder", lst.join(","));
-		//        emit browser->stateMsg(
-		//                    tr("No valied tab order found in config"));
-	}
+	mSqlCbs = ui->userCtrlsLayout->findChildren<QWidget *>();
+	foreach (QWidget *w, mSqlCbs)
+		if (! w->property("hasSqlMapper").isValid())
+			mSqlCbs.removeOne(w);
 
 	WIN_RESTORE(this);
 
@@ -717,46 +668,82 @@ void InpFrm::restoreSqlQueryInputText() {
 	ui->teSqlQuerys->setHtml(
 				configQ.value(objectName() + "/SqlQueryText", "").toString());
 }
-bool InpFrm::setFocusOrder(QList<QObject*> targetObjs) {
+void InpFrm::restoreTabOrder() {
 	/*!
-	 * Request all combobox and DateEdit childs from inputFrm and cast each
-	 * widget to superclass QObject::
+	 * Check for valied tab order configuration data
 	 */
-	QList<QObject *> allObjs(
-				QList<QObject *>()
-				<< listCast<QObject*, QComboBox*>(findChildren<QComboBox *>())
-				<< listCast<QObject*, QDateEdit*>(findChildren<QDateEdit *>())
-				);
+	QSETTINGS;
+	QStringList wNames;
+	QList<QWidget *> tabOrderList;
 
-	if ((targetObjs.isEmpty()) ||
-		 (targetObjs.length() > allObjs.length()))
+	if (config.allKeys().contains(this->objectName() + Md::keys.focusOrder)) {
+		INFO << tr("Valied tab order configuration data found!");
+		emit stateMessage(tr("Valied tab order configuration data found!"), 4000);
+
+		wNames = config.value(this->objectName() + tr("/TabOrder"), "")
+					.toString().split(",");
+
+		foreach (QString name, wNames) {
+			/*!
+			 * Check if widget with object name name and ->property("hasSqlMapper")
+			 * .isValid() == true could be found.
+			 */
+			if (! ui->userCtrlsLayout->findChild<QWidget *>(name)
+				 ->property("hasSqlMapper").isValid()) {
+				CRIT << tr("Cannot find child widget %1 with valid "
+							  """hasSqlMapper"" property!").arg(name);
+				continue;
+			}
+			tabOrderList << ui->userCtrlsLayout->findChild<QWidget *>(name);
+		}
+	}
+	else {
+		/*!
+		 * Here a valid tab order list must be generated.
+		 */
+		tabOrderList = ui->userCtrlsLayout->findChildren<QWidget *>();
+		foreach (QWidget *w, tabOrderList)
+			if (! w->property("hasSqlMapper").isValid())
+				tabOrderList.removeOne(w);
+	}
+	/* ======================================================================== */
+	setFocusOrder(tabOrderList);
+	/* ======================================================================== */
+}
+
+bool InpFrm::setFocusOrder(QList<QWidget *> targets) {
+	/*!
+	 * Request all child widgets from InpFrm and iterate through the QWidget list.
+	 * If (*it).property("hasSqlMapper")->isValied() returns false, remove current
+	 * widget from allTabable list.
+	 */
+	QList<QWidget *> allTabable = findChildren<QWidget *>();
+	foreach (QWidget *w, allTabable)
+		if (! w->property("hasSqlMapper").isValid())
+			allTabable.removeOne(w);
+
+	if ((targets.isEmpty()) ||
+		 (targets.length() > allTabable.length()))
 		 bReturn("Wrong size of focusOrder list parameter");
 
-	/*!
-	 * Cast object list to its list of target widgets
-	 */
-	QList<QWidget *> allWidges = listCast<QWidget*, QObject*>(allObjs);
-	QList<QWidget *> targetWidges = listCast<QWidget*, QObject*>(targetObjs);
+	QList<QWidget *>::iterator it = targets.begin();
 
-
-	QList<QWidget *>::iterator it = targetWidges.begin();
-
-	while ((it - targetWidges.begin()) < targetWidges.length()) {
+	while ((it - targets.begin()) < targets.length()) {
 		/*!
-		 * Remove the widget that is processed after this line, from
-		 * the list which holds currently all cb* widgets. After while
-		 * loop break, allWidgets represents the difference list:
-		 * (allWidgets - targetWidges) --> set Qt::NoFocus policy
+		 * Remove the widget that is processed after this line from allTabable list. After
+		 * break of the while loop, allTabable list represents the difference list:
+		 * (allTabable - targets) --> set Qt::NoFocus policy
 		 */
-		allWidges.removeOne(*it);
+		allTabable.removeOne(*it);
 		/*!
-		 * If it points to last list element, register .first() and break
+		 * If (*it) points to last list element, register .first() and break
 		 */
-		if ((it - targetWidges.begin()) == targetWidges.length() - 1) {
-			setTabOrder(*it, targetWidges.first());
+		if ((it - targets.begin()) == targets.length() - 1) {
+			setTabOrder((*it), targets.first());
+
 			INFO << tr("setTabOrder(%1, %2); (Last)")
 					  .arg((*it)->objectName())
-					  .arg(targetWidges.first()->objectName());
+					  .arg(targets.first()->objectName());
 			break;
 		}
 		else {
@@ -768,20 +755,14 @@ bool InpFrm::setFocusOrder(QList<QObject*> targetObjs) {
 	}
 
 	/*!
-	 * ... allWidgets represents the difference list:
-	 * (allWidgets - targetWidges) --> set Qt::NoFocus policy
+	 * allTabable represents now the list difference:
+	 * (allTabable - targets) --> set Qt::NoFocus policy
 	 */
-	foreach (QWidget *w, allWidges)
+	foreach (QWidget *w, allTabable)
 		w->setFocusPolicy(Qt::NoFocus);
-
-	/*!
-	 * Save pointer to the widget which shold be initialy focused (after Esc trigger)
-	 */
-	resetTabWidget = targetWidges.first();
 
 	return true;
 }
-
 /* ======================================================================== */
 /*                             Event callbacks                              */
 /* ======================================================================== */
@@ -821,7 +802,6 @@ bool InpFrm::eventFilter(QObject *obj, QEvent *event) {
 	 */
 	return QObject::eventFilter(obj, event);
 }
-
 
 /* ======================================================================== */
 /*                       FocusEvFilter::FocusEvFilter                       */

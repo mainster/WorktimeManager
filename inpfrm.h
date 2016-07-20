@@ -69,13 +69,13 @@ public:
 	void onInpFormUserCommit();
 	void onInpFormUserCommitOLD();
 
-	QList<QObject *> getObjFocusOrder() const { return mObjFocusOrder; }
-	QList<QObject *> *objFocusOrder() { return &mObjFocusOrder; }
+//	QList<QObject *> getObjFocusOrder() const { return mObjFocusOrder; }
+//	QList<QObject *> *objFocusOrder() { return &mObjFocusOrder; }
 
 	Qt::FocusOrderChangeState getChangeFocusFlag() const;
 	void setChangeFocusFlag(const Qt::FocusOrderChangeState &stateFlag);
+	bool setFocusOrder(QList<QWidget *> targets);
 
-	bool setFocusOrder(QList<QObject *> focusOrder);
 signals:
 	void changeFocusOrder(Qt::FocusOrderChangeState state);
 	void stateMessage(const QString msg, const int option);
@@ -98,6 +98,7 @@ public slots:
 protected:
 	void connectActions();
 	virtual void keyPressEvent(QKeyEvent *) override;
+	void restoreTabOrder();
 
 protected slots:
 	void onInpFormChanges(QDate date);
@@ -117,17 +118,12 @@ private:
 	QDateEdit						*de;
 	QDialog							*dlg;
 	QVector<QRadioButton*>		rbv;
-	QList<QComboBox *>			mSqlCbs;
-	QList<QObject *>				objTabAble;
+	QList<QWidget *>				mSqlCbs;
 	QSqlQuery						query;
 	QStringList						tblLst;
 	QTextEdit						*gbSqlQuery;
-	bool								mEscapeTrigger;
-
 	Qt::FocusOrderChangeState	mChangeFocusFlag;
-	QList<QObject*>				mObjFocusOrder;
-	QWidget							*resetTabWidget;
+	bool								mEscapeTrigger;
 };
-//Q_DECLARE_OPERATORS_FOR_FLAGS(InpFrm::states)
 
 #endif // INPFRM_H
