@@ -126,6 +126,7 @@ private:
 
 	Qt::FocusOrderChangeState	mChangeFocusFlag;
 	QList<QObject*>				mObjFocusOrder;
+	QWidget							*resetTabWidget;
 };
 //Q_DECLARE_OPERATORS_FOR_FLAGS(InpFrm::states)
 

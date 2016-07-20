@@ -74,18 +74,36 @@ InpFrm::InpFrm(QWidget *parent) :
 	QSETTINGS;
 	QStringList lst;
 
+	/*!
+	 * Check config file for a valied tab order key
+	 */
 	if (config.allKeys().contains(this->objectName() + Md::keys.focusOrder)) {
 		INFO << tr("Valied tab order configuration data found!");
 
 		emit stateMessage(tr("Valied tab order configuration data found!"), 4000);
 		lst = config.value(this->objectName() + tr("/TabOrder"), "").toString().split(",");
-		foreach (QString s, lst)
-			mObjFocusOrder.append( findChild<QComboBox*>(s) );
 
-		QList<QWidget *> widTabOrder = listCast<QWidget*,QObject*>( mObjFocusOrder );
+		QList<QObject *> tabOrderList;
+		QWidget *w ;
 
-		for (int i=0; i < widTabOrder.length()-1; i++)
-			widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
+		foreach (QString s, lst) {
+			if (findChild<QComboBox*>(s))
+				w = qobject_cast<QWidget *>(findChild<QComboBox*>(s));
+			else {
+				if (findChild<QDateEdit*>(s))
+					w = qobject_cast<QWidget *>(findChild<QDateEdit*>(s));
+				else continue;
+			}
+			tabOrderList << w;
+		}
+
+		setFocusOrder(tabOrderList);
+//		QList<QWidget *> widTabOrder = listCast<QWidget*,QObject*>( mObjFocusOrder );
+
+//		for (int i=0; i < widTabOrder.length()-1; i++)
+//			widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
+
+
 	}
 	else {
 		/*!
@@ -736,7 +754,7 @@ bool InpFrm::setFocusOrder(QList<QObject*> targetObjs) {
 		 */
 		if ((it - targetWidges.begin()) == targetWidges.length() - 1) {
 			setTabOrder(*it, targetWidges.first());
-			INFO << tr("LAST\nsetTabOrder(%1, %2);")
+			INFO << tr("setTabOrder(%1, %2); (Last)")
 					  .arg((*it)->objectName())
 					  .arg(targetWidges.first()->objectName());
 			break;
@@ -756,6 +774,10 @@ bool InpFrm::setFocusOrder(QList<QObject*> targetObjs) {
 	foreach (QWidget *w, allWidges)
 		w->setFocusPolicy(Qt::NoFocus);
 
+	/*!
+	 * Save pointer to the widget which shold be initialy focused (after Esc trigger)
+	 */
+	resetTabWidget = targetWidges.first();
 
 	return true;
 }
@@ -783,8 +805,10 @@ void InpFrm::keyPressEvent(QKeyEvent *e) {
 	 * Second escape key press event within 800ms hides the InpFrm::
 	 */
 	if (e->key() == Qt::Key_Escape) {
-		if (! mEscapeTrigger)
+		if (! mEscapeTrigger) {
+			resetTabWidget->setFocus(Qt::TabFocusReason);
 			INFO << tr("start singledshot");
+		}
 		else hide();
 	}
 }
@@ -806,8 +830,25 @@ bool FocusEvFilter::eventFilter(QObject *obj, QEvent *event) {
 	/*!
 	 * standard event processing
 	 */
-	if (event->type() != QEvent::MouseButtonPress)
+	if ((event->type() != QEvent::MouseButtonPress) ||
+		 (event->type() != QEvent::KeyPress))
 		return QObject::eventFilter(obj, event);
+
+	/*!
+	 * Event type key pressed
+	 */
+	if(event->type() == QEvent::KeyPress) {
+		switch (dynamic_cast<QKeyEvent *>(event)->key()) {
+			case Qt::Key_Escape: {
+				INFO << tr("reset focus to first tab widget");
+//				reset()
+			}; break;
+			case Qt::Key_Tab: {
+				INFO << tr("Tab pressed");
+			}; break;
+			default: break;
+		}
+	}
 
 	/*!
 	 * Event type mouse button...
@@ -816,7 +857,7 @@ bool FocusEvFilter::eventFilter(QObject *obj, QEvent *event) {
 		/*!
 		 * Get InpFrm:: class instance pointer from QObject::sender()
 		 */
-		InpFrm *inpFrm = qobject_cast<InpFrm*>(obj->parent());	//InpFrm::instance();
+		InpFrm *inpFrm = qobject_cast<InpFrm*>(obj->parent());
 
 		if (! inpFrm)	bReturn("Couldn't cast sender object!");
 		if (! obj)		bReturn("Couldn't cast object!");
