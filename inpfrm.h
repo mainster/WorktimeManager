@@ -9,43 +9,24 @@
 
 #include "globals.h"
 #include "mdstatebar.h"
+#include "mdeventfilters.h"
+#include "types.h"
 
 namespace Ui {
 class InpFrm;
 }
 namespace Qt {
-enum FocusOrderChangeState {
-	FocusOrderChange_none,
-	FocusOrderChange_init,
-	FocusOrderChange_isRunning,
-	FocusOrderChange_done,
-	FocusOrderChange_rejected,
+enum FocusOrderState {
+	FocusChange_none,
+	FocusChange_init,
+	FocusChange_isRunning,
+	FocusChange_done,
+	FocusChange_rejected,
 };
-Q_ENUMS(FocusOrderChangeState)
+Q_ENUMS(FocusOrderState)
 }
 
-class InpFrm;
-
-/* ======================================================================== */
-/*                           class FocusEvFilter                            */
-/* ======================================================================== */
-class FocusEvFilter : public QObject {
-
-	Q_OBJECT
-
-public:
-	explicit FocusEvFilter(QObject *parent = 0)
-		: QObject(parent) {}
-
-//	QList<QObject *> getObjFocusOrder() const { return objFocusOrder; }
-//	QList<QObject *> *objFocusOrder() { return *objFocusOrder; }
-
-protected:
-
-	bool eventFilter(QObject *obj, QEvent *event);
-
-private:
-};
+#define MAX_TAB_ORDER_WIDGETS		8
 
 /* ======================================================================== */
 /*                               class InpFrm                               */
@@ -56,6 +37,22 @@ class InpFrm : public QDockWidget {
 
 public:
 
+	struct mTabOrder_t {
+	public:
+		QList<QWidget *> current;
+		QList<QWidget *> *next() { return &mNext; }
+
+		bool addWidgetToNext(QWidget *widget) {
+			if (mNext.length() == MAX_TAB_ORDER_WIDGETS)
+				return false;
+
+			mNext << widget;
+			return true;
+		}
+
+	private:
+		QList<QWidget *> mNext;
+	} *mTabOrder;
 
 	explicit InpFrm(QWidget *parent = 0);
 	static InpFrm *instance(QWidget *parent = 0x00) {
@@ -68,16 +65,12 @@ public:
 	void setSqlQueryTextboxVisible(bool visible);
 	void onInpFormUserCommit();
 	void onInpFormUserCommitOLD();
-
-//	QList<QObject *> getObjFocusOrder() const { return mObjFocusOrder; }
-//	QList<QObject *> *objFocusOrder() { return &mObjFocusOrder; }
-
-	Qt::FocusOrderChangeState getChangeFocusFlag() const;
-	void setChangeFocusFlag(const Qt::FocusOrderChangeState &stateFlag);
+	Qt::FocusOrderState getChangeFocusFlag() const;
+	void setChangeFocusFlag(const Qt::FocusOrderState &stateFlag);
 	bool setFocusOrder(QList<QWidget *> targets);
 
 signals:
-	void changeFocusOrder(Qt::FocusOrderChangeState state);
+	void changeFocusOrder(Qt::FocusOrderState state = Qt::FocusChange_init);
 	void stateMessage(const QString msg, const int option);
 	void requeryTableView();
 	void buttonClicked(const QPushButton *button);
@@ -102,7 +95,7 @@ protected:
 
 protected slots:
 	void onInpFormChanges(QDate date);
-	void onChangeFocusOrder(Qt::FocusOrderChangeState state);
+	void onChangeFocusOrder(Qt::FocusOrderState state);
 	void hideEvent(QShowEvent *);
 
 private slots:
@@ -122,7 +115,7 @@ private:
 	QSqlQuery						query;
 	QStringList						tblLst;
 	QTextEdit						*gbSqlQuery;
-	Qt::FocusOrderChangeState	mChangeFocusFlag;
+	Qt::FocusOrderState			mChangeFocusFlag;
 	bool								mEscapeTrigger;
 };
 

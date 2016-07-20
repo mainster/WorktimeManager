@@ -16,7 +16,7 @@
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
 /*!
- * @file mdglobaleventfilter.h
+ * @file mdeventfilters.h
  * @author Manuel Del Basso
  * @date 20-07-2016
  * @brief File containing ???????????????????????????????.
@@ -25,14 +25,19 @@
  * defines. Doxygens tags are words preceeded by either a backslash @TAG
  * or by an at symbol @@TAG.
  */
-#ifndef MDGLOBALEVENTFILTER_H
-#define MDGLOBALEVENTFILTER_H
+#ifndef MDEVENTFILTERS_H
+#define MDEVENTFILTERS_H
 
 #include <QObject>
-// #include "mdcombobox.h"
 #include "globals.h"
 #include "debug.h"
+#include "inpfrm.h"
 
+class InpFrm;
+
+/* ======================================================================== */
+/*                         class GlobalEventFilter                          */
+/* ======================================================================== */
 class GlobalEventFilter : public QObject {
 
 	Q_OBJECT
@@ -42,44 +47,29 @@ public:
 		: QObject(parent), mPrintDebug(printDebug) {}
 
 protected:
-
-	/* ======================================================================== */
-	/*                               eventFilter                                */
-	/* ======================================================================== */
-	virtual bool eventFilter(QObject *obj, QEvent *event) {
-		/*!
-		 * Event handler for global focus events.
-		 */
-		if ((event->type() == QEvent::FocusIn) ||
-			 (event->type() == QEvent::FocusOut)) {
-
-			if (mPrintDebug) {
-				INFO << tr("Class:") << obj->metaObject()->className()
-					  << tr("property ""hasFocus"":") << obj->property("hasFocus").toBool();
-			}
-
-			if (! qobject_cast<QWidget *>(obj))
-				return QObject::eventFilter(obj, event);
-
-			QWidget *wdg = qobject_cast<QWidget *>(obj);
-
-			/*!
-			 * Validate obj if custom property "hasFocus" exists and set/clear the value
-			 */
-			if (wdg->property("hasFocus").isValid()) {
-				wdg->setProperty("hasFocus",(event->type() == QEvent::FocusIn) ? true : false);
-				wdg->style()->unpolish(wdg);
-				wdg->style()->polish(wdg);
-				wdg->update();
-			}
-		}
-		/*!
-		 * Call superclass methode and pass the return value.
-		 */
-		return QObject::eventFilter(obj, event);
-	}
+	virtual bool eventFilter(QObject *obj, QEvent *event);
 
 private:
 	bool	mPrintDebug;
 };
-#endif // MDGLOBALEVENTFILTER_H
+
+/* ======================================================================== */
+/*                           class SqlEventFilter                           */
+/* ======================================================================== */
+class SqlEventFilter : public QObject {
+
+	Q_OBJECT
+
+public:
+	explicit SqlEventFilter(QObject *parent = 0)
+		: QObject(parent) {}
+
+protected:
+	bool eventFilter(QObject *obj, QEvent *event);
+
+
+private:
+
+};
+
+#endif

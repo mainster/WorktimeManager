@@ -204,7 +204,7 @@ void MainWindow::onActExportTrig() {
 	INFO << "!";
 }
 void MainWindow::onActCfgInpFrmTabOrdTrig() {
-	emit inpFrm->changeFocusOrder(Qt::FocusOrderChange_init);
+	emit inpFrm->changeFocusOrder(Qt::FocusChange_init);
 }
 void MainWindow::initializeMdl(QSqlQueryModel *model) {
 	QSETTINGS;
@@ -298,7 +298,7 @@ void MainWindow::onActCloseTrig() {
 	this->close();
 }
 /* ======================================================================== */
-/*                     Event handler implementation                         */
+/*                              Event handler                               */
 /* ======================================================================== */
 void MainWindow::showEvent() {
 //	QShowEvent *ee = NULL;

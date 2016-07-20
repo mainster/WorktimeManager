@@ -63,6 +63,18 @@ QList<U> listCast (QList<T> ts) {
 	return us;
 }
 
+/*!
+ * Find list element by property.
+ */
+template<class T>
+QList<T> listFindByName(QList<T> ts, const QString name) {
+	QList<T> out;
+	foreach (T t, ts) {
+		if (t->objectName().contains(name))
+			out << t;
+	}
+	return out;
+}
 
 
 /* ======================================================================== */
