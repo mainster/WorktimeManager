@@ -204,7 +204,7 @@ void MainWindow::onActExportTrig() {
 	INFO << "!";
 }
 void MainWindow::onActCfgInpFrmTabOrdTrig() {
-	emit inpFrm->changeInpFrmTabOrder(InpFrm::state_init_changeTabOrder);
+	emit inpFrm->changeFocusOrder(Qt::FocusOrderChange_init);
 }
 void MainWindow::initializeMdl(QSqlQueryModel *model) {
 	QSETTINGS;
@@ -368,6 +368,8 @@ void MainWindow::showEvent(QShowEvent *e) {
 
 }
 bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
+
+#ifdef ENABLE_MAINWINDOW_EVEN_PROCESSING
 	if ((event->type() == QEvent::MouseButtonDblClick) ||
 		 (event->type() == QEvent::MouseButtonPress) ||
 		 (event->type() == QEvent::MouseButtonRelease) ||
@@ -382,10 +384,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
 		INFO << tr("Ate key press %1").arg(keyEvent->key());
 		return QObject::eventFilter(obj, event);
 	}
-
-	// standard event processing
-//	return false;
-
+#endif
 	return QObject::eventFilter(obj, event);
 }
 void MainWindow::closeEvent(QCloseEvent *e) {

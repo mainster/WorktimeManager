@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QComboBox>
+#include "inpfrm.h"
 
 class MdComboBox : public QComboBox {
 
