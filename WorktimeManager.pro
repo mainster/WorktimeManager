@@ -58,7 +58,8 @@ HEADERS += \
     tabview.h \
     models/models.h \
 	 delegates/sqlreldel.h \
-    mdbQtStd/mdeventfilters.h
+    mdbQtStd/mdeventfilters.h \
+	 mdcombobox.h
 
 SOURCES += \
     delegates/tabledelegate.cpp \
@@ -80,7 +81,8 @@ SOURCES += \
     tabview.cpp \
     models/models.cpp \
 	 delegates/sqlreldel.cpp \
-    mdbQtStd/mdeventfilters.cpp
+    mdbQtStd/mdeventfilters.cpp \
+	 mdcombobox.cpp
 
 FORMS += \
 	 uis/browser.ui \

@@ -24,16 +24,29 @@ InpFrm::InpFrm(QWidget *parent) :
 	/*!
 	 * Create list of all widgets which are sourced via sql models
 	 */
-	mSqlCbs = findChildren<QWidget*>();
+//	mSqlCbs = findChildren<QWidget*>();
 
-	foreach (QWidget *w, mSqlCbs) {
-		if (! w->property("hasSqlMapper").isValid())
-			mSqlCbs.removeOne(w);
+//	foreach (QWidget *w, mSqlCbs) {
+//		if (! w->property("hasSqlMapper").isValid())
+//			mSqlCbs.removeOne(w);
+//		else
+//			/*!
+//			 * Install custom event filter object for SQL mapping purposes.
+//			 */
+//			w->installEventFilter( new SqlEventFilter(this) );
+//		INFO << tr("prop:") << w->metaObject()->className();
+//	}
+	mSqlCbs = findChildren<QComboBox *>();
+
+	foreach (QComboBox *cb, mSqlCbs) {
+		if (! cb->property("hasSqlMapper").isValid())
+			mSqlCbs.removeOne(cb);
 		else
 			/*!
 			 * Install custom event filter object for SQL mapping purposes.
 			 */
-			w->installEventFilter( new SqlEventFilter(this) );
+			cb->installEventFilter( new SqlEventFilter(this) );
+		INFO << tr("prop:") << cb->metaObject()->className();
 	}
 
 	WIN_RESTORE(this);
@@ -55,15 +68,13 @@ void InpFrm::initComboboxes() {
 	QList<QSqlTableModel *> tms;
 	QList<QDataWidgetMapper *> dms;
 
-	//   QList<QSortFilterProxyModel *> fpms;
-
 	/** Request all combobox widgets within the inputFrm */
-	QList<QComboBox *> cbLst = findChildren<QComboBox *>();
+//	QList<QComboBox *> cbLst = findChildren<QComboBox *>();
 
 	/*!
 	 * Remove all comboboxes which are not based on sql list models
 	 */
-	cbLst.removeOne(ui->cbQueryIdent);
+//	cbLst.removeOne(ui->cbQueryIdent);
 
 	/*!
 	  * QSqlTableModel is a high-level interface for reading and writing database
@@ -354,6 +365,14 @@ void InpFrm::aButtonClick(bool) {
 	if (pbSender == ui->btnSaveQuery) { saveSqlQueryInputText(); return; }
 	if (pbSender == ui->btnRestoreQuery) { restoreSqlQueryInputText(); return; }
 
+	if (pbSender == ui->btnClear) {
+		foreach (MdComboBox *mcbx, QList<MdComboBox*>(
+						listCast<MdComboBox*,QComboBox*>(mSqlCbs))) {
+			mcbx->makePermanentView(true);
+		}
+
+
+	}
 	if (pbSender == ui->btnOk) {
 		QList<QWidget *> ws;
 		ws << ui->datePicker
@@ -369,63 +388,57 @@ void InpFrm::aButtonClick(bool) {
 		setFocusOrder( ws );
 	}
 }
-void InpFrm::refreshCbDropDownLists() {
-	QList<QSqlTableModel *> tms;
-	QList<QSortFilterProxyModel *> fpms;
-
-	QList<QString> tbRls;
-	QStringList oLst;
-
-	INFO << tr("Is this producing an error?") << listCast<QComboBox*, QWidget*>(mSqlCbs);
-
-	foreach (QWidget *w, mSqlCbs) {
-		/*!
-		 * Skip if cast to QComboBox return 0
-		 */
-		if (! dynamic_cast<QComboBox *>(w))
-			continue;
-
-		oLst << w->objectName();
-		if (oLst.last().contains("client",Qt::CaseInsensitive)) {
-			tbRls.append( tr("client,%1").arg(oLst.last().remove("cbClient")));
+void InpFrm::mapCbTableProxy() {
+	/*!
+	 * Creat a string list which contains the table name. For easy switching possibility
+	 * within a group box (for example):
+	 *  Worker:		firstname,	lastname
+	 *  Worker:		lastname,	firstname
+	 * ... it is necessary to do the following string operations:
+	 */
+	QList<QString> modelNames;
+	foreach (QComboBox *cbx, mSqlCbs) {
+		if (cbx->objectName().contains("client",Qt::CaseInsensitive)) {
+			modelNames <<  tr("client,%1").arg(cbx->objectName().remove("cbClient"));
 			continue;
 		}
-		if (oLst.last().contains("prj",Qt::CaseInsensitive)) {
-			tbRls.append( tr("prj,%1").arg(oLst.last().remove("cbPrj")));
+		if (cbx->objectName().contains("prj",Qt::CaseInsensitive)) {
+			modelNames <<  tr("prj,%1").arg(cbx->objectName().remove("cbPrj"));
 			continue;
 		}
-		if (oLst.last().contains("worker",Qt::CaseInsensitive)) {
-			tbRls.append( tr("worker,%1").arg(oLst.last().remove("cbWorker")));
+		if (cbx->objectName().contains("worker",Qt::CaseInsensitive)) {
+			modelNames <<  tr("worker,%1").arg(cbx->objectName().remove("cbWorker"));
 			continue;
 		}
 	}
 
+	/*!
+	 * Create "sql table model"- and "sort filter proxy model" for each
+	 * element of mSqlCbs.
+	 */
 	int k=0;
-	foreach (QWidget *w, mSqlCbs) {
+	foreach (QComboBox *cbx, mSqlCbs ) {
+		QSqlTableModel *sqlTblMdl = new QSqlTableModel(this);
+		QSortFilterProxyModel *proxyMdl = new QSortFilterProxyModel(this);
+		sqlTblMdl->setEditStrategy(QSqlTableModel::OnFieldChange);
+
+		sqlTblMdl->setTable( modelNames.at(k).split(",").at(0) );
+//		INFO << tr("sqlTblMdl->setTable(%1)").arg( modelNames.at(k).split(",").at(0) );
+
+		sqlTblMdl->select();
+
 		/*!
-		 * Skip if cast to QComboBox return 0
+		 * Set the source model (sql table model) for the filter proxy model objects.
 		 */
-		if (! dynamic_cast<QComboBox *>(w))
-			continue;
+		proxyMdl->setSourceModel( sqlTblMdl );
+		/*!
+		 * Select the column which should be provided by the proxy model.
+		 */
+		proxyMdl->setFilterKeyColumn(sqlTblMdl->fieldIndex( modelNames.at(k).split(",").at(1)) );
+//		INFO << tr("setFilterKeyColumn(%1)").arg( modelNames.at(k).split(",").at(1) );
 
-		QSqlTableModel *sqlTableModel = new QSqlTableModel(this);
-		QSortFilterProxyModel *SfProxyModel = new QSortFilterProxyModel();
-
-		sqlTableModel->setTable( tbRls.at(k).split(",").first() );
-		sqlTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-		sqlTableModel->select();
-
-		SfProxyModel->setSourceModel( sqlTableModel );
-		SfProxyModel->setFilterKeyColumn(
-					sqlTableModel->fieldIndex( tbRls.at(k).split(",").last()) );
-
-		if (! dynamic_cast<QComboBox *>(w))
-			continue;
-		dynamic_cast<QComboBox *>(w)->setModel( SfProxyModel );
-
-		QComboBox *cb = dynamic_cast<QComboBox *>(mSqlCbs[k++]);
-		if (! cb)	continue;
-		cb->setModelColumn( SfProxyModel->filterKeyColumn() );
+		cbx->setModel( proxyMdl );
+		mSqlCbs[k++]->setModelColumn( proxyMdl->filterKeyColumn() );
 	}
 
 	/** Map comboBox indexes */
@@ -438,8 +451,6 @@ void InpFrm::refreshCbDropDownLists() {
 			  ui->cbPrjKurzform,    SLOT(setCurrentIndex(int)));
 	connect(ui->cbPrjKurzform,    SIGNAL(currentIndexChanged(int)),
 			  ui->cbPrjNummer,      SLOT(setCurrentIndex(int)));
-
-
 
 	connect(ui->cbWorkerPersonalNr,  SIGNAL(currentIndexChanged(int)),
 			  ui->cbWorkerNachname,    SLOT(setCurrentIndex(int)));
@@ -567,7 +578,7 @@ void InpFrm::saveSqlQueryInputText() {
 	if (ui->cbQueryIdent->itemText(0).contains(NEWQUERY))
 		ui->cbQueryIdent->removeItem(0);
 
-	refreshCbDropDownLists();
+	mapCbTableProxy();
 	ui->cbQueryIdent->setCurrentText(newID /*+ "_HTML"*/);
 
 	/**
@@ -779,7 +790,7 @@ void InpFrm::hideEvent(QShowEvent *) {
 }
 void InpFrm::showEvent(QShowEvent *) {
 	mEscapeTrigger = false;
-	refreshCbDropDownLists();
+	mapCbTableProxy();
 }
 void InpFrm::keyPressEvent(QKeyEvent *e) {
 	/**

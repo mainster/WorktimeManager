@@ -11,14 +11,16 @@
 #include "mdeventfilters.h"
 
 
-int main(int argc, char *argv[]) {
-   QApplication a(argc, argv);
 
-   qDebug() << a.arguments();
+
+int main(int argc, char *argv[]) {
+	QApplication a(argc, argv);
+
+	qDebug() << a.arguments();
 
 	a.installEventFilter(new GlobalEventFilter(/*true*/));
-   MainWindow w;
-   w.show();
+	MainWindow w;
+	w.show();
 
-   return a.exec();
+	return a.exec();
 }

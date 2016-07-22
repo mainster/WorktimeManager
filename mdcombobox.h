@@ -5,37 +5,62 @@
 #include <QWidget>
 #include <QComboBox>
 #include <QVariant>
-#include "inpfrm.h"
+#include <QGroupBox>
+#include <QTableView>
+
+#include "debug.h"
 
 class MdComboBox : public QComboBox {
 
 	Q_OBJECT
 
 public:
-	explicit MdComboBox(QWidget *parent = 0) : QComboBox(parent) {}
-	~MdComboBox() {}
-
-	void update() {
-		style()->unpolish(this);
-		style()->polish(this);
-		QComboBox::update();
+	explicit MdComboBox(QWidget *parent = 0)
+		: QComboBox(parent) {}
+	~MdComboBox() {
+		delete tv;
 	}
 
-signals:
-
+	void showPopup(bool holdOpen = false)  {
+		mShowPopups = holdOpen;
+		QComboBox::showPopup();
+		if (holdOpen)
+			this->setFocusPolicy(Qt::NoFocus);
+	}
+	void hidePopup() override {
+		if (! mShowPopups)
+			QComboBox::hidePopup();
+	}
+	void makePermanentView(bool onOff = true) {
+		if (onOff) {
+			tv = new QTableView(/*parent()*/);
+			INFO << QComboBox::modelColumn();
+			tv->setModel( QComboBox::model() );
+			QComboBox::setModelColumn(QComboBox::modelColumn());
+			tv->show();
+		}
+		else {
+			tv->hide();
+			delete tv;
+		}
+	}
 
 protected:
-	virtual void focusInEvent(QFocusEvent *e) override {
-		setProperty("hasFocus", true);
-		update();
-		QComboBox::focusInEvent(e);
-	}
-	virtual void focusOutEvent(QFocusEvent *e) override {
-		setProperty("hasFocus", false);
-		update();
-		QComboBox::focusOutEvent(e);
+	virtual void timerEvent(QTimerEvent *) override {
+		hidePopup();
+		showPopup();
 	}
 
+protected slots:
+	void onShowDropdownList(bool onOff) {
+		(onOff) ? showPopup() : hidePopup();
+	}
+
+private:
+	bool mShowPopups;
+	int timerId;
+	QTableView *tv;
+//	static QTableView *tv;
 };
 
 #endif // MDCOMBOBOX_H

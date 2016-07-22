@@ -390,89 +390,6 @@ color: ;
          <property name="bottomMargin">
           <number>8</number>
          </property>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="cbPrjNummer">
-           <property name="minimumSize">
-            <size>
-             <width>59</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-           <property name="currentText">
-            <string>empty</string>
-           </property>
-           <property name="insertPolicy">
-            <enum>QComboBox::NoInsert</enum>
-           </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
-           </property>
-           <property name="minimumContentsLength">
-            <number>10</number>
-           </property>
-           <property name="frame">
-            <bool>true</bool>
-           </property>
-           <property name="hasFocus" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="hasSqlMapper" stdset="0">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QComboBox" name="cbPrjKurzform">
-           <property name="minimumSize">
-            <size>
-             <width>59</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-           <property name="currentText">
-            <string>empty</string>
-           </property>
-           <property name="insertPolicy">
-            <enum>QComboBox::NoInsert</enum>
-           </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
-           </property>
-           <property name="minimumContentsLength">
-            <number>10</number>
-           </property>
-           <property name="frame">
-            <bool>true</bool>
-           </property>
-           <property name="hasFocus" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="hasSqlMapper" stdset="0">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="labPrjKurzform">
            <property name="font">
@@ -535,6 +452,89 @@ color: ;
            </property>
           </widget>
          </item>
+         <item row="0" column="1">
+          <widget class="MdComboBox" name="cbPrjNummer">
+           <property name="minimumSize">
+            <size>
+             <width>59</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <property name="currentText">
+            <string>empty</string>
+           </property>
+           <property name="insertPolicy">
+            <enum>QComboBox::NoInsert</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+           </property>
+           <property name="minimumContentsLength">
+            <number>10</number>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="hasFocus" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="hasSqlMapper" stdset="0">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="MdComboBox" name="cbPrjKurzform">
+           <property name="minimumSize">
+            <size>
+             <width>59</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <property name="currentText">
+            <string>empty</string>
+           </property>
+           <property name="insertPolicy">
+            <enum>QComboBox::NoInsert</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+           </property>
+           <property name="minimumContentsLength">
+            <number>10</number>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="hasFocus" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="hasSqlMapper" stdset="0">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
@@ -577,79 +577,8 @@ color: ;
          <property name="bottomMargin">
           <number>8</number>
          </property>
-         <item row="0" column="0">
-          <widget class="QComboBox" name="cbClientKurzform">
-           <property name="minimumSize">
-            <size>
-             <width>59</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-           <property name="currentText">
-            <string>empty</string>
-           </property>
-           <property name="insertPolicy">
-            <enum>QComboBox::NoInsert</enum>
-           </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
-           </property>
-           <property name="minimumContentsLength">
-            <number>10</number>
-           </property>
-           <property name="frame">
-            <bool>true</bool>
-           </property>
-           <property name="hasFocus" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="hasSqlMapper" stdset="0">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="labClientKurzform">
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>10</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QLabel{
-color: ;
-	color: rgb(70, 70, 70);
-}</string>
-           </property>
-           <property name="text">
-            <string>Name</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-           <property name="indent">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="cbClientNummer">
+          <widget class="MdComboBox" name="cbClientNummer">
            <property name="minimumSize">
             <size>
              <width>59</width>
@@ -719,6 +648,77 @@ color: ;
            </property>
           </widget>
          </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="labClientKurzform">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QLabel{
+color: ;
+	color: rgb(70, 70, 70);
+}</string>
+           </property>
+           <property name="text">
+            <string>Name</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <property name="indent">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="MdComboBox" name="cbClientKurzform">
+           <property name="minimumSize">
+            <size>
+             <width>59</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <property name="currentText">
+            <string>empty</string>
+           </property>
+           <property name="insertPolicy">
+            <enum>QComboBox::NoInsert</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+           </property>
+           <property name="minimumContentsLength">
+            <number>10</number>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="hasFocus" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="hasSqlMapper" stdset="0">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
@@ -765,7 +765,7 @@ color: ;
           <number>8</number>
          </property>
          <item row="0" column="2">
-          <widget class="QComboBox" name="cbWorkerPersonalNr">
+          <widget class="MdComboBox" name="cbWorkerPersonalNr">
            <property name="minimumSize">
             <size>
              <width>59</width>
@@ -808,7 +808,7 @@ color: ;
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QComboBox" name="cbWorkerNachname">
+          <widget class="MdComboBox" name="cbWorkerNachname">
            <property name="minimumSize">
             <size>
              <width>59</width>
@@ -848,7 +848,7 @@ color: ;
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="cbWorkerVorname">
+          <widget class="MdComboBox" name="cbWorkerVorname">
            <property name="minimumSize">
             <size>
              <width>59</width>
@@ -1461,6 +1461,13 @@ QGroupBox::indicator:unchecked {
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MdComboBox</class>
+   <extends>QComboBox</extends>
+   <header>mdcombobox.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>datePicker</tabstop>
   <tabstop>sbID</tabstop>

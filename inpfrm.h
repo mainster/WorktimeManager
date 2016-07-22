@@ -11,6 +11,8 @@
 #include "mdstatebar.h"
 #include "mdeventfilters.h"
 #include "types.h"
+#include "mdcombobox.h"
+
 
 namespace Ui {
 class InpFrm;
@@ -74,13 +76,14 @@ signals:
 	void stateMessage(const QString msg, const int option);
 	void requeryTableView();
 	void buttonClicked(const QPushButton *button);
+	void showDropdownView(bool onOff );
 
 public slots:
 	void initComboboxes();
 	QString getQueryText() const;
 	void saveSqlQueryInputText();
 	void restoreSqlQueryInputText();
-	void refreshCbDropDownLists();
+	void mapCbTableProxy();
 	void onSqlQuerysTextChanged();
 	void onCbQueryIndexChaned(int idx);
 	bool eventFilter(QObject *obj, QEvent *ev);
@@ -111,12 +114,14 @@ private:
 	QDateEdit						*de;
 	QDialog							*dlg;
 	QVector<QRadioButton*>		rbv;
-	QList<QWidget *>				mSqlCbs;
+//	QList<QWidget *>				mSqlCbs;
+	QList<QComboBox*>				mSqlCbs;
 	QSqlQuery						query;
 	QStringList						tblLst;
 	QTextEdit						*gbSqlQuery;
 	Qt::FocusOrderState			mChangeFocusFlag;
 	bool								mEscapeTrigger;
+
 };
 
 #endif // INPFRM_H

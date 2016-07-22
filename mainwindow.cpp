@@ -3,6 +3,10 @@
 
 #define  RESTORE_SQL_DATABASE_PATH
 
+#ifdef STATIC_SIGNAL_CLASS
+StaticSignal *StaticSignal::inst = 0;
+#endif
+
 int MainWindow::fuse = 5;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
@@ -300,10 +304,10 @@ void MainWindow::onActCloseTrig() {
 /* ======================================================================== */
 /*                              Event handler                               */
 /* ======================================================================== */
-void MainWindow::showEvent() {
-//	QShowEvent *ee = NULL;
-//	emit showEvent(ee);
-}
+//void MainWindow::showEvent() {
+////	QShowEvent *ee = NULL;
+////	emit showEvent(ee);
+//}
 void MainWindow::showEvent(QShowEvent *e) {
 	Q_UNUSED(e);
 	QSETTINGS;
@@ -359,6 +363,10 @@ void MainWindow::showEvent(QShowEvent *e) {
 		Qt::DockWidgetArea dwa = static_cast<Qt::DockWidgetArea>(
 											 config.value("inpForm/DockWidgetArea",
 															  Qt::BottomDockWidgetArea).toUInt());
+		/*! Produces unexpected behavior
+		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
+		*/
+		INFO << dwa;
 	}
 	else inpFrm->hide();
 //		this->addDockWidget(dwa, inpFrm, Qt::Vertical);

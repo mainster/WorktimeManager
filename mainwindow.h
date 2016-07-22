@@ -31,6 +31,10 @@ QT_FORWARD_DECLARE_CLASS(QPushButton)
 QT_FORWARD_DECLARE_CLASS(QTextEdit)
 QT_FORWARD_DECLARE_CLASS(QSqlError)
 
+
+/* ======================================================================== */
+/*                             class MainWindow                             */
+/* ======================================================================== */
 class MainWindow : public QMainWindow {
    Q_OBJECT
 
@@ -43,23 +47,22 @@ signals:
 
 public slots:
    void onBrowseSqlTrig(bool b);
-   bool eventFilter(QObject *obj, QEvent *event);
    void about();
    void onMenuStyleShtInpFrmTrig(bool b);
    void onMenuStyleShtATrig(bool b);
    void onActExportTrig();
    void onUnderConstrTrig();
    void onSetFont();
-   void closeEvent(QCloseEvent *e);
    void initDocks();
-   void showEvent();
-   void showEvent(QShowEvent *e);
-   void onResizerDlgTrig();
    void onActHideSqlQueryTrig();
    void onSetAlterRowColTrig();
    void initializeMdl(QSqlQueryModel *model);
    void connectActions();
    void onCyclic();
+	bool eventFilter(QObject *obj, QEvent *event);
+	void closeEvent(QCloseEvent *e);
+	void showEvent(QShowEvent *e);
+	void onResizerDlgTrig();
 
 	void onInpFrmButtonClick(bool);
 protected slots:
@@ -103,5 +106,41 @@ private:
 
 
 };
+
+
+
+/* ======================================================================== */
+/*                            class StaticSignal                            */
+/* ======================================================================== */
+#ifdef STATIC_SIGNAL_CLASS
+class StaticSignal : public QObject {
+
+	Q_OBJECT
+
+public:
+	static StaticSignal *instance(QObject *parent = 0) {
+		if (inst == 0)
+			return new StaticSignal(parent);
+		return inst;
+	}
+	~StaticSignal() { }
+
+signals:
+	void showDropdownViews(bool onOff);
+
+private:
+	StaticSignal(QObject *parent)
+		: QObject(parent) {
+		inst = this;
+	}
+	static StaticSignal *inst;
+
+};
+
+
+//static void showDropdownCallback(bool onOff) {
+//	StaticSignal::instance()->showDropdownViews(onOff);
+//}
+#endif
 
 #endif // MAINWINDOW_H
