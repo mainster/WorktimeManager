@@ -18,7 +18,7 @@ public:
 	explicit MdComboBox(QWidget *parent = 0)
 		: QComboBox(parent) {}
 	~MdComboBox() {
-		delete tv;
+//		delete tv;
 	}
 
 	void showPopup(bool holdOpen = false)  {

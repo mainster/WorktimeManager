@@ -76,7 +76,7 @@ bool SqlEventFilter::eventFilter(QObject *obj, QEvent *event) {
 	 */
 	if (dynamic_cast<QMouseEvent *>(event)->button() == Qt::LeftButton) {
 		if (inpFrm->getChangeFocusFlag() == Qt::FocusChange_isRunning) {
-			if (! inpFrm->mTabOrder->addWidgetToNext( qobject_cast<QWidget *>(obj) )) {
+			if (! inpFrm->mTabOrder.addWidgetToNext( qobject_cast<QWidget *>(obj) )) {
 				inpFrm->setChangeFocusFlag( Qt::FocusChange_done );
 				QString msg(tr("Input form tab order successfully changed!"));
 				emit inpFrm->stateMessage(msg, 2000);

@@ -52,6 +52,37 @@ InpFrm::InpFrm(QWidget *parent) :
 	WIN_RESTORE(this);
 
 	initComboboxes();
+
+	ui->gboxWorker->hide();
+	/* ======================================================================== */
+//	QSqlQuery
+
+	/* ======================================================================== */
+
+
+//	QSqlTableModel *sqlTblMdl = new QSqlTableModel(this);
+	QSqlRelationalTableModel *sqlTblMdl = new QSqlRelationalTableModel(this);
+	SortFilterProxyModel *proxyMdl = new SortFilterProxyModel(this);
+	proxyMdl->setDynamicSortFilter(true);
+	sqlTblMdl->setEditStrategy(QSqlTableModel::OnManualSubmit);
+
+	sqlTblMdl->setTable( tr("prj") );
+	sqlTblMdl->setRelation(2, QSqlRelation());
+	sqlTblMdl->select();
+	/*!
+	 * Set the source model (sql table model) for the filter proxy model objects.
+	 */
+	proxyMdl->setSourceModel( sqlTblMdl );
+	/*!
+	 * Select the column which should be provided by the proxy model.
+	 */
+	QList<qint32> cols;
+	cols << sqlTblMdl->fieldIndex( tr("Nummer") );
+	proxyMdl->setFilterKeyColumn(cols.at(0));
+	proxyMdl->addFilterFixedString( cols.at(0), tr("Nummer") );
+	ui->testCb->setModel( sqlTblMdl );
+	ui->testCb->setModelColumn( /*proxyMdl->filterKeyColumn()*/0 );
+	connect(ui->testLe, &QLineEdit::returnPressed, this, &InpFrm::onTestLeChanged);
 }
 InpFrm::~InpFrm() {
 	WIN_STORE(this);
@@ -62,6 +93,9 @@ InpFrm::~InpFrm() {
 		w->removeEventFilter(this);
 
 	delete ui;
+}
+void InpFrm::onTestLeChanged() {
+	ui->testCb->setModelColumn( ui->testLe->text().toInt() );
 }
 
 void InpFrm::initComboboxes() {
@@ -203,7 +237,9 @@ void InpFrm::initComboboxes() {
 	//      cbLst[k++]->setModelColumn( fpms.last()->filterKeyColumn() );
 	//   }
 }
-QString InpFrm::getQueryText() const { return ui->teSqlQuerys->toPlainText(); }
+QString InpFrm::getQueryText() const {
+	return ui->teSqlQuerys->toPlainText();
+}
 void InpFrm::connectActions() {
 
 	connect(ui->datePicker,         SIGNAL(dateChanged(QDate)),
@@ -385,10 +421,18 @@ void InpFrm::aButtonClick(bool) {
 			<< ui->cbWorkerPersonalNr
 			<< ui->leHrs;
 
+
 		setFocusOrder( ws );
 	}
+	if (pbSender == ui->btnUndo) {
+		ui->teSqlQuerys->show();
+		ui->teSqlQuerys->setEnabled(true);
+		ui->teSqlQuerys->setReadOnly(false);
+		ui->teSqlQuerys->setText(tr("testtext"));
+//		ui->teSqlQuerys->setWr
+	}
 }
-void InpFrm::mapCbTableProxy() {
+void InpFrm::mapCbTableProxyOld() {
 	/*!
 	 * Creat a string list which contains the table name. For easy switching possibility
 	 * within a group box (for example):
@@ -420,7 +464,113 @@ void InpFrm::mapCbTableProxy() {
 	foreach (QComboBox *cbx, mSqlCbs ) {
 		QSqlTableModel *sqlTblMdl = new QSqlTableModel(this);
 		QSortFilterProxyModel *proxyMdl = new QSortFilterProxyModel(this);
-		sqlTblMdl->setEditStrategy(QSqlTableModel::OnFieldChange);
+		sqlTblMdl->setEditStrategy(QSqlTableModel::OnManualSubmit);
+
+		sqlTblMdl->setTable( modelNames.at(k).split(",").at(0) );
+//		INFO << tr("sqlTblMdl->setTable(%1)").arg( modelNames.at(k).split(",").at(0) );
+
+		sqlTblMdl->select();
+
+		/*!
+		 * Set the source model (sql table model) for the filter proxy model objects.
+		 */
+		proxyMdl->setSourceModel( sqlTblMdl );
+		/*!
+		 * Select the column which should be provided by the proxy model.
+		 */
+		proxyMdl->setFilterKeyColumn(sqlTblMdl->fieldIndex( modelNames.at(k).split(",").at(1)) );
+//		INFO << tr("setFilterKeyColumn(%1)").arg( modelNames.at(k).split(",").at(1) );
+
+		cbx->setModel( proxyMdl );
+		mSqlCbs[k++]->setModelColumn( proxyMdl->filterKeyColumn() );
+	}
+
+	/** Map comboBox indexes */
+	connect(ui->cbClientKurzform, SIGNAL(currentIndexChanged(int)),
+			  ui->cbClientNummer,   SLOT(setCurrentIndex(int)));
+	connect(ui->cbClientNummer,   SIGNAL(currentIndexChanged(int)),
+			  ui->cbClientKurzform, SLOT(setCurrentIndex(int)));
+
+	connect(ui->cbPrjNummer,      SIGNAL(currentIndexChanged(int)),
+			  ui->cbPrjKurzform,    SLOT(setCurrentIndex(int)));
+	connect(ui->cbPrjKurzform,    SIGNAL(currentIndexChanged(int)),
+			  ui->cbPrjNummer,      SLOT(setCurrentIndex(int)));
+
+	connect(ui->cbWorkerPersonalNr,  SIGNAL(currentIndexChanged(int)),
+			  ui->cbWorkerNachname,    SLOT(setCurrentIndex(int)));
+	connect(ui->cbWorkerPersonalNr,  SIGNAL(currentIndexChanged(int)),
+			  ui->cbWorkerVorname,     SLOT(setCurrentIndex(int)));
+	connect(ui->cbWorkerNachname,    SIGNAL(currentIndexChanged(int)),
+			  ui->cbWorkerPersonalNr,  SLOT(setCurrentIndex(int)));
+	connect(ui->cbWorkerNachname,    SIGNAL(currentIndexChanged(int)),
+			  ui->cbWorkerVorname,     SLOT(setCurrentIndex(int)));
+	connect(ui->cbWorkerVorname,     SIGNAL(currentIndexChanged(int)),
+			  ui->cbWorkerPersonalNr,  SLOT(setCurrentIndex(int)));
+	connect(ui->cbWorkerVorname,     SIGNAL(currentIndexChanged(int)),
+			  ui->cbWorkerNachname,    SLOT(setCurrentIndex(int)));
+
+	/**
+	 * Set CUSTOM_QUERY_COMMANDS combo box items
+	 */
+	QSETTINGS_QUERYS
+			QStringList query_keys;
+
+	//   /** Remove all items except "NewQuery" item */
+	//   for (int i=0; i < ui->cbQueryIdent->count(); i++) {
+	//      if (! ui->cbQueryIdent->itemText(i).contains(NEWQUERY))
+	//         ui->cbQueryIdent->removeItem(i);
+	//   }
+	ui->cbQueryIdent->clear();
+
+	foreach (QString str, configQ.allKeys()) {
+		if (true /*str.contains( QUERYPREFIX )*/)
+			query_keys << str.split('/').at(1);
+
+		//      INFO << "Query key:" << query_keys.last();
+		//      INFO << configQ.value(str).toString();
+
+		ui->cbQueryIdent->addItem(query_keys.last(),
+										  configQ.value(str).toString());
+
+	}
+
+	ui->cbQueryIdent->setDuplicatesEnabled( false );
+
+}
+void InpFrm::mapCbTableProxy() {
+	/*!
+	 * Creat a string list which contains the table name. For easy switching possibility
+	 * within a group box (for example):
+	 *  Worker:		firstname,	lastname
+	 *  Worker:		lastname,	firstname
+	 * ... it is necessary to do the following string operations:
+	 */
+	QList<QString> modelNames;
+	foreach (QComboBox *cbx, mSqlCbs) {
+		if (cbx->objectName().contains("client",Qt::CaseInsensitive)) {
+			modelNames <<  tr("client,%1").arg(cbx->objectName().remove("cbClient"));
+			continue;
+		}
+		if (cbx->objectName().contains("prj",Qt::CaseInsensitive)) {
+			modelNames <<  tr("prj,%1").arg(cbx->objectName().remove("cbPrj"));
+			continue;
+		}
+		if (cbx->objectName().contains("worker",Qt::CaseInsensitive)) {
+			modelNames <<  tr("worker,%1").arg(cbx->objectName().remove("cbWorker"));
+			continue;
+		}
+	}
+
+	INFO << modelNames;
+	/*!
+	 * Create "sql table model"- and "sort filter proxy model" for each
+	 * element of mSqlCbs.
+	 */
+	int k=0;
+	foreach (QComboBox *cbx, mSqlCbs ) {
+		QSqlTableModel *sqlTblMdl = new QSqlTableModel(this);
+		QSortFilterProxyModel *proxyMdl = new QSortFilterProxyModel(this);
+		sqlTblMdl->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
 		sqlTblMdl->setTable( modelNames.at(k).split(",").at(0) );
 //		INFO << tr("sqlTblMdl->setTable(%1)").arg( modelNames.at(k).split(",").at(0) );
@@ -773,7 +923,7 @@ bool InpFrm::setFocusOrder(QList<QWidget *> targets) {
 	/*!
 	 * Save the focus order list.
 	 */
-	mTabOrder->current = targets;
+	mTabOrder.current = targets;
 	return true;
 }
 Qt::FocusOrderState InpFrm::InpFrm::getChangeFocusFlag() const {
@@ -806,7 +956,7 @@ void InpFrm::keyPressEvent(QKeyEvent *e) {
 	 */
 	if (e->key() == Qt::Key_Escape) {
 		if (! mEscapeTrigger) {
-			mTabOrder->current.first()->setFocus(Qt::TabFocusReason);
+			mTabOrder.current.first()->setFocus(Qt::TabFocusReason);
 			INFO << tr("start singledshot");
 		}
 		else hide();

@@ -12,7 +12,7 @@
 #include "mdeventfilters.h"
 #include "types.h"
 #include "mdcombobox.h"
-
+#include "sortfilterproxymodel.h"
 
 namespace Ui {
 class InpFrm;
@@ -39,7 +39,7 @@ class InpFrm : public QDockWidget {
 
 public:
 
-	struct mTabOrder_t {
+	struct /*mTabOrder_t*/ {
 	public:
 		QList<QWidget *> current;
 		QList<QWidget *> *next() { return &mNext; }
@@ -54,7 +54,7 @@ public:
 
 	private:
 		QList<QWidget *> mNext;
-	} *mTabOrder;
+	} mTabOrder;
 
 	explicit InpFrm(QWidget *parent = 0);
 	static InpFrm *instance(QWidget *parent = 0x00) {
@@ -83,6 +83,7 @@ public slots:
 	QString getQueryText() const;
 	void saveSqlQueryInputText();
 	void restoreSqlQueryInputText();
+	void mapCbTableProxyOld();
 	void mapCbTableProxy();
 	void onSqlQuerysTextChanged();
 	void onCbQueryIndexChaned(int idx);
@@ -91,6 +92,7 @@ public slots:
 	void aButtonClick(bool);
 	void onInpFormChanges(int idx);
 
+	void onTestLeChanged();
 protected:
 	void connectActions();
 	virtual void keyPressEvent(QKeyEvent *) override;
