@@ -105,7 +105,6 @@ public:
 //   SortWindow *getSortwindow0() const;
 	//   SortWindow *getSortwindow1() const;
 
-
 signals:
 	void stateMsg(const QString &message, const int delay = 0);
    void tabViewSelChanged(TabView *sel);
@@ -123,7 +122,9 @@ public slots:
    void on_revertAction_triggered();
    void on_selectAction_triggered();
    void on_connectionWidget_tableActivated(const QString &sqlTab);
-	void on_connectionWidget_metaDataRequested(const QString &table) { showMetaData(table); }
+	void on_connectionWidget_metaDataRequested(const QString &table) {
+		showMetaData(table);
+	}
    void onCyclic();
    void customMenuRequested(QPoint pos);
    void initTableView(QWidget *parent, QStringList &accNam);

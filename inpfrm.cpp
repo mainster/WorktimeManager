@@ -52,6 +52,7 @@ InpFrm::InpFrm(QWidget *parent) :
 	WIN_RESTORE(this);
 
 	initComboboxes();
+	restoreTabOrder();
 
 	ui->gboxWorker->hide();
 	/* ======================================================================== */
@@ -400,7 +401,9 @@ void InpFrm::aButtonClick(bool) {
 
 	if (pbSender == ui->btnSaveQuery) { saveSqlQueryInputText(); return; }
 	if (pbSender == ui->btnRestoreQuery) { restoreSqlQueryInputText(); return; }
-
+	if (pbSender == ui->btnSubmitQuery) {
+		Browser::instance()->exec();
+	}
 	if (pbSender == ui->btnClear) {
 		foreach (MdComboBox *mcbx, QList<MdComboBox*>(
 						listCast<MdComboBox*,QComboBox*>(mSqlCbs))) {
@@ -430,6 +433,10 @@ void InpFrm::aButtonClick(bool) {
 		ui->teSqlQuerys->setReadOnly(false);
 		ui->teSqlQuerys->setText(tr("testtext"));
 //		ui->teSqlQuerys->setWr
+	}
+	if (pbSender == ui->btnRedo) {
+		Browser *browser = Browser::instance();
+		browser->on_connectionWidget_metaDataRequested("prj");
 	}
 }
 void InpFrm::mapCbTableProxyOld() {
@@ -678,6 +685,7 @@ void InpFrm::setSqlQueryTextboxVisible(bool visible) {
 
 	(visible) ? (setSizePolicy(QSizePolicy(QSizePolicy::Expanding,
 														QSizePolicy::Expanding)),
+					 ui->teSqlQuerys->setFocusPolicy(Qt::ClickFocus),
 					 setMaximumHeight(300))
 				 : (setFixedHeight(125));
 }
@@ -695,6 +703,8 @@ void InpFrm::saveSqlQueryInputText() {
 	QSETTINGS_QUERYS;
 	QSETTINGS;
 	bool ok; int k = 0;
+
+	INFO << CUSTOM_QUERYS_PATH;
 
 	QStringList query_keys;
 	QString newID;
@@ -827,9 +837,6 @@ void InpFrm::restoreTabOrder() {
 		wNames = config.value(this->objectName() + tr("/TabOrder"), "")
 					.toString().split(",");
 
-		QList<QWidget *> childs =
-				listCast<QWidget*,QObject*>(ui->userCtrlsLayout->children());
-
 		foreach (QString name, wNames) {
 			/*!
 			 * Check if widget with object name name and ->property("hasSqlMapper")
@@ -837,9 +844,9 @@ void InpFrm::restoreTabOrder() {
 			 */
 
 
-			INFO << listFindByName<QWidget*>(childs, name);
+			INFO << listFindByName<QComboBox*>(mSqlCbs, name);
 
-			auto itObj = std::find_if (childs.begin(), childs.end(), [](QWidget *w)
+			auto itObj = std::find_if (mSqlCbs.begin(), mSqlCbs.end(), [](QComboBox *w)
 			{ return w->objectName() == "cbPrjNummer"; } );
 			INFO << *itObj;
 

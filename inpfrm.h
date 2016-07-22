@@ -13,6 +13,7 @@
 #include "types.h"
 #include "mdcombobox.h"
 #include "sortfilterproxymodel.h"
+#include "browser.h"
 
 namespace Ui {
 class InpFrm;

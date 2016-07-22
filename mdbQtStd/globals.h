@@ -41,7 +41,7 @@
 #define CONFIG_FILE	QString( QDir(CONFIG_PATH).absoluteFilePath("config") )
 #endif
 
-#define CUSTOM_QUERYS_PATH QString(CONFIG_PATH + qApp->applicationName() + "customQuerys")
+#define CUSTOM_QUERYS_PATH QString(CONFIG_PATH + tr("/") + qApp->applicationName() + "_customQuerys")
 /* ======================================================================== */
 
 #define GEOM QString("/Geometry")
