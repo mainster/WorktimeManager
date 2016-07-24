@@ -466,9 +466,11 @@ void InpFrm::aButtonClick(bool) {
 //		browser->on_connectionWidget_metaDataRequested("prj");
 
 		mSqlCbs[0]->setModel( mModels.at(IDX_PROJECT).tableModel );
-		mSqlCbs[0]->setModelColumns(QList<quint8>() << 1 << 4);
+		mModels.at(IDX_PROJECT).tableModel->select();
+		mSqlCbs[0]->setModelColumns(QList<quint8>() << 1 << 4, mModels.at(IDX_PROJECT).tableModel);
 
 		QModelIndex mix = mModels.at(IDX_PROJECT).tableModel->index(0,0,QModelIndex());
+		INFO << mix;
 		INFO << mModels.at(IDX_PROJECT).tableModel->rowCount(QModelIndex())
 			  << mModels.at(IDX_PROJECT).tableModel->columnCount(QModelIndex())
 			  << mModels.at(IDX_PROJECT).tableModel->rowCount(mix)

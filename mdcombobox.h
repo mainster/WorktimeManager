@@ -7,6 +7,7 @@
 #include <QVariant>
 #include <QGroupBox>
 #include <QTableView>
+#include <QSqlRelationalTableModel>
 
 #include "globals.h"
 #include "debug.h"
@@ -45,31 +46,7 @@ public:
 			delete tv;
 		}
 	}
-	bool setModelColumns(QList<quint8>columns) {
-		/** Check if columns contains invalid column values */
-		qSort(columns.begin(), columns.end());
-		int colCount = static_cast<MdComboBox*>(model())->columnCount(QModelIndex()),
-				rowCount = static_cast<MdComboBox*>(model())->rowCount(QModelIndex());
-
-		if (columns.last() >= colCount) {
-			INFO << tr("Invalid column index found");
-			return false;
-		}
-
-		INFO << rowCount << colCount;
-
-		QStringList stringList;
-		for (QList<quint8>::iterator cIt = columns.begin(); cIt != columns.end(); cIt++) {
-			for (int r = 0; r < rowCount; r++) {
-				stringList << model()->data( model()->index(r, *cIt, QModelIndex()) ).toString();
-			}
-		}
-		INFO << stringList;
-
-//		QStringListModel *stringListModel = ;
-		setModel( new QStringListModel(stringList) );
-		return true;
-	}
+	bool setModelColumns(QList<quint8>columns, QSqlRelationalTableModel *model);
 
 protected:
 	virtual void timerEvent(QTimerEvent *) override {

@@ -14,7 +14,7 @@
 #include <QPen>
 #include "debug.h"
 #include "globals.h"
-
+#include "mdcombobox.h"
 
 namespace Qt {
 
