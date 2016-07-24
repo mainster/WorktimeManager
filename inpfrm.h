@@ -121,6 +121,7 @@ public slots:
 	void aButtonClick(bool);
 	void onInpFormChanges(int idx);
 
+	void onBtnOkClicked();
 protected:
 	void connectActions();
 	virtual void keyPressEvent(QKeyEvent *) override;

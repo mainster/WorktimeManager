@@ -470,7 +470,21 @@ void InpFrm::onInpFormUserCommit() {
 }
 void InpFrm::aButtonClick(bool) {
 	QPushButton *pbSender = qobject_cast<QPushButton *>(QObject::sender());
+	QList<QWidget *> ws;
+/*
+ * ws << ui->datePicker
+		<< ui->cbPrjKurzform
+		<< ui->cbPrjNummer
+		<< ui->cbClientKurzform
+		<< ui->cbClientNummer
+		<< ui->cbWorkerVorname
+		<< ui->cbWorkerNachname
+		<< ui->cbWorkerPersonalNr
+		<< ui->leHrs;
 
+
+	setFocusOrder( ws );
+*/
 	if (pbSender == ui->btnSaveQuery) { saveSqlQueryInputText(); return; }
 	if (pbSender == ui->btnRestoreQuery) { restoreSqlQueryInputText(); return; }
 	if (pbSender == ui->btnSubmitQuery) {
@@ -484,19 +498,7 @@ void InpFrm::aButtonClick(bool) {
 
 	}
 	if (pbSender == ui->btnOk) {
-		QList<QWidget *> ws;
-		ws << ui->datePicker
-			<< ui->cbPrjKurzform
-			<< ui->cbPrjNummer
-			<< ui->cbClientKurzform
-			<< ui->cbClientNummer
-			<< ui->cbWorkerVorname
-			<< ui->cbWorkerNachname
-			<< ui->cbWorkerPersonalNr
-			<< ui->leHrs;
-
-
-		setFocusOrder( ws );
+		onBtnOkClicked();
 	}
 	if (pbSender == ui->btnUndo) {
 		ui->teSqlQuerys->show();
@@ -519,6 +521,105 @@ void InpFrm::aButtonClick(bool) {
 			  << mModels.at(IDX_PROJECT).tableModel->columnCount(QModelIndex())
 			  << mModels.at(IDX_PROJECT).tableModel->rowCount(mix)
 			  << mModels.at(IDX_PROJECT).tableModel->columnCount(mix);
+	}
+}
+void InpFrm::onBtnOkClicked() {
+	QSqlQuery query;
+	QString q;
+
+	/** Query actual count of records in worktime table */
+	query.exec("SELECT worktimID FROM worktime");
+
+	if (query.lastError().type() != QSqlError::NoError) {
+		QMessageBox::warning(this, "Fehler bei SQL Query",
+									"query.lastError().type() != QSqlError::NoError");
+		return;
+	}
+
+	/** Select actual worktimIDs
+	 * ------------------------- */
+	int worktimID_max = 0;
+	QVector<int> ids;
+
+	while (query.next()) {
+		if (query.value(0).toInt() > worktimID_max)
+			worktimID_max = query.value(0).toInt();
+
+		ids.append( query.value(0).toInt() );
+	}
+
+	/** Find the next higher, unused worktimID */
+	while ( ids.contains(++worktimID_max));
+
+	/** Find workerID based on InpFrm ui selections
+	 * --------------------------------------------- */
+	q = QString("SELECT workerID FROM worker WHERE Nachname = \"%1\" "
+					"AND PersonalNr = %2")
+			.arg( ui->cbWorkerNachname->currentText() )
+			.arg( ui->cbWorkerPersonalNr->currentText().toInt() );
+	query.exec( q );
+
+	int workerID = -1;
+	while (query.next()) {
+		/**
+		 * If workerID != -1, this is the second loop entry but workerID
+		 * must be unique! --> Error
+		 */
+		if (workerID > 0) {
+			QMessageBox::warning(this, "Fehler bei SQL Query",
+										"Non-unique workerID detected!");
+			return;
+		}
+		else {
+			workerID = query.value(0).toInt();
+		}
+	}
+
+	/** Find prjID based on InpFrm ui selections
+	 * --------------------------------------------- */
+	q = QString("SELECT prjID FROM prj WHERE Kurzform = \"%1\" "
+					"AND Nummer = %2")
+			.arg( ui->cbPrjKurzform->currentText() )
+			.arg( ui->cbPrjNummer->currentText().toInt() );
+	query.exec( q );
+
+	int prjID = -1;
+	while (query.next()) {
+		/**
+		 * If prjID != -1, this is the second loop entry but prjID
+		 * must be unique! --> Error
+		 */
+		if (prjID > 0) {
+			QMessageBox::warning(this, "Fehler bei SQL Query",
+										"Non-unique prjID detected!");
+			return;
+		}
+		else {
+			prjID = query.value(0).toInt();
+		}
+	}
+
+
+	/** Prepare query for new record */
+	query.prepare("INSERT INTO worktime (worktimID, dat, workerID, prjID, hours) "
+					  "VALUES (:worktimID, :dat, :workerID, :prjID, :hours)");
+
+	query.bindValue(":worktimID", worktimID_max);
+	query.bindValue(":dat", ui->datePicker->date().toString(Qt::SystemLocaleShortDate));
+	query.bindValue(":workerID", workerID);
+	query.bindValue(":prjID", prjID);
+	query.bindValue(":hours", ui->leHrs->text().toInt());
+
+	query.exec();
+	Browser::instance()->requeryWorktimeTableView();
+
+	Q_INFO.noquote() << query.lastQuery();
+
+	if (query.lastError().type() != QSqlError::NoError) {
+		QMessageBox::warning(this, "Fehler bei SQL Query",
+									QString("Error type:" + query.lastError().driverText() +
+											  "\nin final add-record query"));
+		return;
 	}
 }
 void InpFrm::mapCbTableProxyOld() {
