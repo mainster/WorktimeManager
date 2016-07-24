@@ -108,24 +108,52 @@ void InpFrm::initComboboxes() {
 		}
 	}
 
-	mModels.append(fieldGroup_t(tr("prj")));
-	mModels.append(fieldGroup_t(tr("client")));
-	mModels.append(fieldGroup_t(tr("worker")));
+	/*!
+	 * Append field groups to model struct mModels
+	 */
+	mModels << fieldGroup_t(tr("prj"))
+			  << fieldGroup_t(tr("client"))
+			  << fieldGroup_t(tr("worker"));
 
+	/*!
+	 * Set foreign key relations.
+	 */
 	mModels[IDX_PROJECT].tableModel->setRelation(
 				mModels[IDX_PROJECT].tableModel->fieldIndex("clientID"),
 				QSqlRelation("client", "clientID", "Name"));
+
+	/*!
+	 * QSqlRelationalTableModel::Select and set proxy models source model.
+	 */
 	mModels[IDX_PROJECT].tableModel->select();
 	mModels[IDX_PROJECT].proxyModel->setSourceModel(mModels[IDX_PROJECT].tableModel);
 	mModels[IDX_PROJECT].proxyModel->invalidate();
 
+	/*!
+	 * Set the combobox model to proxyModel.
+	 */
 	ui->cbPrjKurzform->setModel(mModels.at(IDX_PROJECT).proxyModel);
 	ui->cbClientKurzform->setModel(mModels.at(IDX_CLIENT).proxyModel);
 	ui->cbWorkerNachname->setModel(mModels.at(IDX_WORKER).proxyModel);
 
-	ui->cbPrjKurzform->setModelColumns(QList<quint8>() << 1 << 4);
-	ui->cbClientKurzform->setModelColumns(QList<quint8>() << 1 << 3);
-	ui->cbWorkerNachname->setModelColumns(QList<quint8>() << 1 << 2);
+	/*!
+	 * Select the model columns which should be transformed into string list model and
+	 * used for comboboxes dropdown menu.
+	 */
+		ui->cbPrjKurzform->setModelColumns(QList<quint8>()
+		/*INFO*/ 										  << mModels[IDX_PROJECT].tableModel->fieldIndex("prjID")
+													  << mModels[IDX_PROJECT].tableModel->fieldIndex("Nummer"));
+		ui->cbClientKurzform->setModelColumns(QList<quint8>()
+		/*INFO*/											  << mModels[IDX_CLIENT].tableModel->fieldIndex("Kurzform")
+														  << mModels[IDX_CLIENT].tableModel->fieldIndex("Nummer"));
+		ui->cbWorkerNachname->setModelColumns(QList<quint8>()
+		/*INFO*/											  << mModels[IDX_WORKER].tableModel->fieldIndex("Nachname")
+														  << mModels[IDX_WORKER].tableModel->fieldIndex("Vorname")
+														  << mModels[IDX_WORKER].tableModel->fieldIndex("PersonalNr"));
+
+//	ui->cbPrjKurzform->setModelColumns(QList<quint8>() << 1 << 5);
+//	ui->cbClientKurzform->setModelColumns(QList<quint8>() << 1 << 3);
+//	ui->cbWorkerNachname->setModelColumns(QList<quint8>() << 1 << 2);
 
 }
 void InpFrm::initComboboxes2() {

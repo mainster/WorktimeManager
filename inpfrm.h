@@ -48,19 +48,12 @@ class InpFrm : public QDockWidget {
 
 public:
 	struct fieldGroup_t {
-//		fieldGroup_t(QObject *parent = 0)
-//			: tableModel( new QSqlRelationalTableModel(parent) ),
-//			  proxyModel( new QSortFilterProxyModel(parent) ),
-//			  listModel( new QStringListModel(parent)) {}
 
 		fieldGroup_t(const QString &tableName, QObject *parent = 0)
 			: tableModel( new QSqlRelationalTableModel(parent) ),
 			  proxyModel( new QSortFilterProxyModel(parent) ),
 			  listModel( new QStringListModel(parent)) {
 			tableModel->setTable(tableName);
-//			tableModel->select();
-//			proxyModel->setSourceModel(tableModel);
-//			proxyModel->invalidate();
 		}
 
 		QSqlRelationalTableModel *tableModel;
