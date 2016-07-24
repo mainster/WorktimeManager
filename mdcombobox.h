@@ -46,7 +46,7 @@ public:
 			delete tv;
 		}
 	}
-	bool setModelColumns(QList<quint8>columns, QSqlRelationalTableModel *model);
+	bool setModelColumns(QList<quint8>columns);
 
 protected:
 	virtual void timerEvent(QTimerEvent *) override {

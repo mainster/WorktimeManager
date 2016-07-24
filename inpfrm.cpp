@@ -110,21 +110,25 @@ void InpFrm::initComboboxes() {
 		}
 	}
 
-	mModels.append( fieldGroup_t() );
-	mModels.append( fieldGroup_t() );
-	mModels.append( fieldGroup_t() );
+	mModels.append(fieldGroup_t(tr("prj")));
+	mModels.append(fieldGroup_t(tr("client")));
+	mModels.append(fieldGroup_t(tr("worker")));
 
-	mModels[IDX_PROJECT].tableModel->setTable(tr("prj"));
-	mModels[IDX_CLIENT].tableModel->setTable(tr("client"));
-	mModels[IDX_WORKER].tableModel->setTable(tr("worker"));
+//	mModels[IDX_PROJECT].tableModel->setTable(tr("prj"));
+//	mModels[IDX_CLIENT].tableModel->setTable(tr("client"));
+//	mModels[IDX_WORKER].tableModel->setTable(tr("worker"));
 
-	mModels[IDX_PROJECT].proxyModel->setSourceModel(mModels.at(IDX_PROJECT).tableModel);
-	mModels[IDX_CLIENT].proxyModel->setSourceModel(mModels.at(IDX_CLIENT).tableModel);
-	mModels[IDX_WORKER].proxyModel->setSourceModel(mModels.at(IDX_WORKER).tableModel);
+//	mModels[IDX_PROJECT].proxyModel->setSourceModel(mModels.at(IDX_PROJECT).tableModel);
+//	mModels[IDX_CLIENT].proxyModel->setSourceModel(mModels.at(IDX_CLIENT).tableModel);
+//	mModels[IDX_WORKER].proxyModel->setSourceModel(mModels.at(IDX_WORKER).tableModel);
 
-	mModels[IDX_PROJECT].setModelColumns(QList<quint8>() << 1 << 4, ui->cbPrjKurzform);
-	mModels[IDX_CLIENT].setModelColumns(QList<quint8>() << 1 << 3, ui->cbClientKurzform);
-	mModels[IDX_WORKER].setModelColumns(QList<quint8>() << 1 << 2 << 3, ui->cbWorkerNachname);
+	ui->cbPrjKurzform->setModel(mModels.at(IDX_PROJECT).proxyModel);
+	ui->cbClientKurzform->setModel(mModels.at(IDX_CLIENT).proxyModel);
+	ui->cbWorkerNachname->setModel(mModels.at(IDX_WORKER).proxyModel);
+
+	ui->cbPrjKurzform->setModelColumns(QList<quint8>() << 1 << 4);
+	ui->cbClientKurzform->setModelColumns(QList<quint8>() << 1 << 3);
+	ui->cbWorkerNachname->setModelColumns(QList<quint8>() << 1 << 2 << 3);
 
 }
 void InpFrm::initComboboxes2() {
@@ -467,7 +471,7 @@ void InpFrm::aButtonClick(bool) {
 
 		mSqlCbs[0]->setModel( mModels.at(IDX_PROJECT).tableModel );
 		mModels.at(IDX_PROJECT).tableModel->select();
-		mSqlCbs[0]->setModelColumns(QList<quint8>() << 1 << 4, mModels.at(IDX_PROJECT).tableModel);
+		mSqlCbs[0]->setModelColumns(QList<quint8>() << 1 << 4);
 
 		QModelIndex mix = mModels.at(IDX_PROJECT).tableModel->index(0,0,QModelIndex());
 		INFO << mix;
@@ -583,8 +587,12 @@ void InpFrm::mapCbTableProxyOld() {
 
 }
 void InpFrm::mapCbTableProxy() {
-	mModels[IDX_PROJECT].setModelColumns(QList<quint8>() << 1 << 4, mSqlCbs.first());
+
+//	mModels[IDX_PROJECT].setModelColumns(QList<quint8>() << 1 << 4, mSqlCbs.first());
 	return;
+
+
+
 	/*!
 	 * Creat a string list which contains the table name. For easy switching possibility
 	 * within a group box (for example):

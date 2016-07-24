@@ -48,34 +48,19 @@ class InpFrm : public QDockWidget {
 
 public:
 	struct fieldGroup_t {
-		fieldGroup_t(QObject *parent = 0)
+//		fieldGroup_t(QObject *parent = 0)
+//			: tableModel( new QSqlRelationalTableModel(parent) ),
+//			  proxyModel( new QSortFilterProxyModel(parent) ),
+//			  listModel( new QStringListModel(parent)) {}
+
+		fieldGroup_t(const QString &tableName, QObject *parent = 0)
 			: tableModel( new QSqlRelationalTableModel(parent) ),
 			  proxyModel( new QSortFilterProxyModel(parent) ),
-			  listModel( new QStringListModel(parent)) {}
-
-		bool setModelColumns(/*const*/ QList<quint8> &columns, MdComboBox *comboBox) {
-			/** Check if columns contains invalid column values */
-			qSort(columns.begin(), columns.end());
-			int colCount = proxyModel->columnCount(QModelIndex()),
-					rowCount = proxyModel->rowCount(QModelIndex());
-
-			if (columns.last() >= colCount)
-				bReturn("Invalid column index found");
-
-			INFO << rowCount << colCount;
-			INFO << tableModel->rowCount(QModelIndex()) << tableModel->columnCount(QModelIndex());
-
-			QStringList stringList;
-			for (QList<quint8>::const_iterator cIt = columns.begin(); cIt != columns.end(); cIt++) {
-				for (int r = 0; r < rowCount; r++) {
-					stringList << proxyModel->data(
-										  proxyModel->index(r, *cIt, QModelIndex()) ).toString();
-				}
-			}
-			INFO << stringList;
-
-			comboBox->setModel( new QStringListModel(stringList) );
-			return true;
+			  listModel( new QStringListModel(parent)) {
+			tableModel->setTable(tableName);
+			tableModel->select();
+			proxyModel->setSourceModel(tableModel);
+			proxyModel->invalidate();
 		}
 
 		QSqlRelationalTableModel *tableModel;
