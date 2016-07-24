@@ -58,9 +58,9 @@ public:
 			  proxyModel( new QSortFilterProxyModel(parent) ),
 			  listModel( new QStringListModel(parent)) {
 			tableModel->setTable(tableName);
-			tableModel->select();
-			proxyModel->setSourceModel(tableModel);
-			proxyModel->invalidate();
+//			tableModel->select();
+//			proxyModel->setSourceModel(tableModel);
+//			proxyModel->invalidate();
 		}
 
 		QSqlRelationalTableModel *tableModel;

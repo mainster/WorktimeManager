@@ -1,6 +1,7 @@
 #include "mdcombobox.h"
 
 
+
 bool MdComboBox::setModelColumns(QList<quint8> columns) {
 	/** Check if columns contains invalid column values */
 	qSort(columns.begin(), columns.end());
@@ -18,6 +19,8 @@ bool MdComboBox::setModelColumns(QList<quint8> columns) {
 			stringList << model()->data( model()->index(r, *cIt, QModelIndex()) ).toString();
 		}
 	}
+	INFO << stringList;
+	qSort(stringList.begin(), stringList.end());
 	INFO << stringList;
 
 	setModel( new QStringListModel(stringList) );

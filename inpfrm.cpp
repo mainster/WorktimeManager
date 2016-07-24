@@ -97,8 +97,6 @@ void InpFrm::initComboboxes() {
 	 * Initialize sql combobox list member mSqlCbs.
 	 */
 	mSqlCbs = findChildren<MdComboBox *>();
-
-
 	foreach (MdComboBox *cb, mSqlCbs) {
 		if (! cb->property("hasSqlMapper").isValid())
 			mSqlCbs.removeOne(cb);
@@ -114,13 +112,12 @@ void InpFrm::initComboboxes() {
 	mModels.append(fieldGroup_t(tr("client")));
 	mModels.append(fieldGroup_t(tr("worker")));
 
-//	mModels[IDX_PROJECT].tableModel->setTable(tr("prj"));
-//	mModels[IDX_CLIENT].tableModel->setTable(tr("client"));
-//	mModels[IDX_WORKER].tableModel->setTable(tr("worker"));
-
-//	mModels[IDX_PROJECT].proxyModel->setSourceModel(mModels.at(IDX_PROJECT).tableModel);
-//	mModels[IDX_CLIENT].proxyModel->setSourceModel(mModels.at(IDX_CLIENT).tableModel);
-//	mModels[IDX_WORKER].proxyModel->setSourceModel(mModels.at(IDX_WORKER).tableModel);
+	mModels[IDX_PROJECT].tableModel->setRelation(
+				mModels[IDX_PROJECT].tableModel->fieldIndex("clientID"),
+				QSqlRelation("client", "clientID", "Name"));
+	mModels[IDX_PROJECT].tableModel->select();
+	mModels[IDX_PROJECT].proxyModel->setSourceModel(mModels[IDX_PROJECT].tableModel);
+	mModels[IDX_PROJECT].proxyModel->invalidate();
 
 	ui->cbPrjKurzform->setModel(mModels.at(IDX_PROJECT).proxyModel);
 	ui->cbClientKurzform->setModel(mModels.at(IDX_CLIENT).proxyModel);
@@ -128,7 +125,7 @@ void InpFrm::initComboboxes() {
 
 	ui->cbPrjKurzform->setModelColumns(QList<quint8>() << 1 << 4);
 	ui->cbClientKurzform->setModelColumns(QList<quint8>() << 1 << 3);
-	ui->cbWorkerNachname->setModelColumns(QList<quint8>() << 1 << 2 << 3);
+	ui->cbWorkerNachname->setModelColumns(QList<quint8>() << 1 << 2);
 
 }
 void InpFrm::initComboboxes2() {
