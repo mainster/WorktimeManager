@@ -27,7 +27,7 @@ InpFrm::InpFrm(QWidget *parent) :
 	initComboboxes();
 	restoreTabOrder();
 
-//	ui->gboxWorker->hide();
+	//	ui->gboxWorker->hide();
 	/* ======================================================================== */
 
 #ifdef SELF0
@@ -104,16 +104,16 @@ void InpFrm::initComboboxes() {
 			/*!
 			 * Install custom event filter object for SQL mapping purposes.
 			 */
-			cb->installEventFilter( new SqlEventFilter(this) );			
+			cb->installEventFilter( new SqlEventFilter(this) );
 		}
 	}
 
 	/*!
 	 * Append field groups to model struct mModels
 	 */
-	mModels << fieldGroup_t(tr("prj"))
-			  << fieldGroup_t(tr("client"))
-			  << fieldGroup_t(tr("worker"));
+	mModels << fieldGroup_t(tr("prj"), ui->cbPrjKurzform)
+			  << fieldGroup_t(tr("client"), ui->cbClientKurzform)
+			  << fieldGroup_t(tr("worker"), ui->cbWorkerNachname);
 
 	/*!
 	 * Set foreign key relations.
@@ -122,38 +122,53 @@ void InpFrm::initComboboxes() {
 				mModels[IDX_PROJECT].tableModel->fieldIndex("clientID"),
 				QSqlRelation("client", "clientID", "Name"));
 
-	/*!
-	 * QSqlRelationalTableModel::Select and set proxy models source model.
-	 */
-	mModels[IDX_PROJECT].tableModel->select();
-	mModels[IDX_PROJECT].proxyModel->setSourceModel(mModels[IDX_PROJECT].tableModel);
-	mModels[IDX_PROJECT].proxyModel->invalidate();
+	foreach (fieldGroup_t field, mModels) {
+		/*!
+		 * QSqlRelationalTableModel::Select and set proxy models source model.
+		 */
+		field.tableModel->select();
+		field.proxyModel->setSourceModel(field.tableModel);
+		field.proxyModel->invalidate();
+		/*!
+		 * Set the combobox model to proxyModel.
+		 */
+		field.comboBox->setModel(field.proxyModel);
+	}
 
-	/*!
-	 * Set the combobox model to proxyModel.
-	 */
-	ui->cbPrjKurzform->setModel(mModels.at(IDX_PROJECT).proxyModel);
-	ui->cbClientKurzform->setModel(mModels.at(IDX_CLIENT).proxyModel);
-	ui->cbWorkerNachname->setModel(mModels.at(IDX_WORKER).proxyModel);
-
+	QList<QString> list;
+	foreach (fieldGroup_t field, mModels) {
+		list.clear();
+		list << tr("Table: %1").arg(field.tableModel->tableName());
+		for (int k = 0; k < field.tableModel->columnCount(QModelIndex()); k++)
+			list << field.tableModel->record().fieldName(k);
+		INFO << list;
+	}
 	/*!
 	 * Select the model columns which should be transformed into string list model and
 	 * used for comboboxes dropdown menu.
 	 */
-		ui->cbPrjKurzform->setModelColumns(QList<quint8>()
-		/*INFO*/ 										  << mModels[IDX_PROJECT].tableModel->fieldIndex("prjID")
-													  << mModels[IDX_PROJECT].tableModel->fieldIndex("Nummer"));
-		ui->cbClientKurzform->setModelColumns(QList<quint8>()
-		/*INFO*/											  << mModels[IDX_CLIENT].tableModel->fieldIndex("Kurzform")
-														  << mModels[IDX_CLIENT].tableModel->fieldIndex("Nummer"));
-		ui->cbWorkerNachname->setModelColumns(QList<quint8>()
-		/*INFO*/											  << mModels[IDX_WORKER].tableModel->fieldIndex("Nachname")
-														  << mModels[IDX_WORKER].tableModel->fieldIndex("Vorname")
-														  << mModels[IDX_WORKER].tableModel->fieldIndex("PersonalNr"));
+	QList<short> idx;
+	idx << mModels[IDX_PROJECT].tableModel->fieldIndex("Kurzform")
+		 << mModels[IDX_PROJECT].tableModel->fieldIndex("Nummer");
+	INFO << idx;
+	ui->cbPrjKurzform->setModelColumns(idx);
 
-//	ui->cbPrjKurzform->setModelColumns(QList<quint8>() << 1 << 5);
-//	ui->cbClientKurzform->setModelColumns(QList<quint8>() << 1 << 3);
-//	ui->cbWorkerNachname->setModelColumns(QList<quint8>() << 1 << 2);
+	idx.clear();
+	idx << mModels[IDX_CLIENT].tableModel->fieldIndex("Kurzform")
+		 << mModels[IDX_CLIENT].tableModel->fieldIndex("Nummer");
+	INFO << idx;
+	ui->cbClientKurzform->setModelColumns(idx);
+
+	idx.clear();
+	idx << mModels[IDX_WORKER].tableModel->fieldIndex("Nachname")
+		 << mModels[IDX_WORKER].tableModel->fieldIndex("Vorname")
+		 << mModels[IDX_WORKER].tableModel->fieldIndex("PersonalNr");
+	INFO << idx;
+	ui->cbWorkerNachname->setModelColumns(idx);
+
+	//	ui->cbPrjKurzform->setModelColumns(QList<quint8>() << 1 << 5);
+	//	ui->cbClientKurzform->setModelColumns(QList<quint8>() << 1 << 3);
+	//	ui->cbWorkerNachname->setModelColumns(QList<quint8>() << 1 << 2);
 
 }
 void InpFrm::initComboboxes2() {
@@ -161,12 +176,12 @@ void InpFrm::initComboboxes2() {
 	QList<QDataWidgetMapper *> dms;
 
 	/** Request all combobox widgets within the inputFrm */
-//	QList<QComboBox *> cbLst = findChildren<QComboBox *>();
+	//	QList<QComboBox *> cbLst = findChildren<QComboBox *>();
 
 	/*!
 	 * Remove all comboboxes which are not based on sql list models
 	 */
-//	cbLst.removeOne(ui->cbQueryIdent);
+	//	cbLst.removeOne(ui->cbQueryIdent);
 
 	/*!
 	  * QSqlTableModel is a high-level interface for reading and writing database
@@ -462,9 +477,9 @@ void InpFrm::aButtonClick(bool) {
 		Browser::instance()->exec();
 	}
 	if (pbSender == ui->btnClear) {
-//		foreach (MdComboBox *mcbx, QList<MdComboBox*>(listCast<MdComboBox*,QComboBox*>(mSqlCbs))) {
-//			mcbx->makePermanentView(true);
-//		}
+		//		foreach (MdComboBox *mcbx, QList<MdComboBox*>(listCast<MdComboBox*,QComboBox*>(mSqlCbs))) {
+		//			mcbx->makePermanentView(true);
+		//		}
 
 
 	}
@@ -488,15 +503,15 @@ void InpFrm::aButtonClick(bool) {
 		ui->teSqlQuerys->setEnabled(true);
 		ui->teSqlQuerys->setReadOnly(false);
 		ui->teSqlQuerys->setText(tr("testtext"));
-//		ui->teSqlQuerys->setWr
+		//		ui->teSqlQuerys->setWr
 	}
 	if (pbSender == ui->btnRedo) {
-//		Browser *browser = Browser::instance();
-//		browser->on_connectionWidget_metaDataRequested("prj");
+		//		Browser *browser = Browser::instance();
+		//		browser->on_connectionWidget_metaDataRequested("prj");
 
 		mSqlCbs[0]->setModel( mModels.at(IDX_PROJECT).tableModel );
 		mModels.at(IDX_PROJECT).tableModel->select();
-		mSqlCbs[0]->setModelColumns(QList<quint8>() << 1 << 4);
+		mSqlCbs[0]->setModelColumns(QList<short>() << 1 << 4);
 
 		QModelIndex mix = mModels.at(IDX_PROJECT).tableModel->index(0,0,QModelIndex());
 		INFO << mix;
@@ -541,7 +556,7 @@ void InpFrm::mapCbTableProxyOld() {
 		sqlTblMdl->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
 		sqlTblMdl->setTable( modelNames.at(k).split(",").at(0) );
-//		INFO << tr("sqlTblMdl->setTable(%1)").arg( modelNames.at(k).split(",").at(0) );
+		//		INFO << tr("sqlTblMdl->setTable(%1)").arg( modelNames.at(k).split(",").at(0) );
 
 		sqlTblMdl->select();
 
@@ -553,7 +568,7 @@ void InpFrm::mapCbTableProxyOld() {
 		 * Select the column which should be provided by the proxy model.
 		 */
 		proxyMdl->setFilterKeyColumn(sqlTblMdl->fieldIndex( modelNames.at(k).split(",").at(1)) );
-//		INFO << tr("setFilterKeyColumn(%1)").arg( modelNames.at(k).split(",").at(1) );
+		//		INFO << tr("setFilterKeyColumn(%1)").arg( modelNames.at(k).split(",").at(1) );
 
 		cbx->setModel( proxyMdl );
 		mSqlCbs[k++]->setModelColumn( proxyMdl->filterKeyColumn() );
@@ -613,7 +628,7 @@ void InpFrm::mapCbTableProxyOld() {
 }
 void InpFrm::mapCbTableProxy() {
 
-//	mModels[IDX_PROJECT].setModelColumns(QList<quint8>() << 1 << 4, mSqlCbs.first());
+	//	mModels[IDX_PROJECT].setModelColumns(QList<quint8>() << 1 << 4, mSqlCbs.first());
 	return;
 
 
@@ -653,7 +668,7 @@ void InpFrm::mapCbTableProxy() {
 		sqlTblMdl->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
 		sqlTblMdl->setTable( modelNames.at(k).split(",").at(0) );
-//		INFO << tr("sqlTblMdl->setTable(%1)").arg( modelNames.at(k).split(",").at(0) );
+		//		INFO << tr("sqlTblMdl->setTable(%1)").arg( modelNames.at(k).split(",").at(0) );
 
 		sqlTblMdl->select();
 
@@ -665,7 +680,7 @@ void InpFrm::mapCbTableProxy() {
 		 * Select the column which should be provided by the proxy model.
 		 */
 		proxyMdl->setFilterKeyColumn(sqlTblMdl->fieldIndex( modelNames.at(k).split(",").at(1)) );
-//		INFO << tr("setFilterKeyColumn(%1)").arg( modelNames.at(k).split(",").at(1) );
+		//		INFO << tr("setFilterKeyColumn(%1)").arg( modelNames.at(k).split(",").at(1) );
 
 		cbx->setModel( proxyMdl );
 		mSqlCbs[k++]->setModelColumn( proxyMdl->filterKeyColumn() );
@@ -858,41 +873,41 @@ void InpFrm::onChangeFocusOrder(Qt::FocusOrderState state) {
 		return;
 	}
 
-//	/** If changeTabOrder process is not active && state == init, ... */
-//	if (! (mChangeFocusFlag == Qt::FocusChange_isRunning) &&
-//	    state == Qt::FocusChange_init) {
-//		mObjFocusOrder.clear();
-//		mChangeFocusFlag = Qt::FocusChange_isRunning;
-//		emit stateMessage(tr("Init process to change the "
-//		                     "input form tab order..."), 2000);
-//		return;
-//	}
+	//	/** If changeTabOrder process is not active && state == init, ... */
+	//	if (! (mChangeFocusFlag == Qt::FocusChange_isRunning) &&
+	//	    state == Qt::FocusChange_init) {
+	//		mObjFocusOrder.clear();
+	//		mChangeFocusFlag = Qt::FocusChange_isRunning;
+	//		emit stateMessage(tr("Init process to change the "
+	//		                     "input form tab order..."), 2000);
+	//		return;
+	//	}
 
-//	/** --> Succesfull change of tab order objects
-//	 * If this slot is called with parameter FocusChange_done &&
-//	 * current state is FocusChange_isRunning
-//	 * --> Succesfull change of tab order objects, run all setTabOrder(..) now
-//	 */
-//	if (mChangeFocusFlag == Qt::FocusChange_isRunning &&
-//	    state == Qt::FocusChange_done) {
+	//	/** --> Succesfull change of tab order objects
+	//	 * If this slot is called with parameter FocusChange_done &&
+	//	 * current state is FocusChange_isRunning
+	//	 * --> Succesfull change of tab order objects, run all setTabOrder(..) now
+	//	 */
+	//	if (mChangeFocusFlag == Qt::FocusChange_isRunning &&
+	//	    state == Qt::FocusChange_done) {
 
-//		QList<QWidget *> widTabOrder = listCast<QWidget*, QObject*>( mObjFocusOrder );
-//		QStringList lst;
-//		for (int i=0; i < widTabOrder.length()-1; i++) {
-//			widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
-//			lst.append(widTabOrder[i]->objectName());
-//		}
+	//		QList<QWidget *> widTabOrder = listCast<QWidget*, QObject*>( mObjFocusOrder );
+	//		QStringList lst;
+	//		for (int i=0; i < widTabOrder.length()-1; i++) {
+	//			widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
+	//			lst.append(widTabOrder[i]->objectName());
+	//		}
 
-//		//        INFO << lst;
-//		mChangeFocusFlag = Qt::FocusChange_done;
+	//		//        INFO << lst;
+	//		mChangeFocusFlag = Qt::FocusChange_done;
 
-//		QSETTINGS;
-//		config.setValue(this->objectName() + "/TabOrder", lst.join(","));
-//		emit stateMessage(tr("Input form tab order successfully changed!"), 2000);
-//		return;
-//	}
+	//		QSETTINGS;
+	//		config.setValue(this->objectName() + "/TabOrder", lst.join(","));
+	//		emit stateMessage(tr("Input form tab order successfully changed!"), 2000);
+	//		return;
+	//	}
 
-//	return;
+	//	return;
 
 }
 void InpFrm::restoreTabOrder() {
@@ -916,25 +931,25 @@ void InpFrm::restoreTabOrder() {
 			 * .isValid() == true could be found.
 			 */
 
+			if (false) {
+				INFO << listFindByName<MdComboBox*>(mSqlCbs, name);
 
-			INFO << listFindByName<MdComboBox*>(mSqlCbs, name);
+				auto itObj = std::find_if (mSqlCbs.begin(), mSqlCbs.end(), [](QComboBox *w)
+				{ return w->objectName() == "cbPrjNummer"; } );
+				INFO << *itObj;
+			}
 
-			auto itObj = std::find_if (mSqlCbs.begin(), mSqlCbs.end(), [](QComboBox *w)
-			{ return w->objectName() == "cbPrjNummer"; } );
-			INFO << *itObj;
+			//			if (userCtrlsChilds.indexOf(name) < 0)
+			//				CRIT << tr("Cild not found");
 
+			//			userCtrlsChilds.at( userCtrlsChilds.indexOf(name) )
+			//					->property("hasSqlMapper").isValid()) {
+			//				CRIT << tr("Cannot find child widget %1 with valid "
+			//							  """hasSqlMapper"" property!").arg(name);
+			//				continue;
+			//			}
 
-//			if (userCtrlsChilds.indexOf(name) < 0)
-//				CRIT << tr("Cild not found");
-
-//			userCtrlsChilds.at( userCtrlsChilds.indexOf(name) )
-//					->property("hasSqlMapper").isValid()) {
-//				CRIT << tr("Cannot find child widget %1 with valid "
-//							  """hasSqlMapper"" property!").arg(name);
-//				continue;
-//			}
-
-//			tabOrderList << userCtrlsChilds.at( userCtrlsChilds.indexOf(name) );
+			//			tabOrderList << userCtrlsChilds.at( userCtrlsChilds.indexOf(name) );
 		}
 	}
 	else {

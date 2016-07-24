@@ -8,9 +8,21 @@
 #include <QGroupBox>
 #include <QTableView>
 #include <QSqlRelationalTableModel>
+#include <algorithm>
+#include <QCompleter>
 
 #include "globals.h"
 #include "debug.h"
+
+/*!
+ * do-while() loop is a trick to let you define multi-statement macros and
+ * call them like functions. Note the lack of trailing ';'
+ */
+#define qReturn(msg)		do { WARN << QString(msg); return; } while(0)
+#define bReturn(msg)		do { WARN << QString(msg); return false; } while(0)
+#define vReturn(msg)		do { WARN << QString(msg); return QVariant(); } while(0)
+#define milReturn(msg)	do { WARN << QString(msg); return QModelIndexList(); } while(0)
+
 
 class MdComboBox : public QComboBox {
 
@@ -46,7 +58,31 @@ public:
 			delete tv;
 		}
 	}
-	bool setModelColumns(QList<quint8>columns);
+	bool setModelColumns(QList<short> columns) {
+		int colCount = model()->columnCount(QModelIndex()),
+				rowCount = model()->rowCount(QModelIndex());
+
+		auto biggest = std::max_element(columns.begin(), columns.end());
+
+		/** Check if vector columns contains invalid column values */
+		if (colCount <= *biggest)
+			bReturn("Invalid column index found");
+
+		INFO << rowCount << colCount;
+
+		QStringList stringList;
+		for (QList<short>::iterator cIt = columns.begin(); cIt != columns.end(); cIt++) {
+			for (int r = 0; r < rowCount; r++) {
+				stringList << model()->data( model()->index(r, *cIt, QModelIndex()) ).toString();
+			}
+		}
+
+		setModel( new QStringListModel(stringList) );
+		QCompleter *completer = new QCompleter(stringList, this);
+		completer->setCaseSensitivity(Qt::CaseInsensitive);
+		setCompleter(completer);
+		return true;
+	}
 
 protected:
 	virtual void timerEvent(QTimerEvent *) override {
