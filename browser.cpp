@@ -51,8 +51,8 @@ Browser::Browser(QWidget *parent) : QWidget(parent),
 	cm->setCenterCols(QVector<int>(0, 1));
 
 	filterForm = SortWindow::getInstance();
-	filterForm->setWindowTitle(filterForm->objectName());
-	filterForm->setVisible(false);
+	filterForm->setWindowTitle(tr("The window title ") + filterForm->objectName());
+	filterForm->hide();
 }
 Browser::~Browser() {
 	delete ui;
@@ -249,7 +249,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	QSqlDatabase pDb = connectionWidget->currentDatabase();
 	QTableView *tv = tvc->tv();
 	QSqlRelationalTableModel *rmod = new SqlRtm(tvc->tv(), pDb);
-	rmod->setEditStrategy(QSqlTableModel::OnRowChange);
+	rmod->setEditStrategy(QSqlTableModel::OnFieldChange);
 	rmod->setTable(pDb.driver()->escapeIdentifier(tNam, QSqlDriver::TableName));
 	/**
 	 * Because the target database contains more than one table related on
@@ -511,6 +511,8 @@ void Browser::on_fieldStrategyAction_triggered() {
 
 	if (tm)
 		tm->setEditStrategy(QSqlTableModel::OnFieldChange);
+
+	on_selectAction_triggered();
 }
 void Browser::on_rowStrategyAction_triggered() {
 	TabView *locTabView = qobject_cast<TabView *>( tvs.first() );
@@ -555,6 +557,11 @@ void Browser::on_selectAction_triggered() {
 	if (tm)
 		tm->select();
 }
+void Browser::onBeforeUpdate(int row, QSqlRecord &record) {
+	INFO << row;
+	INFO << record;
+}
+
 /**
  * Entered after double clicking a table item in connection widget tree view
  */

@@ -4,6 +4,7 @@
 #define QUERYPREFIX  tr("CUSTOM_QUERY_")
 #define NEWQUERY     tr("NewQuery")
 
+class MdComboBox;
 
 /* ======================================================================== */
 /*                              InpFrm::InpFrm                              */
@@ -21,69 +22,65 @@ InpFrm::InpFrm(QWidget *parent) :
 	ui->gbSqlQuery->hide();
 	this->setFixedHeight(125);
 
-	/*!
-	 * Create list of all widgets which are sourced via sql models
-	 */
-//	mSqlCbs = findChildren<QWidget*>();
-
-//	foreach (QWidget *w, mSqlCbs) {
-//		if (! w->property("hasSqlMapper").isValid())
-//			mSqlCbs.removeOne(w);
-//		else
-//			/*!
-//			 * Install custom event filter object for SQL mapping purposes.
-//			 */
-//			w->installEventFilter( new SqlEventFilter(this) );
-//		INFO << tr("prop:") << w->metaObject()->className();
-//	}
-	mSqlCbs = findChildren<QComboBox *>();
-
-	foreach (QComboBox *cb, mSqlCbs) {
-		if (! cb->property("hasSqlMapper").isValid())
-			mSqlCbs.removeOne(cb);
-		else
-			/*!
-			 * Install custom event filter object for SQL mapping purposes.
-			 */
-			cb->installEventFilter( new SqlEventFilter(this) );
-		INFO << tr("prop:") << cb->metaObject()->className();
-	}
-
 	WIN_RESTORE(this);
 
 	initComboboxes();
 	restoreTabOrder();
 
-	ui->gboxWorker->hide();
-	/* ======================================================================== */
-//	QSqlQuery
-
+//	ui->gboxWorker->hide();
 	/* ======================================================================== */
 
+#ifdef SELF0
+	QSqlRelationalTableModel *sqlTblMdl = new QSqlRelationalTableModel(this);
+	QSortFilterProxyModel *proxyMdl = new QSortFilterProxyModel(this);
+	proxyMdl->setDynamicSortFilter(true);
+	sqlTblMdl->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
-//	QSqlTableModel *sqlTblMdl = new QSqlTableModel(this);
+	sqlTblMdl->setTable( tr("prj") );
+
+	/** Set the relations to the other database tables */
+	sqlTblMdl->setRelation(sqlTblMdl->fieldIndex("clientID"),
+								  QSqlRelation("client", "clientID", "Name"));
+
+	/** Set the localized header captions */
+	sqlTblMdl->setHeaderData(sqlTblMdl->fieldIndex("prjID"), Qt::Horizontal, tr("ID"));
+	sqlTblMdl->setHeaderData(sqlTblMdl->fieldIndex("clientID"), Qt::Horizontal, tr("Kunde, Name"));
+	sqlTblMdl->select();
+	/** Set the source model (sql table model) for the filter proxy model objects. */
+	proxyMdl->setSourceModel( sqlTblMdl );
+	proxyMdl->setFilterKeyColumn(-1);
+
+	ui->testCb->setModel( proxyMdl );
+	connect(ui->testLe, &QLineEdit::returnPressed, this, &InpFrm::onTestLeChanged);
+#endif
+#ifdef SELF
 	QSqlRelationalTableModel *sqlTblMdl = new QSqlRelationalTableModel(this);
 	SortFilterProxyModel *proxyMdl = new SortFilterProxyModel(this);
 	proxyMdl->setDynamicSortFilter(true);
 	sqlTblMdl->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
 	sqlTblMdl->setTable( tr("prj") );
-	sqlTblMdl->setRelation(2, QSqlRelation());
+
+	/** Set the relations to the other database tables */
+	sqlTblMdl->setRelation(sqlTblMdl->fieldIndex("clientID"),
+								  QSqlRelation("client", "clientID", "Name"));
+
+	/** Set the localized header captions */
+	sqlTblMdl->setHeaderData(sqlTblMdl->fieldIndex("prjID"), Qt::Horizontal, tr("ID"));
+	sqlTblMdl->setHeaderData(sqlTblMdl->fieldIndex("clientID"), Qt::Horizontal, tr("Kunde, Name"));
 	sqlTblMdl->select();
-	/*!
-	 * Set the source model (sql table model) for the filter proxy model objects.
-	 */
+
+	/** Set the source model (sql table model) for the filter proxy model objects. */
 	proxyMdl->setSourceModel( sqlTblMdl );
-	/*!
-	 * Select the column which should be provided by the proxy model.
-	 */
-	QList<qint32> cols;
-	cols << sqlTblMdl->fieldIndex( tr("Nummer") );
-	proxyMdl->setFilterKeyColumn(cols.at(0));
-	proxyMdl->addFilterFixedString( cols.at(0), tr("Nummer") );
+
+	QTableView *_tv = new QTableView();
+	_tv->setModel(sqlTblMdl);
+	_tv->show();
 	ui->testCb->setModel( sqlTblMdl );
+
 	ui->testCb->setModelColumn( /*proxyMdl->filterKeyColumn()*/0 );
 	connect(ui->testLe, &QLineEdit::returnPressed, this, &InpFrm::onTestLeChanged);
+#endif
 }
 InpFrm::~InpFrm() {
 	WIN_STORE(this);
@@ -95,11 +92,42 @@ InpFrm::~InpFrm() {
 
 	delete ui;
 }
-void InpFrm::onTestLeChanged() {
-	ui->testCb->setModelColumn( ui->testLe->text().toInt() );
-}
-
 void InpFrm::initComboboxes() {
+	/*!
+	 * Initialize sql combobox list member mSqlCbs.
+	 */
+	mSqlCbs = findChildren<MdComboBox *>();
+
+
+	foreach (MdComboBox *cb, mSqlCbs) {
+		if (! cb->property("hasSqlMapper").isValid())
+			mSqlCbs.removeOne(cb);
+		else {
+			/*!
+			 * Install custom event filter object for SQL mapping purposes.
+			 */
+			cb->installEventFilter( new SqlEventFilter(this) );			
+		}
+	}
+
+	mModels.append( fieldGroup_t() );
+	mModels.append( fieldGroup_t() );
+	mModels.append( fieldGroup_t() );
+
+	mModels[IDX_PROJECT].tableModel->setTable(tr("prj"));
+	mModels[IDX_CLIENT].tableModel->setTable(tr("client"));
+	mModels[IDX_WORKER].tableModel->setTable(tr("worker"));
+
+	mModels[IDX_PROJECT].proxyModel->setSourceModel(mModels.at(IDX_PROJECT).tableModel);
+	mModels[IDX_CLIENT].proxyModel->setSourceModel(mModels.at(IDX_CLIENT).tableModel);
+	mModels[IDX_WORKER].proxyModel->setSourceModel(mModels.at(IDX_WORKER).tableModel);
+
+	mModels[IDX_PROJECT].setModelColumns(QList<quint8>() << 1 << 4, ui->cbPrjKurzform);
+	mModels[IDX_CLIENT].setModelColumns(QList<quint8>() << 1 << 3, ui->cbClientKurzform);
+	mModels[IDX_WORKER].setModelColumns(QList<quint8>() << 1 << 2 << 3, ui->cbWorkerNachname);
+
+}
+void InpFrm::initComboboxes2() {
 	QList<QSqlTableModel *> tms;
 	QList<QDataWidgetMapper *> dms;
 
@@ -117,17 +145,17 @@ void InpFrm::initComboboxes() {
 	  * be used to provide data to view classes such as QTableView.
 	  * http://doc.qt.io/qt-5/qsqltablemodel.html#details
 	  */
+#ifdef INIT2
 	prjmd = new QSqlTableModel();
 	clmd = new QSqlTableModel();
 	wkmd = new QSqlTableModel();
-	prjm = new QDataWidgetMapper();
-	clm = new QDataWidgetMapper();
-	wkm = new QDataWidgetMapper();
-
 	prjmd->setTable("prj");
 	clmd->setTable("client");
 	wkmd->setTable("worker");
 
+	prjm = new QDataWidgetMapper();
+	clm = new QDataWidgetMapper();
+	wkm = new QDataWidgetMapper();
 	prjm->setModel( prjmd );
 	clm->setModel( clmd );
 	wkm->setModel( wkmd );
@@ -143,7 +171,7 @@ void InpFrm::initComboboxes() {
 	prjm->toFirst();
 	clm->toFirst();
 	wkm->toFirst();
-
+#endif
 	//   QList<QString> tbRls;
 	//   QStringList tLst, kLst;
 
@@ -405,10 +433,9 @@ void InpFrm::aButtonClick(bool) {
 		Browser::instance()->exec();
 	}
 	if (pbSender == ui->btnClear) {
-		foreach (MdComboBox *mcbx, QList<MdComboBox*>(
-						listCast<MdComboBox*,QComboBox*>(mSqlCbs))) {
-			mcbx->makePermanentView(true);
-		}
+//		foreach (MdComboBox *mcbx, QList<MdComboBox*>(listCast<MdComboBox*,QComboBox*>(mSqlCbs))) {
+//			mcbx->makePermanentView(true);
+//		}
 
 
 	}
@@ -435,8 +462,17 @@ void InpFrm::aButtonClick(bool) {
 //		ui->teSqlQuerys->setWr
 	}
 	if (pbSender == ui->btnRedo) {
-		Browser *browser = Browser::instance();
-		browser->on_connectionWidget_metaDataRequested("prj");
+//		Browser *browser = Browser::instance();
+//		browser->on_connectionWidget_metaDataRequested("prj");
+
+		mSqlCbs[0]->setModel( mModels.at(IDX_PROJECT).tableModel );
+		mSqlCbs[0]->setModelColumns(QList<quint8>() << 1 << 4);
+
+		QModelIndex mix = mModels.at(IDX_PROJECT).tableModel->index(0,0,QModelIndex());
+		INFO << mModels.at(IDX_PROJECT).tableModel->rowCount(QModelIndex())
+			  << mModels.at(IDX_PROJECT).tableModel->columnCount(QModelIndex())
+			  << mModels.at(IDX_PROJECT).tableModel->rowCount(mix)
+			  << mModels.at(IDX_PROJECT).tableModel->columnCount(mix);
 	}
 }
 void InpFrm::mapCbTableProxyOld() {
@@ -545,6 +581,8 @@ void InpFrm::mapCbTableProxyOld() {
 
 }
 void InpFrm::mapCbTableProxy() {
+	mModels[IDX_PROJECT].setModelColumns(QList<quint8>() << 1 << 4, mSqlCbs.first());
+	return;
 	/*!
 	 * Creat a string list which contains the table name. For easy switching possibility
 	 * within a group box (for example):
@@ -844,7 +882,7 @@ void InpFrm::restoreTabOrder() {
 			 */
 
 
-			INFO << listFindByName<QComboBox*>(mSqlCbs, name);
+			INFO << listFindByName<MdComboBox*>(mSqlCbs, name);
 
 			auto itObj = std::find_if (mSqlCbs.begin(), mSqlCbs.end(), [](QComboBox *w)
 			{ return w->objectName() == "cbPrjNummer"; } );

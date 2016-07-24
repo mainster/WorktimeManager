@@ -10,7 +10,8 @@ class SortFilterProxyModel : public QSortFilterProxyModel {
 	Q_OBJECT
 
 public:
-	explicit SortFilterProxyModel(QObject *parent = 0);
+	explicit SortFilterProxyModel(QObject *parent = 0)
+		: QSortFilterProxyModel(parent) {}
 	void setFilterKeyColumns(const QList<qint32> &filterColumns);
 	void addFilterFixedString(qint32 column, const QString &pattern);
 

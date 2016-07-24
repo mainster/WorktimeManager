@@ -31,6 +31,14 @@ Q_ENUMS(FocusOrderState)
 
 #define MAX_TAB_ORDER_WIDGETS		8
 
+/*!
+ * Access index definition for QList<fieldGroup_t> mModels.
+ */
+#define	IDX_PROJECT			0
+#define	IDX_CLIENT			1
+#define	IDX_WORKER			2
+#define	IDX_CONTRACOTR		3
+
 /* ======================================================================== */
 /*                               class InpFrm                               */
 /* ======================================================================== */
@@ -39,6 +47,45 @@ class InpFrm : public QDockWidget {
 	Q_OBJECT
 
 public:
+	struct fieldGroup_t {
+		fieldGroup_t(QObject *parent = 0)
+			: tableModel( new QSqlRelationalTableModel(parent) ),
+			  proxyModel( new QSortFilterProxyModel(parent) ),
+			  listModel( new QStringListModel(parent)) {}
+
+		bool setModelColumns(/*const*/ QList<quint8> &columns, MdComboBox *comboBox) {
+			/** Check if columns contains invalid column values */
+			qSort(columns.begin(), columns.end());
+			int colCount = proxyModel->columnCount(QModelIndex()),
+					rowCount = proxyModel->rowCount(QModelIndex());
+
+			if (columns.last() >= colCount)
+				bReturn("Invalid column index found");
+
+			INFO << rowCount << colCount;
+			INFO << tableModel->rowCount(QModelIndex()) << tableModel->columnCount(QModelIndex());
+
+			QStringList stringList;
+			for (QList<quint8>::const_iterator cIt = columns.begin(); cIt != columns.end(); cIt++) {
+				for (int r = 0; r < rowCount; r++) {
+					stringList << proxyModel->data(
+										  proxyModel->index(r, *cIt, QModelIndex()) ).toString();
+				}
+			}
+			INFO << stringList;
+
+			comboBox->setModel( new QStringListModel(stringList) );
+			return true;
+		}
+
+		QSqlRelationalTableModel *tableModel;
+		QSortFilterProxyModel *proxyModel;
+		QStringListModel *listModel;
+		QDataWidgetMapper *widgetMapper;
+	};
+
+	QList<fieldGroup_t> mModels;
+
 
 	struct /*mTabOrder_t*/ {
 	public:
@@ -72,6 +119,7 @@ public:
 	void setChangeFocusFlag(const Qt::FocusOrderState &stateFlag);
 	bool setFocusOrder(QList<QWidget *> targets);
 
+	void initComboboxes2();
 signals:
 	void changeFocusOrder(Qt::FocusOrderState state = Qt::FocusChange_init);
 	void stateMessage(const QString msg, const int option);
@@ -93,7 +141,6 @@ public slots:
 	void aButtonClick(bool);
 	void onInpFormChanges(int idx);
 
-	void onTestLeChanged();
 protected:
 	void connectActions();
 	virtual void keyPressEvent(QKeyEvent *) override;
@@ -110,21 +157,21 @@ private:
 	Ui::InpFrm						*ui;
 	static InpFrm					*inst;
 	int								workerIdx, projIdx;
-	QSqlRelationalTableModel	*model;
-	QSqlTableModel					*prjmd, *clmd, *wkmd;
-	QDataWidgetMapper				*prjm, *clm, *wkm;
+//	QSqlRelationalTableModel	*model;
+//	QSqlTableModel					*prjmd, *clmd, *wkmd;
+//	QDataWidgetMapper				*prjm, *clm, *wkm;
 	MDStateBar						*stateBar;
 	QDateEdit						*de;
 	QDialog							*dlg;
 	QVector<QRadioButton*>		rbv;
 //	QList<QWidget *>				mSqlCbs;
-	QList<QComboBox*>				mSqlCbs;
+	QList<MdComboBox *>			mSqlCbs;
 	QSqlQuery						query;
 	QStringList						tblLst;
 	QTextEdit						*gbSqlQuery;
 	Qt::FocusOrderState			mChangeFocusFlag;
 	bool								mEscapeTrigger;
-
+//	SortFilterProxyModel			*proxyModel;
 };
 
 #endif // INPFRM_H

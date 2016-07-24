@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1547</width>
+    <width>1552</width>
     <height>374</height>
    </rect>
   </property>
@@ -390,38 +390,7 @@ color: ;
          <property name="bottomMargin">
           <number>8</number>
          </property>
-         <item row="1" column="1">
-          <widget class="QLabel" name="labPrjKurzform">
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>10</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QLabel{
-color: ;
-	color: rgb(70, 70, 70);
-}</string>
-           </property>
-           <property name="text">
-            <string>Kurzform</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-           <property name="indent">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
+         <item row="0" column="1">
           <widget class="MdComboBox" name="cbPrjNummer">
            <property name="minimumSize">
             <size>
@@ -461,7 +430,69 @@ color: ;
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
+         <item row="1" column="1">
+          <widget class="QLabel" name="labPrjNum">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QLabel{
+color: ;
+	color: rgb(70, 70, 70);
+}</string>
+           </property>
+           <property name="text">
+            <string>Nr.</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <property name="indent">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="labPrjKurzform">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QLabel{
+color: ;
+	color: rgb(70, 70, 70);
+}</string>
+           </property>
+           <property name="text">
+            <string>Kurzform</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <property name="indent">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
           <widget class="MdComboBox" name="cbPrjKurzform">
            <property name="minimumSize">
             <size>
@@ -503,77 +534,6 @@ color: ;
             <bool>false</bool>
            </property>
           </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="labPrjNum">
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>10</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QLabel{
-color: ;
-	color: rgb(70, 70, 70);
-}</string>
-           </property>
-           <property name="text">
-            <string>Nr.</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-           <property name="indent">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="MdComboBox" name="testCb">
-           <property name="minimumSize">
-            <size>
-             <width>59</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-           <property name="currentText">
-            <string>empty</string>
-           </property>
-           <property name="insertPolicy">
-            <enum>QComboBox::NoInsert</enum>
-           </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
-           </property>
-           <property name="minimumContentsLength">
-            <number>10</number>
-           </property>
-           <property name="frame">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLineEdit" name="testLe"/>
          </item>
         </layout>
        </widget>

@@ -142,6 +142,7 @@ public slots:
    void autofitRowCol();
    void onActFilterForm(bool b);
 
+	void onBeforeUpdate(int row, QSqlRecord &record);
 protected slots:
    void showEvent(QShowEvent *e);
    bool eventFilter(QObject *obj, QEvent *e);

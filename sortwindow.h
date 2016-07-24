@@ -2,6 +2,7 @@
 #define SORTWINDOW_H
 
 #include <QWidget>
+#include <QCompleter>
 
 class QAbstractItemModel;
 class QCheckBox;
@@ -35,6 +36,7 @@ public slots:
 //    bool eventFilter(QObject *obj, QEvent *ev);
 	 virtual void keyPressEvent(QKeyEvent *) override;
 
+	 void cbTextFilterChanged();
 signals:
     void closesUncheck(bool b);
 
@@ -60,7 +62,7 @@ private:
     QLabel *fromLabel;
     QLabel *toLabel;
     QLineEdit *filtPattLE;
-    QComboBox *filtSyntaxCB;
+	 QComboBox *filtSyntaxCB, *filtPattCb;
     QDateEdit *fromDateEdit;
     QDateEdit *toDateEdit;
     QAction *deleteAct;

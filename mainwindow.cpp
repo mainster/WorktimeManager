@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	browser		= new Browser( parent );
 	mDbc			= new DbController(this);
 	inpFrm		= new InpFrm( this );
-	sortwindow  = new SortWindow();
+	sortwindow  = new SortWindow( parent );
 	stateBar->setClockVisible(true);
 	setStatusBar( stateBar );
 
@@ -319,7 +319,8 @@ void MainWindow::showEvent(QShowEvent *e) {
 
 	foreach (QAction *ac, acts) {
 		if ( config.value("MainWindow/" + ac->objectName(), false).toBool() )
-			emit ac->trigger();
+			if (ac != ui->actFilterForm)
+				emit ac->trigger();
 	}
 
 	try {
