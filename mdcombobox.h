@@ -10,6 +10,7 @@
 #include <QSqlRelationalTableModel>
 #include <algorithm>
 #include <QCompleter>
+#include <QLineEdit>
 
 #include "globals.h"
 #include "debug.h"
@@ -30,7 +31,8 @@ class MdComboBox : public QComboBox {
 
 public:
 	explicit MdComboBox(QWidget *parent = 0)
-		: QComboBox(parent) {}
+		: QComboBox(parent) {
+	}
 	~MdComboBox() {
 //		delete tv;
 	}
@@ -88,9 +90,14 @@ public:
 	}
 
 protected:
-	virtual void timerEvent(QTimerEvent *) override {
-		hidePopup();
-		showPopup();
+	virtual void timerEvent(QTimerEvent *e) override {
+		lineEdit()->selectAll();
+		QObject::killTimer(e->timerId());
+	}
+	void focusInEvent(QFocusEvent *e) {
+		lineEdit()->setSelection(1,3);
+		QObject::startTimer(0);
+		QComboBox::focusInEvent(e);
 	}
 
 protected slots:
@@ -103,7 +110,6 @@ private:
 	int timerId;
 	QTableView *tv;
 	QCompleter *completer;
-//	static QTableView *tv;
 };
 
 #endif // MDCOMBOBOX_H
