@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1307</width>
+    <width>1552</width>
     <height>374</height>
    </rect>
   </property>
@@ -390,8 +390,79 @@ color: ;
          <property name="bottomMargin">
           <number>8</number>
          </property>
+         <item row="0" column="1">
+          <widget class="MdComboBox" name="cbPrjNummer">
+           <property name="minimumSize">
+            <size>
+             <width>59</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <property name="currentText">
+            <string>empty</string>
+           </property>
+           <property name="insertPolicy">
+            <enum>QComboBox::NoInsert</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+           </property>
+           <property name="minimumContentsLength">
+            <number>10</number>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="hasFocus" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="hasSqlMapper" stdset="0">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="labPrjNum">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QLabel{
+color: ;
+	color: rgb(70, 70, 70);
+}</string>
+           </property>
+           <property name="text">
+            <string>Nr.</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <property name="indent">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="lblPrj">
+          <widget class="QLabel" name="labPrjKurzform">
            <property name="font">
             <font>
              <family>Arial</family>
@@ -422,10 +493,10 @@ color: ;
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="MdComboBox" name="cbPrj">
+          <widget class="MdComboBox" name="cbPrjKurzform">
            <property name="minimumSize">
             <size>
-             <width>250</width>
+             <width>59</width>
              <height>30</height>
             </size>
            </property>
@@ -442,7 +513,7 @@ color: ;
             <bool>true</bool>
            </property>
            <property name="currentText">
-            <string/>
+            <string>empty</string>
            </property>
            <property name="insertPolicy">
             <enum>QComboBox::NoInsert</enum>
@@ -506,8 +577,79 @@ color: ;
          <property name="bottomMargin">
           <number>8</number>
          </property>
+         <item row="0" column="1">
+          <widget class="MdComboBox" name="cbClientNummer">
+           <property name="minimumSize">
+            <size>
+             <width>59</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <property name="currentText">
+            <string>empty</string>
+           </property>
+           <property name="insertPolicy">
+            <enum>QComboBox::NoInsert</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+           </property>
+           <property name="minimumContentsLength">
+            <number>10</number>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="hasFocus" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="hasSqlMapper" stdset="0">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="labCustNum">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QLabel{
+color: ;
+	color: rgb(70, 70, 70);
+}</string>
+           </property>
+           <property name="text">
+            <string>Nr.</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <property name="indent">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="lblClient">
+          <widget class="QLabel" name="labClientKurzform">
            <property name="font">
             <font>
              <family>Arial</family>
@@ -538,10 +680,10 @@ color: ;
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="MdComboBox" name="cbClient">
+          <widget class="MdComboBox" name="cbClientKurzform">
            <property name="minimumSize">
             <size>
-             <width>250</width>
+             <width>59</width>
              <height>30</height>
             </size>
            </property>
@@ -555,7 +697,7 @@ color: ;
             <bool>true</bool>
            </property>
            <property name="currentText">
-            <string/>
+            <string>empty</string>
            </property>
            <property name="insertPolicy">
             <enum>QComboBox::NoInsert</enum>
@@ -622,11 +764,11 @@ color: ;
          <property name="bottomMargin">
           <number>8</number>
          </property>
-         <item row="0" column="0">
-          <widget class="MdComboBox" name="cbWorker">
+         <item row="0" column="2">
+          <widget class="MdComboBox" name="cbWorkerPersonalNr">
            <property name="minimumSize">
             <size>
-             <width>250</width>
+             <width>59</width>
              <height>30</height>
             </size>
            </property>
@@ -640,7 +782,90 @@ color: ;
             <bool>true</bool>
            </property>
            <property name="currentText">
-            <string/>
+            <string>empty</string>
+           </property>
+           <property name="maxVisibleItems">
+            <number>20</number>
+           </property>
+           <property name="insertPolicy">
+            <enum>QComboBox::NoInsert</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+           </property>
+           <property name="minimumContentsLength">
+            <number>5</number>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="hasFocus" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="hasSqlMapper" stdset="0">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="MdComboBox" name="cbWorkerNachname">
+           <property name="minimumSize">
+            <size>
+             <width>59</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <property name="currentText">
+            <string>empty</string>
+           </property>
+           <property name="insertPolicy">
+            <enum>QComboBox::NoInsert</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+           </property>
+           <property name="minimumContentsLength">
+            <number>10</number>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="hasFocus" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="hasSqlMapper" stdset="0">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="MdComboBox" name="cbWorkerVorname">
+           <property name="minimumSize">
+            <size>
+             <width>59</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <property name="currentText">
+            <string>empty</string>
            </property>
            <property name="insertPolicy">
             <enum>QComboBox::NoInsert</enum>
@@ -663,7 +888,7 @@ color: ;
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="lblWorker">
+          <widget class="QLabel" name="labWorkerLastname">
            <property name="font">
             <font>
              <family>Arial</family>
@@ -681,6 +906,65 @@ color: ;
            </property>
            <property name="text">
             <string>Nachname</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <property name="indent">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="labWorkerFirstname">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QLabel{
+color: ;
+	color: rgb(70, 70, 70);
+}</string>
+           </property>
+           <property name="text">
+            <string>Vorname</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <property name="indent">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="labWorkerNum">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="text">
+            <string>Nr.</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -1187,9 +1471,13 @@ QGroupBox::indicator:unchecked {
  <tabstops>
   <tabstop>datePicker</tabstop>
   <tabstop>sbID</tabstop>
-  <tabstop>cbPrj</tabstop>
-  <tabstop>cbClient</tabstop>
-  <tabstop>cbWorker</tabstop>
+  <tabstop>cbPrjKurzform</tabstop>
+  <tabstop>cbPrjNummer</tabstop>
+  <tabstop>cbClientKurzform</tabstop>
+  <tabstop>cbClientNummer</tabstop>
+  <tabstop>cbWorkerNachname</tabstop>
+  <tabstop>cbWorkerVorname</tabstop>
+  <tabstop>cbWorkerPersonalNr</tabstop>
   <tabstop>leHrs</tabstop>
   <tabstop>rbKrank</tabstop>
   <tabstop>rbKrank_2</tabstop>

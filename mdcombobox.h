@@ -71,15 +71,18 @@ public:
 		INFO << rowCount << colCount;
 
 		QStringList stringList;
-		for (QList<short>::iterator cIt = columns.begin(); cIt != columns.end(); cIt++) {
-			for (int r = 0; r < rowCount; r++) {
-				stringList << model()->data( model()->index(r, *cIt, QModelIndex()) ).toString();
+		for (int r = 0; r < rowCount; r++) {
+			QStringList *row = new QStringList();
+			for (QList<short>::iterator cIt = columns.begin(); cIt != columns.end(); cIt++) {
+				*row << model()->data( model()->index(r, *cIt, QModelIndex()) ).toString();
 			}
+			stringList << row->join(QString(", "));
 		}
 
 		setModel( new QStringListModel(stringList) );
-		QCompleter *completer = new QCompleter(stringList, this);
+		completer = new QCompleter(stringList, this);
 		completer->setCaseSensitivity(Qt::CaseInsensitive);
+		completer->setFilterMode(Qt::MatchContains);
 		setCompleter(completer);
 		return true;
 	}
@@ -99,6 +102,7 @@ private:
 	bool mShowPopups;
 	int timerId;
 	QTableView *tv;
+	QCompleter *completer;
 //	static QTableView *tv;
 };
 

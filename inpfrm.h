@@ -94,12 +94,12 @@ public:
 
 	void setSqlQueryTextboxVisible(bool visible);
 	void onInpFormUserCommit();
-	void onInpFormUserCommitOLD();
+//	void onInpFormUserCommitOLD();
 	Qt::FocusOrderState getChangeFocusFlag() const;
 	void setChangeFocusFlag(const Qt::FocusOrderState &stateFlag);
 	bool setFocusOrder(QList<QWidget *> targets);
-
 	void initComboboxes2();
+
 signals:
 	void changeFocusOrder(Qt::FocusOrderState state = Qt::FocusChange_init);
 	void stateMessage(const QString msg, const int option);
@@ -112,7 +112,6 @@ public slots:
 	QString getQueryText() const;
 	void saveSqlQueryInputText();
 	void restoreSqlQueryInputText();
-	void mapCbTableProxyOld();
 	void mapCbTableProxy();
 	void onSqlQuerysTextChanged();
 	void onCbQueryIndexChaned(int idx);
@@ -120,8 +119,8 @@ public slots:
 	void showEvent(QShowEvent *);
 	void aButtonClick(bool);
 	void onInpFormChanges(int idx);
+	void onCbIndexChanged(const int index);
 
-	void onBtnOkClicked();
 protected:
 	void connectActions();
 	virtual void keyPressEvent(QKeyEvent *) override;

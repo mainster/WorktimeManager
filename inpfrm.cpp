@@ -111,9 +111,9 @@ void InpFrm::initComboboxes() {
 	/*!
 	 * Append field groups to model struct mModels
 	 */
-	mModels << fieldGroup_t(tr("prj"), ui->cbPrjKurzform)
-			  << fieldGroup_t(tr("client"), ui->cbClientKurzform)
-			  << fieldGroup_t(tr("worker"), ui->cbWorkerNachname);
+	mModels << fieldGroup_t(tr("prj"), ui->cbPrj)
+			  << fieldGroup_t(tr("client"), ui->cbClient)
+			  << fieldGroup_t(tr("worker"), ui->cbWorker);
 
 	/*!
 	 * Set foreign key relations.
@@ -151,25 +151,51 @@ void InpFrm::initComboboxes() {
 	idx << mModels[IDX_PROJECT].tableModel->fieldIndex("Kurzform")
 		 << mModels[IDX_PROJECT].tableModel->fieldIndex("Nummer");
 	INFO << idx;
-	ui->cbPrjKurzform->setModelColumns(idx);
+	ui->cbPrj->setModelColumns(idx);
 
 	idx.clear();
 	idx << mModels[IDX_CLIENT].tableModel->fieldIndex("Kurzform")
 		 << mModels[IDX_CLIENT].tableModel->fieldIndex("Nummer");
 	INFO << idx;
-	ui->cbClientKurzform->setModelColumns(idx);
+	ui->cbClient->setModelColumns(idx);
 
 	idx.clear();
 	idx << mModels[IDX_WORKER].tableModel->fieldIndex("Nachname")
 		 << mModels[IDX_WORKER].tableModel->fieldIndex("Vorname")
 		 << mModels[IDX_WORKER].tableModel->fieldIndex("PersonalNr");
 	INFO << idx;
-	ui->cbWorkerNachname->setModelColumns(idx);
+	ui->cbWorker->setModelColumns(idx);
 
-	//	ui->cbPrjKurzform->setModelColumns(QList<quint8>() << 1 << 5);
-	//	ui->cbClientKurzform->setModelColumns(QList<quint8>() << 1 << 3);
-	//	ui->cbWorkerNachname->setModelColumns(QList<quint8>() << 1 << 2);
+	connect(ui->cbPrj, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
+	connect(ui->cbClient, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
+	connect(ui->cbWorker, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
 
+	//	ui->cbPrj->setModelColumns(QList<quint8>() << 1 << 5);
+	//	ui->cbClient->setModelColumns(QList<quint8>() << 1 << 3);
+	//	ui->cbWorker->setModelColumns(QList<quint8>() << 1 << 2);
+
+}
+void InpFrm::onCbIndexChanged(const int index) {
+	MdComboBox *cbSender = qobject_cast<MdComboBox *>(QObject::sender());
+
+	INFO  << cbSender << cbSender->currentText() << index << cbSender->currentIndex();
+
+	/*!
+	 * Since the combobox text could be a project number or project "Kurzform", we
+	 * have to find the correct record within the SQL table "prj" and set the row
+	 * to be viewed via ui->lblPrj.
+	 */
+	if (cbSender == ui->cbPrj) {
+		return;
+	}
+	if (cbSender == ui->cbClient) {
+
+		return;
+	}
+	if (cbSender == ui->cbWorker) {
+
+		return;
+	}
 }
 void InpFrm::initComboboxes2() {
 	QList<QSqlTableModel *> tms;
@@ -205,11 +231,11 @@ void InpFrm::initComboboxes2() {
 	wkm->setModel( wkmd );
 
 	prjm->addMapping(ui->cbPrjNummer,      prjmd->fieldIndex("Nummer"));
-	prjm->addMapping(ui->cbPrjKurzform,    prjmd->fieldIndex("Kurzform"));
+	prjm->addMapping(ui->cbPrj,    prjmd->fieldIndex("Kurzform"));
 	clm->addMapping( ui->cbClientNummer,   clmd->fieldIndex("Nummer"));
-	clm->addMapping( ui->cbClientKurzform, clmd->fieldIndex("Kurzform"));
+	clm->addMapping( ui->cbClient, clmd->fieldIndex("Kurzform"));
 	wkm->addMapping( ui->cbWorkerPersonalNr,  wkmd->fieldIndex("PersonalNr"));
-	wkm->addMapping( ui->cbWorkerNachname,    wkmd->fieldIndex("Nachname"));
+	wkm->addMapping( ui->cbWorker,    wkmd->fieldIndex("Nachname"));
 	wkm->addMapping( ui->cbWorkerVorname,     wkmd->fieldIndex("Vorname"));
 
 	prjm->toFirst();
@@ -398,9 +424,9 @@ void InpFrm::onInpFormUserCommit() {
 	/** Find workerID based on InpFrm ui selections
 	 * --------------------------------------------- */
 	q = QString("SELECT workerID FROM worker WHERE Nachname = \"%1\" "
-					"AND PersonalNr = %2")
-		 .arg( ui->cbWorkerNachname->currentText() )
-		 .arg( ui->cbWorkerPersonalNr->currentText().toInt() );
+					"AND PersonalNr = %2");
+//		 .arg( ui->cbWorker->currentText() )
+//		 .arg( ui->cbWorkerPersonalNr->currentText().toInt() );
 	query.exec( q );
 
 	int workerID = -1;
@@ -422,9 +448,9 @@ void InpFrm::onInpFormUserCommit() {
 	/** Find prjID based on InpFrm ui selections
 	 * --------------------------------------------- */
 	q = QString("SELECT prjID FROM prj WHERE Kurzform = \"%1\" "
-					"AND Nummer = %2")
-		 .arg( ui->cbPrjKurzform->currentText() )
-		 .arg( ui->cbPrjNummer->currentText().toInt() );
+					"AND Nummer = %2");
+//		 .arg( ui->cbPrj->currentText() )
+//		 .arg( ui->cbPrjNummer->currentText().toInt() );
 	query.exec( q );
 
 	int prjID = -1;
@@ -473,12 +499,12 @@ void InpFrm::aButtonClick(bool) {
 	QList<QWidget *> ws;
 /*
  * ws << ui->datePicker
-		<< ui->cbPrjKurzform
+		<< ui->cbPrj
 		<< ui->cbPrjNummer
-		<< ui->cbClientKurzform
+		<< ui->cbClient
 		<< ui->cbClientNummer
 		<< ui->cbWorkerVorname
-		<< ui->cbWorkerNachname
+		<< ui->cbWorker
 		<< ui->cbWorkerPersonalNr
 		<< ui->leHrs;
 
@@ -498,7 +524,7 @@ void InpFrm::aButtonClick(bool) {
 
 	}
 	if (pbSender == ui->btnOk) {
-		onBtnOkClicked();
+		onInpFormUserCommit();
 	}
 	if (pbSender == ui->btnUndo) {
 		ui->teSqlQuerys->show();
@@ -522,210 +548,6 @@ void InpFrm::aButtonClick(bool) {
 			  << mModels.at(IDX_PROJECT).tableModel->rowCount(mix)
 			  << mModels.at(IDX_PROJECT).tableModel->columnCount(mix);
 	}
-}
-void InpFrm::onBtnOkClicked() {
-	QSqlQuery query;
-	QString q;
-
-	/** Query actual count of records in worktime table */
-	query.exec("SELECT worktimID FROM worktime");
-
-	if (query.lastError().type() != QSqlError::NoError) {
-		QMessageBox::warning(this, "Fehler bei SQL Query",
-									"query.lastError().type() != QSqlError::NoError");
-		return;
-	}
-
-	/** Select actual worktimIDs
-	 * ------------------------- */
-	int worktimID_max = 0;
-	QVector<int> ids;
-
-	while (query.next()) {
-		if (query.value(0).toInt() > worktimID_max)
-			worktimID_max = query.value(0).toInt();
-
-		ids.append( query.value(0).toInt() );
-	}
-
-	/** Find the next higher, unused worktimID */
-	while ( ids.contains(++worktimID_max));
-
-	/** Find workerID based on InpFrm ui selections
-	 * --------------------------------------------- */
-	q = QString("SELECT workerID FROM worker WHERE Nachname = \"%1\" "
-					"AND PersonalNr = %2")
-			.arg( ui->cbWorkerNachname->currentText() )
-			.arg( ui->cbWorkerPersonalNr->currentText().toInt() );
-	query.exec( q );
-
-	int workerID = -1;
-	while (query.next()) {
-		/**
-		 * If workerID != -1, this is the second loop entry but workerID
-		 * must be unique! --> Error
-		 */
-		if (workerID > 0) {
-			QMessageBox::warning(this, "Fehler bei SQL Query",
-										"Non-unique workerID detected!");
-			return;
-		}
-		else {
-			workerID = query.value(0).toInt();
-		}
-	}
-
-	/** Find prjID based on InpFrm ui selections
-	 * --------------------------------------------- */
-	q = QString("SELECT prjID FROM prj WHERE Kurzform = \"%1\" "
-					"AND Nummer = %2")
-			.arg( ui->cbPrjKurzform->currentText() )
-			.arg( ui->cbPrjNummer->currentText().toInt() );
-	query.exec( q );
-
-	int prjID = -1;
-	while (query.next()) {
-		/**
-		 * If prjID != -1, this is the second loop entry but prjID
-		 * must be unique! --> Error
-		 */
-		if (prjID > 0) {
-			QMessageBox::warning(this, "Fehler bei SQL Query",
-										"Non-unique prjID detected!");
-			return;
-		}
-		else {
-			prjID = query.value(0).toInt();
-		}
-	}
-
-
-	/** Prepare query for new record */
-	query.prepare("INSERT INTO worktime (worktimID, dat, workerID, prjID, hours) "
-					  "VALUES (:worktimID, :dat, :workerID, :prjID, :hours)");
-
-	query.bindValue(":worktimID", worktimID_max);
-	query.bindValue(":dat", ui->datePicker->date().toString(Qt::SystemLocaleShortDate));
-	query.bindValue(":workerID", workerID);
-	query.bindValue(":prjID", prjID);
-	query.bindValue(":hours", ui->leHrs->text().toInt());
-
-	query.exec();
-	Browser::instance()->requeryWorktimeTableView();
-
-	Q_INFO.noquote() << query.lastQuery();
-
-	if (query.lastError().type() != QSqlError::NoError) {
-		QMessageBox::warning(this, "Fehler bei SQL Query",
-									QString("Error type:" + query.lastError().driverText() +
-											  "\nin final add-record query"));
-		return;
-	}
-}
-void InpFrm::mapCbTableProxyOld() {
-	/*!
-	 * Creat a string list which contains the table name. For easy switching possibility
-	 * within a group box (for example):
-	 *  Worker:		firstname,	lastname
-	 *  Worker:		lastname,	firstname
-	 * ... it is necessary to do the following string operations:
-	 */
-	QList<QString> modelNames;
-	foreach (QComboBox *cbx, mSqlCbs) {
-		if (cbx->objectName().contains("client",Qt::CaseInsensitive)) {
-			modelNames <<  tr("client,%1").arg(cbx->objectName().remove("cbClient"));
-			continue;
-		}
-		if (cbx->objectName().contains("prj",Qt::CaseInsensitive)) {
-			modelNames <<  tr("prj,%1").arg(cbx->objectName().remove("cbPrj"));
-			continue;
-		}
-		if (cbx->objectName().contains("worker",Qt::CaseInsensitive)) {
-			modelNames <<  tr("worker,%1").arg(cbx->objectName().remove("cbWorker"));
-			continue;
-		}
-	}
-
-	/*!
-	 * Create "sql table model"- and "sort filter proxy model" for each
-	 * element of mSqlCbs.
-	 */
-	int k=0;
-	foreach (QComboBox *cbx, mSqlCbs ) {
-		QSqlTableModel *sqlTblMdl = new QSqlTableModel(this);
-		QSortFilterProxyModel *proxyMdl = new QSortFilterProxyModel(this);
-		sqlTblMdl->setEditStrategy(QSqlTableModel::OnManualSubmit);
-
-		sqlTblMdl->setTable( modelNames.at(k).split(",").at(0) );
-		//		INFO << tr("sqlTblMdl->setTable(%1)").arg( modelNames.at(k).split(",").at(0) );
-
-		sqlTblMdl->select();
-
-		/*!
-		 * Set the source model (sql table model) for the filter proxy model objects.
-		 */
-		proxyMdl->setSourceModel( sqlTblMdl );
-		/*!
-		 * Select the column which should be provided by the proxy model.
-		 */
-		proxyMdl->setFilterKeyColumn(sqlTblMdl->fieldIndex( modelNames.at(k).split(",").at(1)) );
-		//		INFO << tr("setFilterKeyColumn(%1)").arg( modelNames.at(k).split(",").at(1) );
-
-		cbx->setModel( proxyMdl );
-		mSqlCbs[k++]->setModelColumn( proxyMdl->filterKeyColumn() );
-	}
-
-	/** Map comboBox indexes */
-	connect(ui->cbClientKurzform, SIGNAL(currentIndexChanged(int)),
-			  ui->cbClientNummer,   SLOT(setCurrentIndex(int)));
-	connect(ui->cbClientNummer,   SIGNAL(currentIndexChanged(int)),
-			  ui->cbClientKurzform, SLOT(setCurrentIndex(int)));
-
-	connect(ui->cbPrjNummer,      SIGNAL(currentIndexChanged(int)),
-			  ui->cbPrjKurzform,    SLOT(setCurrentIndex(int)));
-	connect(ui->cbPrjKurzform,    SIGNAL(currentIndexChanged(int)),
-			  ui->cbPrjNummer,      SLOT(setCurrentIndex(int)));
-
-	connect(ui->cbWorkerPersonalNr,  SIGNAL(currentIndexChanged(int)),
-			  ui->cbWorkerNachname,    SLOT(setCurrentIndex(int)));
-	connect(ui->cbWorkerPersonalNr,  SIGNAL(currentIndexChanged(int)),
-			  ui->cbWorkerVorname,     SLOT(setCurrentIndex(int)));
-	connect(ui->cbWorkerNachname,    SIGNAL(currentIndexChanged(int)),
-			  ui->cbWorkerPersonalNr,  SLOT(setCurrentIndex(int)));
-	connect(ui->cbWorkerNachname,    SIGNAL(currentIndexChanged(int)),
-			  ui->cbWorkerVorname,     SLOT(setCurrentIndex(int)));
-	connect(ui->cbWorkerVorname,     SIGNAL(currentIndexChanged(int)),
-			  ui->cbWorkerPersonalNr,  SLOT(setCurrentIndex(int)));
-	connect(ui->cbWorkerVorname,     SIGNAL(currentIndexChanged(int)),
-			  ui->cbWorkerNachname,    SLOT(setCurrentIndex(int)));
-
-	/**
-	 * Set CUSTOM_QUERY_COMMANDS combo box items
-	 */
-	QSETTINGS_QUERYS
-			QStringList query_keys;
-
-	//   /** Remove all items except "NewQuery" item */
-	//   for (int i=0; i < ui->cbQueryIdent->count(); i++) {
-	//      if (! ui->cbQueryIdent->itemText(i).contains(NEWQUERY))
-	//         ui->cbQueryIdent->removeItem(i);
-	//   }
-	ui->cbQueryIdent->clear();
-
-	foreach (QString str, configQ.allKeys()) {
-		if (true /*str.contains( QUERYPREFIX )*/)
-			query_keys << str.split('/').at(1);
-
-		//      INFO << "Query key:" << query_keys.last();
-		//      INFO << configQ.value(str).toString();
-
-		ui->cbQueryIdent->addItem(query_keys.last(),
-										  configQ.value(str).toString());
-
-	}
-
-	ui->cbQueryIdent->setDuplicatesEnabled( false );
-
 }
 void InpFrm::mapCbTableProxy() {
 
@@ -788,28 +610,28 @@ void InpFrm::mapCbTableProxy() {
 	}
 
 	/** Map comboBox indexes */
-	connect(ui->cbClientKurzform, SIGNAL(currentIndexChanged(int)),
-			  ui->cbClientNummer,   SLOT(setCurrentIndex(int)));
-	connect(ui->cbClientNummer,   SIGNAL(currentIndexChanged(int)),
-			  ui->cbClientKurzform, SLOT(setCurrentIndex(int)));
+//	connect(ui->cbClient, SIGNAL(currentIndexChanged(int)),
+//			  ui->cbClientNummer,   SLOT(setCurrentIndex(int)));
+//	connect(ui->cbClientNummer,   SIGNAL(currentIndexChanged(int)),
+//			  ui->cbClient, SLOT(setCurrentIndex(int)));
 
-	connect(ui->cbPrjNummer,      SIGNAL(currentIndexChanged(int)),
-			  ui->cbPrjKurzform,    SLOT(setCurrentIndex(int)));
-	connect(ui->cbPrjKurzform,    SIGNAL(currentIndexChanged(int)),
-			  ui->cbPrjNummer,      SLOT(setCurrentIndex(int)));
+//	connect(ui->cbPrjNummer,      SIGNAL(currentIndexChanged(int)),
+//			  ui->cbPrj,    SLOT(setCurrentIndex(int)));
+//	connect(ui->cbPrj,    SIGNAL(currentIndexChanged(int)),
+//			  ui->cbPrjNummer,      SLOT(setCurrentIndex(int)));
 
-	connect(ui->cbWorkerPersonalNr,  SIGNAL(currentIndexChanged(int)),
-			  ui->cbWorkerNachname,    SLOT(setCurrentIndex(int)));
-	connect(ui->cbWorkerPersonalNr,  SIGNAL(currentIndexChanged(int)),
-			  ui->cbWorkerVorname,     SLOT(setCurrentIndex(int)));
-	connect(ui->cbWorkerNachname,    SIGNAL(currentIndexChanged(int)),
-			  ui->cbWorkerPersonalNr,  SLOT(setCurrentIndex(int)));
-	connect(ui->cbWorkerNachname,    SIGNAL(currentIndexChanged(int)),
-			  ui->cbWorkerVorname,     SLOT(setCurrentIndex(int)));
-	connect(ui->cbWorkerVorname,     SIGNAL(currentIndexChanged(int)),
-			  ui->cbWorkerPersonalNr,  SLOT(setCurrentIndex(int)));
-	connect(ui->cbWorkerVorname,     SIGNAL(currentIndexChanged(int)),
-			  ui->cbWorkerNachname,    SLOT(setCurrentIndex(int)));
+//	connect(ui->cbWorkerPersonalNr,  SIGNAL(currentIndexChanged(int)),
+//			  ui->cbWorker,    SLOT(setCurrentIndex(int)));
+//	connect(ui->cbWorkerPersonalNr,  SIGNAL(currentIndexChanged(int)),
+//			  ui->cbWorkerVorname,     SLOT(setCurrentIndex(int)));
+//	connect(ui->cbWorker,    SIGNAL(currentIndexChanged(int)),
+//			  ui->cbWorkerPersonalNr,  SLOT(setCurrentIndex(int)));
+//	connect(ui->cbWorker,    SIGNAL(currentIndexChanged(int)),
+//			  ui->cbWorkerVorname,     SLOT(setCurrentIndex(int)));
+//	connect(ui->cbWorkerVorname,     SIGNAL(currentIndexChanged(int)),
+//			  ui->cbWorkerPersonalNr,  SLOT(setCurrentIndex(int)));
+//	connect(ui->cbWorkerVorname,     SIGNAL(currentIndexChanged(int)),
+//			  ui->cbWorker,    SLOT(setCurrentIndex(int)));
 
 	/**
 	 * Set CUSTOM_QUERY_COMMANDS combo box items
@@ -1169,110 +991,110 @@ bool InpFrm::eventFilter(QObject *obj, QEvent *event) {
 }
 
 #define QFOLDINGSTART {
-void InpFrm::onInpFormUserCommitOLD() {
-	QSqlQuery query;
-	QString q;
+//void InpFrm::onInpFormUserCommitOLD() {
+//	QSqlQuery query;
+//	QString q;
 
-	/** Query actual count of records in worktime table */
-	//    query.exec("SELECT worktimID FROM worktime");
-	query.exec("SELECT wkt.worktimID FROM worktime wkt");
+//	/** Query actual count of records in worktime table */
+//	//    query.exec("SELECT worktimID FROM worktime");
+//	query.exec("SELECT wkt.worktimID FROM worktime wkt");
 
-	if (query.lastError().type() != QSqlError::NoError) {
-		QMessageBox::warning(this, "Fehler bei SQL Query",
-									"query.lastError().type() != QSqlError::NoError");
-		return;
-	}
-	INFO << query.last();
+//	if (query.lastError().type() != QSqlError::NoError) {
+//		QMessageBox::warning(this, "Fehler bei SQL Query",
+//									"query.lastError().type() != QSqlError::NoError");
+//		return;
+//	}
+//	INFO << query.last();
 
-	/** Select actual worktimIDs
-	 * ------------------------- */
-	int worktimID_max = 0;
-	QVector<int> ids;
+//	/** Select actual worktimIDs
+//	 * ------------------------- */
+//	int worktimID_max = 0;
+//	QVector<int> ids;
 
-	while (query.next()) {
-		if (query.value(0).toInt() > worktimID_max)
-			worktimID_max = query.value(0).toInt();
+//	while (query.next()) {
+//		if (query.value(0).toInt() > worktimID_max)
+//			worktimID_max = query.value(0).toInt();
 
-		ids.append( query.value(0).toInt() );
-	}
-
-
-	/** Find the next higher, unused worktimID */
-	while ( ids.contains(++worktimID_max));
-
-	/** Find workerID based on InpFrm ui selections
-	 * --------------------------------------------- */
-	q = QString("SELECT workerID FROM worker WHERE Nachname = \"%1\" "
-					"AND PersonalNr = %2")
-		 .arg( ui->cbWorkerNachname->currentText() )
-		 .arg( ui->cbWorkerPersonalNr->currentText().toInt() );
-	query.exec( q );
-
-	int workerID = -1;
-	while (query.next()) {
-		/**
-		 * If workerID != -1, this is the second loop entry but workerID
-		 * must be unique! --> Error
-		 */
-		if (workerID > 0) {
-			QMessageBox::warning(this, "Fehler bei SQL Query",
-										"Non-unique workerID detected!");
-			return;
-		}
-		else {
-			workerID = query.value(0).toInt();
-		}
-	}
-
-	/** Find prjID based on InpFrm ui selections
-	 * --------------------------------------------- */
-	q = QString("SELECT prjID FROM prj WHERE Kurzform = \"%1\" "
-					"AND Nummer = %2")
-		 .arg( ui->cbPrjKurzform->currentText() )
-		 .arg( ui->cbPrjNummer->currentText().toInt() );
-	query.exec( q );
-
-	int prjID = -1;
-	while (query.next()) {
-		/**
-		 * If prjID != -1, this is the second loop entry but prjID
-		 * must be unique! --> Error
-		 */
-		if (prjID > 0) {
-			QMessageBox::warning(this, "Fehler bei SQL Query",
-										"Non-unique prjID detected!");
-			return;
-		}
-		else {
-			prjID = query.value(0).toInt();
-		}
-	}
+//		ids.append( query.value(0).toInt() );
+//	}
 
 
-	/** Prepare query for new record */
-	query.prepare("INSERT INTO worktime (worktimID, dat, workerID, prjID, hours) "
-					  "VALUES (:worktimID, :dat, :workerID, :prjID, :hours)");
+//	/** Find the next higher, unused worktimID */
+//	while ( ids.contains(++worktimID_max));
 
-	query.bindValue(":worktimID", worktimID_max);
-	query.bindValue(":dat", ui->datePicker->date().toString(Qt::SystemLocaleShortDate));
-	query.bindValue(":workerID", workerID);
-	query.bindValue(":prjID", prjID);
-	query.bindValue(":hours", ui->leHrs->text().toInt());
+//	/** Find workerID based on InpFrm ui selections
+//	 * --------------------------------------------- */
+//	q = QString("SELECT workerID FROM worker WHERE Nachname = \"%1\" "
+//					"AND PersonalNr = %2")
+//		 .arg( ui->cbWorker->currentText() )
+//		 .arg( ui->cbWorkerPersonalNr->currentText().toInt() );
+//	query.exec( q );
 
-	query.exec();
-	//    browser->requeryWorktimeTableView();
-	emit requeryTableView();
+//	int workerID = -1;
+//	while (query.next()) {
+//		/**
+//		 * If workerID != -1, this is the second loop entry but workerID
+//		 * must be unique! --> Error
+//		 */
+//		if (workerID > 0) {
+//			QMessageBox::warning(this, "Fehler bei SQL Query",
+//										"Non-unique workerID detected!");
+//			return;
+//		}
+//		else {
+//			workerID = query.value(0).toInt();
+//		}
+//	}
+
+//	/** Find prjID based on InpFrm ui selections
+//	 * --------------------------------------------- */
+//	q = QString("SELECT prjID FROM prj WHERE Kurzform = \"%1\" "
+//					"AND Nummer = %2")
+//		 .arg( ui->cbPrj->currentText() )
+//		 .arg( ui->cbPrjNummer->currentText().toInt() );
+//	query.exec( q );
+
+//	int prjID = -1;
+//	while (query.next()) {
+//		/**
+//		 * If prjID != -1, this is the second loop entry but prjID
+//		 * must be unique! --> Error
+//		 */
+//		if (prjID > 0) {
+//			QMessageBox::warning(this, "Fehler bei SQL Query",
+//										"Non-unique prjID detected!");
+//			return;
+//		}
+//		else {
+//			prjID = query.value(0).toInt();
+//		}
+//	}
 
 
-	INFO.noquote() << query.lastQuery();
+//	/** Prepare query for new record */
+//	query.prepare("INSERT INTO worktime (worktimID, dat, workerID, prjID, hours) "
+//					  "VALUES (:worktimID, :dat, :workerID, :prjID, :hours)");
 
-	if (query.lastError().type() != QSqlError::NoError) {
-		QMessageBox::warning(this, "Fehler bei SQL Query",
-									QString("Error type:" + query.lastError().driverText() +
-											  "\nin final add-record query"));
-		return;
-	}
-}
+//	query.bindValue(":worktimID", worktimID_max);
+//	query.bindValue(":dat", ui->datePicker->date().toString(Qt::SystemLocaleShortDate));
+//	query.bindValue(":workerID", workerID);
+//	query.bindValue(":prjID", prjID);
+//	query.bindValue(":hours", ui->leHrs->text().toInt());
+
+//	query.exec();
+//	//    browser->requeryWorktimeTableView();
+//	emit requeryTableView();
+
+
+//	INFO.noquote() << query.lastQuery();
+
+//	if (query.lastError().type() != QSqlError::NoError) {
+//		QMessageBox::warning(this, "Fehler bei SQL Query",
+//									QString("Error type:" + query.lastError().driverText() +
+//											  "\nin final add-record query"));
+//		return;
+//	}
+//}
 #define QFOLDINGEND }
 
 /*!
