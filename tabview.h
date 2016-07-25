@@ -15,7 +15,7 @@ class TabView;
 //class Browser;
 }
 
-class TabView : public QWidget {
+class TabView : public QTableView {
 
    Q_OBJECT
 
@@ -26,8 +26,9 @@ public:
    QGroupBox   *m_gb;
    QGroupBox *grBox() const;
    void setGrBox(QGroupBox *gb);
-   QTableView *tv() const;
-   void setTv(QTableView *tv);
+	QTableView *tv() /*const*/ {
+		return this;
+	}
    void setTvTitle(QString &s);
    bool isActiveSelected()
    { return activeSel; }
@@ -48,7 +49,7 @@ signals:
    void onSelChanged(TabView *tv);
 
 private:
-   QTableView *m_tv;
+//   QTableView *m_tv;
    Ui::TabView *ui;
    bool activeSel;
 //   Browser *browser;
