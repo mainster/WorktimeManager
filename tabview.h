@@ -23,7 +23,6 @@ public:
    explicit TabView(QWidget *parent = 0);
    ~TabView();
 
-   QGroupBox   *m_gb;
    QGroupBox *grBox() const;
    void setGrBox(QGroupBox *gb);
    QTableView *tv() const;
@@ -48,9 +47,10 @@ signals:
    void onSelChanged(TabView *tv);
 
 private:
-   QTableView *m_tv;
-   Ui::TabView *ui;
-   bool activeSel;
+	Ui::TabView		*ui;
+	QTableView		*m_tv;
+	QGroupBox		*m_gb;
+	bool				activeSel;
 //   Browser *browser;
 
 };

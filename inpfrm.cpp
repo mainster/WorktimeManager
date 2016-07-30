@@ -385,22 +385,6 @@ void InpFrm::onInpFormUserCommit() {
 	QString q;
 	bool ok = true;
 
-	/** Query actual count of records in worktime table */
-	//    int worktimRowCount = 0;
-	//    query.exec("SELECT worktimID, COUNT(*) FROM worktime;");
-	//    if (query.lastError().type() != QSqlError::NoError) {
-	//        QMessageBox::warning(this, "Fehler bei SQL Query",
-	//                             "query.lastError().type() != QSqlError::NoError");
-	//        return;
-	//    }
-	//    INFO << tr("query size:") << query.size();
-	//    if (query.next())
-	//        worktimRowCount = query.value(0).toInt(&ok);
-	//    else
-	//        emit stateMessage(tr("No \"next query\" result"));
-	//    if (! ok)
-	//        emit stateMessage(tr("toInt() of query result fails"));
-
 	/** Query ID column and find max value. This MAY not be equal
 	  * to actual count
 	  * ------------------------ */
@@ -421,12 +405,12 @@ void InpFrm::onInpFormUserCommit() {
 	qStableSort(ints.begin(), ints.end());
 	int worktimID_max = ints.last();
 
-	/** Find workerID based on InpFrm ui selections
-	 * --------------------------------------------- */
-	q = QString("SELECT workerID FROM worker WHERE Nachname = \"%1\" "
-					"AND PersonalNr = %2");
-//		 .arg( ui->cbWorker->currentText() )
-//		 .arg( ui->cbWorkerPersonalNr->currentText().toInt() );
+	/*!
+	 * Find workerID based on InpFrm ui selections
+	 */
+	QStringList strList = ui->cbWorker->currentData(Qt::DisplayRole).toString().split(tr(", "));
+	q = QString("SELECT workerID FROM worker WHERE Nachname = \"%1\" AND PersonalNr = %2")
+		 .arg( strList.at(0)).arg( strList.at(2) );
 	query.exec( q );
 
 	int workerID = -1;
@@ -445,12 +429,12 @@ void InpFrm::onInpFormUserCommit() {
 		}
 	}
 
-	/** Find prjID based on InpFrm ui selections
-	 * --------------------------------------------- */
-	q = QString("SELECT prjID FROM prj WHERE Kurzform = \"%1\" "
-					"AND Nummer = %2");
-//		 .arg( ui->cbPrj->currentText() )
-//		 .arg( ui->cbPrjNummer->currentText().toInt() );
+	/*!
+	 * Find prjID based on InpFrm ui selections.
+	 */
+	strList = ui->cbPrj->currentData(Qt::DisplayRole).toString().split(tr(", "));
+	q = QString("SELECT prjID FROM prj WHERE Kurzform = \"%1\" AND Nummer = %2")
+		 .arg(strList.at(0)).arg(strList.at(1));
 	query.exec( q );
 
 	int prjID = -1;
@@ -476,8 +460,6 @@ void InpFrm::onInpFormUserCommit() {
 
 	query.bindValue(":worktimID",   ++ worktimID_max);
 	query.bindValue(":dat",         ui->datePicker->date().toString("yyyy-MM-dd"));
-	//    query.bindValue(":dat",         ui->datePicker->date().toString(Qt::LocaleDate));
-	//    query.bindValue(":dat", ui->datePicker->date().toString(Qt::SystemLocaleShortDate));
 	query.bindValue(":workerID",    workerID);
 	query.bindValue(":prjID",       prjID);
 	query.bindValue(":hours",       ui->leHrs->text().toInt());
@@ -489,9 +471,9 @@ void InpFrm::onInpFormUserCommit() {
 		return;
 	}
 
-	//    browser->requeryWorktimeTableView(tr(""));
+	Browser::instance()->requeryWorktimeTableView(tr(""));
 	emit requeryTableView();
-	INFO.noquote() << query.lastQuery();
+	INFO << query.lastQuery();
 
 }
 void InpFrm::aButtonClick(bool) {

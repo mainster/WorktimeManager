@@ -162,16 +162,28 @@ void Browser::initTableView(QWidget *parent, QStringList &accNam) {
 
 		tv->setToolTip( tr("Tooltip: ") + accNam[i++]);
 		tv->setContextMenuPolicy(Qt::ActionsContextMenu);
-		tv->m_gb->installEventFilter( this );
-		tv->m_gb->setObjectName("gb");
-		//      tv->m_gb->setStyleSheet( Globals::gbStyleShtCenterPROPERTYS );
+		tv->grBox()->installEventFilter( this );
+		tv->grBox()->setObjectName("gb");
+		//      tv->grBox()->setStyleSheet( Globals::gbStyleShtCenterPROPERTYS );
 	}
 }
 #define QFOLDINGEND }
 void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	QSETTINGS_QUERYS;
-	/** Get pointer to current active database connection */
+	/*!
+	 * Get pointer to current active database connection.
+	 */
 	QSqlDatabase pdb = connectionWidget->currentDatabase();
+
+	/*!
+	 * Get list of all table views and requery all of them with gb name "worktime".
+	 */
+	QList<TabView *> tvs = findChildren<TabView *>();
+	foreach (TabView *tv, tvs) {
+		if (! tv->grBox()->title().contains(tr("worktime")))
+			tvs.removeOne(tv);
+	}
+	INFO << tvs.length() << tvs;
 
 	/** Select "tableMain" as target table view widget */
 	QTableView *tvResp = tvl1->tv();
@@ -369,7 +381,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	 * Update TabViews group box title to match the prior activated sql
 	 * table name
 	 */
-	tvc->m_gb->setTitle( tNam );
+	tvc->grBox()->setTitle( tNam );
 }
 void Browser::showMetaData(const QString &t) {
 
@@ -589,7 +601,7 @@ void Browser::on_connectionWidget_tableActivated(const QString &sqlTbl) {
 				 * Update TabViews group box title to match the prior activated sql
 				 * table name
 				 */
-			tv->m_gb->setTitle( sqlTbl );
+			tv->grBox()->setTitle( sqlTbl );
 			return;
 		}
 		else {
@@ -603,7 +615,7 @@ void Browser::on_connectionWidget_tableActivated(const QString &sqlTbl) {
 				 * Update TabViews group box title to match the prior activated sql
 				 * table name
 				 */
-				tv->m_gb->setTitle( sqlTbl );
+				tv->grBox()->setTitle( sqlTbl );
 				return;
 			}
 			INFO << tr("No model-less table view widget found!");
@@ -712,12 +724,12 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 			/**
 				 * Unselect if view was selected earlier
 				 */
-			if (QVariant(tv->m_gb->property("select")).toBool()) {
-				tv->m_gb->setProperty("select", false);
+			if (QVariant(tv->grBox()->property("select")).toBool()) {
+				tv->grBox()->setProperty("select", false);
 				emit tabViewSelChanged( 0 );
 			} else {
-				tv->m_gb->setProperty("select", true);
-				tv->m_gb->setStyleSheet(tv->m_gb->styleSheet());
+				tv->grBox()->setProperty("select", true);
+				tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
 				emit tabViewSelChanged(tv);
 			}
 		}

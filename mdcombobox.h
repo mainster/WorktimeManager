@@ -61,31 +61,73 @@ public:
 		}
 	}
 	bool setModelColumns(QList<short> columns) {
+		if (! static_cast<QSqlRelationalTableModel *>(model()))
+			bReturn("modle() should return a QSqlRelationalTableModel!!");
+
 		int colCount = model()->columnCount(QModelIndex()),
 				rowCount = model()->rowCount(QModelIndex());
 
 		auto biggest = std::max_element(columns.begin(), columns.end());
 
-		/** Check if vector columns contains invalid column values */
+		/*!
+		 * Check if vector columns contains invalid column values.
+		 */
 		if (colCount <= *biggest)
 			bReturn("Invalid column index found");
 
 		INFO << rowCount << colCount;
 
-		QStringList stringList;
+		/*!
+		 * Prepare QStringList object stringList which later can be used to create
+		 * QStringListModel to source the QCompleter object.
+		 */
+		QStringList *stringList = new QStringList();
 		for (int r = 0; r < rowCount; r++) {
 			QStringList *row = new QStringList();
 			for (QList<short>::iterator cIt = columns.begin(); cIt != columns.end(); cIt++) {
 				*row << model()->data( model()->index(r, *cIt, QModelIndex()) ).toString();
 			}
-			stringList << row->join(QString(", "));
+			*stringList << row->join(QString(", "));
 		}
 
-		setModel( new QStringListModel(stringList) );
-		completer = new QCompleter(stringList, this);
+		/*!
+		 * Prepare QStringList list object QList<QStringList> userData which later can be
+		 * used as user data for QComboBox items.
+		 */
+		QList<QStringList *> userData;
+		for (int r = 0; r < rowCount; r++) {
+			userData.append( new QStringList() );
+			for (int c = 0; c < colCount; c++) {
+				*userData.last() << model()->data( model()->index(r, c, QModelIndex()) ).toString();
+			}
+		}
+
+		setModel( new QStringListModel(*stringList) );
+
+		/*!
+		 * Set a new QStringListModel from stringList as model for the QComboBox object.
+		QList<QStringList *>::iterator it = userData.begin();
+		for (int r = 0; r < rowCount; r++) {
+			QVariant var;
+			var.setValue(**(it++));
+			INFO << var.toStringList();
+			INFO << model()->index(r, 0, QModelIndex()).isValid();
+			INFO << model()->setData( model()->index(r, 0, QModelIndex()), var, Qt::DisplayRole);
+
+			INFO << model()->index(r, 0, QModelIndex()).data(Qt::DisplayRole).toStringList();
+			INFO << model()->data( model()->index(r, 0, QModelIndex()), Qt::DisplayRole).toStringList();
+		}
+		*/
+
+		completer = new QCompleter(*stringList, this);
 		completer->setCaseSensitivity(Qt::CaseInsensitive);
 		completer->setFilterMode(Qt::MatchContains);
 		setCompleter(completer);
+
+//		for (int r = 0; r < rowCount; r++) {
+//			INFO << model()->data( model()->index(r, 0, QModelIndex()), Qt::UserRole).toStringList();
+//		}
+
 		return true;
 	}
 
@@ -94,7 +136,7 @@ protected:
 		lineEdit()->selectAll();
 		QObject::killTimer(e->timerId());
 	}
-	void focusInEvent(QFocusEvent *e) {
+	virtual void focusInEvent(QFocusEvent *e) override {
 		lineEdit()->setSelection(1,3);
 		QObject::startTimer(0);
 		QComboBox::focusInEvent(e);
