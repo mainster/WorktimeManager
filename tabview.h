@@ -8,7 +8,6 @@
 #include <QKeyEvent>
 #include <QColor>
 
-//#include "browser.h"
 #include "models.h"
 
 namespace Ui {
@@ -27,7 +26,6 @@ public:
     QGroupBox *grBox() const;
     void setGrBox(QGroupBox *gb);
     QTableView *tv() const;
-    void setTv(QTableView *tv);
     void setTvTitle(QString &s);
     bool isActiveSelected()
     { return activeSel; }
@@ -35,7 +33,6 @@ public:
     {  activeSel = false; }
 
     QList<QAction *> getTblActs() const;
-    void setTblActs(const QList<QAction *> &value);
     QAction *fieldStrategyAction() const;
     QAction *manualStrategyAction() const;
     QAction *rowStrategyAction() const;
@@ -45,15 +42,13 @@ public slots:
     void setGrBoxStyleSht(const QString &ss);
     void setGrBoxTitle(QString s);
     void onTabViewSelChanged(TabView *tv);
-    void setAlternateRowCol(
-            QColor &col, bool alternateEnabled = true);
+    void setAlternateRowCol(QColor &col, bool alternateEnabled = true);
     void restoreView();
 
-    void on_insertRowAction_triggered();
     void insertRow();
     void deleteRow();
     void onUpdateActions();
-
+    void on_insertRowAction_triggered();
     void on_deleteRowAction_triggered();
     void on_fieldStrategyAction_triggered();
     void on_rowStrategyAction_triggered();
@@ -62,17 +57,16 @@ public slots:
     void on_revertAction_triggered();
     void on_selectAction_triggered();
 
+    void refreshView();
 signals:
     void onSelChanged(TabView *tv);
 
 private:
-    Ui::TabView		*ui;
-    QTableView		*m_tv;
-    QGroupBox		*m_gb;
-    bool				activeSel;
-    QList<QAction *> tblActs;
-    //   Browser *browser;
-
+    Ui::TabView         *ui;
+    QTableView          *m_tv;
+    QGroupBox           *m_gb;
+    QList<QAction *>    tblActs;
+    bool                activeSel;
 };
 
 

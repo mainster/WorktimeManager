@@ -96,7 +96,9 @@ public:
     void clearStyleSheet(TabView *tv) {
         tv->style()->unpolish(tv);
     }
-    QVector<TabView *> tvs;
+
+
+    QVector<TabView *> *tvs();
 
 signals:
     void stateMsg(const QString &message, const int delay = 0);
@@ -138,13 +140,14 @@ private slots:
     //   QAbstractItemModel *createMailModel(QObject *parent);
 
 private:
-    static Browser	*inst;
-    Ui::Browser		*ui;
-    QTimer			*timCyc;
+    static Browser      *inst;
+    Ui::Browser         *ui;
+    QVector<TabView *>  mTvs;
+    QTimer              *timCyc;
     bool				cyclicObjInfo;
     SfiltMdl			*proxyModel;
-    SortWindow		*filterForm;
-    MDStateBar		*stateBar;
+    SortWindow          *filterForm;
+    MDStateBar          *stateBar;
 
 };
 

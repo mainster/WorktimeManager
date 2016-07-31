@@ -24,7 +24,7 @@ Browser::Browser(QWidget *parent) : QWidget(parent),
     /*!
      * Connect TabView Signals/Slots
      */
-    foreach (TabView *tv, tvs) {
+    foreach (TabView *tv, mTvs) {
         if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &TabView::onTabViewSelChanged))
             qReturn("Connection fail!");
         if (! (bool)  connect(this, &Browser::updateActions, tv, &TabView::onUpdateActions))
@@ -51,8 +51,8 @@ Browser::Browser(QWidget *parent) : QWidget(parent),
 
 	emit stateMsg(tr("Browser Ready."));
 
-	SqlRtm *cm = new SqlRtm();
-	cm->setCenterCols(QVector<int>(0, 1));
+//	SqlRtm *cm = new SqlRtm();
+//	cm->setCenterCols(QVector<int>(0, 1));
 
 	filterForm = SortWindow::getInstance();
 	filterForm->setWindowTitle(tr("The window title ") + filterForm->objectName());
@@ -80,17 +80,17 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 	QList<bool> bl;
 
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  tvs[0],   SLOT(onTabViewSelChanged(TabView *))));
+                                      mTvs[0],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  tvs[1],   SLOT(onTabViewSelChanged(TabView *))));
+                                      mTvs[1],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  tvs[2],   SLOT(onTabViewSelChanged(TabView *))));
+                                      mTvs[2],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  tvs[3],   SLOT(onTabViewSelChanged(TabView *))));
+                                      mTvs[3],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  tvs[4],   SLOT(onTabViewSelChanged(TabView *))));
+                                      mTvs[4],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  tvs[5],   SLOT(onTabViewSelChanged(TabView *))));
+                                      mTvs[5],   SLOT(onTabViewSelChanged(TabView *))));
 
 	if (bl.contains(false))
 		INFO << tr("connect.tabViewSelChanged[0...6]:") << bl;
@@ -148,18 +148,18 @@ void Browser::initTableView(QWidget *parent, QStringList &accNam) {
 	//    QObjectList *queryTvs = queryList( "TabView" );
 
 	//    foreach (QObject *obj, queryTvs) {
-	//        tvs.append( static_cast<TabView *>obj );
+    //        mTvs.append( static_cast<TabView *>obj );
 	//    }
-	tvs.append( tva );
-	tvs.append( tvb );
-	tvs.append( tvc );
-	tvs.append( tvd );
-	tvs.append( tvl1 );
-	tvs.append( tvl2 );
+    mTvs.append( tva );
+    mTvs.append( tvb );
+    mTvs.append( tvc );
+    mTvs.append( tvd );
+    mTvs.append( tvl1 );
+    mTvs.append( tvl2 );
 
 	int i = 0;
 
-	foreach (TabView *tv, tvs) {
+    foreach (TabView *tv, mTvs) {
 //		tv->addActions( tblActs );
 		tv->setAccessibleName( accNam[i] );
 		tv->setObjectName( accNam[i] );
@@ -182,16 +182,16 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	/*!
 	 * Get list of all table views and requery all of them with gb name "worktime".
 	 */
-	QList<TabView *> tvs = findChildren<TabView *>();
-	foreach (TabView *tv, tvs) {
+    QList<TabView *> mTvs = findChildren<TabView *>();
+    foreach (TabView *tv, mTvs) {
 		if (! tv->grBox()->title().contains(tr("worktime")))
-			tvs.removeOne(tv);
+            mTvs.removeOne(tv);
 	}
-	INFO << tvs.length() << tvs;
+
 
 	/** Select "tableMain" as target table view widget */
 	QTableView *tvResp = tvl1->tv();
-	QSqlQueryModel *model = new QSqlQueryModel(tvResp);
+    QSqlQueryModel *queryModel = new QSqlQueryModel(tvResp);
 	QSqlQuery query;
 
 	if (! nonDefaulQuery.isEmpty())
@@ -202,6 +202,7 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 		 * corresponding plain text query
 		 */
 		QTextEdit *te = new QTextEdit();
+        te->hide();
 
 		foreach (QString str, configQ.allKeys()) {
 			if (str.contains("default_worktime_query")) {
@@ -210,18 +211,20 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 			}
 		}
 		query = QSqlQuery(te->toPlainText(), pdb);
+        INFO << te->toPlainText();
+        delete te;
 	}
 
-	model->setQuery( query );
-	tvResp->setModel( model );
+    queryModel->setQuery( query );
+    tvResp->setModel( queryModel );
 
-	if (model->lastError().type() != QSqlError::NoError)
-		emit stateMsg(model->lastError().text());
-	else if (model->query().isSelect())
+    if (queryModel->lastError().type() != QSqlError::NoError)
+        emit stateMsg(queryModel->lastError().text());
+    else if (queryModel->query().isSelect())
 		emit stateMsg(tr("Query OK."));
 	else
 		emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
-							  model->query().numRowsAffected()));
+                              queryModel->query().numRowsAffected()));
 
 	tvResp->setVisible( false );
 	tvResp->resizeColumnsToContents();
@@ -366,8 +369,8 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	tv->setEditTriggers( QAbstractItemView::DoubleClicked |
 								QAbstractItemView::EditKeyPressed );
 
-	/** !!!!!!!!!!!!!!!!!!!! tvs.first()->tv()->selectionModel() changed to
-	 * tvs[3]->tv()->selectionModel()
+    /** !!!!!!!!!!!!!!!!!!!! mTvs.first()->tv()->selectionModel() changed to
+     * mTvs[3]->tv()->selectionModel()
 	 */
 
 	if (! (bool) connect( tv->selectionModel(),
@@ -390,7 +393,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 void Browser::showMetaData(const QString &t) {
 
 	QSqlRecord rec = connectionWidget->currentDatabase().record(t);
-	QStandardItemModel *model = new QStandardItemModel(tvs.first()->tv());
+    QStandardItemModel *model = new QStandardItemModel(mTvs.first()->tv());
 
 	model->insertRows(0, rec.count());
 	model->insertColumns(0, 7);
@@ -418,21 +421,21 @@ void Browser::showMetaData(const QString &t) {
 		model->setData(model->index(i, 6), fld.defaultValue());
 	}
 
-	tvs.first()->tv()->setModel(model);
-	tvs.first()->tv()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    mTvs.first()->tv()->setModel(model);
+    mTvs.first()->tv()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     emit updateActions();
 }
 
 void Browser::customMenuRequested(QPoint pos) {
-	QModelIndex index = this->tvs.first()->tv()->indexAt(pos);
+    QModelIndex index = this->mTvs.first()->tv()->indexAt(pos);
 	Q_UNUSED(index);
 
 	QMenu *menu = new QMenu(this);
 	menu->addAction(new QAction("Action 1", this));
 	menu->addAction(new QAction("Action 2", this));
 	menu->addAction(new QAction("Action 3", this));
-	menu->popup(tvs.first()->tv()->viewport()->mapToGlobal(pos));
+    menu->popup(mTvs.first()->tv()->viewport()->mapToGlobal(pos));
 }
 void Browser::onBeforeUpdate(int row, QSqlRecord &record) {
 	INFO << row;
@@ -450,7 +453,7 @@ void Browser::on_connectionWidget_tableActivated(const QString &sqlTbl) {
 	 * swap sql tables during runtime, a double-mouse-click event is captured
 	 * and the user-selected tv instance becomes addressed by the event handler.
 	 */
-	foreach (TabView *tv, tvs) {
+    foreach (TabView *tv, mTvs) {
 		/**
 		 * Check for pending active select requests.
 		 */
@@ -471,7 +474,7 @@ void Browser::on_connectionWidget_tableActivated(const QString &sqlTbl) {
 		}
 		else {
 			/**
-			 * If no table widget is selected actively, use the tvc from tvs which has
+             * If no table widget is selected actively, use the tvc from mTvs which has
 			 * currently no model loaded
 			 */
 			if (tv->tv()->model() == 0x00) {
@@ -492,7 +495,7 @@ int  Browser::setFontAcc(QFont &font) {
 	return 0;
 }
 void Browser::autofitRowCol() {
-	foreach (TabView *tvc, tvs) {
+    foreach (TabView *tvc, mTvs) {
 		tvc->tv()->setVisible( false );
 		tvc->tv()->resizeColumnsToContents();
 		tvc->tv()->resizeRowsToContents();
@@ -640,9 +643,12 @@ void Browser::hideEvent(QShowEvent *) {
 	QSPLT_STORE;
 	emit visibilityChanged( false );
 }
+QVector<TabView *> *Browser::tvs() {
+    return &mTvs;
+}
 void Browser::showEvent(QShowEvent *) {
-	QSPLT_RESTORE;
-	emit visibilityChanged( true );
+    QSPLT_RESTORE;
+    emit visibilityChanged( true );
 //	QSETTINGS;
 
 //	foreach (QSplitter *sp, findChildren<QSplitter *>()) {
@@ -654,7 +660,7 @@ void Browser::onActFilterForm(bool b) {
 	filterForm->setVisible(b);
 
 	if (b) {
-		filterForm->setSourceModel( tvs.last()->tv()->model() );
+        filterForm->setSourceModel( mTvs.last()->tv()->model() );
 		filterForm->raise();
 		filterForm->activateWindow();
 	}

@@ -61,7 +61,9 @@ void TabView::restoreView() {
     if (col.isValid())
         setAlternateRowCol( col, altOnOff);
 }
-
+void TabView::refreshView() {
+    this->update();
+}
 QAction *TabView::fieldStrategyAction() const {
     return tblActs[ tblActs.indexOf(ui->fieldStrategyAction) ];
 }
@@ -76,9 +78,6 @@ QList<QAction *> TabView::getTblActs() const
     return tblActs;
 }
 
-void TabView::on_insertRowAction_triggered() {
-    insertRow();
-}
 void TabView::insertRow() {
     QModelIndex insertIndex = m_tv->currentIndex();
     int row = insertIndex.row();
@@ -142,45 +141,10 @@ void TabView::onUpdateActions() {
                     es == QSqlRelationalTableModel::OnManualSubmit);
     }
 
-
-    //    foreach (TabView *tv, tvs) {
-    //        //      QSqlRelationalTableModel *tm = qobject_cast
-    //        //            <QSqlRelationalTableModel *>( locTabView->tv()->model() );
-    //        QSqlTableModel * tm = qobject_cast<QSqlTableModel *>(tv->tv()->model());
-
-    //        bool enableIns = tm;
-    //        bool enableDel = enableIns && tv->tv()->currentIndex().isValid();
-
-    //        QList<QAction *> contextActions = tv->getTblActs();
-
-    //        int k = 0;
-    //        contextActions[k++]->setEnabled( enableIns );
-    //        contextActions[k++]->setEnabled( enableDel );
-
-    //        for (;k < contextActions.length(); k++)
-    //            contextActions[k]->setEnabled( tm );
-    //		insertRowAction->setEnabled( enableIns );
-    //		deleteRowAction->setEnabled( enableDel );
-
-
-    //		fieldStrategyAction  ->setEnabled(tm);
-    //		rowStrategyAction    ->setEnabled(tm);
-    //		manualStrategyAction ->setEnabled(tm);
-    //		submitAction         ->setEnabled(tm);
-    //		revertAction         ->setEnabled(tm);
-    //		selectAction         ->setEnabled(tm);
-
-    //        if (tm) {
-    //            QSqlRelationalTableModel::EditStrategy es = tm->editStrategy();
-    //            tv->fieldStrategyAction()->setChecked(
-    //                        es == QSqlRelationalTableModel::OnFieldChange);
-    //            tv->rowStrategyAction()->setChecked(
-    //                        es == QSqlRelationalTableModel::OnRowChange);
-    //            tv->manualStrategyAction()->setChecked(
-    //                        es == QSqlRelationalTableModel::OnManualSubmit);
-    //        }
 }
-
+void TabView::on_insertRowAction_triggered() {
+    insertRow();
+}
 void TabView::on_deleteRowAction_triggered() {
     deleteRow();
 }
@@ -229,10 +193,6 @@ void TabView::on_selectAction_triggered() {
         tm->select();
 }
 
-void TabView::setTblActs(const QList<QAction *> &value)
-{
-    tblActs = value;
-}
 void TabView::onObjectNameChanged(const QString &objNam) {
     m_gb->setTitle( objNam );
     m_gb->setAccessibleName(tr("gboxOf")+objNam);
@@ -240,9 +200,6 @@ void TabView::onObjectNameChanged(const QString &objNam) {
 }
 QTableView *TabView::tv() const {
     return m_tv;
-}
-void TabView::setTv(QTableView *tv) {
-    m_tv = tv;
 }
 void TabView::setGrBoxTitle(QString s) {
     m_gb->setTitle(s);

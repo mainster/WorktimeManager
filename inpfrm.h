@@ -102,7 +102,7 @@ public:
 signals:
 	void changeFocusOrder(Qt::FocusOrderState state = Qt::FocusChange_init);
 	void stateMessage(const QString msg, const int option);
-	void requeryTableView();
+    void newWorktimeRecord();
 	void buttonClicked(const QPushButton *button);
 	void showDropdownView(bool onOff );
 
