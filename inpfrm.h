@@ -14,6 +14,7 @@
 #include "mdcombobox.h"
 #include "sortfilterproxymodel.h"
 #include "browser.h"
+#include "qpair.h"
 
 namespace Ui {
 class InpFrm;

@@ -12,7 +12,6 @@
 #include "browser.h"
 #include "connectionwidget.h"
 #include "dbconndlg.h"
-#include "form.h"
 #include "globals.h"
 #include "inpfrm.h"
 #include "locals.h"

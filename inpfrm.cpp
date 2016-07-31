@@ -493,8 +493,8 @@ void InpFrm::aButtonClick(bool) {
 
 	setFocusOrder( ws );
 */
-	if (pbSender == ui->btnSaveQuery) { saveSqlQueryInputText(); return; }
-	if (pbSender == ui->btnRestoreQuery) { restoreSqlQueryInputText(); return; }
+    if (pbSender == ui->btnSaveQuery) { /*saveSqlQueryInputText();*/ return; }
+    if (pbSender == ui->btnRestoreQuery) { /*restoreSqlQueryInputText();*/ return; }
 	if (pbSender == ui->btnSubmitQuery) {
 		Browser::instance()->exec();
 	}
@@ -615,32 +615,6 @@ void InpFrm::mapCbTableProxy() {
 //	connect(ui->cbWorkerVorname,     SIGNAL(currentIndexChanged(int)),
 //			  ui->cbWorker,    SLOT(setCurrentIndex(int)));
 
-	/**
-	 * Set CUSTOM_QUERY_COMMANDS combo box items
-	 */
-	QSETTINGS_QUERYS
-			QStringList query_keys;
-
-	//   /** Remove all items except "NewQuery" item */
-	//   for (int i=0; i < ui->cbQueryIdent->count(); i++) {
-	//      if (! ui->cbQueryIdent->itemText(i).contains(NEWQUERY))
-	//         ui->cbQueryIdent->removeItem(i);
-	//   }
-	ui->cbQueryIdent->clear();
-
-	foreach (QString str, configQ.allKeys()) {
-		if (true /*str.contains( QUERYPREFIX )*/)
-			query_keys << str.split('/').at(1);
-
-		//      INFO << "Query key:" << query_keys.last();
-		//      INFO << configQ.value(str).toString();
-
-		ui->cbQueryIdent->addItem(query_keys.last(),
-										  configQ.value(str).toString());
-
-	}
-
-	ui->cbQueryIdent->setDuplicatesEnabled( false );
 
 }
 void InpFrm::onInpFormChanges(int idx) {
@@ -731,7 +705,7 @@ void InpFrm::saveSqlQueryInputText() {
 	if (ui->cbQueryIdent->itemText(0).contains(NEWQUERY))
 		ui->cbQueryIdent->removeItem(0);
 
-	mapCbTableProxy();
+//	mapCbTableProxy();
 	ui->cbQueryIdent->setCurrentText(newID /*+ "_HTML"*/);
 
 	/**
@@ -754,17 +728,19 @@ void InpFrm::saveSqlQueryInputText() {
 
 }
 void InpFrm::restoreSqlQueryInputText() {
-	QSETTINGS_QUERYS;
+    QSETTINGS_QUERYS;
+    QStringList customQueryID;
 
-	QStringList query_keys;
+    ui->cbQueryIdent->clear();
 
-	foreach (QString str, configQ.allKeys()) {
-		if (str.contains( QUERYPREFIX ))
-			query_keys << str;
-	}
-
-	ui->teSqlQuerys->setHtml(
-				configQ.value(objectName() + "/SqlQueryText", "").toString());
+    /*!
+     * Set CUSTOM_QUERY_COMMANDS combo box items
+     */
+    foreach (QString str, configQ.allKeys()) {
+        customQueryID << str.split('/').at(1);
+        ui->cbQueryIdent->addItem(customQueryID.last(),
+                                  configQ.value(str).toString());
+    }
 }
 
 void InpFrm::onChangeFocusOrder(Qt::FocusOrderState state) {
@@ -940,7 +916,7 @@ void InpFrm::hideEvent(QShowEvent *) {
 }
 void InpFrm::showEvent(QShowEvent *) {
 	mEscapeTrigger = false;
-	mapCbTableProxy();
+//	mapCbTableProxy();
 }
 void InpFrm::keyPressEvent(QKeyEvent *e) {
 	/**
