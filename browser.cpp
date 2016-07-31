@@ -21,11 +21,15 @@ Browser::Browser(QWidget *parent) : QWidget(parent),
 
 	initTableView( inst, QStringList() << TVA << TVB << TVC << TVD << TVL1 << TVL2);
 
-	foreach (TabView *tv, tvs)
-		if (! (bool)  connect(this, SIGNAL(tabViewSelChanged(TabView *)),
-									 tv,   SLOT(onTabViewSelChanged(TabView *)))) {
-			qReturn("Connection fail!");
-		}
+    /*!
+     * Connect TabView Signals/Slots
+     */
+    foreach (TabView *tv, tvs) {
+        if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &TabView::onTabViewSelChanged))
+            qReturn("Connection fail!");
+        if (! (bool)  connect(this, &Browser::updateActions, tv, &TabView::onUpdateActions))
+            qReturn("Connection fail!");
+    }
 
 	INFO << QSqlDatabase::connectionNames()
 		  << QSqlDatabase::drivers();
@@ -125,16 +129,16 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 #endif
 void Browser::initTableView(QWidget *parent, QStringList &accNam) {
 	Q_UNUSED(parent)
-	QList<QAction *> tblActs;
+//	QList<QAction *> tblActs;
 
-	tblActs.append(insertRowAction);
-	tblActs.append(deleteRowAction);
-	tblActs.append(fieldStrategyAction);
-	tblActs.append(rowStrategyAction);
-	tblActs.append(manualStrategyAction);
-	tblActs.append(submitAction);
-	tblActs.append(revertAction);
-	tblActs.append(selectAction);
+//	tblActs.append(insertRowAction);
+//	tblActs.append(deleteRowAction);
+//	tblActs.append(fieldStrategyAction);
+//	tblActs.append(rowStrategyAction);
+//	tblActs.append(manualStrategyAction);
+//	tblActs.append(submitAction);
+//	tblActs.append(revertAction);
+//	tblActs.append(selectAction);
 
 	//    QObjectList *queryList( const char *inheritsClass = 0,
 	//                            const char *objName = 0,
@@ -156,7 +160,7 @@ void Browser::initTableView(QWidget *parent, QStringList &accNam) {
 	int i = 0;
 
 	foreach (TabView *tv, tvs) {
-		tv->addActions( tblActs );
+//		tv->addActions( tblActs );
 		tv->setAccessibleName( accNam[i] );
 		tv->setObjectName( accNam[i] );
 
@@ -223,7 +227,7 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	tvResp->resizeColumnsToContents();
 	tvResp->resizeRowsToContents();
 	tvResp->setVisible( true );
-	updateActions();
+    emit updateActions();
 
 }
 void Browser::exec() {
@@ -249,7 +253,7 @@ void Browser::exec() {
 	tvq->resizeColumnsToContents();
 	tvq->resizeRowsToContents();
 	tvq->setVisible( true );
-	updateActions();
+    emit updateActions();
 }
 /**
  * Relational table model - View relational WORKS 12-11-2015
@@ -376,7 +380,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	tv->resizeRowsToContents();
 	tv->setVisible( true );
 
-	updateActions();
+//    emit updateActions();
 	/**
 	 * Update TabViews group box title to match the prior activated sql
 	 * table name
@@ -417,95 +421,9 @@ void Browser::showMetaData(const QString &t) {
 	tvs.first()->tv()->setModel(model);
 	tvs.first()->tv()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-	updateActions();
+    emit updateActions();
 }
-void Browser::insertRow(/*QTableView &tv*/) {
-	/**
-	  * Loop through every child of your QSplitter and call hasFocus() for
-	  * each one so you can know which of them has the focus (keyboard focus)
-	  */
-	//   QObjectList objs(this->spHorzPrim->children());
 
-	for (int i = 0; i < tvs.length(); i++) {
-		//      QTableView *childa = qobject_cast<QTableView *>(objs.at(i));
-
-		if ( tvs.at(i)->hasFocus() )
-			INFO << "table" << i << "has focus";
-	}
-
-	TabView *locTabView = qobject_cast<TabView *>( tvs.first() );
-	QSqlTableModel *model =
-			qobject_cast<QSqlTableModel *>(locTabView->tv()->model());
-
-	if (!model)
-		return;
-
-	QModelIndex insertIndex = locTabView->tv()->currentIndex();
-	int row = insertIndex.row() == -1 ? 0 : insertIndex.row();
-	model->insertRow(row);
-	insertIndex = model->index(row, 0);
-	locTabView->tv()->setCurrentIndex(insertIndex);
-	locTabView->tv()->edit(insertIndex);
-
-	QWidget *wid = QWidget::focusWidget();
-	INFO << wid->accessibleName();
-
-	wid = QApplication::focusWidget(),
-			INFO << wid->accessibleName();
-}
-void Browser::deleteRow(/*QTableView &tv*/) {
-	TabView *locTabView = qobject_cast<TabView *>( tvs.first() );
-	QSqlTableModel *model =
-			qobject_cast<QSqlTableModel *>(locTabView->tv()->model());
-
-	if (!model)
-		return;
-
-	QModelIndexList currentSelection =
-			locTabView->tv()->selectionModel()->selectedIndexes();
-
-	for (int i = 0; i < currentSelection.count(); ++i) {
-		if (currentSelection.at(i).column() != 0)
-			continue;
-
-		model->removeRow(currentSelection.at(i).row());
-	}
-
-	updateActions();
-}
-void Browser::updateActions(/*QTableView &tv*/) {
-	/**
-	 * Loop thru all available TableViews
-	 */
-	foreach (TabView *tvl, tvs) {
-		//      QSqlRelationalTableModel *tm = qobject_cast
-		//            <QSqlRelationalTableModel *>( locTabView->tv()->model() );
-		QSqlTableModel * tm = qobject_cast<QSqlTableModel *>(tvl->tv()->model());
-
-		bool enableIns = tm;
-		bool enableDel = enableIns && tvl->tv()->currentIndex().isValid();
-
-		insertRowAction->setEnabled( enableIns );
-		deleteRowAction->setEnabled( enableDel );
-
-		fieldStrategyAction  ->setEnabled(tm);
-		rowStrategyAction    ->setEnabled(tm);
-		manualStrategyAction ->setEnabled(tm);
-		submitAction         ->setEnabled(tm);
-		revertAction         ->setEnabled(tm);
-		selectAction         ->setEnabled(tm);
-
-		if (tm) {
-			QSqlRelationalTableModel::EditStrategy es = tm->editStrategy();
-			fieldStrategyAction->setChecked(
-						es == QSqlRelationalTableModel::OnFieldChange);
-			rowStrategyAction->setChecked(
-						es == QSqlRelationalTableModel::OnRowChange);
-			manualStrategyAction->setChecked(
-						es == QSqlRelationalTableModel::OnManualSubmit);
-		}
-	}
-}
 void Browser::customMenuRequested(QPoint pos) {
 	QModelIndex index = this->tvs.first()->tv()->indexAt(pos);
 	Q_UNUSED(index);
@@ -515,59 +433,6 @@ void Browser::customMenuRequested(QPoint pos) {
 	menu->addAction(new QAction("Action 2", this));
 	menu->addAction(new QAction("Action 3", this));
 	menu->popup(tvs.first()->tv()->viewport()->mapToGlobal(pos));
-}
-void Browser::on_fieldStrategyAction_triggered() {
-	TabView *locTabView = qobject_cast<TabView *>( tvs.first() );
-	QSqlTableModel *tm =
-			qobject_cast<QSqlTableModel *>(locTabView->tv()->model());
-
-	if (tm)
-		tm->setEditStrategy(QSqlTableModel::OnFieldChange);
-
-	on_selectAction_triggered();
-}
-void Browser::on_rowStrategyAction_triggered() {
-	TabView *locTabView = qobject_cast<TabView *>( tvs.first() );
-	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(
-									locTabView->tv()->model());
-
-	if (tm)
-		tm->setEditStrategy(QSqlTableModel::OnRowChange);
-
-	QWidget *wid = focusWidget();
-	INFO << wid->objectName();
-}
-void Browser::on_manualStrategyAction_triggered() {
-	TabView *locTabView = qobject_cast<TabView *>( tvs.first() );
-	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(
-									locTabView->tv()->model());
-
-	if (tm)
-		tm->setEditStrategy(QSqlTableModel::OnManualSubmit);
-}
-void Browser::on_submitAction_triggered() {
-	TabView *locTabView = qobject_cast<TabView *>( tvs.first() );
-	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(
-									locTabView->tv()->model());
-
-	if (tm)
-		tm->submitAll();
-}
-void Browser::on_revertAction_triggered() {
-	TabView *locTabView = qobject_cast<TabView *>( tvs.first() );
-	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(
-									locTabView->tv()->model());
-
-	if (tm)
-		tm->revertAll();
-}
-void Browser::on_selectAction_triggered() {
-	TabView *locTabView = qobject_cast<TabView *>( tvs.first() );
-	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(
-									locTabView->tv()->model());
-
-	if (tm)
-		tm->select();
 }
 void Browser::onBeforeUpdate(int row, QSqlRecord &record) {
 	INFO << row;

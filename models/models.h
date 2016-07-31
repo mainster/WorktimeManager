@@ -60,7 +60,9 @@ private:
 
 };
 
-
+//< Deprecated
+//< Deprecated
+//< Deprecated
 /*!
  \brief An alternative to subclussing QItemDelegate is to subclass the model
  and override data() method.

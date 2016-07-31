@@ -59,8 +59,7 @@ HEADERS += \
     models/models.h \
 	 delegates/sqlreldel.h \
     mdbQtStd/mdeventfilters.h \
-	 mdcombobox.h \
-    sortfilterproxymodel.h
+	 mdcombobox.h
 
 SOURCES += \
     delegates/tabledelegate.cpp \
@@ -83,8 +82,7 @@ SOURCES += \
     models/models.cpp \
 	 delegates/sqlreldel.cpp \
     mdbQtStd/mdeventfilters.cpp \
-	 mdcombobox.cpp \
-    sortfilterproxymodel.cpp
+	 mdcombobox.cpp
 
 FORMS += \
 	 uis/browser.ui \

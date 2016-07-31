@@ -4,12 +4,16 @@
 #include <QDate>
 #include <QSortFilterProxyModel>
 
-class SfiltMdl : public QSortFilterProxyModel
-{
+/* ======================================================================== */
+/*                                  SfiltMdl                                */
+/* ======================================================================== */
+class SfiltMdl : public QSortFilterProxyModel {
+
     Q_OBJECT
 
 public:
-    SfiltMdl(QObject *parent = 0);
+    SfiltMdl(QObject *parent = 0)
+        : QSortFilterProxyModel(parent) { }
 
     QDate filterMinimumDate() const { return minDate; }
     void setFilterMinimumDate(const QDate &date);
@@ -26,6 +30,28 @@ private:
 
     QDate minDate;
     QDate maxDate;
+};
+
+
+/* ======================================================================== */
+/*                            SortFilterProxyModel                          */
+/* ======================================================================== */
+class SortFilterProxyModel : public QSortFilterProxyModel {
+
+    Q_OBJECT
+
+public:
+    explicit SortFilterProxyModel(QObject *parent = 0)
+        : QSortFilterProxyModel(parent) {}
+
+    void setFilterKeyColumns(const QList<qint32> &filterColumns);
+    void addFilterFixedString(qint32 column, const QString &pattern);
+
+protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+
+private:
+    QMap<qint32, QString> m_columnPatterns;
 };
 
 #endif

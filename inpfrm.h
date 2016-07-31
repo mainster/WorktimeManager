@@ -12,7 +12,7 @@
 #include "mdeventfilters.h"
 #include "types.h"
 #include "mdcombobox.h"
-#include "sortfilterproxymodel.h"
+#include "mysortfilterproxymodel.h"
 #include "browser.h"
 #include "qpair.h"
 
@@ -95,11 +95,9 @@ public:
 
 	void setSqlQueryTextboxVisible(bool visible);
 	void onInpFormUserCommit();
-//	void onInpFormUserCommitOLD();
 	Qt::FocusOrderState getChangeFocusFlag() const;
 	void setChangeFocusFlag(const Qt::FocusOrderState &stateFlag);
 	bool setFocusOrder(QList<QWidget *> targets);
-	void initComboboxes2();
 
 signals:
 	void changeFocusOrder(Qt::FocusOrderState state = Qt::FocusChange_init);

@@ -75,94 +75,76 @@ class TabView;
  */
 class Browser : public QWidget, private Ui::Browser {
 
-   Q_OBJECT
+    Q_OBJECT
 
 public:
-   explicit Browser(QWidget *parent = 0);
-	static Browser *instance(QWidget *parent = 0x00) {
-      if(inst == 0)
-         inst = new Browser(parent);
-      return inst;
-   }
-	virtual ~Browser();
+    explicit Browser(QWidget *parent = 0);
+    static Browser *instance(QWidget *parent = 0x00) {
+        if(inst == 0)
+            inst = new Browser(parent);
+        return inst;
+    }
+    virtual ~Browser();
 
-   void insertRow();
-   void deleteRow();
-   void updateActions();
-   void resetStyleSheet(TabView *tv) {
-      tv->setStyleSheet(styleSheet());
-      style()->unpolish(tv);
-      style()->polish(tv);
-   }
-   void clearStyleSheet(TabView *tv) {
-      tv->style()->unpolish(tv);
-   }
-   QVector<TabView *> tvs;
-
-   /**
-    * Class accessors
-    */
-//   SortWindow *getSortwindow0() const;
-	//   SortWindow *getSortwindow1() const;
+//    void insertRow(QTableView *tv);
+    void deleteRow(QTableView *tv);
+    void resetStyleSheet(TabView *tv) {
+        tv->setStyleSheet(styleSheet());
+        style()->unpolish(tv);
+        style()->polish(tv);
+    }
+    void clearStyleSheet(TabView *tv) {
+        tv->style()->unpolish(tv);
+    }
+    QVector<TabView *> tvs;
 
 signals:
-	void stateMsg(const QString &message, const int delay = 0);
-   void tabViewSelChanged(TabView *sel);
-	void visibilityChanged(bool b);
+    void stateMsg(const QString &message, const int delay = 0);
+    void tabViewSelChanged(TabView *sel);
+    void visibilityChanged(bool b);
+    void updateActions();
 
 public slots:
-   void showMetaData(const QString &table);
-   void currentChanged(QModelIndex,QModelIndex) { updateActions(); }
-	void on_insertRowAction_triggered() { insertRow(); }
-	void on_deleteRowAction_triggered() { deleteRow(); }
-   void on_fieldStrategyAction_triggered();
-   void on_rowStrategyAction_triggered();
-   void on_manualStrategyAction_triggered();
-   void on_submitAction_triggered();
-   void on_revertAction_triggered();
-   void on_selectAction_triggered();
-   void on_connectionWidget_tableActivated(const QString &sqlTab);
-	void on_connectionWidget_metaDataRequested(const QString &table) {
-		showMetaData(table);
-	}
-   void onCyclic();
-   void customMenuRequested(QPoint pos);
-   void initTableView(QWidget *parent, QStringList &accNam);
-   QFont selectFont();
-   int setFontAcc(QFont &font);
-	void onCyclicObjInfoTrig(bool b) { cyclicObjInfo = b; }
-   void exec();
-   void requeryWorktimeTableView(QString nonDefaulQuery = "");
-   void showRelatTable(const QString &tNam, TabView *tvc);
-   QTableView *createView(QSqlQueryModel *model, const QString &title);
-   void initializeMdl(QSqlQueryModel *model);
-   QSqlDatabase getCurrentDatabase() {
-      return connectionWidget->currentDatabase();
-   }
-   void autofitRowCol();
-   void onActFilterForm(bool b);
+    void showMetaData(const QString &table);
+    void currentChanged(QModelIndex,QModelIndex) { emit updateActions(); }
+    void on_connectionWidget_tableActivated(const QString &sqlTab);
+    void on_connectionWidget_metaDataRequested(const QString &table) {
+        showMetaData(table);
+    }
+    void onCyclic();
+    void customMenuRequested(QPoint pos);
+    void initTableView(QWidget *parent, QStringList &accNam);
+    QFont selectFont();
+    int setFontAcc(QFont &font);
+    void onCyclicObjInfoTrig(bool b) { cyclicObjInfo = b; }
+    void exec();
+    void requeryWorktimeTableView(QString nonDefaulQuery = "");
+    void showRelatTable(const QString &tNam, TabView *tvc);
+    QTableView *createView(QSqlQueryModel *model, const QString &title);
+    void initializeMdl(QSqlQueryModel *model);
+    QSqlDatabase getCurrentDatabase() {
+        return connectionWidget->currentDatabase();
+    }
+    void autofitRowCol();
+    void onActFilterForm(bool b);
 
-	void onBeforeUpdate(int row, QSqlRecord &record);
+    void onBeforeUpdate(int row, QSqlRecord &record);
 protected slots:
-   void showEvent(QShowEvent *e);
-   bool eventFilter(QObject *obj, QEvent *e);
-	void hideEvent(QShowEvent *);
+    void showEvent(QShowEvent *e);
+    bool eventFilter(QObject *obj, QEvent *e);
+    void hideEvent(QShowEvent *);
 
 private slots:
-//   QAbstractItemModel *createMailModel(QObject *parent);
+    //   QAbstractItemModel *createMailModel(QObject *parent);
 
 private:
-	static Browser	*inst;
-	Ui::Browser		*ui;
-	QTimer			*timCyc;
-	bool				cyclicObjInfo;
-   /**
-    * This pointer gots manipulated by the double click event handler.
-    */
-	TabView			* dblClickFocusedTv;
-	SfiltMdl			*proxyModel;
-	SortWindow		*filterForm;
-	MDStateBar		*stateBar;
+    static Browser	*inst;
+    Ui::Browser		*ui;
+    QTimer			*timCyc;
+    bool				cyclicObjInfo;
+    SfiltMdl			*proxyModel;
+    SortWindow		*filterForm;
+    MDStateBar		*stateBar;
 
 };
 
