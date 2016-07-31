@@ -113,7 +113,6 @@ public slots:
 	QString getQueryText() const;
 	void saveSqlQueryInputText();
 	void restoreSqlQueryInputText();
-	void mapCbTableProxy();
 	void onSqlQuerysTextChanged();
 	void onCbQueryIndexChaned(int idx);
 	bool eventFilter(QObject *obj, QEvent *ev);
