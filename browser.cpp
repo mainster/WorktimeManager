@@ -11,15 +11,76 @@
 #define TVL1   "TableLong2"
 
 Browser *Browser::inst = 0;
+#define QFOLDINGSTART {
+const QString Browser::browserStyleSheet = QString(
+		"QGroupBox{"
+		"   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
+		"   	border-radius: 5px;"
+		"  	margin-top: 1ex; /* leave space at the top for the title */"
+		"   	font: italic 9pt ""Arial"";"
+		"   	font-weight: bold;"
+		"	border: 1px solid;    "
+		" 	border-color: rgb(105, 105, 105);"
+		"   	color: black;"
+		"}"
+		""
+		"QGroupBox::title {"
+		"   	subcontrol-origin: margin; /* margin boarder padding content */"
+		"   	subcontrol-position: top center; /* position at the top center */"
+		"   	top: 1.2ex;   "
+		"  	padding: 0px 8px"
+		"}"
+		""
+		"QGroupBox::title:hover {"
+		"    color: rgba(235, 235, 235, 255);"
+		"}"
+		""
+		" QTableView{"
+		"	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF);"
+		"	border: 0px solid gray;"
+		"	border-radius: 5px;"
+		"	margin-top: 15px; /* leave space at the top for the title */"
+		" }"
+		""
+		"QTableView[select=false]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF); }"
+		"QGroupBox[select=false]{ border: 1px solid; }"
+		""
+		"QTableView[select=true]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); }"
+		"QGroupBox[select=true]{ border: 3px solid; }"
+		""
+		"/* Customize Table header */"
+		" QHeaderView::section {"
+		"     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+		"                                       stop:    0 #616161, stop: 0.5 #505050,"
+		"                                       stop: 0.6 #434343, stop:    1 #656565);"
+		"     color: white;"
+		"     padding-left: 4px;"
+		"     padding-right: 4px;"
+		"     padding-top: 2px;"
+		"     padding-bottom: 2px;"
+		"     border: 1px solid #6c6c6c;"
+		" }"
+		""
+		" QHeaderView::section:checked {"
+		"     background-color: rgb(31, 94, 233);"
+		" }"
+		""
+		" /* style the sort indicator "
+		"QHeaderView::down-arrow {"
+		"	image: url(:/images/down_arrow.png);"
+		"}"
+		""
+		"QHeaderView::up-arrow {"
+		"	image: url(:/images/up_arrow.png);"
+		"}*/");
+#define QFOLDINGEND }
 
 void Browser::QSPLT_RESTORE()   {
 	QSETTINGS
-	QList<QSplitter *> spls = findChildren<QSplitter *>();
+			QList<QSplitter *> spls = findChildren<QSplitter *>();
 
-	foreach (QSplitter *sp, spls) {
-		INFO << objectName() + "/" + sp->objectName();
+	foreach (QSplitter *sp, spls)
 		sp->restoreState(config.value(objectName() + "/" + sp->objectName(), " ").toByteArray());
-	}
 }
 void Browser::QSPLT_STORE() {
 	QSETTINGS;
@@ -31,6 +92,10 @@ void Browser::QSPLT_STORE() {
 	}
 }
 
+
+/* ======================================================================== */
+/*                             Browser::Browser                             */
+/* ======================================================================== */
 Browser::Browser(QWidget *parent)
 	: QWidget(parent), cyclicObjInfo(false) {
 	inst = this;
@@ -67,194 +132,10 @@ Browser::Browser(QWidget *parent)
 	filterForm->hide();
 }
 Browser::~Browser() {
+	INFO << tr("close browser??!");
 	//	delete ui;
 }
-void Browser::createUi() {
-	/*!
-	 * Build UI.
-	 */
-	grLay = new QGridLayout(this);
-	connectionWidget = new ConnectionWidget();
 
-	tva = new TabView();
-	tvb = new TabView();
-	tvc = new TabView();
-	tvd = new TabView();
-	tvl1 = new TabView();
-	tvl2 = new TabView();
-
-	PONAM(tva);
-	PONAM(tvb);
-	PONAM(tvc);
-	PONAM(tvd);
-	PONAM(tvl1);
-	PONAM(tvl2);
-
-	splitter = new QSplitter(this);
-	splitter_2 = new QSplitter(this);
-	splitter_3 = new QSplitter(this);
-	splitter_4 = new QSplitter(this);
-	splitter_5 = new QSplitter(this);
-	splitter_6 = new QSplitter(this);
-	splitter_7 = new QSplitter(this);
-
-	PONAM(splitter);
-	PONAM(splitter_2);
-	PONAM(splitter_3);
-	PONAM(splitter_4);
-	PONAM(splitter_5);
-	PONAM(splitter_6);
-	PONAM(splitter_7);
-
-	splitter_7->setOrientation(Qt::Horizontal);
-	splitter->setOrientation(Qt::Horizontal);
-	splitter_2->setOrientation(Qt::Horizontal);
-	splitter_5->setOrientation(Qt::Horizontal);
-	splitter_3->setOrientation(Qt::Vertical);
-	splitter_4->setOrientation(Qt::Vertical);
-	splitter_6->setOrientation(Qt::Vertical);
-
-	grLay->addWidget(splitter);
-	grLay->addWidget(splitter_2);
-	grLay->addWidget(splitter_3);
-	grLay->addWidget(splitter_4);
-	grLay->addWidget(splitter_5);
-	grLay->addWidget(splitter_6);
-	grLay->addWidget(splitter_7);
-
-	splitter->addWidget(tva);
-	splitter->addWidget(tvb);
-	splitter_2->addWidget(connectionWidget);
-	splitter_2->addWidget(tvd);
-	splitter_3->addWidget(splitter);
-	splitter_3->addWidget(splitter_2);
-
-	splitter_4->addWidget(splitter_3);
-
-	splitter_5->addWidget(tvl1);
-	splitter_5->addWidget(tvl2);
-	splitter_6->addWidget(splitter_5);
-	splitter_6->addWidget(tvc);
-	splitter_7->addWidget(splitter_4);
-	splitter_7->addWidget(splitter_6);
-
-	mTvs << tva << tvb << tvc << tvd << tvl1 << tvl2;
-
-	QList<QString> accName =
-			QStringList() << TVA << TVB << TVC << TVD << TVL1 << TVL2;
-
-	foreach (TabView *tv, mTvs) {
-		QString currentName = accName.takeFirst();
-		tv->setAccessibleName( currentName );
-		tv->setObjectName( currentName );
-
-		tv->setToolTip( tr("Tooltip: ") + currentName);
-		tv->setContextMenuPolicy(Qt::ActionsContextMenu);
-		tv->grBox()->installEventFilter( this );
-		tv->grBox()->setObjectName("gb");
-
-		/*!
-		  * Connect TabView Signals/Slots
-		  */
-		if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &TabView::onTabViewSelChanged))
-			qReturn("Connection fail!");
-		if (! (bool)  connect(this, &Browser::updateActions, tv, &TabView::onUpdateActions))
-			qReturn("Connection fail!");
-	}
-}
-
-#define QFOLDINGSTART {
-#ifdef OLD_CONSTRUCTOR
-
-void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser) {
-	setupUi(this);
-
-	inst = this;
-
-	QStringList accNam;
-	accNam << TVA << TVB << TVC << TVD << TVL1 << TVL2;
-	initTableView( inst, accNam);
-
-	//   connect (ui->btnA,      SIGNAL(clicked()),
-	//            this,          SLOT(onTestBtnClicked()));
-	//   connect (ui->btnB,      SIGNAL(clicked()),
-	//            this,          SLOT(onTestBtnClicked()));
-	QList<bool> bl;
-
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTvs[0],   SLOT(onTabViewSelChanged(TabView *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTvs[1],   SLOT(onTabViewSelChanged(TabView *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTvs[2],   SLOT(onTabViewSelChanged(TabView *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTvs[3],   SLOT(onTabViewSelChanged(TabView *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTvs[4],   SLOT(onTabViewSelChanged(TabView *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTvs[5],   SLOT(onTabViewSelChanged(TabView *))));
-
-	if (bl.contains(false))
-		INFO << tr("connect.tabViewSelChanged[0...6]:") << bl;
-
-	INFO << QSqlDatabase::connectionNames()
-		  << QSqlDatabase::drivers();
-
-	if (QSqlDatabase::drivers().isEmpty()) {
-		QMessageBox::information
-				(this, tr("No database drivers found"),
-				 tr("This demo requires at least one Qt database driver. "
-					 "Please check the documentation how to build the "
-					 "Qt SQL plugins."));
-		qApp->quit();
-	}
-	else {
-		timCyc = new QTimer();
-		timCyc->setInterval(T_CYCLIC * 1e3);
-		connect( timCyc,    SIGNAL(timeout()),
-					this,      SLOT(onCyclic()));
-		timCyc->start();
-	}
-
-	emit stateMsg(tr("Browser Ready."));
-
-	SqlTm *cm = new SqlTm();
-	cm->setCCol(QVector<int>(0, 1));
-
-	//    sortwindow.append( new SortWindow(0) );
-	//    sortwindow.append( new SortWindow(0) );
-	filterForm = SortWindow::getInstance();
-
-	//    sortwindow.last()->setVisible(false);
-	filterForm->setVisible(false);
-}
-#endif
-void Browser::initTableView(QWidget *parent, QStringList &accNam) {
-	Q_UNUSED(parent)
-	//	QList<QAction *> tblActs;
-
-	//	tblActs.append(insertRowAction);
-	//	tblActs.append(deleteRowAction);
-	//	tblActs.append(fieldStrategyAction);
-	//	tblActs.append(rowStrategyAction);
-	//	tblActs.append(manualStrategyAction);
-	//	tblActs.append(submitAction);
-	//	tblActs.append(revertAction);
-	//	tblActs.append(selectAction);
-
-	//    QObjectList *queryList( const char *inheritsClass = 0,
-	//                            const char *objName = 0,
-	//                            bool regexpMatch = TRUE,
-	//                            bool recursiveSearch = TRUE );
-
-	//    QObjectList *queryTvs = queryList( "TabView" );
-
-	//    foreach (QObject *obj, queryTvs) {
-	//        mTvs.append( static_cast<TabView *>obj );
-	//    }
-
-}
-#define QFOLDINGEND }
 void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	QSETTINGS_QUERYS;
 	/*!
@@ -344,10 +225,11 @@ void Browser::exec() {
 	tvl1->resizeRowsColsToContents();
 	emit updateActions();
 }
-/**
- * Relational table model - View relational WORKS 12-11-2015
- */
 void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
+	/**
+	 * Relational table model - View relational WORKS 12-11-2015
+	 */
+
 	/**
 	 * Get active database pointer
 	 */
@@ -522,7 +404,6 @@ void Browser::showMetaData(const QString &t) {
 
 	emit updateActions();
 }
-
 void Browser::customMenuRequested(QPoint pos) {
 	QModelIndex index = this->mTvs.first()->tv()->indexAt(pos);
 	Q_UNUSED(index);
@@ -537,10 +418,23 @@ void Browser::onBeforeUpdate(int row, QSqlRecord &record) {
 	INFO << row;
 	INFO << record;
 }
-/**
- * Entered after double clicking a table item in connection widget tree view
- */
+void Browser::onActFilterForm(bool b) {
+	filterForm->setVisible(b);
+
+	if (b) {
+		filterForm->setSourceModel( mTvs.last()->tv()->model() );
+		filterForm->raise();
+		filterForm->activateWindow();
+	}
+	else {
+		filterForm->hide();
+	}
+}
 void Browser::onConnectionWidgetTableActivated(const QString &sqlTbl) {
+	/**
+	 * Entered after double clicking a table item in connection widget tree view
+	 */
+
 	/**
 	 * Determine which TabView should be targeted by the activated tab model.
 	 * Either select an instance of TabView which hasn't a model loaded yet. To
@@ -593,23 +487,6 @@ void Browser::autofitRowCol() {
 	foreach (TabView *tvc, mTvs)
 		tvc->resizeRowsColsToContents();
 }
-void Browser::initializeMdl(QSqlQueryModel *model) {
-	QSqlDatabase pDb = connectionWidget->currentDatabase();
-	model->setQuery("select * from worker", pDb);
-	model->setHeaderData(0, Qt::Horizontal, QObject::tr("workerID"));
-	model->setHeaderData(1, Qt::Horizontal, QObject::tr("Nachname"));
-	model->setHeaderData(2, Qt::Horizontal, QObject::tr("Vorname"));
-	INFO << model->lastError().databaseText();
-	INFO << model->lastError().driverText();
-	INFO << model->lastError();
-
-	////   mdl->setQuery("SELECT prjID, clientID, SubID, Beschreibung, Kurzform "
-	////                 "FROM prj", pDb);
-	//   mdl->setQuery("SELECT * FROM prj");
-	//   mdl->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
-	//   mdl->setHeaderData(1, Qt::Horizontal, QObject::tr("clId"));
-	//   mdl->setHeaderData(2, Qt::Horizontal, QObject::tr("subId"));
-}
 QFont Browser::selectFont() {
 	bool ok;
 	QFont font = QFontDialog::getFont(
@@ -622,18 +499,6 @@ QFont Browser::selectFont() {
 	}
 
 	return QFont();
-}
-QTableView* Browser::createView(QSqlQueryModel *model, const QString &title) {
-	QTableView *view = new QTableView(0);
-	view->setModel(model);
-	static int offset = 0;
-
-	view->setWindowTitle(title);
-	view->move(100 + offset, 100 + offset);
-	offset += 20;
-	view->show();
-
-	return view;
 }
 void Browser::onCyclic() {
 
@@ -651,6 +516,9 @@ void Browser::onCyclic() {
 		}
 	}
 }
+/* ======================================================================== */
+/*                              Event handler                               */
+/* ======================================================================== */
 bool Browser::eventFilter(QObject *obj, QEvent *e) {
 	QPoint pos;
 
@@ -734,9 +602,6 @@ void Browser::hideEvent(QShowEvent *) {
 	QSPLT_STORE();
 	emit visibilityChanged( false );
 }
-QList<TabView *> *Browser::tvs() {
-	return &mTvs;
-}
 void Browser::showEvent(QShowEvent *) {
 	QSPLT_RESTORE();
 	emit visibilityChanged( true );
@@ -748,18 +613,134 @@ void Browser::showEvent(QShowEvent *) {
 	//		sp->restoreState(config.value("Browser/" + objn, " ").toByteArray());
 	//	}
 }
-void Browser::onActFilterForm(bool b) {
-	filterForm->setVisible(b);
+/* ======================================================================== */
+/*                              Init methodes                               */
+/* ======================================================================== */
+void Browser::initializeMdl(QSqlQueryModel *model) {
+	QSqlDatabase pDb = connectionWidget->currentDatabase();
+	model->setQuery("select * from worker", pDb);
+	model->setHeaderData(0, Qt::Horizontal, QObject::tr("workerID"));
+	model->setHeaderData(1, Qt::Horizontal, QObject::tr("Nachname"));
+	model->setHeaderData(2, Qt::Horizontal, QObject::tr("Vorname"));
+	INFO << model->lastError().databaseText();
+	INFO << model->lastError().driverText();
+	INFO << model->lastError();
 
-	if (b) {
-		filterForm->setSourceModel( mTvs.last()->tv()->model() );
-		filterForm->raise();
-		filterForm->activateWindow();
-	}
-	else {
-		filterForm->hide();
+	////   mdl->setQuery("SELECT prjID, clientID, SubID, Beschreibung, Kurzform "
+	////                 "FROM prj", pDb);
+	//   mdl->setQuery("SELECT * FROM prj");
+	//   mdl->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
+	//   mdl->setHeaderData(1, Qt::Horizontal, QObject::tr("clId"));
+	//   mdl->setHeaderData(2, Qt::Horizontal, QObject::tr("subId"));
+}
+void Browser::createUi() {
+	/*!
+	 * Build UI.
+	 */
+	grLay = new QGridLayout(this);
+	connectionWidget = new ConnectionWidget();
+
+	tva = new TabView();
+	tvb = new TabView();
+	tvc = new TabView();
+	tvd = new TabView();
+	tvl1 = new TabView();
+	tvl2 = new TabView();
+
+	PONAM(tva);
+	PONAM(tvb);
+	PONAM(tvc);
+	PONAM(tvd);
+	PONAM(tvl1);
+	PONAM(tvl2);
+
+	splitter = new QSplitter(this);
+	splitter_2 = new QSplitter(this);
+	splitter_3 = new QSplitter(this);
+	splitter_4 = new QSplitter(this);
+	splitter_5 = new QSplitter(this);
+	splitter_6 = new QSplitter(this);
+	splitter_7 = new QSplitter(this);
+
+	PONAM(splitter);
+	PONAM(splitter_2);
+	PONAM(splitter_3);
+	PONAM(splitter_4);
+	PONAM(splitter_5);
+	PONAM(splitter_6);
+	PONAM(splitter_7);
+
+	splitter_7->setOrientation(Qt::Horizontal);
+	splitter->setOrientation(Qt::Horizontal);
+	splitter_2->setOrientation(Qt::Horizontal);
+	splitter_5->setOrientation(Qt::Horizontal);
+	splitter_3->setOrientation(Qt::Vertical);
+	splitter_4->setOrientation(Qt::Vertical);
+	splitter_6->setOrientation(Qt::Vertical);
+
+	grLay->addWidget(splitter);
+	grLay->addWidget(splitter_2);
+	grLay->addWidget(splitter_3);
+	grLay->addWidget(splitter_4);
+	grLay->addWidget(splitter_5);
+	grLay->addWidget(splitter_6);
+	grLay->addWidget(splitter_7);
+
+	splitter->addWidget(tva);
+	splitter->addWidget(tvb);
+	splitter_2->addWidget(connectionWidget);
+	splitter_2->addWidget(tvd);
+	splitter_3->addWidget(splitter);
+	splitter_3->addWidget(splitter_2);
+
+	splitter_4->addWidget(splitter_3);
+
+	splitter_5->addWidget(tvl1);
+	splitter_5->addWidget(tvl2);
+	splitter_6->addWidget(splitter_5);
+	splitter_6->addWidget(tvc);
+	splitter_7->addWidget(splitter_4);
+	splitter_7->addWidget(splitter_6);
+
+	mTvs << tva << tvb << tvc << tvd << tvl1 << tvl2;
+
+	QList<QString> accName =
+			QStringList() << TVA << TVB << TVC << TVD << TVL1 << TVL2;
+
+	foreach (TabView *tv, mTvs) {
+		QString currentName = accName.takeFirst();
+		tv->setAccessibleName( currentName );
+		tv->setObjectName( currentName );
+
+		tv->setToolTip( tr("Tooltip: ") + currentName);
+		tv->setContextMenuPolicy(Qt::ActionsContextMenu);
+		tv->grBox()->installEventFilter( this );
+		tv->grBox()->setObjectName("gb");
+
+		/*!
+		  * Connect TabView Signals/Slots
+		  */
+		if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &TabView::onTabViewSelChanged))
+			qReturn("Connection fail!");
+		if (! (bool)  connect(this, &Browser::updateActions, tv, &TabView::onUpdateActions))
+			qReturn("Connection fail!");
 	}
 }
+QTableView* Browser::createView(QSqlQueryModel *model, const QString &title) {
+	QTableView *view = new QTableView(0);
+	view->setModel(model);
+	static int offset = 0;
+
+	view->setWindowTitle(title);
+	view->move(100 + offset, 100 + offset);
+	offset += 20;
+	view->show();
+
+	return view;
+}
+
+
+#define QFOLDINGSTART {
 #ifndef COMMENT_OUT_UNUSED
 QAbstractItemModel *Browser::createMailModel(QObject *parent) {
 	QStandardItemModel *model = new QStandardItemModel(0, 3, parent);
@@ -795,3 +776,70 @@ QAbstractItemModel *Browser::createMailModel(QObject *parent) {
 }
 
 #endif
+#define QFOLDINGEND }
+#define QFOLDINGSTART {
+#ifndef COMMENT_OUT_UNUSED
+
+void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser) {
+	setupUi(this);
+
+	inst = this;
+
+	QStringList accNam;
+	accNam << TVA << TVB << TVC << TVD << TVL1 << TVL2;
+	initTableView( inst, accNam);
+
+	//   connect (ui->btnA,      SIGNAL(clicked()),
+	//            this,          SLOT(onTestBtnClicked()));
+	//   connect (ui->btnB,      SIGNAL(clicked()),
+	//            this,          SLOT(onTestBtnClicked()));
+	QList<bool> bl;
+
+	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
+									  mTvs[0],   SLOT(onTabViewSelChanged(TabView *))));
+	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
+									  mTvs[1],   SLOT(onTabViewSelChanged(TabView *))));
+	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
+									  mTvs[2],   SLOT(onTabViewSelChanged(TabView *))));
+	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
+									  mTvs[3],   SLOT(onTabViewSelChanged(TabView *))));
+	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
+									  mTvs[4],   SLOT(onTabViewSelChanged(TabView *))));
+	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
+									  mTvs[5],   SLOT(onTabViewSelChanged(TabView *))));
+
+	if (bl.contains(false))
+		INFO << tr("connect.tabViewSelChanged[0...6]:") << bl;
+
+	INFO << QSqlDatabase::connectionNames()
+		  << QSqlDatabase::drivers();
+
+	if (QSqlDatabase::drivers().isEmpty()) {
+		QMessageBox::information
+				(this, tr("No database drivers found"),
+				 tr("This demo requires at least one Qt database driver..."));
+		qApp->quit();
+	}
+	else {
+		timCyc = new QTimer();
+		timCyc->setInterval(T_CYCLIC * 1e3);
+		connect( timCyc,    SIGNAL(timeout()),
+					this,      SLOT(onCyclic()));
+		timCyc->start();
+	}
+
+	emit stateMsg(tr("Browser Ready."));
+
+	SqlTm *cm = new SqlTm();
+	cm->setCCol(QVector<int>(0, 1));
+
+	//    sortwindow.append( new SortWindow(0) );
+	//    sortwindow.append( new SortWindow(0) );
+	filterForm = SortWindow::getInstance();
+
+	//    sortwindow.last()->setVisible(false);
+	filterForm->setVisible(false);
+}
+
+#endif
+#define QFOLDINGEND }

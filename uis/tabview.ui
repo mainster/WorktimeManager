@@ -32,64 +32,7 @@
    <item>
     <widget class="QGroupBox" name="gb">
      <property name="styleSheet">
-      <string notr="true">QGroupBox{
-   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
-   	border-radius: 5px;
-  	margin-top: 1ex; /* leave space at the top for the title */
-   	font: italic 9pt &quot;Arial&quot;;
-   	font-weight: bold;
-	border: 1px solid;    
- 	border-color: rgb(105, 105, 105);
-   	color: black;
-}
-QGroupBox::title {
-   	subcontrol-origin: margin; /* margin boarder padding content */
-   	subcontrol-position: top center; /* position at the top center */
-   	top: 1.2ex;   
-  	padding: 0px 8px
-} 
-QGroupBox::title:hover {
-    color: rgba(235, 235, 235, 255);
-}
- QTableView{
-	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF);
-	border: 0px solid gray;
-	border-radius: 5px;
-	margin-top: 15px; /* leave space at the top for the title */
- }
-QTableView[select=false]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF); }
-QGroupBox[select=false]{ border-color: rgb(105, 105, 105); }
-
-QTableView[select=true]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); }
-QGroupBox[select=true]{ border-color: rgb(0, 28, 170) }
-
-
-/* Customize Table header */
- QHeaderView::section {
-     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                       stop:    0 #616161, stop: 0.5 #505050,
-                                       stop: 0.6 #434343, stop:    1 #656565);
-     color: white;
-     padding-left: 4px;
-     padding-right: 4px;
-     padding-top: 2px;
-     padding-bottom: 2px;
-     border: 1px solid #6c6c6c;
- }
-
- QHeaderView::section:checked {
-     background-color: rgb(31, 94, 233);
- }
-
- /* style the sort indicator */
-QHeaderView::down-arrow {
-/*     image: url(:/images/down_arrow.png);*/
- }
-
- QHeaderView::up-arrow {
-/*     image: url(:/images/up_arrow.png);*/
- }
-</string>
+      <string notr="true"/>
      </property>
      <property name="title">
       <string>GroupBox</string>

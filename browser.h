@@ -78,89 +78,92 @@ class ConnectionWidget;
  */
 class Browser : public QWidget {
 
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit Browser(QWidget *parent = 0);
-    static Browser *instance(QWidget *parent = 0x00) {
-        if(inst == 0)
-            inst = new Browser(parent);
-        return inst;
-    }
-    virtual ~Browser();
+	static const QString browserStyleSheet;
 
-//    void insertRow(QTableView *tv);
-    void deleteRow(QTableView *tv);
-    void resetStyleSheet(TabView *tv) {
-        tv->setStyleSheet(styleSheet());
-        style()->unpolish(tv);
-        style()->polish(tv);
-    }
-    void clearStyleSheet(TabView *tv) {
-        tv->style()->unpolish(tv);
-    }
-	 QList<TabView *> *tvs();
-	 void QSPLT_RESTORE();
-	 void QSPLT_STORE();
+	explicit Browser(QWidget *parent = 0);
+	static Browser *instance(QWidget *parent = 0x00) {
+		if(inst == 0)
+			inst = new Browser(parent);
+		return inst;
+	}
+	virtual ~Browser();
+
+	//    void insertRow(QTableView *tv);
+	void deleteRow(QTableView *tv);
+	void resetStyleSheet(TabView *tv) {
+		tv->setStyleSheet(styleSheet());
+		style()->unpolish(tv);
+		style()->polish(tv);
+	}
+	void clearStyleSheet(TabView *tv) {
+		tv->style()->unpolish(tv);
+	}
+	QList<TabView *> *tvs() {
+		return &mTvs;
+	}
+	void QSPLT_RESTORE();
+	void QSPLT_STORE();
 
 signals:
-    void stateMsg(const QString &message, const int delay = 0);
-    void tabViewSelChanged(TabView *sel);
-    void visibilityChanged(bool b);
-    void updateActions();
+	void stateMsg(const QString &message, const int delay = 0);
+	void tabViewSelChanged(TabView *sel);
+	void visibilityChanged(bool b);
+	void updateActions();
 
 public slots:
-    void showMetaData(const QString &table);
-    void currentChanged(QModelIndex,QModelIndex) { emit updateActions(); }
-	 void onConnectionWidgetTableActivated(const QString &sqlTab);
-    void on_connectionWidget_metaDataRequested(const QString &table) {
-        showMetaData(table);
-    }
-    void onCyclic();
-    void customMenuRequested(QPoint pos);
-    void initTableView(QWidget *parent, QStringList &accNam);
-    QFont selectFont();
-    int setFontAcc(QFont &font);
-    void onCyclicObjInfoTrig(bool b) { cyclicObjInfo = b; }
-    void exec();
-    void requeryWorktimeTableView(QString nonDefaulQuery = "");
-    void showRelatTable(const QString &tNam, TabView *tvc);
-    QTableView *createView(QSqlQueryModel *model, const QString &title);
-    void initializeMdl(QSqlQueryModel *model);
-    QSqlDatabase getCurrentDatabase() {
-        return connectionWidget->currentDatabase();
-    }
-    void autofitRowCol();
-    void onActFilterForm(bool b);
-    void onBeforeUpdate(int row, QSqlRecord &record);
+	void showMetaData(const QString &table);
+	void currentChanged(QModelIndex,QModelIndex) { emit updateActions(); }
+	void onConnectionWidgetTableActivated(const QString &sqlTab);
+	void on_connectionWidget_metaDataRequested(const QString &table) {
+		showMetaData(table);
+	}
+	void onCyclic();
+	void customMenuRequested(QPoint pos);
+	QFont selectFont();
+	int setFontAcc(QFont &font);
+	void onCyclicObjInfoTrig(bool b) { cyclicObjInfo = b; }
+	void exec();
+	void requeryWorktimeTableView(QString nonDefaulQuery = "");
+	void showRelatTable(const QString &tNam, TabView *tvc);
+	QTableView *createView(QSqlQueryModel *model, const QString &title);
+	void initializeMdl(QSqlQueryModel *model);
+	QSqlDatabase getCurrentDatabase() {
+		return connectionWidget->currentDatabase();
+	}
+	void autofitRowCol();
+	void onActFilterForm(bool b);
+	void onBeforeUpdate(int row, QSqlRecord &record);
 
 protected:
-	 void createUi();
+	void createUi();
 
 protected slots:
-    void showEvent(QShowEvent *e);
-    bool eventFilter(QObject *obj, QEvent *e);
-    void hideEvent(QShowEvent *);
+	void showEvent(QShowEvent *e);
+	bool eventFilter(QObject *obj, QEvent *e);
+	void hideEvent(QShowEvent *);
 
 private slots:
-    //   QAbstractItemModel *createMailModel(QObject *parent);
+	//   QAbstractItemModel *createMailModel(QObject *parent);
 
 private:
-    static Browser      *inst;
-	 ConnectionWidget *connectionWidget;
-	 QGridLayout *grLay;
-	 TabView *tva, *tvb, *tvc, *tvd, *tvl1, *tvl2;
-	 QSplitter *splitter, *splitter_2, *splitter_3, *splitter_4,
-	 *splitter_5, *splitter_6, *splitter_7;
+	static Browser      *inst;
+	ConnectionWidget *connectionWidget;
+	QGridLayout *grLay;
+	TabView *tva, *tvb, *tvc, *tvd, *tvl1, *tvl2;
+	QSplitter *splitter, *splitter_2, *splitter_3, *splitter_4,
+	*splitter_5, *splitter_6, *splitter_7;
 
 
-//    Ui::Browser         *ui;
-	 QList<TabView *>  mTvs;
-    QTimer              *timCyc;
-    bool				cyclicObjInfo;
-    SfiltMdl			*proxyModel;
-    SortWindow          *filterForm;
-    MDStateBar          *stateBar;
+	//    Ui::Browser         *ui;
+	QList<TabView *>  mTvs;
+	QTimer              *timCyc;
+	bool					cyclicObjInfo;
+	SfiltMdl			*proxyModel;
+	SortWindow          *filterForm;
+	MDStateBar          *stateBar;
 
 };
 

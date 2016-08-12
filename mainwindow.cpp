@@ -14,17 +14,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	ui->setupUi(this);
 	QSETTINGS_INIT; QSETTINGS;
 
-//	setCentralWidget(_browser);
-
-//	return;
-
 	stateBar		= new MDStateBar( this );
 	browser		= new Browser( this );
-//	browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-//	setCentralWidget(browser);
 	mDbc			= new DbController(this);
 	inpFrm		= new InpFrm( this );
 	sortwindow  = new SortWindow( parent );
+
 	stateBar->setClockVisible(true);
 	setStatusBar( stateBar );
 

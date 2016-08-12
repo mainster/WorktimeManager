@@ -17,62 +17,73 @@ class TabView;
 
 class TabView : public QWidget {
 
-    Q_OBJECT
+	Q_OBJECT
+	Q_PROPERTY(bool activeSelection READ isActiveSelected WRITE setActiveSelected)
+	Q_PROPERTY(bool selected READ isSelected WRITE setSelected)
 
 public:
-    explicit TabView(QWidget *parent = 0);
-    ~TabView();
+	static QString tvStyleSheet;
+	bool isActiveSelected()						{ return m_activeSelected; };
+	void setActiveSelected(bool value)		{ m_activeSelected = value; };
+	void clearActiveSelected()					{ m_activeSelected = false; };
+	bool isSelected()								{ return m_selected; };
+	void setSelected(bool selected)			{ m_selected = selected; };
 
-    QGroupBox *grBox() const;
-    void setGrBox(QGroupBox *gb);
-    QTableView *tv() const;
-    void setTvTitle(QString &s);
-    bool isActiveSelected()
-    { return activeSel; }
-    void clearActiveSelection()
-    {  activeSel = false; }
+	explicit TabView(QWidget *parent = 0);
+	~TabView();
 
-    QList<QAction *> getTblActs() const;
-    QAction *fieldStrategyAction() const;
-    QAction *manualStrategyAction() const;
-    QAction *rowStrategyAction() const;
+	QGroupBox *grBox() const;
+	void setGrBox(QGroupBox *gb);
+	QTableView *tv() const;
+	void setTvTitle(QString &s);
+
+	QList<QAction *> getTblActs() const;
+	QAction *fieldStrategyAction() const;
+	QAction *manualStrategyAction() const;
+	QAction *rowStrategyAction() const;
 
 public slots:
-    void onObjectNameChanged(const QString &objNam);
-    void setGrBoxStyleSht(const QString &ss);
-    void setGrBoxTitle(QString s);
-    void onTabViewSelChanged(TabView *tv);
-    void setAlternateRowCol(QColor &col, bool alternateEnabled = true);
-    void restoreView();
+	void onObjectNameChanged(const QString &objNam);
+	void setGrBoxStyleSht(const QString &ss);
+	void setGrBoxTitle(QString s);
+	void onTabViewSelChanged(TabView *tv);
+	void setAlternateRowCol(QColor &col, bool alternateEnabled = true);
+	void restoreView();
 
-    void insertRow();
-    void deleteRow();
-    void onUpdateActions();
-    void on_insertRowAction_triggered();
-    void on_deleteRowAction_triggered();
-    void on_fieldStrategyAction_triggered();
-    void on_rowStrategyAction_triggered();
-    void on_manualStrategyAction_triggered();
-    void on_submitAction_triggered();
-    void on_revertAction_triggered();
-    void on_selectAction_triggered();
+	void insertRow();
+	void deleteRow();
+	void onUpdateActions();
+	void onActSelect();
+	void onActReverttriggered();
+	void onActSubmittriggered();
+	void onActManualStrategytriggered();
+	void onActRowStrategytriggered();
+	void onActFieldStrategytriggered();
+	void onActDeleteRowtriggered();
+	void onActInsertRowtriggered();
 
-	 void refreshView();
-	 void resizeRowsColsToContents();
-	 void setColumnHidden(const int column, const bool hide);
-	 void setSelectionMode(QAbstractItemView::SelectionMode mode);
-	 void setModel(QAbstractItemModel *model);
-	 void setEditTriggers(QTableView::EditTriggers triggers);
-	 QItemSelectionModel *selectionModel();
+	void refreshView();
+	void resizeRowsColsToContents();
+	void setColumnHidden(const int column, const bool hide);
+	void setSelectionMode(QAbstractItemView::SelectionMode mode);
+	void setModel(QAbstractItemModel *model);
+	void setEditTriggers(QTableView::EditTriggers triggers);
+	QItemSelectionModel *selectionModel();
+
 signals:
-    void onSelChanged(TabView *tv);
+	void onSelChanged(TabView *tv);
+
+protected:
+	QList<QAction *> createActions();
 
 private:
-    Ui::TabView         *ui;
-    QTableView          *m_tv;
-    QGroupBox           *m_gb;
-    QList<QAction *>    tblActs;
-    bool                activeSel;
+	Ui::TabView         *ui;
+	QTableView          *m_tv;
+	QGroupBox           *m_gb;
+	QList<QAction *>    tblActs;
+	bool						m_activeSelected, m_selected;
+	QAction					*actInsertRow, *actDeleteRow, *actFieldStrategy,
+	*actRowStrategy, *actManualStrategy,*actSubmit, *actRevert, *actSelect;
 };
 
 

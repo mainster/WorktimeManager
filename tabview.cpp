@@ -10,28 +10,15 @@ TabView::TabView(QWidget *parent)
     : QWidget(parent), ui(new Ui::TabView) {
     ui->setupUi(this);
 
-    connect( this,    SIGNAL(objectNameChanged(QString)),
-             this,    SLOT(onObjectNameChanged(QString)));
-    connect( this,    SIGNAL(onSelChanged(TabView*)),
-             this,    SLOT(onTabViewSelChanged(TabView*)));
     //    connect( Browser::instance(),   &Browser::updateActions,
     //             this,                  &TabView::updateActions);
 
-    tblActs.append(ui->insertRowAction);
-    tblActs.append(ui->deleteRowAction);
-    tblActs.append(ui->fieldStrategyAction);
-    tblActs.append(ui->rowStrategyAction);
-    tblActs.append(ui->manualStrategyAction);
-    tblActs.append(ui->submitAction);
-    tblActs.append(ui->revertAction);
-    tblActs.append(ui->selectAction);
-    addActions( tblActs );
+	addActions( createActions() );
 
-    /*
-   connect( parent->parent()->parent(),
-                     SIGNAL(tabViewSelChanged(TabView*)),
-            this,    SLOT(onTabViewSelChanged(TabView*)));
-*/
+	connect( this,    SIGNAL(objectNameChanged(QString)),
+				this,    SLOT(onObjectNameChanged(QString)));
+	connect( this,    SIGNAL(onSelChanged(TabView*)),
+				this,    SLOT(onTabViewSelChanged(TabView*)));
 
     this->m_gb = ui->gb;
     this->m_tv = ui->mtv;
@@ -43,7 +30,7 @@ TabView::TabView(QWidget *parent)
     this->m_gb->setStyleSheet(this->m_gb->styleSheet());
 
     this->m_tv->setSortingEnabled( true );
-    activeSel = false;
+	 setActiveSelected( false );
 }
 TabView::~TabView() {
     delete ui;
@@ -142,57 +129,56 @@ void TabView::onUpdateActions() {
     }
 
 }
-void TabView::on_insertRowAction_triggered() {
-    insertRow();
+void TabView::onActInsertRowtriggered() {
+	insertRow();
 }
-void TabView::on_deleteRowAction_triggered() {
-    deleteRow();
+void TabView::onActDeleteRowtriggered() {
+	deleteRow();
 }
-void TabView::on_fieldStrategyAction_triggered() {
-    QSqlTableModel *tm =
-            qobject_cast<QSqlTableModel *>(m_tv->model());
+void TabView::onActFieldStrategytriggered() {
+	QSqlTableModel *tm =
+			qobject_cast<QSqlTableModel *>(m_tv->model());
 
-    if (tm)
-        tm->setEditStrategy(QSqlTableModel::OnFieldChange);
-    on_selectAction_triggered();
+	if (tm)
+		tm->setEditStrategy(QSqlTableModel::OnFieldChange);
+	onActSelect();
 }
-void TabView::on_rowStrategyAction_triggered() {
-    QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
+void TabView::onActRowStrategytriggered() {
+	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
 
-    if (tm)
-        tm->setEditStrategy(QSqlTableModel::OnRowChange);
-    else
-        CRIT << tr("cast failed");
+	if (tm)
+		tm->setEditStrategy(QSqlTableModel::OnRowChange);
+	else
+		CRIT << tr("cast failed");
 
-    QWidget *wid = focusWidget();
-    INFO << wid->objectName();
+	QWidget *wid = focusWidget();
+	INFO << wid->objectName();
 }
-void TabView::on_manualStrategyAction_triggered() {
-    QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
+void TabView::onActManualStrategytriggered() {
+	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
 
-    if (tm)
-        tm->setEditStrategy(QSqlTableModel::OnManualSubmit);
+	if (tm)
+		tm->setEditStrategy(QSqlTableModel::OnManualSubmit);
 }
-void TabView::on_submitAction_triggered() {
-    QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
+void TabView::onActSubmittriggered() {
+	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
 
-    if (tm)
-        tm->submitAll();
+	if (tm)
+		tm->submitAll();
 }
-void TabView::on_revertAction_triggered() {
-    QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
+void TabView::onActReverttriggered() {
+	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
 
-    if (tm)
-        tm->revertAll();
+	if (tm)
+		tm->revertAll();
 }
-void TabView::on_selectAction_triggered() {
+void TabView::onActSelect() {
 
-    QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
+	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
 
-    if (tm)
-        tm->select();
+	if (tm)
+		tm->select();
 }
-
 void TabView::onObjectNameChanged(const QString &objNam) {
     m_gb->setTitle( objNam );
     m_gb->setAccessibleName(tr("gboxOf")+objNam);
@@ -220,12 +206,12 @@ void TabView::onTabViewSelChanged(TabView *tv) {
     */
     if (tv != NULL) {
         if (this->objectName().contains(tv->objectName()))  {
-            activeSel = true;
+				setActiveSelected( true );
             return;
         }
         m_gb->setProperty("select", false);
         m_gb->setStyleSheet(m_gb->styleSheet());
-        activeSel = false;
+		  setActiveSelected( false );
     }
 }
 void TabView::resizeRowsColsToContents() {
@@ -248,6 +234,25 @@ void TabView::setModel(QAbstractItemModel *model) {
 }
 void TabView::setEditTriggers(QTableView::EditTriggers triggers) {
 	m_tv->setEditTriggers(triggers);
+}
+QList<QAction *> TabView::createActions() {
+	actInsertRow =		new QAction(tr("&Insert Row"), this);
+	actDeleteRow =		new QAction(tr("&Delete Row"), this);
+	actFieldStrategy =	new QAction(tr("Submit on &Field Change"), this);
+	actRowStrategy =		new QAction(tr("Submit on &Row Change"), this);
+	actManualStrategy = new QAction(tr("Submit &Manually"), this);
+	actSubmit =			new QAction(tr("&Submit All"), this);
+	actRevert =			new QAction(tr("Re&vert All"), this);
+	actSelect =			new QAction(tr("S&elect"), this);
+
+	actFieldStrategy->setCheckable(true);
+	actRowStrategy->setCheckable(true);
+	actManualStrategy->setCheckable(true);
+	actInsertRow->setEnabled(false);
+	actDeleteRow->setEnabled(false);
+
+	tblActs = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
+	return tblActs;
 }
 
 /* ---------------------------------------------------------------- */
