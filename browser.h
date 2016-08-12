@@ -76,7 +76,7 @@ class ConnectionWidget;
  * \author [your name]
  * \date
  */
-class Browser : public QFrame/*, private Ui::Browser*/ {
+class Browser : public QWidget {
 
     Q_OBJECT
 
@@ -99,9 +99,9 @@ public:
     void clearStyleSheet(TabView *tv) {
         tv->style()->unpolish(tv);
     }
-
-
 	 QList<TabView *> *tvs();
+	 void QSPLT_RESTORE();
+	 void QSPLT_STORE();
 
 signals:
     void stateMsg(const QString &message, const int delay = 0);
@@ -132,8 +132,11 @@ public slots:
     }
     void autofitRowCol();
     void onActFilterForm(bool b);
-
     void onBeforeUpdate(int row, QSqlRecord &record);
+
+protected:
+	 void createUi();
+
 protected slots:
     void showEvent(QShowEvent *e);
     bool eventFilter(QObject *obj, QEvent *e);
@@ -147,7 +150,8 @@ private:
 	 ConnectionWidget *connectionWidget;
 	 QGridLayout *grLay;
 	 TabView *tva, *tvb, *tvc, *tvd, *tvl1, *tvl2;
-	 QSplitter *splitter, *splitter_2, *splitter_3, *splitter_4, *splitter_5, *splitter_6, *splitter_7;
+	 QSplitter *splitter, *splitter_2, *splitter_3, *splitter_4,
+	 *splitter_5, *splitter_6, *splitter_7;
 
 
 //    Ui::Browser         *ui;

@@ -19,8 +19,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 //	return;
 
 	stateBar		= new MDStateBar( this );
-	browser		= new Browser( parent );
-	setCentralWidget(browser);
+	browser		= new Browser( this );
+//	browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+//	setCentralWidget(browser);
 	mDbc			= new DbController(this);
 	inpFrm		= new InpFrm( this );
 	sortwindow  = new SortWindow( parent );

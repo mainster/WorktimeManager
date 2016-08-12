@@ -1,24 +1,75 @@
 #include "browser.h"
-//#include "ui_browser.h"
 
 #define T_CYCLIC 250e-3
-
 #define	COMMENT_OUT_UNUSED
 
 #define TVA    "TableLeft"
 #define TVB    "TableCenter"
 #define TVC    "TableRight"
 #define TVD    "TableBottom"
-#define TVL2    "TableLong1"
-#define TVL1    "TableLong2"
+#define TVL2   "TableLong1"
+#define TVL1   "TableLong2"
 
 Browser *Browser::inst = 0;
 
+void Browser::QSPLT_RESTORE()   {
+	QSETTINGS
+	QList<QSplitter *> spls = findChildren<QSplitter *>();
 
-Browser::Browser(QWidget *parent) : QFrame(parent),
-	/*ui(new Ui::Browser), */cyclicObjInfo(false) {
+	foreach (QSplitter *sp, spls) {
+		INFO << objectName() + "/" + sp->objectName();
+		sp->restoreState(config.value(objectName() + "/" + sp->objectName(), " ").toByteArray());
+	}
+}
+void Browser::QSPLT_STORE() {
+	QSETTINGS;
+	QList<QSplitter *> spls = findChildren<QSplitter *>();
+
+	foreach (QSplitter *sp, spls) {
+		INFO << objectName() + "/" + sp->objectName();
+		config.setValue(objectName() + "/" + sp->objectName(), sp->saveState());
+	}
+}
+
+Browser::Browser(QWidget *parent)
+	: QWidget(parent), cyclicObjInfo(false) {
 	inst = this;
+	setObjectName("browser");
 
+	createUi();
+	show();
+
+	connect(connectionWidget,	&ConnectionWidget::tableActivated,
+			  this,					&Browser::onConnectionWidgetTableActivated);
+
+	if (QSqlDatabase::drivers().isEmpty()) {
+		QMessageBox::information
+				(this, tr("No database drivers found"),
+				 tr("This demo requires at least one Qt database driver. "
+					 "Please check the documentation how to build the "
+					 "Qt SQL plugins."));
+		qApp->quit();
+	}
+	else {
+		timCyc = new QTimer();
+		timCyc->setInterval(T_CYCLIC * 1e3);
+		connect( timCyc, &QTimer::timeout, this, &Browser::onCyclic);
+		timCyc->start();
+	}
+
+	emit stateMsg(tr("Browser Ready."));
+
+	//	SqlRtm *cm = new SqlRtm();
+	//	cm->setCenterCols(QVector<int>(0, 1));
+
+	filterForm = SortWindow::getInstance();
+	filterForm->setWindowTitle(tr("The window title ") + filterForm->objectName());
+	filterForm->hide();
+}
+Browser::~Browser() {
+	//	delete ui;
+}
+void Browser::createUi() {
 	/*!
 	 * Build UI.
 	 */
@@ -31,6 +82,13 @@ Browser::Browser(QWidget *parent) : QFrame(parent),
 	tvd = new TabView();
 	tvl1 = new TabView();
 	tvl2 = new TabView();
+
+	PONAM(tva);
+	PONAM(tvb);
+	PONAM(tvc);
+	PONAM(tvd);
+	PONAM(tvl1);
+	PONAM(tvl2);
 
 	splitter = new QSplitter(this);
 	splitter_2 = new QSplitter(this);
@@ -80,53 +138,31 @@ Browser::Browser(QWidget *parent) : QFrame(parent),
 	splitter_7->addWidget(splitter_4);
 	splitter_7->addWidget(splitter_6);
 
-	show();
+	mTvs << tva << tvb << tvc << tvd << tvl1 << tvl2;
 
-	connect(connectionWidget,	&ConnectionWidget::tableActivated,
-			  this,					&Browser::onConnectionWidgetTableActivated);
+	QList<QString> accName =
+			QStringList() << TVA << TVB << TVC << TVD << TVL1 << TVL2;
 
-	initTableView( inst, QStringList() << TVA << TVB << TVC << TVD << TVL1 << TVL2);
+	foreach (TabView *tv, mTvs) {
+		QString currentName = accName.takeFirst();
+		tv->setAccessibleName( currentName );
+		tv->setObjectName( currentName );
 
-    /*!
-     * Connect TabView Signals/Slots
-     */
-    foreach (TabView *tv, mTvs) {
-        if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &TabView::onTabViewSelChanged))
-            qReturn("Connection fail!");
-        if (! (bool)  connect(this, &Browser::updateActions, tv, &TabView::onUpdateActions))
-            qReturn("Connection fail!");
-    }
+		tv->setToolTip( tr("Tooltip: ") + currentName);
+		tv->setContextMenuPolicy(Qt::ActionsContextMenu);
+		tv->grBox()->installEventFilter( this );
+		tv->grBox()->setObjectName("gb");
 
-	INFO << QSqlDatabase::connectionNames()
-		  << QSqlDatabase::drivers();
-
-	if (QSqlDatabase::drivers().isEmpty()) {
-		QMessageBox::information
-				(this, tr("No database drivers found"),
-				 tr("This demo requires at least one Qt database driver. "
-					 "Please check the documentation how to build the "
-					 "Qt SQL plugins."));
-		qApp->quit();
+		/*!
+		  * Connect TabView Signals/Slots
+		  */
+		if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &TabView::onTabViewSelChanged))
+			qReturn("Connection fail!");
+		if (! (bool)  connect(this, &Browser::updateActions, tv, &TabView::onUpdateActions))
+			qReturn("Connection fail!");
 	}
-	else {
-		timCyc = new QTimer();
-		timCyc->setInterval(T_CYCLIC * 1e3);
-		connect( timCyc, &QTimer::timeout, this, &Browser::onCyclic);
-		timCyc->start();
-	}
-
-	emit stateMsg(tr("Browser Ready."));
-
-//	SqlRtm *cm = new SqlRtm();
-//	cm->setCenterCols(QVector<int>(0, 1));
-
-	filterForm = SortWindow::getInstance();
-	filterForm->setWindowTitle(tr("The window title ") + filterForm->objectName());
-	filterForm->hide();
 }
-Browser::~Browser() {
-//	delete ui;
-}
+
 #define QFOLDINGSTART {
 #ifdef OLD_CONSTRUCTOR
 
@@ -146,17 +182,17 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 	QList<bool> bl;
 
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-                                      mTvs[0],   SLOT(onTabViewSelChanged(TabView *))));
+									  mTvs[0],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-                                      mTvs[1],   SLOT(onTabViewSelChanged(TabView *))));
+									  mTvs[1],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-                                      mTvs[2],   SLOT(onTabViewSelChanged(TabView *))));
+									  mTvs[2],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-                                      mTvs[3],   SLOT(onTabViewSelChanged(TabView *))));
+									  mTvs[3],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-                                      mTvs[4],   SLOT(onTabViewSelChanged(TabView *))));
+									  mTvs[4],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-                                      mTvs[5],   SLOT(onTabViewSelChanged(TabView *))));
+									  mTvs[5],   SLOT(onTabViewSelChanged(TabView *))));
 
 	if (bl.contains(false))
 		INFO << tr("connect.tabViewSelChanged[0...6]:") << bl;
@@ -195,16 +231,16 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 #endif
 void Browser::initTableView(QWidget *parent, QStringList &accNam) {
 	Q_UNUSED(parent)
-//	QList<QAction *> tblActs;
+	//	QList<QAction *> tblActs;
 
-//	tblActs.append(insertRowAction);
-//	tblActs.append(deleteRowAction);
-//	tblActs.append(fieldStrategyAction);
-//	tblActs.append(rowStrategyAction);
-//	tblActs.append(manualStrategyAction);
-//	tblActs.append(submitAction);
-//	tblActs.append(revertAction);
-//	tblActs.append(selectAction);
+	//	tblActs.append(insertRowAction);
+	//	tblActs.append(deleteRowAction);
+	//	tblActs.append(fieldStrategyAction);
+	//	tblActs.append(rowStrategyAction);
+	//	tblActs.append(manualStrategyAction);
+	//	tblActs.append(submitAction);
+	//	tblActs.append(revertAction);
+	//	tblActs.append(selectAction);
 
 	//    QObjectList *queryList( const char *inheritsClass = 0,
 	//                            const char *objName = 0,
@@ -214,28 +250,9 @@ void Browser::initTableView(QWidget *parent, QStringList &accNam) {
 	//    QObjectList *queryTvs = queryList( "TabView" );
 
 	//    foreach (QObject *obj, queryTvs) {
-    //        mTvs.append( static_cast<TabView *>obj );
+	//        mTvs.append( static_cast<TabView *>obj );
 	//    }
-    mTvs.append( tva );
-    mTvs.append( tvb );
-    mTvs.append( tvc );
-    mTvs.append( tvd );
-    mTvs.append( tvl1 );
-    mTvs.append( tvl2 );
 
-	int i = 0;
-
-    foreach (TabView *tv, mTvs) {
-//		tv->addActions( tblActs );
-		tv->setAccessibleName( accNam[i] );
-		tv->setObjectName( accNam[i] );
-
-		tv->setToolTip( tr("Tooltip: ") + accNam[i++]);
-		tv->setContextMenuPolicy(Qt::ActionsContextMenu);
-		tv->grBox()->installEventFilter( this );
-		tv->grBox()->setObjectName("gb");
-		//      tv->grBox()->setStyleSheet( Globals::gbStyleShtCenterPROPERTYS );
-	}
 }
 #define QFOLDINGEND }
 void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
@@ -248,16 +265,16 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	/*!
 	 * Get list of all table views and requery all of them with gb name "worktime".
 	 */
-    QList<TabView *> mTvs = findChildren<TabView *>();
-    foreach (TabView *tv, mTvs) {
+	QList<TabView *> mTvs = findChildren<TabView *>();
+	foreach (TabView *tv, mTvs) {
 		if (! tv->grBox()->title().contains(tr("worktime")))
-            mTvs.removeOne(tv);
+			mTvs.removeOne(tv);
 	}
 
 
 	/** Select "tableMain" as target table view widget */
 	QTableView *tvResp = tvl1->tv();
-    QSqlQueryModel *queryModel = new QSqlQueryModel(tvResp);
+	QSqlQueryModel *queryModel = new QSqlQueryModel(tvResp);
 	QSqlQuery query;
 
 	if (! nonDefaulQuery.isEmpty())
@@ -268,7 +285,7 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 		 * corresponding plain text query
 		 */
 		QTextEdit *te = new QTextEdit();
-        te->hide();
+		te->hide();
 
 		foreach (QString str, configQ.allKeys()) {
 			if (str.contains("default_worktime_query")) {
@@ -277,27 +294,27 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 			}
 		}
 		query = QSqlQuery(te->toPlainText(), pdb);
-        INFO << te->toPlainText();
-        delete te;
+		INFO << te->toPlainText();
+		delete te;
 	}
 
-    queryModel->setQuery( query );
-    tvResp->setModel( queryModel );
+	queryModel->setQuery( query );
+	tvResp->setModel( queryModel );
 
-    if (queryModel->lastError().type() != QSqlError::NoError)
-        emit stateMsg(queryModel->lastError().text());
-    else if (queryModel->query().isSelect())
+	if (queryModel->lastError().type() != QSqlError::NoError)
+		emit stateMsg(queryModel->lastError().text());
+	else if (queryModel->query().isSelect())
 		emit stateMsg(tr("Query OK."));
 	else
 		emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
-                              queryModel->query().numRowsAffected()));
+							  queryModel->query().numRowsAffected()));
 
-	 tvl1->resizeRowsColsToContents();
-//	tvResp->setVisible( false );
-//	tvResp->resizeColumnsToContents();
-//	tvResp->resizeRowsToContents();
-//	tvResp->setVisible( true );
-    emit updateActions();
+	tvl1->resizeRowsColsToContents();
+	//	tvResp->setVisible( false );
+	//	tvResp->resizeColumnsToContents();
+	//	tvResp->resizeRowsToContents();
+	//	tvResp->setVisible( true );
+	emit updateActions();
 
 }
 void Browser::exec() {
@@ -319,10 +336,10 @@ void Browser::exec() {
 
 	tvl1->tv()->setSortingEnabled( true );
 
-//	tvq->setVisible( false );
-//	tvq->resizeColumnsToContents();
-//	tvq->resizeRowsToContents();
-//	tvq->setVisible( true );
+	//	tvq->setVisible( false );
+	//	tvq->resizeColumnsToContents();
+	//	tvq->resizeRowsToContents();
+	//	tvq->setVisible( true );
 
 	tvl1->resizeRowsColsToContents();
 	emit updateActions();
@@ -335,7 +352,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	 * Get active database pointer
 	 */
 	QSqlDatabase pDb = connectionWidget->currentDatabase();
-//	QTableView *tv = tvc->tv();
+	//	QTableView *tv = tvc->tv();
 	QSqlRelationalTableModel *rmod = new SqlRtm(tvc->tv(), pDb);
 	rmod->setEditStrategy(QSqlTableModel::OnFieldChange);
 	rmod->setTable(pDb.driver()->escapeIdentifier(tNam, QSqlDriver::TableName));
@@ -445,10 +462,10 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 
 	tvc->setModel(rmod);
 	tvc->setEditTriggers( QAbstractItemView::DoubleClicked |
-								QAbstractItemView::EditKeyPressed );
+								 QAbstractItemView::EditKeyPressed );
 
-    /** !!!!!!!!!!!!!!!!!!!! mTvs.first()->tv()->selectionModel() changed to
-     * mTvs[3]->tv()->selectionModel()
+	/** !!!!!!!!!!!!!!!!!!!! mTvs.first()->tv()->selectionModel() changed to
+	  * mTvs[3]->tv()->selectionModel()
 	 */
 
 	if (! (bool) connect( tvc->selectionModel(),
@@ -456,13 +473,13 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 								 this, SLOT(currentChanged(QModelIndex,QModelIndex)) ) )
 		emit stateMsg(tr("Slot connection returns false"));
 
-//	tv->setVisible( false );
-//	tv->resizeColumnsToContents();
-//	tv->resizeRowsToContents();
-//	tv->setVisible( true );
+	//	tv->setVisible( false );
+	//	tv->resizeColumnsToContents();
+	//	tv->resizeRowsToContents();
+	//	tv->setVisible( true );
 	tvc->resizeRowsColsToContents();
 
-//    emit updateActions();
+	//    emit updateActions();
 	/**
 	 * Update TabViews group box title to match the prior activated sql
 	 * table name
@@ -472,7 +489,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 void Browser::showMetaData(const QString &t) {
 
 	QSqlRecord rec = connectionWidget->currentDatabase().record(t);
-    QStandardItemModel *model = new QStandardItemModel(mTvs.first()->tv());
+	QStandardItemModel *model = new QStandardItemModel(mTvs.first()->tv());
 
 	model->insertRows(0, rec.count());
 	model->insertColumns(0, 7);
@@ -500,27 +517,26 @@ void Browser::showMetaData(const QString &t) {
 		model->setData(model->index(i, 6), fld.defaultValue());
 	}
 
-    mTvs.first()->tv()->setModel(model);
-    mTvs.first()->tv()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	mTvs.first()->tv()->setModel(model);
+	mTvs.first()->tv()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    emit updateActions();
+	emit updateActions();
 }
 
 void Browser::customMenuRequested(QPoint pos) {
-    QModelIndex index = this->mTvs.first()->tv()->indexAt(pos);
+	QModelIndex index = this->mTvs.first()->tv()->indexAt(pos);
 	Q_UNUSED(index);
 
 	QMenu *menu = new QMenu(this);
 	menu->addAction(new QAction("Action 1", this));
 	menu->addAction(new QAction("Action 2", this));
 	menu->addAction(new QAction("Action 3", this));
-    menu->popup(mTvs.first()->tv()->viewport()->mapToGlobal(pos));
+	menu->popup(mTvs.first()->tv()->viewport()->mapToGlobal(pos));
 }
 void Browser::onBeforeUpdate(int row, QSqlRecord &record) {
 	INFO << row;
 	INFO << record;
 }
-
 /**
  * Entered after double clicking a table item in connection widget tree view
  */
@@ -532,7 +548,7 @@ void Browser::onConnectionWidgetTableActivated(const QString &sqlTbl) {
 	 * swap sql tables during runtime, a double-mouse-click event is captured
 	 * and the user-selected tv instance becomes addressed by the event handler.
 	 */
-    foreach (TabView *tv, mTvs) {
+	foreach (TabView *tv, mTvs) {
 		/**
 		 * Check for pending active select requests.
 		 */
@@ -553,7 +569,7 @@ void Browser::onConnectionWidgetTableActivated(const QString &sqlTbl) {
 		}
 		else {
 			/**
-             * If no table widget is selected actively, use the tvc from mTvs which has
+				 * If no table widget is selected actively, use the tvc from mTvs which has
 			 * currently no model loaded
 			 */
 			if (tv->tv()->model() == 0x00) {
@@ -574,8 +590,8 @@ int  Browser::setFontAcc(QFont &font) {
 	return 0;
 }
 void Browser::autofitRowCol() {
-	 foreach (TabView *tvc, mTvs)
-		 tvc->resizeRowsColsToContents();
+	foreach (TabView *tvc, mTvs)
+		tvc->resizeRowsColsToContents();
 }
 void Browser::initializeMdl(QSqlQueryModel *model) {
 	QSqlDatabase pDb = connectionWidget->currentDatabase();
@@ -715,28 +731,28 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 	return QObject::eventFilter(obj, e);
 }
 void Browser::hideEvent(QShowEvent *) {
-	QSPLT_STORE;
+	QSPLT_STORE();
 	emit visibilityChanged( false );
 }
 QList<TabView *> *Browser::tvs() {
-    return &mTvs;
+	return &mTvs;
 }
 void Browser::showEvent(QShowEvent *) {
-    QSPLT_RESTORE;
-    emit visibilityChanged( true );
+	QSPLT_RESTORE();
+	emit visibilityChanged( true );
 
-//	QSETTINGS;
+	//	QSETTINGS;
 
-//	foreach (QSplitter *sp, findChildren<QSplitter *>()) {
-//		QString objn = sp->objectName();
-//		sp->restoreState(config.value("Browser/" + objn, " ").toByteArray());
-//	}
+	//	foreach (QSplitter *sp, findChildren<QSplitter *>()) {
+	//		QString objn = sp->objectName();
+	//		sp->restoreState(config.value("Browser/" + objn, " ").toByteArray());
+	//	}
 }
 void Browser::onActFilterForm(bool b) {
 	filterForm->setVisible(b);
 
 	if (b) {
-        filterForm->setSourceModel( mTvs.last()->tv()->model() );
+		filterForm->setSourceModel( mTvs.last()->tv()->model() );
 		filterForm->raise();
 		filterForm->activateWindow();
 	}

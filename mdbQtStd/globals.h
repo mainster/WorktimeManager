@@ -66,7 +66,7 @@
 	cfg.setValue(QString("ApplicationName"), QCoreApplication::applicationName()); \
 	}
 
-#define     QSPLT_STORE     { QSETTINGS \
+#define     QSPLT_STORE_     { QSETTINGS \
 	QList<QSplitter *> spls = findChildren<QSplitter *>(); \
 	foreach (QSplitter *sp, spls) \
 	config.setValue(objectName() + "/" + sp->objectName(), sp->saveState()); \
@@ -81,7 +81,7 @@
 	foreach (QAction *act, acts) \
 	act->setChecked( config.value(objectName() + "/" + act->objectName(), false).toBool()); \
 	}
-#define     QSPLT_RESTORE   { QSETTINGS \
+#define     QSPLT_RESTORE_   { QSETTINGS \
 	QList<QSplitter *> spls = findChildren<QSplitter *>(); \
 	foreach (QSplitter *sp, spls) { \
 	sp->restoreState(config.value(objectName() + "/" + sp->objectName(), " ").toByteArray()); } }
