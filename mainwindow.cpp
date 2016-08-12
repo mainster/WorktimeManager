@@ -36,6 +36,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	foreach (TabView *tv, *Browser::instance()->tvs())
 		connect(inpFrm, &InpFrm::newWorktimeRecord, tv, &TabView::refreshView);
 
+
+	/**** Restore splitter sizes to config
+	\*/
+	SPLT_RESTORE(this);
+
+	/**** Restore mainWindow geometry and window state
+	\*/
+	WIN_RESTORE(this);
+
 	makeMenuBar();
 	installEventFilter(this);
 
@@ -43,10 +52,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	config.fileName();
 	connectActions(connectOthers);
 
-
+	QTimer::singleShot(50, this, SLOT(restoreActionObjects()));
 }
 MainWindow::~MainWindow() {
-//	   saveMainWindowUiSettings();
 	delete ui;
 }
 void MainWindow::onInpFrmButtonClick(bool ) {
@@ -54,7 +62,6 @@ void MainWindow::onInpFrmButtonClick(bool ) {
 }
 void MainWindow::onBrowseSqlTrig(bool doBrowse) {
 	if (doBrowse) {
-		this->setCentralWidget(browser);
 		browser->show();
 
 		if ((! mDbc->getDb().isOpen()) ||
@@ -62,10 +69,9 @@ void MainWindow::onBrowseSqlTrig(bool doBrowse) {
 			mDbc->getConnectionState();
 	}
 	else {
-		QSETTINGS;
-		saveMainWindowGeometry();
-		QMetaObject::invokeMethod(browser, "close");
-
+//		QSETTINGS;
+//		saveMainWindowGeometry();
+//		QMetaObject::invokeMethod(browser, "close");
 		browser->hide();
 	}
 }
@@ -196,52 +202,17 @@ void MainWindow::onActSaveTrig() {
 //	config.setValue(tr("testgeometry/") + objectName(), saveGeometry());
 //	config.setValue(tr("teststate/") + objectName(), saveState());
 //	config.sync();
-	QWIN_STORE;
+	WIN_STORE(this);
 }
 void MainWindow::onActOpenTrig() {
-	QWIN_RESTORE;
+	WIN_RESTORE(this);
 //	QSETTINGS;
 //	restoreGeometry(config.value(tr("testgeometry/") + objectName()).toByteArray());
 //	restoreState(config.value(tr("teststate/") + objectName()).toByteArray());
 }
-void MainWindow::restoreAndTriggerActions() {
-	QSETTINGS;
-	/**** Recall all action states for MainWindow
-	 \*/
-	QList<QAction *> acts = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
-
-	foreach (QAction *ac, acts) {
-		if ( config.value("MainWindow/" + ac->objectName(), false).toBool() ) {
-			if (ac != ui->actFilterForm)
-				emit ac->trigger();
-		}
-	}
-
-
-	try {
-		/**** Recall visibility flag for the SQL command interface
-	 \*/
-		if (!config.value("MainWindow/actHideSqlQuery", true).toBool()) {
-			inpFrm->setSqlQueryTextboxVisible( true );
-			ui->actHideSqlQuery->setChecked( false );
-		}
-		else {
-			inpFrm->setSqlQueryTextboxVisible( false );
-			ui->actHideSqlQuery->setChecked( true );
-		}
-	}
-	catch (...) {
-		CRIT << tr("!");
-	}
-
-}
-
 /* ======================================================================== */
 /*                              Event handler                               */
 /* ======================================================================== */
-void MainWindow::showEvent(QShowEvent *e) {
-	QTimer::singleShot(50, this, SLOT(showEventDelayed()));
-}
 bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
 
 #ifdef ENABLE_MAINWINDOW_EVEN_PROCESSING
@@ -262,76 +233,72 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
 #endif
 	return QObject::eventFilter(obj, event);
 }
+void MainWindow::showEvent(QShowEvent *e) {
+
+	setCentralWidget(browser);
+	QWidget::showEvent( e );
+}
+void MainWindow::hideEvent(QHideEvent *e) {
+	QWidget::hideEvent( e );
+}
 void MainWindow::closeEvent(QCloseEvent *e) {
 	QSETTINGS;
 
+	/**** Safe current docking area of dock widgets
+	\*/
+	config.setValue("inpForm/DockWidgetArea", (uint)dockWidgetArea(inpFrm));
 
 	/**** Write splitter sizes to config
-	  \*/
-	QList<QSplitter *> spls = browser->findChildren<QSplitter *>();
-
-	foreach (QSplitter *sp, spls) {
-		config.setValue("Browser/" + sp->objectName(), sp->saveState());
-	}
-
-	/**** Write tabView <-> SQL table relations
-	  \*/
-	foreach (TabView *tv, *browser->tvs()) {
-		config.setValue(browser->objectName() + "/" +
-							 tv->objectName(), tv->grBox()->title());
-	}
-
-	/**** Write browser widget geometrys
-	  \*/
-	config.setValue(browser->objectName() + "/Geometry", browser->saveGeometry());
+	\*/
+	SPLT_STORE(this);
 
 	/**** Write mainWindow geometry and window state
-	  \*/
-	config.setValue(this->objectName() + "/Geometry", this->saveGeometry());
-	config.setValue(this->objectName() + "/State", this->saveState());
+	\*/
+	WIN_STORE(this);
 
 	/**** Safe all action states from MainWindow
-	  \*/
-	QList<QAction *> acts;
+	\*/
+	ACTION_STORE(this);
 
-	foreach (QAction *ac, findChildren<QAction *>())
-		if (ac->objectName().contains("act", Qt::CaseSensitive)) {
-			config.setValue("MainWindow/" + ac->objectName(), ac->isChecked());
-			acts << ac;
-		}
-	config.setValue("MainWindow/actionCtr", acts.length());
-
-	/**** Safe current docking area of dock widgets
-	  \*/
-	config.setValue("inpForm/DockWidgetArea", (uint)dockWidgetArea(inpFrm));
-	config.sync();
-
-	/**** Safe content of sql query input field to config
-	  \*/
-	emit mainwindowCloses();
-//	QWidget::closeEvent(e);
+	QWidget::closeEvent( e );
 }
 /* ======================================================================== */
 /*									    Init methodes										    */
 /* ======================================================================== */
-void MainWindow::showEventDelayed() {
+bool MainWindow::restoreActionObjects () {
 	QSETTINGS;
 
-	/*!
-	 * Recall all action states for MainWindow.
-	 */
-	restoreAndTriggerActions();
+	/**** Restore all action states from MainWindow
+	\*/
+	ACTION_RESTORE(this);
 
-	/**** Recall mainWindow geometry and window state
-	 \*/
-	if (! restoreGeometry(config.value(objectName() + "/Geometry", "").toByteArray()) )
-		WARN << tr("Recall mainWindow geometry failed");
+	QList<QAction *> acts = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
 
-	if (! restoreState(config.value(objectName() + "/State", "").toByteArray()) )
-		WARN << tr("Recall mainWindow state failed");
+//	foreach (QAction *ac, acts) {
+//		if ( config.value("MainWindow/" + ac->objectName(), false).toBool() ) {
+//			if (ac != ui->actFilterForm) {
+//				emit ac->trigger();
+//				INFO << tr("QAction") << ac->text() << tr("triggered");
+//			}
+//		}
+//	}
 
-	/**** Restore custom TabView instance settings
-	 \*/
+	/**** Recall visibility flag for the SQL command interface
+	\*/
+	try {
+		if (!config.value("MainWindow/actHideSqlQuery", true).toBool()) {
+			inpFrm->setSqlQueryTextboxVisible( true );
+			ui->actHideSqlQuery->setChecked( false );
+		}
+		else {
+			inpFrm->setSqlQueryTextboxVisible( false );
+			ui->actHideSqlQuery->setChecked( true );
+		}
+	}
+	catch (...) {
+		CRIT << tr("!");
+	}
+
 	/**** Restore tabview <-> SQL table assignements
 	 \*/
 	foreach (TabView *tv, *browser->tvs()) {
@@ -348,15 +315,15 @@ void MainWindow::showEventDelayed() {
 		Qt::DockWidgetArea dwa = static_cast<Qt::DockWidgetArea>(
 											 config.value("inpForm/DockWidgetArea",
 															  Qt::BottomDockWidgetArea).toUInt());
-		/*! Produces unexpected behavior
-		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
-		*/
+		/*!
+		 * Produces unexpected behavior
+		 * this->addDockWidget(dwa, inpFrm, Qt::Vertical);
+		 */
 		INFO << dwa;
 	}
 	else inpFrm->hide();
 	//		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
 }
-
 void MainWindow::initial() {
 }
 void MainWindow::makeMenuBar() {
@@ -474,3 +441,6 @@ void MainWindow::initializeMdl(QSqlQueryModel *model) {
 		//
 	}
 }
+
+
+

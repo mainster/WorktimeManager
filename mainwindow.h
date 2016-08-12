@@ -54,7 +54,6 @@ public:
    ~MainWindow();
 
 signals:
-    void mainwindowCloses();
 
 public slots:
    void onBrowseSqlTrig(bool b);
@@ -76,9 +75,6 @@ public slots:
    void initializeMdl(QSqlQueryModel *model);
 	void connectActions(ConnectReceiver receivers = connectThis);
    void onCyclic();
-	bool eventFilter(QObject *obj, QEvent *event);
-	void closeEvent(QCloseEvent *e);
-	void showEvent(QShowEvent *e);
 	void onResizerDlgTrig();
 	void onInpFrmButtonClick(bool);
 
@@ -88,33 +84,36 @@ protected slots:
 		emit inpFrm->changeFocusOrder(Qt::FocusChange_init);
 	}
 	void initial();
-	void showEventDelayed();
 	void onActSaveTrig();
 	void onActOpenTrig();
+	bool restoreActionObjects();
 
 private slots:
 	void onOpenCloseInpFrm(bool onOff);
 	void onTblOpen(bool);
    void onActCloseTrig();
-   void restoreMainWindowGeometry() {
-      QSETTINGS;
-      restoreGeometry( config.value(this->objectName() +
-                                    "/Geometry", " ").toByteArray() );
-   }
-   void saveMainWindowGeometry() {
-      QSETTINGS;
-      config.setValue(this->objectName() +
-                      "/Geometry", this->saveGeometry());
-   }
-   void restoreMainWindowState() {
-      QSETTINGS;
-      restoreState( config.value(this->objectName() +
-                                    "/State", " ").toByteArray() );
-   }
+//   void restoreMainWindowGeometry() {
+//      QSETTINGS;
+//      restoreGeometry( config.value(this->objectName() +
+//                                    "/Geometry", " ").toByteArray() );
+//   }
+//   void saveMainWindowGeometry() {
+//      QSETTINGS;
+//      config.setValue(this->objectName() +
+//                      "/Geometry", this->saveGeometry());
+//   }
+//   void restoreMainWindowState() {
+//      QSETTINGS;
+//      restoreState( config.value(this->objectName() +
+//                                    "/State", " ").toByteArray() );
+//   }
 
 protected:
+	bool eventFilter(QObject *obj, QEvent *event);
+	void showEvent(QShowEvent *e);
+	void hideEvent(QHideEvent *) override;
+	void closeEvent(QCloseEvent *e);
 
-	void restoreAndTriggerActions();
 private:
    Ui::MainWindow *ui;
    static int   fuse;

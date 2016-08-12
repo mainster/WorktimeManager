@@ -75,24 +75,6 @@ const QString Browser::browserStyleSheet = QString(
 		"}*/");
 #define QFOLDINGEND }
 
-//void Browser::QSPLT_RESTORE()   {
-//	QSETTINGS
-//			QList<QSplitter *> spls = findChildren<QSplitter *>();
-
-//	foreach (QSplitter *sp, spls)
-//		sp->restoreState(config.value(objectName() + "/" + sp->objectName(), " ").toByteArray());
-//}
-//void Browser::QSPLT_STORE() {
-//	QSettings config;
-//	QList<QSplitter *> spls = findChildren<QSplitter *>();
-
-//	foreach (QSplitter *sp, spls) {
-//		INFO << objectName() + "/" + sp->objectName() << sp->saveState();
-//		config.setValue(objectName() + "/" + sp->objectName(), sp->saveState());
-//	}
-//}
-
-
 /* ======================================================================== */
 /*                             Browser::Browser                             */
 /* ======================================================================== */
@@ -102,7 +84,6 @@ Browser::Browser(QWidget *parent)
 	setObjectName("Browser");
 
 	createUi(this);
-//	show();
 
 	connect(connectionWidget,	&ConnectionWidget::tableActivated,
 			  this,					&Browser::onConnectionWidgetTableActivated);
@@ -598,13 +579,33 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 	  */
 	return QObject::eventFilter(obj, e);
 }
-void Browser::hideEvent(QHideEvent *) {
-	QSPLT_STORE;
-	emit visibilityChanged( false );
-}
-void Browser::showEvent(QShowEvent *) {
+void Browser::showEvent(QShowEvent *e) {
 	QSPLT_RESTORE;
 	emit visibilityChanged( true );
+	QWidget::showEvent( e );
+}
+void Browser::hideEvent(QHideEvent *e) {
+	QSPLT_STORE;
+	emit visibilityChanged( false );
+	QWidget::hideEvent( e );
+}
+void Browser::closeEvent(QCloseEvent *e) {
+	QSETTINGS;
+
+	/**** Write splitter sizes to config
+	\*/
+	SPLT_STORE(this);
+
+	/**** Write tabView <-> SQL table relations
+	  \*/
+	foreach (TabView *tv, mTvs)
+		config.setValue(objectName() + "/" + tv->objectName(), tv->grBox()->title());
+
+	/**** Safe all action states from Browser
+	\*/
+	ACTION_STORE(this);
+
+	QWidget::closeEvent( e );
 }
 /* ======================================================================== */
 /*                              Init methodes                               */

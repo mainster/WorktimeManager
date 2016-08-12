@@ -168,6 +168,7 @@ private:
 
 	// QWidget interface
 protected:
+	void closeEvent(QCloseEvent *e);
 };
 
 #endif

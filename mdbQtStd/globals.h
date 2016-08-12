@@ -114,6 +114,7 @@
  */
 #define     WIN_STORE(obj)		{ QSETTINGS; \
 	config.setValue(obj->objectName() + GEOM, obj->saveGeometry() ); \
+	config.sync(); \
 	}
 #define     WIN_RESTORE(obj)	{ QSETTINGS; \
 	obj->restoreGeometry(config.value(obj->objectName() + GEOM,"").toByteArray()); \
@@ -122,13 +123,15 @@
 	QList<QSplitter *> spls = obj->findChildren<QSplitter *>(QString(), Qt::FindDirectChildrenOnly); \
 	foreach (QSplitter *sp, spls) \
 	config.setValue(obj->objectName() + "/" + sp->objectName(), sp->saveState()); \
+	config.sync(); \
 	}
 #define     ACTION_STORE(obj) { QSETTINGS; \
-	QList<QAction *> acts = obj->findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly); \
+	QList<QAction *> acts = /*obj->*/findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly); \
 	foreach (QAction *act, acts) \
 	config.setValue(obj->objectName() + "/" + act->objectName(), act->isChecked()); \
-
-config.setValue(obj->objectName() + "/" + tr("actionCtr"), acts.length); \
+	\
+	config.setValue(obj->objectName() + "/" + "actionCtr", acts.length()); \
+	config.sync(); \
 }
 #define     ACTION_RESTORE(obj) { QSETTINGS; \
 	QList<QAction *> acts = obj->findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly); \
@@ -137,8 +140,10 @@ config.setValue(obj->objectName() + "/" + tr("actionCtr"), acts.length); \
 	}
 #define     SPLT_RESTORE(obj)   { QSETTINGS; \
 	QList<QSplitter *> spls = obj->findChildren<QSplitter *>(QString(), Qt::FindDirectChildrenOnly); \
-	foreach (QSplitter *sp, spls) { \
-	sp->restoreState(config.value(obj->objectName() + "/" + sp->objectName(), " ").toByteArray()); } }
+	foreach (QSplitter *sp, spls) \
+	sp->restoreState(config.value(obj->objectName() + "/" + sp->objectName(), " ").toByteArray()); \
+	config.sync(); \
+}
 
 #define VNAM(name) (QString(#name) \
 	.replace(QString("->"), QString(".")) \

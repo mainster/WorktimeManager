@@ -425,7 +425,7 @@ color: ;
           <widget class="MdComboBox" name="cbPrj">
            <property name="minimumSize">
             <size>
-             <width>250</width>
+             <width>59</width>
              <height>30</height>
             </size>
            </property>
@@ -541,7 +541,7 @@ color: ;
           <widget class="MdComboBox" name="cbClient">
            <property name="minimumSize">
             <size>
-             <width>250</width>
+             <width>59</width>
              <height>30</height>
             </size>
            </property>
@@ -626,7 +626,7 @@ color: ;
           <widget class="MdComboBox" name="cbWorker">
            <property name="minimumSize">
             <size>
-             <width>250</width>
+             <width>59</width>
              <height>30</height>
             </size>
            </property>
@@ -1171,11 +1171,6 @@ QGroupBox::indicator:unchecked {
     </item>
    </layout>
   </widget>
-  <action name="actionEe">
-   <property name="text">
-    <string>ee</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>
