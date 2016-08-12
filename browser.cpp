@@ -501,33 +501,61 @@ void Browser::onCyclic() {
 /*                              Event handler                               */
 /* ======================================================================== */
 bool Browser::eventFilter(QObject *obj, QEvent *e) {
-	QPoint pos;
 
 	if (e->type() == QEvent::MouseButtonPress) {
-		INFO << "obj parent name:" << obj->parent()->objectName();
+		INFO << obj->metaObject()->className();
+		INFO << obj->parent()->metaObject()->className();
+		INFO << static_cast<TabView *>(obj)->metaObject()->className();
+		INFO << static_cast<TabView *>(obj->parent())->metaObject()->className();
+		INFO << obj->children();
+		INFO << obj->parent()->children();
+		INFO << obj->parent()->parent()->children();
+		INFO << obj->parent()->parent()->parent()->children();
+		INFO << obj->parent()->parent()->parent()->parent()->children();
 
-		QMouseEvent *me = static_cast<QMouseEvent *>(e);
-		pos = me->pos();
+		QList<QString> objNames;
+		QString tableNames =
+				((QStringList) TVA << TVB << TVC << TVD << TVL1 << TVL2).join(',');
 
-		QWidget *widget = qApp->widgetAt(QCursor::pos());
+		QObject *_obj = obj->parent();
+		INFO << _obj->parent()->parent()->parent()->parent()->children();
 
-		if (widget != 0x00) {
-			INFO << widget->parentWidget()->objectName();
-			INFO << widget->objectName();
+		for (int k = 5; k > 0; k--) {
+			INFO << _obj->children();
+
+			foreach (QObject *o, _obj->children())
+				if (tableNames.contains(o->objectName()))
+					break;
+				else
+					_obj = _obj->parent();
 		}
 
+
+//		QWidget *widget = qApp->widgetAt(QCursor::pos());
+
+		/*!
+		 * Maybe the sender is a viewport? Try it..
+		 * QWidget(0xb9fee0, name = qt_scrollarea_viewport) qt_scrollarea_viewport mtv gb
+		 */
+		TabView *tv;
+
+		if (! static_cast<TabView *>(obj->parent()))
+			if (! static_cast<TabView *>(obj->parent()->parent()))
+				if (! static_cast<TabView *>(obj->parent()->parent()->parent()))
+					return QObject::eventFilter(obj, e);
+				else tv = static_cast<TabView *>(obj->parent()->parent()->parent());
+			else tv = static_cast<TabView *>(obj->parent()->parent());
+		else tv = static_cast<TabView *>(obj->parent());
+
+		INFO << tv->grBox()->objectName();
+		INFO << tv->tv()->objectName();
 		/**
 			* If event receiver object has one of the tabview accessnames...
 			* ... reset all tabviews from beeing selected and mark the obj
 			* obj->parent() after static casting to TabView...
 			*/
-		if ( (((QStringList) TVA << TVB << TVC << TVD << TVL1 << TVL2).join(','))
-			  .contains( obj->parent()->objectName()) ) {
-
-			/**
-				 * Reset....
-				 */
-			TabView *tv = static_cast<TabView *>(obj->parent());
+//		if ( ()
+//			  .contains( tv->/*parent()->*/objectName()) ) {
 
 			/**
 				 * Unselect if view was selected earlier
@@ -540,11 +568,11 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 				tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
 				emit tabViewSelChanged(tv);
 			}
-		}
-		else {
-			INFO << tr("event receiver obj has NON of the known table names!  ")
-				  <<  widget->parentWidget()->objectName();
-		}
+//		}
+//		else {
+			INFO << tr("event receiver obj has NON of the known table names!  ");
+//				  <<  widget->parentWidget()->objectName();
+//		}
 
 		if (false) {
 			QList<QObject *> objs = obj->children();
@@ -578,6 +606,46 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 	  * standard event processing
 	  */
 	return QObject::eventFilter(obj, e);
+}
+void Browser::mousePressEvent(QMouseEvent *e) {
+	QWidget *widget = qApp->widgetAt(QCursor::pos());
+
+	if (widget) {
+		INFO << widget->parentWidget()->objectName();
+		INFO << widget->objectName();
+	}
+
+	INFO << widget << widget->objectName() << widget->parent()->objectName();
+
+	/**
+		* If event receiver object has one of the tabview accessnames...
+		* ... reset all tabviews from beeing selected and mark the obj
+		* obj->parent() after static casting to TabView...
+		*/
+	if ( (((QStringList) TVA << TVB << TVC << TVD << TVL1 << TVL2).join(','))
+		  .contains( widget->parent()->objectName()) ) {
+
+		TabView *tv = static_cast<TabView *>(widget->parent());
+
+		/**
+		 * Unselect if view was selected earlier
+		 */
+		if (QVariant(tv->grBox()->property("select")).toBool()) {
+			tv->grBox()->setProperty("select", false);
+			emit tabViewSelChanged( 0 );
+		} else {
+			tv->grBox()->setProperty("select", true);
+			tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
+			emit tabViewSelChanged(tv);
+		}
+
+		e->accept();
+		return;
+	}
+	INFO << tr("event receiver obj has NON of the known table names!  ")
+		  <<  widget->parentWidget()->objectName();
+	e->ignore();
+	return;
 }
 void Browser::showEvent(QShowEvent *e) {
 	QSPLT_RESTORE;
@@ -636,12 +704,12 @@ void Browser::createUi(QWidget *passParent) {
 	grLay = new QGridLayout(passParent);
 	connectionWidget = new ConnectionWidget();
 
-	tva = new TabView();
-	tvb = new TabView();
-	tvc = new TabView();
-	tvd = new TabView();
-	tvl1 = new TabView();
-	tvl2 = new TabView();
+	tva = new TabView(passParent);
+	tvb = new TabView(passParent);
+	tvc = new TabView(passParent);
+	tvd = new TabView(passParent);
+	tvl1 = new TabView(passParent);
+	tvl2 = new TabView(passParent);
 
 	PONAM(tva);
 	PONAM(tvb);
@@ -711,7 +779,10 @@ void Browser::createUi(QWidget *passParent) {
 		tv->setToolTip( tr("Tooltip: ") + currentName);
 		tv->setContextMenuPolicy(Qt::ActionsContextMenu);
 		tv->grBox()->installEventFilter( this );
+		tv->tv()->viewport()->installEventFilter( this );
 		tv->grBox()->setObjectName("gb");
+
+
 
 		/*!
 		  * Connect TabView Signals/Slots

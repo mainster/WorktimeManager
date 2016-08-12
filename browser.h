@@ -144,7 +144,7 @@ protected slots:
 	void showEvent(QShowEvent *e) override;
 	void hideEvent(QHideEvent *e) override;
 	bool eventFilter(QObject *obj, QEvent *e);
-
+	void mousePressEvent(QMouseEvent *e) override;
 private slots:
 	//   QAbstractItemModel *createMailModel(QObject *parent);
 

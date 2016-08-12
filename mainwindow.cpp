@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
 	QSETTINGS_INIT; QSETTINGS;
 
+	initDocks();
+
 	stateBar		= new MDStateBar( this );
 	browser		= new Browser( this );
 	mDbc			= new DbController(this);
@@ -46,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	WIN_RESTORE(this);
 
 	makeMenuBar();
-	installEventFilter(this);
+//	installEventFilter(this);
 
 	setWindowTitle( MAINWINDOW_TITLE );
 	config.fileName();
@@ -267,13 +269,13 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 /* ======================================================================== */
 bool MainWindow::restoreActionObjects () {
 	QSETTINGS;
+	bool returnState = true;
 
 	/**** Restore all action states from MainWindow
 	\*/
 	ACTION_RESTORE(this);
 
-	QList<QAction *> acts = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
-
+//	QList<QAction *> acts = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
 //	foreach (QAction *ac, acts) {
 //		if ( config.value("MainWindow/" + ac->objectName(), false).toBool() ) {
 //			if (ac != ui->actFilterForm) {
@@ -283,7 +285,7 @@ bool MainWindow::restoreActionObjects () {
 //		}
 //	}
 
-	/**** Recall visibility flag for the SQL command interface
+	/**** Restore visibility flag for the SQL command interface
 	\*/
 	try {
 		if (!config.value("MainWindow/actHideSqlQuery", true).toBool()) {
@@ -299,12 +301,18 @@ bool MainWindow::restoreActionObjects () {
 		CRIT << tr("!");
 	}
 
-	/**** Restore tabview <-> SQL table assignements
+	/**** Restore tabview <-> SQL table assignements, but only if valid keys are stored
 	 \*/
 	foreach (TabView *tv, *browser->tvs()) {
+		QString settingsKey = QString(browser->objectName() + "/" + tv->objectName());
+
+		if (! config.allKeys().contains(settingsKey)) {
+			returnState = false;
+			continue;
+		}
+
 		tv->restoreView();
-		QString tabNam =
-				config.value(browser->objectName() + "/" + tv->objectName()).toString();
+		QString tabNam = config.value(settingsKey).toString();
 		browser->showRelatTable( tabNam, tv );
 	}
 
@@ -323,6 +331,8 @@ bool MainWindow::restoreActionObjects () {
 	}
 	else inpFrm->hide();
 	//		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
+
+	return returnState;
 }
 void MainWindow::initial() {
 }
