@@ -226,22 +226,22 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 		emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
                               queryModel->query().numRowsAffected()));
 
-	tvResp->setVisible( false );
-	tvResp->resizeColumnsToContents();
-	tvResp->resizeRowsToContents();
-	tvResp->setVisible( true );
+	 tvl1->resizeRowsColsToContents();
+//	tvResp->setVisible( false );
+//	tvResp->resizeColumnsToContents();
+//	tvResp->resizeRowsToContents();
+//	tvResp->setVisible( true );
     emit updateActions();
 
 }
 void Browser::exec() {
 	InpFrm *inpFrm = InpFrm::instance();
 
-	QTableView *tvq = tvl1->tv();
-	QSqlQueryModel *model = new QSqlQueryModel(tvq);
+	QSqlQueryModel *model = new QSqlQueryModel(tvl1->tv());
 
 	model->setQuery(QSqlQuery(inpFrm->getQueryText(),
 									  connectionWidget->currentDatabase()));
-	tvq->setModel(model);
+	tvl1->tv()->setModel(model);
 
 	if (model->lastError().type() != QSqlError::NoError)
 		emit stateMsg(model->lastError().text());
@@ -251,12 +251,15 @@ void Browser::exec() {
 		emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
 							  model->query().numRowsAffected()));
 
-	tvq->setSortingEnabled( true );
-	tvq->setVisible( false );
-	tvq->resizeColumnsToContents();
-	tvq->resizeRowsToContents();
-	tvq->setVisible( true );
-    emit updateActions();
+	tvl1->tv()->setSortingEnabled( true );
+
+//	tvq->setVisible( false );
+//	tvq->resizeColumnsToContents();
+//	tvq->resizeRowsToContents();
+//	tvq->setVisible( true );
+
+	tvl1->resizeRowsColsToContents();
+	emit updateActions();
 }
 /**
  * Relational table model - View relational WORKS 12-11-2015
@@ -266,7 +269,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	 * Get active database pointer
 	 */
 	QSqlDatabase pDb = connectionWidget->currentDatabase();
-	QTableView *tv = tvc->tv();
+//	QTableView *tv = tvc->tv();
 	QSqlRelationalTableModel *rmod = new SqlRtm(tvc->tv(), pDb);
 	rmod->setEditStrategy(QSqlTableModel::OnFieldChange);
 	rmod->setTable(pDb.driver()->escapeIdentifier(tNam, QSqlDriver::TableName));
@@ -345,7 +348,16 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 		/* --------------------------------------------------------- */
 		if (tNam.contains("fehlzeit", Qt::CaseInsensitive)) {
 			// Set the localized header captions
-			rmod->setHeaderData(rmod->fieldIndex("FehlID"), Qt::Horizontal, tr("ID"));
+			rmod->setHeaderData(rmod->fieldIndex("fehlID"), Qt::Horizontal, tr("ID"));
+
+			break;
+		}
+		/* --------------------------------------------------------- */
+		/*                      Table arch									 */
+		/* --------------------------------------------------------- */
+		if (tNam.contains("arch", Qt::CaseInsensitive)) {
+			// Set the localized header captions
+			rmod->setHeaderData(rmod->fieldIndex("archID"), Qt::Horizontal, tr("ID"));
 
 			break;
 		}
@@ -362,26 +374,27 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	rmod->select();
 
 	// Set the model and hide the ID column
-	tv->setColumnHidden(rmod->fieldIndex("ID"), true);
-	tv->setSelectionMode(QAbstractItemView::ContiguousSelection);
+	tvc->setColumnHidden(rmod->fieldIndex("ID"), false);
+	tvc->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
-	tv->setModel(rmod);
-	tv->setEditTriggers( QAbstractItemView::DoubleClicked |
+	tvc->setModel(rmod);
+	tvc->setEditTriggers( QAbstractItemView::DoubleClicked |
 								QAbstractItemView::EditKeyPressed );
 
     /** !!!!!!!!!!!!!!!!!!!! mTvs.first()->tv()->selectionModel() changed to
      * mTvs[3]->tv()->selectionModel()
 	 */
 
-	if (! (bool) connect( tv->selectionModel(),
+	if (! (bool) connect( tvc->selectionModel(),
 								 SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
 								 this, SLOT(currentChanged(QModelIndex,QModelIndex)) ) )
 		emit stateMsg(tr("Slot connection returns false"));
 
-	tv->setVisible( false );
-	tv->resizeColumnsToContents();
-	tv->resizeRowsToContents();
-	tv->setVisible( true );
+//	tv->setVisible( false );
+//	tv->resizeColumnsToContents();
+//	tv->resizeRowsToContents();
+//	tv->setVisible( true );
+	tvc->resizeRowsColsToContents();
 
 //    emit updateActions();
 	/**
@@ -495,12 +508,8 @@ int  Browser::setFontAcc(QFont &font) {
 	return 0;
 }
 void Browser::autofitRowCol() {
-    foreach (TabView *tvc, mTvs) {
-		tvc->tv()->setVisible( false );
-		tvc->tv()->resizeColumnsToContents();
-		tvc->tv()->resizeRowsToContents();
-		tvc->tv()->setVisible( true );
-	}
+	 foreach (TabView *tvc, mTvs)
+		 tvc->resizeRowsColsToContents();
 }
 void Browser::initializeMdl(QSqlQueryModel *model) {
 	QSqlDatabase pDb = connectionWidget->currentDatabase();

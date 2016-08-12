@@ -57,7 +57,13 @@ public slots:
     void on_revertAction_triggered();
     void on_selectAction_triggered();
 
-    void refreshView();
+	 void refreshView();
+	 void resizeRowsColsToContents();
+	 void setColumnHidden(const int column, const bool hide);
+	 void setSelectionMode(QAbstractItemView::SelectionMode mode);
+	 void setModel(QAbstractItemModel *model);
+	 void setEditTriggers(QTableView::EditTriggers triggers);
+	 QItemSelectionModel *selectionModel();
 signals:
     void onSelChanged(TabView *tv);
 

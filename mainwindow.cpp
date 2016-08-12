@@ -14,9 +14,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	ui->setupUi(this);
 	QSETTINGS_INIT; QSETTINGS;
 
-    stateBar	= new MDStateBar( this );
+	stateBar		= new MDStateBar( this );
 	browser		= new Browser( parent );
-    mDbc		= new DbController(this);
+	mDbc			= new DbController(this);
 	inpFrm		= new InpFrm( this );
 	sortwindow  = new SortWindow( parent );
 	stateBar->setClockVisible(true);
@@ -27,13 +27,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	 */
 	connect(inpFrm, &InpFrm::stateMessage, stateBar, &MDStateBar::showMessage);
 
-    /*!
-     * Connect InpFrm::newWorktimeRecord() to TabView::update()
-     */
-    foreach (TabView *tv, *Browser::instance()->tvs())
-        connect(inpFrm, &InpFrm::newWorktimeRecord, tv, &TabView::refreshView);
+	/*!
+	  * Connect InpFrm::newWorktimeRecord() to TabView::update()
+	  */
+	foreach (TabView *tv, *Browser::instance()->tvs())
+		connect(inpFrm, &InpFrm::newWorktimeRecord, tv, &TabView::refreshView);
 
-    makeMenuBar();
+	makeMenuBar();
 	installEventFilter(this);
 
 	this->setWindowTitle( MAINWINDOW_TITLE );
@@ -141,24 +141,24 @@ void MainWindow::onOpenCloseInpFrm(bool onOff) {
 	inpFrm->setVisible(onOff);
 	//   this->addDockWidget(Qt::BottomDockWidgetArea, inpForm);
 
-//	if (b) {
-////		InpFrm::instance()->restoreInpFrmGeometry();
-//		//      addDockWidget( static_cast<Qt::DockWidgetArea>(
-//		//                        config.value("inpForm/DockWidgetArea", "8").toInt) );
-//		inpFrm->show();
-//	}
-//	else {
+	//	if (b) {
+	////		InpFrm::instance()->restoreInpFrmGeometry();
+	//		//      addDockWidget( static_cast<Qt::DockWidgetArea>(
+	//		//                        config.value("inpForm/DockWidgetArea", "8").toInt) );
+	//		inpFrm->show();
+	//	}
+	//	else {
 
-//		//      config.setValue("inpForm/DockWidgetArea", (uint)dockWidgetArea(inpForm));
-//		inpFrm->saveInpFrmGeometry();
-//		inpFrm->hide();
-//	}
+	//		//      config.setValue("inpForm/DockWidgetArea", (uint)dockWidgetArea(inpForm));
+	//		inpFrm->saveInpFrmGeometry();
+	//		inpFrm->hide();
+	//	}
 }
 void MainWindow::onTblOpen(bool) {
 	INFO << tr("I am an empty slot, use me!!!");
 }
 void MainWindow::onSetAlterRowColTrig() {
-    QPalette pal = browser->tvs()->first()->tv()->palette();
+	QPalette pal = browser->tvs()->first()->tv()->palette();
 
 	QColor color = QColorDialog::getColor(
 							pal.background().color(), this,
@@ -166,7 +166,7 @@ void MainWindow::onSetAlterRowColTrig() {
 							QColorDialog::DontUseNativeDialog);
 
 	if (color.isValid()) {
-        foreach (TabView *tv, *browser->tvs()) {
+		foreach (TabView *tv, *browser->tvs()) {
 			tv->setAlternateRowCol( color, true );
 		}
 	}
@@ -194,7 +194,7 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 	ui->actGbSShtInpFrm->setChecked( !b );
 	ui->actButGbStyleShtA->setChecked( b );
 
-    foreach (TabView *tv, *browser->tvs()) {
+	foreach (TabView *tv, *browser->tvs()) {
 		tv->setStyleSheet( Globals::gbStyleShtCenterPROPERTYS);
 	}
 }
@@ -204,7 +204,7 @@ void MainWindow::onMenuStyleShtInpFrmTrig(bool b) {
 	//   ui->actButStyleShtA->setChecked( !b );
 	//   ui->actButStyleShtInpFrm->setChecked( b );
 
-    //   *browser->tvs()[0]->getGrBox();
+	//   *browser->tvs()[0]->getGrBox();
 	//   foreach (QGroupBox *gb, browser->getGBoxs()) {
 	//      gb->setStyleSheet( Globals::gbStyleShtInpFrm);
 	//   }
@@ -275,11 +275,11 @@ void MainWindow::onUnderConstrTrig() {
 	//   return;
 	//   form = new Form();
 	//   form->show();
-    //   browser->resetStyleSheet(*browser->tvs()[0]);
-    //   browser->resetStyleSheet(*browser->tvs()[1]);
-    //   browser->resetStyleSheet(*browser->tvs()[3]);
-    //   browser->clearStyleSheet(*browser->tvs()[0]);
-    //   browser->clearStyleSheet(*browser->tvs()[2]);
+	//   browser->resetStyleSheet(*browser->tvs()[0]);
+	//   browser->resetStyleSheet(*browser->tvs()[1]);
+	//   browser->resetStyleSheet(*browser->tvs()[3]);
+	//   browser->clearStyleSheet(*browser->tvs()[0]);
+	//   browser->clearStyleSheet(*browser->tvs()[2]);
 	//
 #define QFOLDINGEND }
 }
@@ -351,12 +351,12 @@ void MainWindow::showEvent(QShowEvent *e) {
 
 	/**** Restore custom TabView instance settings
 	 \*/
-    foreach (TabView *tv, *browser->tvs())
+	foreach (TabView *tv, *browser->tvs())
 		tv->restoreView();
 
 	/**** Restore tabview <-> SQL table assignements
 	 \*/
-    foreach (TabView *tv, *browser->tvs()) {
+	foreach (TabView *tv, *browser->tvs()) {
 		QString tabNam = config.value(
 								  browser->objectName() + "/" + tv->objectName()).toString();
 		browser->showRelatTable( tabNam, tv );
@@ -375,7 +375,7 @@ void MainWindow::showEvent(QShowEvent *e) {
 		INFO << dwa;
 	}
 	else inpFrm->hide();
-//		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
+	//		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
 
 	/**** Trigger the connectionWidget treeview
 	 \*/
@@ -415,7 +415,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 
 	/**** Write tabView <-> SQL table relations
 	  \*/
-    foreach (TabView *tv, *browser->tvs()) {
+	foreach (TabView *tv, *browser->tvs()) {
 		config.setValue(browser->objectName() + "/" +
 							 tv->objectName(), tv->grBox()->title());
 	}

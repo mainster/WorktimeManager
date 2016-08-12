@@ -228,6 +228,27 @@ void TabView::onTabViewSelChanged(TabView *tv) {
         activeSel = false;
     }
 }
+void TabView::resizeRowsColsToContents() {
+	m_tv->setVisible( false );
+	m_tv->resizeColumnsToContents();
+	m_tv->resizeRowsToContents();
+	m_tv->setVisible( true );
+}
+void TabView::setColumnHidden(const int column, const bool hide) {
+	m_tv->setColumnHidden(column, hide);
+}
+void TabView::setSelectionMode(QAbstractItemView::SelectionMode mode) {
+	m_tv->setSelectionMode(mode);
+}
+QItemSelectionModel *TabView::selectionModel() {
+	return m_tv->selectionModel();
+}
+void TabView::setModel(QAbstractItemModel *model) {
+	m_tv->setModel(model);
+}
+void TabView::setEditTriggers(QTableView::EditTriggers triggers) {
+	m_tv->setEditTriggers(triggers);
+}
 
 /* ---------------------------------------------------------------- */
 /*                      Helper methodes                          */
