@@ -142,7 +142,8 @@ private slots:
 private:
     static Browser      *inst;
     Ui::Browser         *ui;
-    QVector<TabView *>  mTvs;
+	 QVector<TabView *>  mTvs;
+	 QList<QGroupBox *> mGbs;
     QTimer              *timCyc;
     bool				cyclicObjInfo;
     SfiltMdl			*proxyModel;

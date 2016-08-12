@@ -19,6 +19,8 @@
 #include "tabledelegate.h"
 
 #include "dbcontroller.h"
+#include "tabview.h"	//@@@MDBTEST
+
 
 namespace Ui {
 class MainWindow;

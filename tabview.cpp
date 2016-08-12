@@ -7,7 +7,7 @@
 class Browser;
 
 #define QFOLDINGSTART {
-QString gbStyleSheet = QString(
+QString TabView::tvStyleSheet = QString(
 								  "QGroupBox{"
 								  "   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
 								  "   	border-radius: 5px;"
@@ -18,27 +18,30 @@ QString gbStyleSheet = QString(
 								  " 	border-color: rgb(105, 105, 105);"
 								  "   	color: black;"
 								  "}"
+								  ""
 								  "QGroupBox::title {"
 								  "   	subcontrol-origin: margin; /* margin boarder padding content */"
 								  "   	subcontrol-position: top center; /* position at the top center */"
 								  "   	top: 1.2ex;   "
 								  "  	padding: 0px 8px"
-								  "} "
+								  "}"
+								  ""
 								  "QGroupBox::title:hover {"
 								  "    color: rgba(235, 235, 235, 255);"
 								  "}"
+								  ""
 								  " QTableView{"
 								  "	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF);"
 								  "	border: 0px solid gray;"
 								  "	border-radius: 5px;"
 								  "	margin-top: 15px; /* leave space at the top for the title */"
 								  " }"
+								  ""
 								  "QTableView[select=false]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF); }"
-								  "QGroupBox[select=false]{ border-color: rgb(105, 105, 105); }"
+								  "QGroupBox[select=false]{ border: 1px solid; }"
 								  ""
 								  "QTableView[select=true]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); }"
-								  "QGroupBox[select=true]{ border-color: rgb(0, 28, 170) }"
-								  ""
+								  "QGroupBox[select=true]{ border: 3px solid; }"
 								  ""
 								  "/* Customize Table header */"
 								  " QHeaderView::section {"
@@ -57,43 +60,42 @@ QString gbStyleSheet = QString(
 								  "     background-color: rgb(31, 94, 233);"
 								  " }"
 								  ""
-								  " /* style the sort indicator */"
+								  " /* style the sort indicator "
 								  "QHeaderView::down-arrow {"
-								  "/*     image: url(:/images/down_arrow.png);*/"
-								  " }"
+								  "	image: url(:/images/down_arrow.png);"
+								  "}"
 								  ""
-								  " QHeaderView::up-arrow {"
-								  "/*     image: url(:/images/up_arrow.png);*/"
-								  " }");
+								  "QHeaderView::up-arrow {"
+								  "	image: url(:/images/up_arrow.png);"
+								  "}*/");
 #define QFOLDINGEND }
 
 TabView::TabView(QWidget *parent) : QTableView(parent) {
+	m_gb = static_cast<QGroupBox *>(parent);
+	if (! m_gb)
+		qReturn("static cast to QGroupBox failed!");
 
 	/*!
-	 * Create new QGroupBox widget and set TabView parent to to it.
+	 * Add new property "select" to this.
 	 */
-	m_gb = new QGroupBox(parent);
-//	setParent(m_gb);
-	m_gb->show();
-	show();
-
-	/*!
-	 * Create GridLayout glay, add this widget and set the layout of m_gb member to glay->
-	 */
-	QGridLayout *glay = new QGridLayout();
-	glay->addWidget(this);
-	m_gb->setLayout(glay);
-	m_gb->setStyleSheet(gbStyleSheet);
-
-	/*!
-	 * Add new property "select" to the groupBox.
-	 */
+	m_gb->setStyleSheet(tvStyleSheet);
 	m_gb->setProperty("select", false);
+
+//	/*!
+//	 * Create GridLayout glay, add this widget and set the layout of m_tv member to glay->
+//	 */
+//	QGridLayout *glay = new QGridLayout(this);
+
+//	/*!
+//	 * Create new QTableView widget and set this as its parent.
+//	 */
+//	m_tv = new QTableView(glay);
+//	m_tv->setStyleSheet(tvStyleSheet);
+//	setLayout(glay);
 
 	/*!
 	 * Add new property "activeSel" to this QTabView.
 	 */
-	setProperty("activeSel", false);
 	addActions( createActions() );
 	setSortingEnabled( true );
 
@@ -101,7 +103,7 @@ TabView::TabView(QWidget *parent) : QTableView(parent) {
 	connect(this, &TabView::onSelChanged, this, &TabView::onTabViewSelChanged);
 }
 TabView::~TabView() {
-	delete m_gb;
+//	delete m_tv;
 }
 
 void TabView::restoreView() {
@@ -249,12 +251,13 @@ void TabView::onTabViewSelChanged(TabView *tv) {
 	 */
 	if (tv != NULL) {
 		if (this->objectName().contains(tv->objectName()))  {
-			setProperty("activeSel", true);
+//			setProperty("activeSel", true);
+			setActiveSelection(true);
 			return;
 		}
-		m_gb->setProperty("select", false);
-		m_gb->setStyleSheet(m_gb->styleSheet());
-		setProperty("activeSel", false);
+		setProperty("select", false);
+//		m_tv->setStyleSheet(m_tv->styleSheet());
+		setActiveSelection(false);
 	}
 }
 void TabView::resizeRowsColsToContents() {

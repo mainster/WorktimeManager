@@ -130,7 +130,11 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 void Browser::initTableView(QWidget *parent, QStringList &accessName) {
 	Q_UNUSED(parent)
 
-	mTvs << tva << tvb << tvc << tvd << tvl1 << tvl2;
+	mGbs << tva << tvb << tvc << tvd << tvl1 << tvl2;
+
+	foreach (QGroupBox *gb, mGbs) {
+		mTvs << new TabView(gb);
+	}
 
 	foreach (TabView *tv, mTvs) {
 		//		tv->addActions( tblActs );
@@ -448,7 +452,7 @@ void Browser::on_connectionWidget_tableActivated(const QString &sqlTbl) {
 		/**
 		 * Check for pending active select requests.
 		 */
-		if (tv->isActiveSelected()) {
+		if (tv->isActiveSelection()) {
 			/**
 			 * If selected view is TableMain AND the activated connection widget
 			 * table is "tagesberichte" then select the "relational table model"
@@ -580,7 +584,8 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 				emit tabViewSelChanged( 0 );
 			} else {
 				tv->grBox()->setProperty("select", true);
-				tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
+				INFO << gbc->styleSheet();
+//				tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
 				emit tabViewSelChanged(tv);
 			}
 		}

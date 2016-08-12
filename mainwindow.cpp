@@ -14,6 +14,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	ui->setupUi(this);
 	QSETTINGS_INIT; QSETTINGS;
 
+
+	TabView *TV1 = new TabView();
+	TabView *TV2 = new TabView();
+	TV1->show();
+	TV2->show();
+	INFO << TV1->children();
+	return;		//@@@MDBTEST
+
 	stateBar		= new MDStateBar( this );
 	browser		= new Browser( parent );
 	mDbc			= new DbController(this);
@@ -317,6 +325,10 @@ void MainWindow::showEvent(QShowEvent *e) {
 	Q_UNUSED(e);
 	QSETTINGS;
 	INFO << tr("SHOW!");
+
+
+	return;		//@@@MDBTEST
+
 
 	/**** Recall all action states for MainWindow
 	 \*/
