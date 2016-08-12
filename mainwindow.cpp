@@ -158,7 +158,7 @@ void MainWindow::onTblOpen(bool) {
 	INFO << tr("I am an empty slot, use me!!!");
 }
 void MainWindow::onSetAlterRowColTrig() {
-	QPalette pal = browser->tvs()->first()->tv()->palette();
+	QPalette pal = browser->tvs()->first()->palette();
 
 	QColor color = QColorDialog::getColor(
 							pal.background().color(), this,

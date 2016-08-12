@@ -115,7 +115,7 @@ public slots:
     }
     void onCyclic();
     void customMenuRequested(QPoint pos);
-    void initTableView(QWidget *parent, QStringList &accNam);
+	 void initTableView(QWidget *parent, QStringList &accessName);
     QFont selectFont();
     int setFontAcc(QFont &font);
     void onCyclicObjInfoTrig(bool b) { cyclicObjInfo = b; }
