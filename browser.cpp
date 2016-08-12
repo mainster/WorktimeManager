@@ -17,7 +17,7 @@ Browser *Browser::inst = 0;
 
 Browser::Browser(QWidget *parent) : QFrame(parent),
 	/*ui(new Ui::Browser), */cyclicObjInfo(false) {
-	/*setupUi(this);*/
+	inst = this;
 
 	/*!
 	 * Build UI.
@@ -25,7 +25,6 @@ Browser::Browser(QWidget *parent) : QFrame(parent),
 	grLay = new QGridLayout(this);
 	connectionWidget = new ConnectionWidget();
 
-//	QFrame *_browser = new QFrame();
 	tva = new TabView();
 	tvb = new TabView();
 	tvc = new TabView();
@@ -48,7 +47,6 @@ Browser::Browser(QWidget *parent) : QFrame(parent),
 	PONAM(splitter_5);
 	PONAM(splitter_6);
 	PONAM(splitter_7);
-
 
 	splitter_7->setOrientation(Qt::Horizontal);
 	splitter->setOrientation(Qt::Horizontal);
@@ -84,11 +82,8 @@ Browser::Browser(QWidget *parent) : QFrame(parent),
 
 	show();
 
-
-
-
-
-	inst = this;
+	connect(connectionWidget,	&ConnectionWidget::tableActivated,
+			  this,					&Browser::onConnectionWidgetTableActivated);
 
 	initTableView( inst, QStringList() << TVA << TVB << TVC << TVD << TVL1 << TVL2);
 
@@ -529,7 +524,7 @@ void Browser::onBeforeUpdate(int row, QSqlRecord &record) {
 /**
  * Entered after double clicking a table item in connection widget tree view
  */
-void Browser::on_connectionWidget_tableActivated(const QString &sqlTbl) {
+void Browser::onConnectionWidgetTableActivated(const QString &sqlTbl) {
 	/**
 	 * Determine which TabView should be targeted by the activated tab model.
 	 * Either select an instance of TabView which hasn't a model loaded yet. To

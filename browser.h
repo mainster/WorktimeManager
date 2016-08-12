@@ -112,7 +112,7 @@ signals:
 public slots:
     void showMetaData(const QString &table);
     void currentChanged(QModelIndex,QModelIndex) { emit updateActions(); }
-    void on_connectionWidget_tableActivated(const QString &sqlTab);
+	 void onConnectionWidgetTableActivated(const QString &sqlTab);
     void on_connectionWidget_metaDataRequested(const QString &table) {
         showMetaData(table);
     }
