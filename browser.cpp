@@ -113,7 +113,8 @@ Browser::Browser(QWidget *parent)
 	filterForm->hide();
 }
 Browser::~Browser() {
-	INFO << tr("close browser??!");
+	close();
+	INFO << tr("close browser?");
 	//	delete ui;
 }
 
@@ -500,94 +501,15 @@ void Browser::onCyclic() {
 /* ======================================================================== */
 /*                              Event handler                               */
 /* ======================================================================== */
-bool Browser::eventFilter(QObject *obj, QEvent *e) {
-	QPoint pos;
-
-	if (e->type() == QEvent::MouseButtonPress) {
-		INFO << "obj parent name:" << obj->parent()->objectName();
-
-		QMouseEvent *me = static_cast<QMouseEvent *>(e);
-		pos = me->pos();
-
-		QWidget *widget = qApp->widgetAt(QCursor::pos());
-
-		if (widget != 0x00) {
-			INFO << widget->parentWidget()->objectName();
-			INFO << widget->objectName();
-		}
-
-		/**
-			* If event receiver object has one of the tabview accessnames...
-			* ... reset all tabviews from beeing selected and mark the obj
-			* obj->parent() after static casting to TabView...
-			*/
-		if ( (((QStringList) TVA << TVB << TVC << TVD << TVL1 << TVL2).join(','))
-			  .contains( obj->parent()->objectName()) ) {
-
-			/**
-				 * Reset....
-				 */
-			TabView *tv = static_cast<TabView *>(obj->parent());
-
-			/**
-				 * Unselect if view was selected earlier
-				 */
-			if (QVariant(tv->grBox()->property("select")).toBool()) {
-				tv->grBox()->setProperty("select", false);
-				emit tabViewSelChanged( 0 );
-			} else {
-				tv->grBox()->setProperty("select", true);
-				tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
-				emit tabViewSelChanged(tv);
-			}
-		}
-		else {
-			INFO << tr("event receiver obj has NON of the known table names!  ")
-				  <<  widget->parentWidget()->objectName();
-		}
-
-		if (false) {
-			QList<QObject *> objs = obj->children();
-
-			for (int i = 0; i < objs.length(); i++) {
-				INFO << "obj child no." << i << objs[i]->objectName();
-			}
-		}
-
-		return true;
-	}
-
-	if ((e->type() == QEvent::KeyPress) && false) {
-		QKeyEvent *kev = static_cast<QKeyEvent *>(e);
-		INFO << "Keypress " << kev->key() << "by obj:" ;
-		INFO << "obj name:" << obj->objectName();
-		INFO << "obj parent name:" << obj->parent()->objectName();
-
-		QList<QObject *> objs = obj->children();
-
-		for (int i = 0; i < objs.length(); i++) {
-			INFO << "obj child no." << i << objs[i]->objectName();
-			INFO << "obj child no." << i << objs[i]->isWidgetType();
-		}
-
-	}
-
-	return false;
-
-	/**
-	  * standard event processing
-	  */
-	return QObject::eventFilter(obj, e);
-}
 void Browser::showEvent(QShowEvent *e) {
 	QSPLT_RESTORE;
 	emit visibilityChanged( true );
-	QWidget::showEvent( e );
+//	QWidget::showEvent( e );
 }
 void Browser::hideEvent(QHideEvent *e) {
 	QSPLT_STORE;
 	emit visibilityChanged( false );
-	QWidget::hideEvent( e );
+//	QWidget::hideEvent( e );
 }
 void Browser::closeEvent(QCloseEvent *e) {
 	QSETTINGS;
@@ -605,7 +527,88 @@ void Browser::closeEvent(QCloseEvent *e) {
 	\*/
 	ACTION_STORE(this);
 
-	QWidget::closeEvent( e );
+//	QWidget::closeEvent( e );
+}
+void Browser::keyPressEvent(QKeyEvent *e) {
+	e->ignore();
+	return;
+
+	QObject *obj = QObject::sender();
+
+	QKeyEvent *kev = static_cast<QKeyEvent *>(e);
+	INFO << "Keypress " << kev->key() << "by obj:" ;
+	INFO << "obj name:" << obj->objectName();
+	INFO << "obj parent name:" << obj->parent()->objectName();
+
+	QList<QObject *> objs = obj->children();
+
+	for (int i = 0; i < objs.length(); i++) {
+		INFO << "obj child no." << i << objs[i]->objectName();
+		INFO << "obj child no." << i << objs[i]->isWidgetType();
+	}
+}
+void Browser::mousePressEvent(QMouseEvent *e) {
+	/*!
+	 * Try to cast QObject::sender() to a QGroupBox or TabView object!
+	 */
+
+	e->ignore();
+
+	INFO << e->button();
+	INFO << qApp->widgetAt(e->pos());
+
+	QWidget *senderWidget = qApp->widgetAt(e->pos());
+	TabView *tv;
+
+	if (! senderWidget)
+		return;
+
+	INFO << senderWidget->objectName();
+
+	if (! dynamic_cast<TabView *>(senderWidget)) {
+		if (! dynamic_cast<QGroupBox *>(senderWidget))	return;
+		tv = dynamic_cast<QGroupBox *>(senderWidget)->findChild<TabView *>();
+	}
+	else	tv = dynamic_cast<TabView *>(senderWidget);
+
+	if (! tv) return;
+
+//	QWidget *widget = qApp->widgetAt( e->pos() );
+//	if (widget != 0x00) {
+//		INFO << widget->parentWidget()->objectName();
+//		INFO << widget->objectName();
+//	}
+
+	/*!
+	 * If sender object could be casted to a TabView object, compare its object name...
+	 */
+
+	/**
+	* If event receiving object has one of the tabview accessnames...
+	* ... reset all tabviews from beeing selected and mark the obj
+	* obj->parent() after static casting to TabView...
+	*/
+	if ( (((QStringList) TVA << TVB << TVC << TVD << TVL1 << TVL2).join(','))
+		  .contains( tv->objectName())) {
+
+		/*!
+		 * Unselect if view was selected earlier
+		 */
+		if (QVariant(tv->grBox()->property("select")).toBool()) {
+			tv->grBox()->setProperty("select", false);
+			emit tabViewSelChanged( 0 );
+		} else {
+			tv->grBox()->setProperty("select", true);
+			tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
+			emit tabViewSelChanged(tv);
+		}
+		e->accept();
+		return;
+	}
+	else
+		INFO << tr("event receiver obj has NON of the known table names!  ");
+
+	e->ignore();
 }
 /* ======================================================================== */
 /*                              Init methodes                               */
@@ -839,3 +842,5 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 
 #endif
 #define QFOLDINGEND }
+
+

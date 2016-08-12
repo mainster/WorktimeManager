@@ -143,7 +143,9 @@ protected:
 protected slots:
 	void showEvent(QShowEvent *e) override;
 	void hideEvent(QHideEvent *e) override;
-	bool eventFilter(QObject *obj, QEvent *e);
+	void closeEvent(QCloseEvent *e) override;
+	void mousePressEvent(QMouseEvent *e) override;
+	void keyPressEvent(QKeyEvent *e) override;
 
 private slots:
 	//   QAbstractItemModel *createMailModel(QObject *parent);
@@ -165,10 +167,6 @@ private:
 	SortWindow          *filterForm;
 	MDStateBar          *stateBar;
 
-
-	// QWidget interface
-protected:
-	void closeEvent(QCloseEvent *e);
 };
 
 #endif

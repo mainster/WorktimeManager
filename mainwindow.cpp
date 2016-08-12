@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
 	QSETTINGS_INIT; QSETTINGS;
 
+	initDocks();
+
 	stateBar		= new MDStateBar( this );
 	browser		= new Browser( this );
 	mDbc			= new DbController(this);
@@ -46,10 +48,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	WIN_RESTORE(this);
 
 	makeMenuBar();
-	installEventFilter(this);
+//	installEventFilter(this);
 
 	setWindowTitle( MAINWINDOW_TITLE );
-	config.fileName();
 	connectActions(connectOthers);
 
 	QTimer::singleShot(50, this, SLOT(restoreActionObjects()));
@@ -124,7 +125,7 @@ void MainWindow::onResizerDlgTrig() {
 void MainWindow::onActHideSqlQueryTrig() {
 	bool dohide = ui->actHideSqlQuery->isChecked();
 	QSETTINGS;
-	config.setValue(objectName() + "/HideSqlQuery", dohide);
+	config.setValue(objectName() + ui->actHideSqlQuery->objectName(), dohide);
 	inpFrm->setSqlQueryTextboxVisible( !dohide );
 }
 void MainWindow::onMenuStyleShtATrig(bool b) {
@@ -194,7 +195,7 @@ void MainWindow::onCyclic() {
 
 }
 void MainWindow::onActCloseTrig() {
-	//    qApp->closeAllWindows();
+	qApp->closeAllWindows();
 	this->close();
 }
 void MainWindow::onActSaveTrig() {
@@ -234,19 +235,29 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
 	return QObject::eventFilter(obj, event);
 }
 void MainWindow::showEvent(QShowEvent *e) {
-
+	QSETTINGS;
 	setCentralWidget(browser);
-	QWidget::showEvent( e );
+
+	/**** Restore tabview <-> SQL table assignements
+	 \*/
+	foreach (TabView *tv, *browser->tvs()) {
+		tv->restoreView();
+		QString tabNam =
+				config.value(browser->objectName() + "/" + tv->objectName()).toString();
+		browser->showRelatTable( tabNam, tv );
+	}
+
+//	QWidget::showEvent( e );
 }
 void MainWindow::hideEvent(QHideEvent *e) {
-	QWidget::hideEvent( e );
+//	QWidget::hideEvent( e );
 }
 void MainWindow::closeEvent(QCloseEvent *e) {
 	QSETTINGS;
 
 	/**** Safe current docking area of dock widgets
 	\*/
-	config.setValue("inpForm/DockWidgetArea", (uint)dockWidgetArea(inpFrm));
+	config.setValue(inpFrm->objectName() + "/DockWidgetArea", (uint)dockWidgetArea(inpFrm));
 
 	/**** Write splitter sizes to config
 	\*/
@@ -260,7 +271,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	\*/
 	ACTION_STORE(this);
 
-	QWidget::closeEvent( e );
+//	QWidget::closeEvent( e );
 }
 /* ======================================================================== */
 /*									    Init methodes										    */
@@ -270,7 +281,7 @@ bool MainWindow::restoreActionObjects () {
 
 	/**** Restore all action states from MainWindow
 	\*/
-	ACTION_RESTORE(this);
+//	ACTION_RESTORE(this);
 
 	QList<QAction *> acts = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
 
@@ -286,7 +297,7 @@ bool MainWindow::restoreActionObjects () {
 	/**** Recall visibility flag for the SQL command interface
 	\*/
 	try {
-		if (!config.value("MainWindow/actHideSqlQuery", true).toBool()) {
+		if (!config.value(objectName() + "/actHideSqlQuery", true).toBool()) {
 			inpFrm->setSqlQueryTextboxVisible( true );
 			ui->actHideSqlQuery->setChecked( false );
 		}
@@ -297,15 +308,6 @@ bool MainWindow::restoreActionObjects () {
 	}
 	catch (...) {
 		CRIT << tr("!");
-	}
-
-	/**** Restore tabview <-> SQL table assignements
-	 \*/
-	foreach (TabView *tv, *browser->tvs()) {
-		tv->restoreView();
-		QString tabNam =
-				config.value(browser->objectName() + "/" + tv->objectName()).toString();
-		browser->showRelatTable( tabNam, tv );
 	}
 
 	/**** Recall dock states
@@ -323,6 +325,8 @@ bool MainWindow::restoreActionObjects () {
 	}
 	else inpFrm->hide();
 	//		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
+
+	return true;
 }
 void MainWindow::initial() {
 }
