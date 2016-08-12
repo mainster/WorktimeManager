@@ -54,9 +54,7 @@
 #include "mysortfilterproxymodel.h"
 #include "sortwindow.h"
 #include "tabview.h"
-#include "connectionwidget.h"
-
-//#include "ui_browser.h"
+#include "ui_browser.h"
 
 
 namespace Ui {
@@ -64,7 +62,6 @@ class Browser;
 }
 
 class TabView;
-class ConnectionWidget;
 
 /*!
  * \class [class name]
@@ -76,7 +73,7 @@ class ConnectionWidget;
  * \author [your name]
  * \date
  */
-class Browser : public QFrame/*, private Ui::Browser*/ {
+class Browser : public QWidget, private Ui::Browser {
 
     Q_OBJECT
 
@@ -101,7 +98,7 @@ public:
     }
 
 
-	 QList<TabView *> *tvs();
+    QVector<TabView *> *tvs();
 
 signals:
     void stateMsg(const QString &message, const int delay = 0);
@@ -144,14 +141,8 @@ private slots:
 
 private:
     static Browser      *inst;
-	 ConnectionWidget *connectionWidget;
-	 QGridLayout *grLay;
-	 TabView *tva, *tvb, *tvc, *tvd, *tvl1, *tvl2;
-	 QSplitter *splitter, *splitter_2, *splitter_3, *splitter_4, *splitter_5, *splitter_6, *splitter_7;
-
-
-//    Ui::Browser         *ui;
-	 QList<TabView *>  mTvs;
+    Ui::Browser         *ui;
+    QVector<TabView *>  mTvs;
     QTimer              *timCyc;
     bool				cyclicObjInfo;
     SfiltMdl			*proxyModel;

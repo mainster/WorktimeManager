@@ -14,8 +14,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	ui->setupUi(this);
 	QSETTINGS_INIT; QSETTINGS;
 
+//	setCentralWidget(_browser);
+
+//	return;
+
 	stateBar		= new MDStateBar( this );
 	browser		= new Browser( parent );
+	setCentralWidget(browser);
 	mDbc			= new DbController(this);
 	inpFrm		= new InpFrm( this );
 	sortwindow  = new SortWindow( parent );
@@ -317,6 +322,8 @@ void MainWindow::showEvent(QShowEvent *e) {
 	Q_UNUSED(e);
 	QSETTINGS;
 	INFO << tr("SHOW!");
+
+//	return;	// @@@MDBTEST
 
 	/**** Recall all action states for MainWindow
 	 \*/

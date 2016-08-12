@@ -1,5 +1,5 @@
 #include "browser.h"
-//#include "ui_browser.h"
+#include "ui_browser.h"
 
 #define T_CYCLIC 250e-3
 
@@ -15,80 +15,9 @@
 Browser *Browser::inst = 0;
 
 
-Browser::Browser(QWidget *parent) : QFrame(parent),
-	/*ui(new Ui::Browser), */cyclicObjInfo(false) {
-	/*setupUi(this);*/
-
-	/*!
-	 * Build UI.
-	 */
-	grLay = new QGridLayout(this);
-	connectionWidget = new ConnectionWidget();
-
-//	QFrame *_browser = new QFrame();
-	tva = new TabView();
-	tvb = new TabView();
-	tvc = new TabView();
-	tvd = new TabView();
-	tvl1 = new TabView();
-	tvl2 = new TabView();
-
-	splitter = new QSplitter(this);
-	splitter_2 = new QSplitter(this);
-	splitter_3 = new QSplitter(this);
-	splitter_4 = new QSplitter(this);
-	splitter_5 = new QSplitter(this);
-	splitter_6 = new QSplitter(this);
-	splitter_7 = new QSplitter(this);
-
-	PONAM(splitter);
-	PONAM(splitter_2);
-	PONAM(splitter_3);
-	PONAM(splitter_4);
-	PONAM(splitter_5);
-	PONAM(splitter_6);
-	PONAM(splitter_7);
-
-
-	splitter_7->setOrientation(Qt::Horizontal);
-	splitter->setOrientation(Qt::Horizontal);
-	splitter_2->setOrientation(Qt::Horizontal);
-	splitter_5->setOrientation(Qt::Horizontal);
-	splitter_3->setOrientation(Qt::Vertical);
-	splitter_4->setOrientation(Qt::Vertical);
-	splitter_6->setOrientation(Qt::Vertical);
-
-	grLay->addWidget(splitter);
-	grLay->addWidget(splitter_2);
-	grLay->addWidget(splitter_3);
-	grLay->addWidget(splitter_4);
-	grLay->addWidget(splitter_5);
-	grLay->addWidget(splitter_6);
-	grLay->addWidget(splitter_7);
-
-	splitter->addWidget(tva);
-	splitter->addWidget(tvb);
-	splitter_2->addWidget(connectionWidget);
-	splitter_2->addWidget(tvd);
-	splitter_3->addWidget(splitter);
-	splitter_3->addWidget(splitter_2);
-
-	splitter_4->addWidget(splitter_3);
-
-	splitter_5->addWidget(tvl1);
-	splitter_5->addWidget(tvl2);
-	splitter_6->addWidget(splitter_5);
-	splitter_6->addWidget(tvc);
-	splitter_7->addWidget(splitter_4);
-	splitter_7->addWidget(splitter_6);
-
-	show();
-
-
-
-
-
-	inst = this;
+Browser::Browser(QWidget *parent) : QWidget(parent),
+	ui(new Ui::Browser), cyclicObjInfo(false) {
+	setupUi(this);  inst = this;
 
 	initTableView( inst, QStringList() << TVA << TVB << TVC << TVD << TVL1 << TVL2);
 
@@ -130,7 +59,7 @@ Browser::Browser(QWidget *parent) : QFrame(parent),
 	filterForm->hide();
 }
 Browser::~Browser() {
-//	delete ui;
+	delete ui;
 }
 #define QFOLDINGSTART {
 #ifdef OLD_CONSTRUCTOR
@@ -723,12 +652,15 @@ void Browser::hideEvent(QShowEvent *) {
 	QSPLT_STORE;
 	emit visibilityChanged( false );
 }
-QList<TabView *> *Browser::tvs() {
+QVector<TabView *> *Browser::tvs() {
     return &mTvs;
 }
 void Browser::showEvent(QShowEvent *) {
     QSPLT_RESTORE;
     emit visibilityChanged( true );
+	 QLayout *gl = layout();
+	 INFO << gl->children();
+	 INFO << gl;
 
 //	QSETTINGS;
 

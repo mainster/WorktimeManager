@@ -119,6 +119,7 @@ void ConnectionWidget::on_tree_itemActivated(QTreeWidgetItem *item,
 
 	if (!item) return;
 
+	INFO << item << item->text(0);
 	if (!item->parent()) {
 		setActive(item);
 	} else {

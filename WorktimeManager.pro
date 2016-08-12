@@ -85,7 +85,6 @@ SOURCES += \
 	 mdcombobox.cpp
 
 FORMS += \
-	 uis/browser.ui \
 	 uis/dbconndlg.ui \
 	 uis/inpfrm.ui \
 	 uis/mainwindow.ui \
