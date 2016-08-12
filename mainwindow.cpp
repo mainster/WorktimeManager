@@ -12,6 +12,8 @@ int MainWindow::fuse = 5;
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	ui(new Ui::MainWindow) {
 	ui->setupUi(this);
+	connectActions(connectThis);
+
 	QSETTINGS_INIT; QSETTINGS;
 
 	stateBar		= new MDStateBar( this );
@@ -37,90 +39,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	makeMenuBar();
 	installEventFilter(this);
 
-	this->setWindowTitle( MAINWINDOW_TITLE );
+	setWindowTitle( MAINWINDOW_TITLE );
 	config.fileName();
-	connectActions();
+	connectActions(connectOthers);
+
+
 }
 MainWindow::~MainWindow() {
-	//   saveMainWindowUiSettings();
+//	   saveMainWindowUiSettings();
 	delete ui;
 }
 void MainWindow::onInpFrmButtonClick(bool ) {
 
 }
-void MainWindow::makeMenuBar() {
-	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&File"));
-	fileMenu->addAction(QObject::tr("Add &Connection..."),
-							  mDbc, SLOT(addConnection()));
-	fileMenu->addSeparator();
-	fileMenu->addAction(QObject::tr("&Quit"), qApp, SLOT(quit()));
-
-	//   cfgMenu->addMenu(tr("StyleSheets"));
-	//   cfgMenu->addAction(QObject::tr("gbStyleShtA"), this,
-	//                      SLOT(onMenuStyleShtATrig(bool)));
-	//   cfgMenu->addAction(QObject::tr("gbStyleShtInpFrm"), this,
-	//                      SLOT(onMenuStyleShtInpFrmTrig(bool)));
-
-	QMenu *helpMenu = menuBar()->addMenu(QObject::tr("&Help"));
-	helpMenu->addAction(QObject::tr("About"), this, SLOT(about()));
-	helpMenu->addAction(QObject::tr("About Qt"), qApp, SLOT(aboutQt()));
-
-}
-void MainWindow::connectActions() {
-	ui->actHideSqlQuery->setChecked( true );
-
-	connect(ui->actButBrowseSQL, &QAction::triggered, this, &MainWindow::onBrowseSqlTrig);
-	connect(ui->actButInpForm, &QAction::triggered, this, &MainWindow::onOpenCloseInpFrm);
-	connect(ui->actButShowTbl, &QAction::triggered, this, &MainWindow::onTblOpen);
-	connect(ui->actButClose, &QAction::triggered, this, &MainWindow::onActCloseTrig);
-	connect(ui->actButGbStyleShtA, &QAction::triggered, this, &MainWindow::onMenuStyleShtATrig);
-	connect(ui->actGbSShtInpFrm, &QAction::triggered, this, &MainWindow::onMenuStyleShtInpFrmTrig);
-	connect(ui->actButExport, &QAction::triggered, this, &MainWindow::onActExportTrig);
-	connect(ui->actButUnderConstr, &QAction::triggered, this, &MainWindow::onUnderConstrTrig);
-	connect(ui->actButSelFont, &QAction::triggered, this, &MainWindow::onSetFont);
-	connect(ui->actResizerDlg, &QAction::triggered, this, &MainWindow::onResizerDlgTrig);
-	connect(ui->actHideSqlQuery, &QAction::triggered, this, &MainWindow::onActHideSqlQueryTrig);
-	connect(ui->actSetAlterRowCol, &QAction::triggered, this, &MainWindow::onSetAlterRowColTrig);
-	connect(ui->actCfgInpFrmTabOrd,  &QAction::triggered, this, &MainWindow::onActCfgInpFrmTabOrdTrig);
-	connect(ui->actButCyclicObjInfo, &QAction::triggered, browser, &Browser::onCyclicObjInfoTrig);
-	connect(ui->actAutoFitTables,	&QAction::triggered, browser, &Browser::autofitRowCol);
-	connect(ui->actFilterForm, &QAction::triggered, browser, &Browser::onActFilterForm);
-	connect(browser, &Browser::stateMsg, stateBar, &MDStateBar::showMessage);
-
-	connect(inpFrm, &InpFrm::visibilityChanged, ui->actButInpForm, &QAction::setChecked);
-	connect(browser, &Browser::visibilityChanged, ui->actButBrowseSQL, &QAction::setChecked);
-
-	//    connect(	ui->actFilterTableWindow,	SIGNAL(triggered(bool)),
-	//                browser,					SLOT(onActFilterWindowTable(bool)));
-	//    connect(	this,						SIGNAL(mainwindowCloses()),
-	//                browser->getSortwindow0(),	SLOT(close()));
-	//    connect(	this,						SIGNAL(mainwindowCloses()),
-	//                browser->getSortwindow1(),	SLOT(close()));
-	//    connect(	browser->getSortwindow0(),	SIGNAL(closesUncheck(bool)),
-	//                ui->actFilterTableWindow,	SLOT(setChecked(bool)));
-	//    connect(	browser->getSortwindow1(),	SIGNAL(closesUncheck(bool)),
-	//                ui->actFilterTableWindow,	SLOT(setChecked(bool)));
-	//    connect(ui->actFilterTable, SIGNAL(triggered()),
-	//            browser,        SLOT( SORTIT()));
-}
-void MainWindow::initDocks() {
-	QSETTINGS;
-	inpFrm = InpFrm::instance( this );
-	inpFrm->hide();
-
-	inpFrm->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
-
-	/*!
-	  * Restore inpFrms last doc position.
-	  */
-	QVariant v = QVariant::fromValue(config.value("inpForm/DockWidgetArea",
-																 Qt::BottomDockWidgetArea) );
-	Qt::DockWidgetArea dockArea = static_cast<Qt::DockWidgetArea>(v.toInt());
-
-	addDockWidget(dockArea, inpFrm);
-}
 void MainWindow::onBrowseSqlTrig(bool doBrowse) {
-
 	if (doBrowse) {
 		this->setCentralWidget(browser);
 		browser->show();
@@ -193,7 +125,7 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 	if (!b) return;
 
 	ui->actGbSShtInpFrm->setChecked( !b );
-	ui->actButGbStyleShtA->setChecked( b );
+	ui->actGbStyleShtA->setChecked( b );
 
 	foreach (TabView *tv, *browser->tvs()) {
 		tv->setStyleSheet( Globals::gbStyleShtCenterPROPERTYS);
@@ -202,56 +134,13 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 void MainWindow::onMenuStyleShtInpFrmTrig(bool b) {
 	if (!b) return;
 
-	//   ui->actButStyleShtA->setChecked( !b );
-	//   ui->actButStyleShtInpFrm->setChecked( b );
+	//   ui->actStyleShtA->setChecked( !b );
+	//   ui->actStyleShtInpFrm->setChecked( b );
 
 	//   *browser->tvs()[0]->getGrBox();
 	//   foreach (QGroupBox *gb, browser->getGBoxs()) {
 	//      gb->setStyleSheet( Globals::gbStyleShtInpFrm);
 	//   }
-}
-void MainWindow::onActExportTrig() {
-	INFO << "!";
-}
-void MainWindow::onActCfgInpFrmTabOrdTrig() {
-	emit inpFrm->changeFocusOrder(Qt::FocusChange_init);
-}
-void MainWindow::initializeMdl(QSqlQueryModel *model) {
-	QSETTINGS;
-	QSqlDatabase pDb = browser->getCurrentDatabase();
-	QString queryStr =
-			config.value("InpFrm/default_worktime_query_plain").toString();
-
-	model->setQuery(QSqlQuery(queryStr, pDb));
-	model->setHeaderData(0, Qt::Horizontal, QObject::tr("workerID"));
-	model->setHeaderData(1, Qt::Horizontal, QObject::tr("Nachname"));
-	model->setHeaderData(2, Qt::Horizontal, QObject::tr("Vorname"));
-	INFO << config.value("InpFrm/default_worktime_query_plain").toString();
-
-
-	////   mdl->setQuery("SELECT prjID, clientID, SubID, Beschreibung, Kurzform "
-	////                 "FROM prj", pDb);
-	//   mdl->setQuery("SELECT * FROM prj");
-	//   mdl->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
-	//   mdl->setHeaderData(1, Qt::Horizontal, QObject::tr("clId"));
-	//   mdl->setHeaderData(2, Qt::Horizontal, QObject::tr("subId"));
-
-
-	{
-		//QTableView* MainWindow::createView(QSqlQueryModel *model,
-		//                                const QString &title) {
-		//   QTableView *view = new QTableView(0);
-		//   view->setModel(model);
-		//   static int offset = 0;
-
-		//   view->setWindowTitle(title);
-		//   view->move(100 + offset, 100 + offset);
-		//   offset += 20;
-		//   view->show();
-
-		//   return view;
-		//
-	}
 }
 void MainWindow::onUnderConstrTrig() {
 	QSqlQueryModel plainMdl;
@@ -295,11 +184,6 @@ void MainWindow::onSetFont() {
 		browser->setFontAcc(font);
 	}
 }
-void MainWindow::about() {
-	QMessageBox::about(this, tr("About"), tr("The SQL Browser demonstration "
-														  "shows how a data browser can be used to visualize the results of SQL"
-														  "statements on a live database"));
-}
 void MainWindow::onCyclic() {
 
 }
@@ -307,29 +191,32 @@ void MainWindow::onActCloseTrig() {
 	//    qApp->closeAllWindows();
 	this->close();
 }
-/* ======================================================================== */
-/*                              Event handler                               */
-/* ======================================================================== */
-//void MainWindow::showEvent() {
-////	QShowEvent *ee = NULL;
-////	emit showEvent(ee);
-//}
-void MainWindow::showEvent(QShowEvent *e) {
-	Q_UNUSED(e);
+void MainWindow::onActSaveTrig() {
+//	QSETTINGS;
+//	config.setValue(tr("testgeometry/") + objectName(), saveGeometry());
+//	config.setValue(tr("teststate/") + objectName(), saveState());
+//	config.sync();
+	QWIN_STORE;
+}
+void MainWindow::onActOpenTrig() {
+	QWIN_RESTORE;
+//	QSETTINGS;
+//	restoreGeometry(config.value(tr("testgeometry/") + objectName()).toByteArray());
+//	restoreState(config.value(tr("teststate/") + objectName()).toByteArray());
+}
+void MainWindow::restoreAndTriggerActions() {
 	QSETTINGS;
-	INFO << tr("SHOW!");
-
-//	return;	// @@@MDBTEST
-
 	/**** Recall all action states for MainWindow
 	 \*/
-	QList<QAction *> acts = findChildren<QAction *>();
+	QList<QAction *> acts = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
 
 	foreach (QAction *ac, acts) {
-		if ( config.value("MainWindow/" + ac->objectName(), false).toBool() )
+		if ( config.value("MainWindow/" + ac->objectName(), false).toBool() ) {
 			if (ac != ui->actFilterForm)
 				emit ac->trigger();
+		}
 	}
+
 
 	try {
 		/**** Recall visibility flag for the SQL command interface
@@ -347,42 +234,13 @@ void MainWindow::showEvent(QShowEvent *e) {
 		CRIT << tr("!");
 	}
 
-	/**** Recall mainWindow geometry and window state
-	 \*/
-	this->restoreGeometry(config.value(objectName() + "/Geometry", "").toByteArray());
-	this->restoreState(config.value(objectName() + "/State", "").toByteArray());
+}
 
-	/**** Restore custom TabView instance settings
-	 \*/
-	foreach (TabView *tv, *browser->tvs())
-		tv->restoreView();
-
-	/**** Restore tabview <-> SQL table assignements
-	 \*/
-	foreach (TabView *tv, *browser->tvs()) {
-		QString tabNam = config.value(
-								  browser->objectName() + "/" + tv->objectName()).toString();
-		browser->showRelatTable( tabNam, tv );
-	}
-
-	/**** Recall dock states
-	 \*/
-	if (ui->actButInpForm->isChecked()) {
-		inpFrm->show();
-		Qt::DockWidgetArea dwa = static_cast<Qt::DockWidgetArea>(
-											 config.value("inpForm/DockWidgetArea",
-															  Qt::BottomDockWidgetArea).toUInt());
-		/*! Produces unexpected behavior
-		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
-		*/
-		INFO << dwa;
-	}
-	else inpFrm->hide();
-	//		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
-
-	/**** Trigger the connectionWidget treeview
-	 \*/
-
+/* ======================================================================== */
+/*                              Event handler                               */
+/* ======================================================================== */
+void MainWindow::showEvent(QShowEvent *e) {
+	QTimer::singleShot(50, this, SLOT(showEventDelayed()));
 }
 bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
 
@@ -451,11 +309,168 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	/**** Safe content of sql query input field to config
 	  \*/
 	emit mainwindowCloses();
-	QWidget::closeEvent(e);
+//	QWidget::closeEvent(e);
 }
 /* ======================================================================== */
 /*									    Init methodes										    */
 /* ======================================================================== */
-void MainWindow::initial() {
+void MainWindow::showEventDelayed() {
+	QSETTINGS;
 
+	/*!
+	 * Recall all action states for MainWindow.
+	 */
+	restoreAndTriggerActions();
+
+	/**** Recall mainWindow geometry and window state
+	 \*/
+	if (! restoreGeometry(config.value(objectName() + "/Geometry", "").toByteArray()) )
+		WARN << tr("Recall mainWindow geometry failed");
+
+	if (! restoreState(config.value(objectName() + "/State", "").toByteArray()) )
+		WARN << tr("Recall mainWindow state failed");
+
+	/**** Restore custom TabView instance settings
+	 \*/
+	/**** Restore tabview <-> SQL table assignements
+	 \*/
+	foreach (TabView *tv, *browser->tvs()) {
+		tv->restoreView();
+		QString tabNam =
+				config.value(browser->objectName() + "/" + tv->objectName()).toString();
+		browser->showRelatTable( tabNam, tv );
+	}
+
+	/**** Recall dock states
+	 \*/
+	if (ui->actInpForm->isChecked()) {
+		inpFrm->show();
+		Qt::DockWidgetArea dwa = static_cast<Qt::DockWidgetArea>(
+											 config.value("inpForm/DockWidgetArea",
+															  Qt::BottomDockWidgetArea).toUInt());
+		/*! Produces unexpected behavior
+		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
+		*/
+		INFO << dwa;
+	}
+	else inpFrm->hide();
+	//		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
+}
+
+void MainWindow::initial() {
+}
+void MainWindow::makeMenuBar() {
+	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&File"));
+	fileMenu->addAction(QObject::tr("Add &Connection..."),
+							  mDbc, SLOT(addConnection()));
+	fileMenu->addSeparator();
+	fileMenu->addAction(QObject::tr("&Quit"), qApp, SLOT(quit()));
+
+	//   cfgMenu->addMenu(tr("StyleSheets"));
+	//   cfgMenu->addAction(QObject::tr("gbStyleShtA"), this,
+	//                      SLOT(onMenuStyleShtATrig(bool)));
+	//   cfgMenu->addAction(QObject::tr("gbStyleShtInpFrm"), this,
+	//                      SLOT(onMenuStyleShtInpFrmTrig(bool)));
+
+	QMenu *helpMenu = menuBar()->addMenu(QObject::tr("&Help"));
+	helpMenu->addAction(QObject::tr("About"), this, SLOT(about()));
+	helpMenu->addAction(QObject::tr("About Qt"), qApp, SLOT(aboutQt()));
+
+}
+void MainWindow::connectActions(ConnectReceiver receivers) {
+	ui->actHideSqlQuery->setChecked( true );
+
+	if ((receivers == connectThis) ||
+		(receivers == connectAll)) {
+		connect(ui->actBrowseSQL, &QAction::triggered, this, &MainWindow::onBrowseSqlTrig);
+		connect(ui->actInpForm, &QAction::triggered, this, &MainWindow::onOpenCloseInpFrm);
+		connect(ui->actShowTbl, &QAction::triggered, this, &MainWindow::onTblOpen);
+		connect(ui->actClose, &QAction::triggered, this, &MainWindow::onActCloseTrig);
+		connect(ui->actGbStyleShtA, &QAction::triggered, this, &MainWindow::onMenuStyleShtATrig);
+		connect(ui->actGbSShtInpFrm, &QAction::triggered, this, &MainWindow::onMenuStyleShtInpFrmTrig);
+		connect(ui->actExport, &QAction::triggered, this, &MainWindow::onActExportTrig);
+		connect(ui->actUnderConstr, &QAction::triggered, this, &MainWindow::onUnderConstrTrig);
+		connect(ui->actSelFont, &QAction::triggered, this, &MainWindow::onSetFont);
+		connect(ui->actResizerDlg, &QAction::triggered, this, &MainWindow::onResizerDlgTrig);
+		connect(ui->actHideSqlQuery, &QAction::triggered, this, &MainWindow::onActHideSqlQueryTrig);
+		connect(ui->actSetAlterRowCol, &QAction::triggered, this, &MainWindow::onSetAlterRowColTrig);
+		connect(ui->actCfgInpFrmTabOrd,  &QAction::triggered, this, &MainWindow::onActCfgInpFrmTabOrdTrig);
+		connect(ui->actSave,  &QAction::triggered, this, &MainWindow::onActSaveTrig);
+		connect(ui->actOpen,  &QAction::triggered, this, &MainWindow::onActOpenTrig);
+	}
+
+	if ((receivers == connectOthers) ||
+		(receivers == connectAll)) {
+		connect(ui->actCyclicObjInfo, &QAction::triggered, browser, &Browser::onCyclicObjInfoTrig);
+		connect(ui->actAutoFitTables,	&QAction::triggered, browser, &Browser::autofitRowCol);
+		connect(ui->actFilterForm, &QAction::triggered, browser, &Browser::onActFilterForm);
+		connect(browser, &Browser::stateMsg, stateBar, &MDStateBar::showMessage);
+		connect(inpFrm, &InpFrm::visibilityChanged, ui->actInpForm, &QAction::setChecked);
+		connect(browser, &Browser::visibilityChanged, ui->actBrowseSQL, &QAction::setChecked);
+	}
+	//    connect(	ui->actFilterTableWindow,	SIGNAL(triggered(bool)),
+	//                browser,					SLOT(onActFilterWindowTable(bool)));
+	//    connect(	this,						SIGNAL(mainwindowCloses()),
+	//                browser->getSortwindow0(),	SLOT(close()));
+	//    connect(	this,						SIGNAL(mainwindowCloses()),
+	//                browser->getSortwindow1(),	SLOT(close()));
+	//    connect(	browser->getSortwindow0(),	SIGNAL(closesUncheck(bool)),
+	//                ui->actFilterTableWindow,	SLOT(setChecked(bool)));
+	//    connect(	browser->getSortwindow1(),	SIGNAL(closesUncheck(bool)),
+	//                ui->actFilterTableWindow,	SLOT(setChecked(bool)));
+	//    connect(ui->actFilterTable, SIGNAL(triggered()),
+	//            browser,        SLOT( SORTIT()));
+}
+void MainWindow::initDocks() {
+	QSETTINGS;
+	inpFrm = InpFrm::instance( this );
+	inpFrm->hide();
+
+	inpFrm->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
+
+	/*!
+	  * Restore inpFrms last doc position.
+	  */
+	QVariant v = QVariant::fromValue(config.value("inpForm/DockWidgetArea",
+																 Qt::BottomDockWidgetArea) );
+	Qt::DockWidgetArea dockArea = static_cast<Qt::DockWidgetArea>(v.toInt());
+
+	addDockWidget(dockArea, inpFrm);
+}
+void MainWindow::initializeMdl(QSqlQueryModel *model) {
+	QSETTINGS;
+	QSqlDatabase pDb = browser->getCurrentDatabase();
+	QString queryStr =
+			config.value("InpFrm/default_worktime_query_plain").toString();
+
+	model->setQuery(QSqlQuery(queryStr, pDb));
+	model->setHeaderData(0, Qt::Horizontal, QObject::tr("workerID"));
+	model->setHeaderData(1, Qt::Horizontal, QObject::tr("Nachname"));
+	model->setHeaderData(2, Qt::Horizontal, QObject::tr("Vorname"));
+	INFO << config.value("InpFrm/default_worktime_query_plain").toString();
+
+
+	////   mdl->setQuery("SELECT prjID, clientID, SubID, Beschreibung, Kurzform "
+	////                 "FROM prj", pDb);
+	//   mdl->setQuery("SELECT * FROM prj");
+	//   mdl->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
+	//   mdl->setHeaderData(1, Qt::Horizontal, QObject::tr("clId"));
+	//   mdl->setHeaderData(2, Qt::Horizontal, QObject::tr("subId"));
+
+
+	{
+		//QTableView* MainWindow::createView(QSqlQueryModel *model,
+		//                                const QString &title) {
+		//   QTableView *view = new QTableView(0);
+		//   view->setModel(model);
+		//   static int offset = 0;
+
+		//   view->setWindowTitle(title);
+		//   view->move(100 + offset, 100 + offset);
+		//   offset += 20;
+		//   view->show();
+
+		//   return view;
+		//
+	}
 }

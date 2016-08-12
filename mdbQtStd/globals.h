@@ -28,6 +28,8 @@
 #define	PLATFORM_CONFIG_PATH	QString( qgetenv("HOME") + "/.config/" )
 
 /* ======================================================================== */
+/*                       Paths / vendor informations                        */
+/* ======================================================================== */
 #include "locals.h"
 
 #ifndef ORGANISATION
@@ -42,19 +44,20 @@
 #endif
 
 #define CUSTOM_QUERYS_PATH QString(CONFIG_PATH + tr("/") + qApp->applicationName() + "_customQuerys")
-/* ======================================================================== */
-
-#define GEOM QString("/Geometry")
-#define STAT QString("/State")
 
 /* ======================================================================== */
-/*						Global namespace macro definitions								 */
+/*                    Global namespace macro definitions                    */
 /* ======================================================================== */
 #define DESTRUCTOR_INVOCATION setAttribute(Qt::WA_DeleteOnClose);
 
+/* ======================================================================== */
+/*                       Store and restore ui sttings                       */
+/* ======================================================================== */
+#define GEOM QString("/Geometry")
+#define STAT QString("/State")
+
 #define QSETTINGS  QSettings config;
 #define QSETTINGS_QUERYS QSettings configQ(CUSTOM_QUERYS_PATH, QSettings::IniFormat);
-
 #define QSETTINGS_INIT { \
 	QCoreApplication::setOrganizationName(ORGANISATION); \
 	QCoreApplication::setApplicationName(qApp->applicationName()); \
@@ -64,9 +67,10 @@
 	cfg.setValue(QString("OrganisationName"), QCoreApplication::organizationName()); \
 	if (! cfg.allKeys().contains(QString("ApplicationName"))) \
 	cfg.setValue(QString("ApplicationName"), QCoreApplication::applicationName()); \
+	INFO << cfg.fileName(); \
 	}
 
-#define     QSPLT_STORE_     { QSETTINGS \
+#define     QSPLT_STORE			{ QSETTINGS \
 	QList<QSplitter *> spls = findChildren<QSplitter *>(); \
 	foreach (QSplitter *sp, spls) \
 	config.setValue(objectName() + "/" + sp->objectName(), sp->saveState()); \
@@ -76,22 +80,30 @@
 	foreach (QAction *act, acts) \
 	config.setValue(objectName() + "/" + act->objectName(), act->isChecked()); \
 	}
-#define     QACTION_RESTORE     { QSETTINGS \
+#define     QACTION_RESTORE   { QSETTINGS \
 	QList<QAction *> acts = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly); \
 	foreach (QAction *act, acts) \
 	act->setChecked( config.value(objectName() + "/" + act->objectName(), false).toBool()); \
 	}
-#define     QSPLT_RESTORE_   { QSETTINGS \
+#define     QSPLT_RESTORE		{ QSETTINGS \
 	QList<QSplitter *> spls = findChildren<QSplitter *>(); \
 	foreach (QSplitter *sp, spls) { \
 	sp->restoreState(config.value(objectName() + "/" + sp->objectName(), " ").toByteArray()); } }
 #define     QFONT_STORE (QFont font)   { \
 	QSETTINGS;  config.setValue(objectName() + "/lastFont", font.toString()); \
 	}
-#define     QFONT_RESTORE   { \
+#define     QFONT_RESTORE		{ \
 	QFont f; \
 	f=fromString(config.value("Console/lastFont","").toString()); \
 	return f; \
+	}
+#define     QWIN_STORE			{ QSETTINGS; \
+	QSPLT_STORE; \
+	config.setValue(objectName() + GEOM, saveGeometry() ); \
+	}
+#define     QWIN_RESTORE		{ QSETTINGS; \
+	restoreGeometry(config.value(objectName()+GEOM,"").toByteArray()); \
+	QSPLT_RESTORE; \
 	}
 
 /**
@@ -100,20 +112,33 @@
  * and the only thing while instance construction ist QWIN_RESTORE;
  * No QSETTINGS, no QSPLT_RESTORE....
  */
-#define     WIN_STORE(obj)	{ QSETTINGS; \
+#define     WIN_STORE(obj)		{ QSETTINGS; \
 	config.setValue(obj->objectName() + GEOM, obj->saveGeometry() ); \
 	}
 #define     WIN_RESTORE(obj)	{ QSETTINGS; \
 	obj->restoreGeometry(config.value(obj->objectName() + GEOM,"").toByteArray()); \
 	}
-#define     QWIN_STORE      { QSETTINGS; \
-	QSPLT_STORE; \
-	config.setValue(objectName() + GEOM, saveGeometry() ); \
+#define     SPLT_STORE(obj)   { QSETTINGS; \
+	QList<QSplitter *> spls = obj->findChildren<QSplitter *>(QString(), Qt::FindDirectChildrenOnly); \
+	foreach (QSplitter *sp, spls) \
+	config.setValue(obj->objectName() + "/" + sp->objectName(), sp->saveState()); \
 	}
-#define     QWIN_RESTORE    { QSETTINGS; \
-	restoreGeometry(config.value(objectName()+GEOM,"").toByteArray()); \
-	QSPLT_RESTORE; \
+#define     ACTION_STORE(obj) { QSETTINGS; \
+	QList<QAction *> acts = obj->findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly); \
+	foreach (QAction *act, acts) \
+	config.setValue(obj->objectName() + "/" + act->objectName(), act->isChecked()); \
+
+config.setValue(obj->objectName() + "/" + tr("actionCtr"), acts.length); \
+}
+#define     ACTION_RESTORE(obj) { QSETTINGS; \
+	QList<QAction *> acts = obj->findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly); \
+	foreach (QAction *act, acts) \
+	act->setChecked( config.value(obj->objectName() + "/" + act->objectName(), false).toBool()); \
 	}
+#define     SPLT_RESTORE(obj)   { QSETTINGS; \
+	QList<QSplitter *> spls = obj->findChildren<QSplitter *>(QString(), Qt::FindDirectChildrenOnly); \
+	foreach (QSplitter *sp, spls) { \
+	sp->restoreState(config.value(obj->objectName() + "/" + sp->objectName(), " ").toByteArray()); } }
 
 #define VNAM(name) (QString(#name) \
 	.replace(QString("->"), QString(".")) \
@@ -145,6 +170,9 @@
 struct ItemStyle;
 struct uID_t;
 
+/* ======================================================================== */
+/*                   Return-with-debug-info macro defines                   */
+/* ======================================================================== */
 /*!
  * do-while() loop is a trick to let you define multi-statement macros and
  * call them like functions. Note the lack of trailing ';'

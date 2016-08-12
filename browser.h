@@ -104,8 +104,8 @@ public:
 	QList<TabView *> *tvs() {
 		return &mTvs;
 	}
-	void QSPLT_RESTORE();
-	void QSPLT_STORE();
+//	void QSPLT_RESTORE();
+//	void QSPLT_STORE();
 
 signals:
 	void stateMsg(const QString &message, const int delay = 0);
@@ -138,12 +138,12 @@ public slots:
 	void onBeforeUpdate(int row, QSqlRecord &record);
 
 protected:
-	void createUi();
+	void createUi(QWidget *passParent = 0);
 
 protected slots:
-	void showEvent(QShowEvent *e);
+	void showEvent(QShowEvent *e) override;
+	void hideEvent(QHideEvent *e) override;
 	bool eventFilter(QObject *obj, QEvent *e);
-	void hideEvent(QShowEvent *);
 
 private slots:
 	//   QAbstractItemModel *createMailModel(QObject *parent);
@@ -165,6 +165,9 @@ private:
 	SortWindow          *filterForm;
 	MDStateBar          *stateBar;
 
+
+	// QWidget interface
+protected:
 };
 
 #endif

@@ -75,22 +75,22 @@ const QString Browser::browserStyleSheet = QString(
 		"}*/");
 #define QFOLDINGEND }
 
-void Browser::QSPLT_RESTORE()   {
-	QSETTINGS
-			QList<QSplitter *> spls = findChildren<QSplitter *>();
+//void Browser::QSPLT_RESTORE()   {
+//	QSETTINGS
+//			QList<QSplitter *> spls = findChildren<QSplitter *>();
 
-	foreach (QSplitter *sp, spls)
-		sp->restoreState(config.value(objectName() + "/" + sp->objectName(), " ").toByteArray());
-}
-void Browser::QSPLT_STORE() {
-	QSETTINGS;
-	QList<QSplitter *> spls = findChildren<QSplitter *>();
+//	foreach (QSplitter *sp, spls)
+//		sp->restoreState(config.value(objectName() + "/" + sp->objectName(), " ").toByteArray());
+//}
+//void Browser::QSPLT_STORE() {
+//	QSettings config;
+//	QList<QSplitter *> spls = findChildren<QSplitter *>();
 
-	foreach (QSplitter *sp, spls) {
-		INFO << objectName() + "/" + sp->objectName();
-		config.setValue(objectName() + "/" + sp->objectName(), sp->saveState());
-	}
-}
+//	foreach (QSplitter *sp, spls) {
+//		INFO << objectName() + "/" + sp->objectName() << sp->saveState();
+//		config.setValue(objectName() + "/" + sp->objectName(), sp->saveState());
+//	}
+//}
 
 
 /* ======================================================================== */
@@ -99,10 +99,10 @@ void Browser::QSPLT_STORE() {
 Browser::Browser(QWidget *parent)
 	: QWidget(parent), cyclicObjInfo(false) {
 	inst = this;
-	setObjectName("browser");
+	setObjectName("Browser");
 
-	createUi();
-	show();
+	createUi(this);
+//	show();
 
 	connect(connectionWidget,	&ConnectionWidget::tableActivated,
 			  this,					&Browser::onConnectionWidgetTableActivated);
@@ -598,20 +598,13 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 	  */
 	return QObject::eventFilter(obj, e);
 }
-void Browser::hideEvent(QShowEvent *) {
-	QSPLT_STORE();
+void Browser::hideEvent(QHideEvent *) {
+	QSPLT_STORE;
 	emit visibilityChanged( false );
 }
 void Browser::showEvent(QShowEvent *) {
-	QSPLT_RESTORE();
+	QSPLT_RESTORE;
 	emit visibilityChanged( true );
-
-	//	QSETTINGS;
-
-	//	foreach (QSplitter *sp, findChildren<QSplitter *>()) {
-	//		QString objn = sp->objectName();
-	//		sp->restoreState(config.value("Browser/" + objn, " ").toByteArray());
-	//	}
 }
 /* ======================================================================== */
 /*                              Init methodes                               */
@@ -633,11 +626,13 @@ void Browser::initializeMdl(QSqlQueryModel *model) {
 	//   mdl->setHeaderData(1, Qt::Horizontal, QObject::tr("clId"));
 	//   mdl->setHeaderData(2, Qt::Horizontal, QObject::tr("subId"));
 }
-void Browser::createUi() {
+void Browser::createUi(QWidget *passParent) {
 	/*!
 	 * Build UI.
 	 */
-	grLay = new QGridLayout(this);
+
+	setStyleSheet(browserStyleSheet);
+	grLay = new QGridLayout(passParent);
 	connectionWidget = new ConnectionWidget();
 
 	tva = new TabView();
@@ -654,13 +649,13 @@ void Browser::createUi() {
 	PONAM(tvl1);
 	PONAM(tvl2);
 
-	splitter = new QSplitter(this);
-	splitter_2 = new QSplitter(this);
-	splitter_3 = new QSplitter(this);
-	splitter_4 = new QSplitter(this);
-	splitter_5 = new QSplitter(this);
-	splitter_6 = new QSplitter(this);
-	splitter_7 = new QSplitter(this);
+	splitter = new QSplitter(passParent);
+	splitter_2 = new QSplitter(passParent);
+	splitter_3 = new QSplitter(passParent);
+	splitter_4 = new QSplitter(passParent);
+	splitter_5 = new QSplitter(passParent);
+	splitter_6 = new QSplitter(passParent);
+	splitter_7 = new QSplitter(passParent);
 
 	PONAM(splitter);
 	PONAM(splitter_2);

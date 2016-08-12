@@ -17,7 +17,7 @@
 #include "locals.h"
 #include "mdstatebar.h"
 #include "tabledelegate.h"
-
+#include "types.h"
 #include "dbcontroller.h"
 
 namespace Ui {
@@ -38,6 +38,18 @@ class MainWindow : public QMainWindow {
    Q_OBJECT
 
 public:
+	/*!
+	 * Enumerations for actionConnection methodes
+	 */
+	enum ConnectReceiver {
+		connectThis = 0x01,
+		connectOthers = 0x02,
+		connectAll = 0x04,
+		connectNone = 0x08,
+	};
+	Q_DECLARE_FLAGS(ConnectReceivers, ConnectReceiver)
+	Q_FLAG(ConnectReceivers)
+
    explicit MainWindow(QWidget *parent = 0);
    ~MainWindow();
 
@@ -46,27 +58,39 @@ signals:
 
 public slots:
    void onBrowseSqlTrig(bool b);
-   void about();
+	void about() {
+		QMessageBox::about(this, tr("About"), tr("The SQL Browser demonstration "
+															  "shows how a data browser can be used to visualize the results of SQL"
+															  "statements on a live database"));
+	}
    void onMenuStyleShtInpFrmTrig(bool b);
    void onMenuStyleShtATrig(bool b);
-   void onActExportTrig();
+	void onActExportTrig() {
+		INFO << "!";
+	}
    void onUnderConstrTrig();
    void onSetFont();
    void initDocks();
    void onActHideSqlQueryTrig();
    void onSetAlterRowColTrig();
    void initializeMdl(QSqlQueryModel *model);
-   void connectActions();
+	void connectActions(ConnectReceiver receivers = connectThis);
    void onCyclic();
 	bool eventFilter(QObject *obj, QEvent *event);
 	void closeEvent(QCloseEvent *e);
 	void showEvent(QShowEvent *e);
 	void onResizerDlgTrig();
-
 	void onInpFrmButtonClick(bool);
+
 protected slots:
    void makeMenuBar();
-   void onActCfgInpFrmTabOrdTrig();
+	void onActCfgInpFrmTabOrdTrig() {
+		emit inpFrm->changeFocusOrder(Qt::FocusChange_init);
+	}
+	void initial();
+	void showEventDelayed();
+	void onActSaveTrig();
+	void onActOpenTrig();
 
 private slots:
 	void onOpenCloseInpFrm(bool onOff);
@@ -89,8 +113,8 @@ private slots:
    }
 
 protected:
-	void initial();
 
+	void restoreAndTriggerActions();
 private:
    Ui::MainWindow *ui;
    static int   fuse;

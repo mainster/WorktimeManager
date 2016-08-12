@@ -29,7 +29,6 @@ enum CompareFlag {
 	CompUnEqual,
 };
 Q_ENUMS(CompareFlag)
-
 }
 
 template<class T>

@@ -75,19 +75,19 @@ QGroupBox::title {
      <property name="title">
       <string>S&amp;tyleSheets</string>
      </property>
-     <addaction name="actButGbStyleShtA"/>
+     <addaction name="actGbStyleShtA"/>
      <addaction name="actGbSShtInpFrm"/>
     </widget>
     <widget class="QMenu" name="menuSchriftfont">
      <property name="title">
       <string>Schriftfont</string>
      </property>
-     <addaction name="actButSelFont"/>
+     <addaction name="actSelFont"/>
     </widget>
     <addaction name="menuS_tyleSheets"/>
     <addaction name="menuSchriftfont"/>
     <addaction name="actSetAlterRowCol"/>
-    <addaction name="actButCyclicObjInfo"/>
+    <addaction name="actCyclicObjInfo"/>
     <addaction name="actResizerDlg"/>
     <addaction name="actHideSqlQuery"/>
     <addaction name="actCfgInpFrmTabOrd"/>
@@ -95,7 +95,7 @@ QGroupBox::title {
     <addaction name="actAutoFitTables"/>
     <addaction name="actFilterTable"/>
     <addaction name="actFilterTableWindow"/>
-    <addaction name="actButClose"/>
+    <addaction name="actClose"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -113,16 +113,16 @@ QGroupBox::title {
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actButNew"/>
-   <addaction name="actButOpen"/>
-   <addaction name="actButSave"/>
-   <addaction name="actButExport"/>
-   <addaction name="actButBrowseSQL"/>
-   <addaction name="actButInpForm"/>
-   <addaction name="actButShowTbl"/>
-   <addaction name="actButDbModMaster"/>
-   <addaction name="actButClose"/>
-   <addaction name="actButUnderConstr"/>
+   <addaction name="actNew"/>
+   <addaction name="actOpen"/>
+   <addaction name="actSave"/>
+   <addaction name="actExport"/>
+   <addaction name="actBrowseSQL"/>
+   <addaction name="actInpForm"/>
+   <addaction name="actShowTbl"/>
+   <addaction name="actDbModMaster"/>
+   <addaction name="actClose"/>
+   <addaction name="actUnderConstr"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
@@ -135,7 +135,7 @@ QGroupBox::title {
     <bool>false</bool>
    </attribute>
   </widget>
-  <action name="actButNew">
+  <action name="actNew">
    <property name="icon">
     <iconset resource="../WorktimeManager.qrc">
      <normaloff>:/images/new.png</normaloff>:/images/new.png</iconset>
@@ -147,7 +147,7 @@ QGroupBox::title {
     <string>Create a new file</string>
    </property>
   </action>
-  <action name="actButOpen">
+  <action name="actOpen">
    <property name="icon">
     <iconset resource="../WorktimeManager.qrc">
      <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
@@ -159,7 +159,7 @@ QGroupBox::title {
     <string>Open an existing file </string>
    </property>
   </action>
-  <action name="actButSave">
+  <action name="actSave">
    <property name="icon">
     <iconset resource="../WorktimeManager.qrc">
      <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
@@ -171,7 +171,7 @@ QGroupBox::title {
     <string>Save the document</string>
    </property>
   </action>
-  <action name="actButExport">
+  <action name="actExport">
    <property name="icon">
     <iconset resource="../WorktimeManager.qrc">
      <normaloff>:/images/export-3.png</normaloff>:/images/export-3.png</iconset>
@@ -183,7 +183,7 @@ QGroupBox::title {
     <string>Export dataset to document</string>
    </property>
   </action>
-  <action name="actButBrowseSQL">
+  <action name="actBrowseSQL">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -198,7 +198,7 @@ QGroupBox::title {
     <string>Browser for SQL database</string>
    </property>
   </action>
-  <action name="actButInpForm">
+  <action name="actInpForm">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -216,7 +216,7 @@ QGroupBox::title {
     <string>Ctrl+C, E</string>
    </property>
   </action>
-  <action name="actButShowTbl">
+  <action name="actShowTbl">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -231,7 +231,7 @@ QGroupBox::title {
     <string>Open work time database table</string>
    </property>
   </action>
-  <action name="actButDbModMaster">
+  <action name="actDbModMaster">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -246,7 +246,7 @@ QGroupBox::title {
     <string>Stammdaten erweitern</string>
    </property>
   </action>
-  <action name="actButClose">
+  <action name="actClose">
    <property name="icon">
     <iconset resource="../WorktimeManager.qrc">
      <normaloff>:/icoDelete</normaloff>:/icoDelete</iconset>
@@ -261,7 +261,7 @@ QGroupBox::title {
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="actButGbStyleShtA">
+  <action name="actGbStyleShtA">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -280,7 +280,7 @@ QGroupBox::title {
     <string>gbStyleShtInpFrm</string>
    </property>
   </action>
-  <action name="actButUnderConstr">
+  <action name="actUnderConstr">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -295,7 +295,7 @@ QGroupBox::title {
     <string>Call an &quot;under construction&quot; widgets</string>
    </property>
   </action>
-  <action name="actButSelFont">
+  <action name="actSelFont">
    <property name="text">
     <string>Schriftfont</string>
    </property>
@@ -303,7 +303,7 @@ QGroupBox::title {
     <string>Font / Schriftart wählen</string>
    </property>
   </action>
-  <action name="actButCyclicObjInfo">
+  <action name="actCyclicObjInfo">
    <property name="checkable">
     <bool>true</bool>
    </property>
