@@ -338,6 +338,10 @@ void MainWindow::createActions() {
 	actHideSqlQuery->setToolTip(tr("Hide or show the input field to submit manuall SQL querys thru database driver backend"));
 	actSetAlterRowCol->setToolTip(tr("Farbe für alternierenden Zeilenhintergund"));
 
+	ui->mainToolBar->
+			addActions(QList<QAction*>()
+						  << actNew << actOpen << actSave << actExport << actBrowseSQL
+						  << actInpForm << actShowTbl << actDbModMaster << actClose);
 }
 void MainWindow::makeMenuBar() {
 	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&File"));
