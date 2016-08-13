@@ -31,14 +31,111 @@ enum CompareFlag {
 Q_ENUMS(CompareFlag)
 }
 
+/* ======================================================================== */
+/*                Resize QList, based on std::vector::resize                */
+/* ======================================================================== */
 template<class T>
 void resizeList(QList<T> & list, int newSize) {
-	 int diff = newSize - list.size();
-	 T t;
-	 if (diff > 0) {
-		  list.reserve(diff);
-		  while (diff--) list.append(t);
-	 } else if (diff < 0) list.erase(list.end() + diff, list.end());
+	int diff = newSize - list.size();
+	T t;
+	if (diff > 0) {
+		list.reserve(diff);
+		while (diff--) list.append(t);
+	} else if (diff < 0) list.erase(list.end() + diff, list.end());
+}
+
+/* ======================================================================== */
+/*                      Cast list of type T to type U                       */
+/* ======================================================================== */
+template<class U, class T>
+QList<U> listCast (QList<T> ts) {
+	QList<U> us;
+	foreach (T t, ts) {
+		us << static_cast<U>(t);
+	}
+	return us;
+}
+
+/* ======================================================================== */
+/*                      Find list element by property.                      */
+/* ======================================================================== */
+template<class T>
+QList<T> listFindByName(QList<T> ts, const QString name) {
+	QList<T> out;
+	foreach (T t, ts) {
+		if (t->objectName().contains(name))
+			out << t;
+	}
+	return out;
+}
+
+/* ======================================================================== */
+/*               Traverse upstairs in parent/child hierarchy                */
+/* ======================================================================== */
+template<class U>
+U *treeTraversation(U *obj, const int steps, bool *ok) {
+	if (ok != NULL)	*ok = true;
+
+	QList<U *> tree;
+	tree << obj;
+
+	for (int n = steps; n > 0; n--) {
+		/*! Check tree against nullptr! */
+		if (! tree.last()) {
+			qDebug().noquote() << QString("Traversation tree out-of-bounds!");
+			tree.removeLast();
+			if (ok != NULL)
+				*ok = false;
+
+			break;
+		}
+		tree << tree.last()->parent();
+	}
+	return tree.last();
+}
+
+/* ======================================================================== */
+/*               Traverse upstairs in parent/child hierarchy                */
+/* ======================================================================== */
+template<class U>
+U *treeTraversation(U *obj, const int steps, bool *ok = NULL) {
+	if (ok != NULL)	*ok = true;
+
+	QList<U *> tree;
+	tree << obj;
+
+	for (int n = steps; n > 0; n--) {
+		/*! Check tree against nullptr! */
+		if (! tree.last()) {
+			qDebug().noquote() << QString("Traversation tree out-of-bounds!");
+			/*!
+			 * If this methode is invoked without valid bool-pointer, we will return the
+			 * input argument pointer as error notification.
+			 */
+			if (ok != NULL) {
+				*ok = false;
+				tree.removeLast();
+			}
+			else {
+				tree.clear();
+				tree << obj;
+			}
+			break;
+		}
+		tree << tree.last()->parent();
+	}
+	return tree.last();
+}
+
+/* ======================================================================== */
+/*                            under construction                            */
+/* ======================================================================== */
+template<class T>
+QList<QString> listObjectNames (QList<T> ts/*, const QString methodeName*/) {
+	QList<QString> l;
+	foreach (T t, ts)
+		l << t->objectName();
+	return l;
 }
 
 template<class T>
@@ -51,40 +148,6 @@ QString listToString(QList<T> list, int fieldwidth = 1, int base = 10,
 	return (appendLength)
 			? s.join(joinSep) + QString(" [length: %1]").arg(s.length())
 			: s.join(joinSep);
-}
-
-template<class U, class T>
-QList<U> listCast (QList<T> ts) {
-	QList<U> us;
-	foreach (T t, ts) {
-		us << static_cast<U>(t);
-	}
-	return us;
-}
-
-/*!
- * Find list element by property.
- */
-template<class T>
-QList<T> listFindByName(QList<T> ts, const QString name) {
-	QList<T> out;
-	foreach (T t, ts) {
-		if (t->objectName().contains(name))
-			out << t;
-	}
-	return out;
-}
-
-
-/* ======================================================================== */
-/*                            under construction                            */
-/* ======================================================================== */
-template<class T>
-QList<QString> listObjectNames (QList<T> ts/*, const QString methodeName*/) {
-	QList<QString> l;
-	foreach (T t, ts)
-		l << t->objectName();
-	return l;
 }
 
 /* ======================================================================== */
@@ -204,7 +267,7 @@ public:
 			return QModelIndexList();
 		}
 
-//		INFO << mRange.isEmpty() << mSelection.isEmpty() << mIndexList.isEmpty();
+		//		INFO << mRange.isEmpty() << mSelection.isEmpty() << mIndexList.isEmpty();
 
 		if (! mRange.isEmpty())
 			return mRange.indexes();
@@ -215,7 +278,7 @@ public:
 		if (! mIndexList.isEmpty())
 			return mIndexList;
 
-//		WARN << QString("%1(%2): This line should never be reached").arg(__FILE__).arg(__LINE__);
+		//		WARN << QString("%1(%2): This line should never be reached").arg(__FILE__).arg(__LINE__);
 		return QModelIndexList();
 	}
 	void debug(int verbosLevel = -1) const;

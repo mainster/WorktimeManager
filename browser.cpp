@@ -3,13 +3,7 @@
 #define T_CYCLIC 250e-3
 #define	COMMENT_OUT_UNUSED
 
-#define TVA    "TableLeft"
-#define TVB    "TableCenter"
-#define TVC    "TableRight"
-#define TVD    "TableBottom"
-#define TVL2   "TableLong1"
-#define TVL1   "TableLong2"
-
+Browser::mTvs Browser::mTvs = Browser::mTvs();
 Browser *Browser::inst = 0;
 #define QFOLDINGSTART {
 const QString Browser::browserStyleSheet = QString(
@@ -503,35 +497,21 @@ void Browser::onCyclic() {
 bool Browser::eventFilter(QObject *obj, QEvent *e) {
 
 	if (e->type() == QEvent::MouseButtonPress) {
-		INFO << obj->metaObject()->className();
-		INFO << obj->parent()->metaObject()->className();
-		INFO << static_cast<TabView *>(obj)->metaObject()->className();
-		INFO << static_cast<TabView *>(obj->parent())->metaObject()->className();
-		INFO << obj->children();
-		INFO << obj->parent()->children();
-		INFO << obj->parent()->parent()->children();
-		INFO << obj->parent()->parent()->parent()->children();
-		INFO << obj->parent()->parent()->parent()->parent()->children();
 
 		QList<QString> objNames;
 		QString tableNames =
 				((QStringList) TVA << TVB << TVC << TVD << TVL1 << TVL2).join(',');
 
-		QObject *_obj = obj->parent();
-		INFO << _obj->parent()->parent()->parent()->parent()->children();
 
-		for (int k = 5; k > 0; k--) {
-			INFO << _obj->children();
+		bool ok;
 
-			foreach (QObject *o, _obj->children())
-				if (tableNames.contains(o->objectName()))
-					break;
-				else
-					_obj = _obj->parent();
-		}
+		INFO << obj->children();
+		INFO << treeTraversation<QObject>(obj, 2)->children();
+		INFO << treeTraversation<QObject>(obj, 3)->children();
+		INFO << treeTraversation<QObject>(obj, 4)->children();
+		INFO << treeTraversation<QObject>(obj, 44, &ok)->children();
 
-
-//		QWidget *widget = qApp->widgetAt(QCursor::pos());
+		INFO << ok;
 
 		/*!
 		 * Maybe the sender is a viewport? Try it..
@@ -781,8 +761,6 @@ void Browser::createUi(QWidget *passParent) {
 		tv->grBox()->installEventFilter( this );
 		tv->tv()->viewport()->installEventFilter( this );
 		tv->grBox()->setObjectName("gb");
-
-
 
 		/*!
 		  * Connect TabView Signals/Slots

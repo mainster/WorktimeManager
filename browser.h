@@ -76,11 +76,39 @@ class ConnectionWidget;
  * \author [your name]
  * \date
  */
+
+
+//#define TVA    "TableLeft"
+//#define TVB    "TableCenter"
+//#define TVC    "TableRight"
+//#define TVD    "TableBottom"
+//#define TVL2   "TableLong1"
+//#define TVL1   "TableLong2"
+
+
+//TVA  = "TableLeft",
+//TVB  = "TableCenter",
+//TVC  = "TableRight",
+//TVD  = "TableBottom",
+//TVL2 = "TableLong1",
+//TVL1 = "TableLong2";
+
 class Browser : public QWidget {
 
 	Q_OBJECT
 
 public:
+	static struct mTvs {
+		QList<TabView *>  obj;
+		QList<QString *>  name;
+		QString TVA, TVB, TVC, TVD, TVL1, TVL2;
+
+		mTvs() :
+			TVA(QString("TableLeft")), TVB(QString("TableCenter")),
+			TVC(QString("TableRight")), TVD(QString("TableBottom")),
+			TVL2(QString("TableLong1")), TVL1(QString("TableLong2")) {	}
+	} mTvs;
+
 	static const QString browserStyleSheet;
 
 	explicit Browser(QWidget *parent = 0);
@@ -158,7 +186,6 @@ private:
 
 
 	//    Ui::Browser         *ui;
-	QList<TabView *>  mTvs;
 	QTimer              *timCyc;
 	bool					cyclicObjInfo;
 	SfiltMdl			*proxyModel;
