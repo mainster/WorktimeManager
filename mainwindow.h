@@ -36,7 +36,7 @@ QT_FORWARD_DECLARE_CLASS(QSqlError)
 /*                             class MainWindow                             */
 /* ======================================================================== */
 class MainWindow : public QMainWindow {
-   Q_OBJECT
+	Q_OBJECT
 
 public:
 	/*!
@@ -51,40 +51,40 @@ public:
 	Q_DECLARE_FLAGS(ConnectReceivers, ConnectReceiver)
 	Q_FLAG(ConnectReceivers)
 
-   explicit MainWindow(QWidget *parent = 0);
-   ~MainWindow();
+	explicit MainWindow(QWidget *parent = 0);
+	~MainWindow();
 
 signals:
 
 public slots:
-   void onBrowseSqlTrig(bool b);
+	void onBrowseSqlTrig(bool b);
 	void about() {
-		QMessageBox::about(this, tr("About"), tr("The SQL Browser demonstration "
-															  "shows how a data browser can be used to visualize the results of SQL"
-															  "statements on a live database"));
+		QMessageBox::about
+				(this, tr("About"),
+				 tr("The SQL Browser demonstration shows how a data browser"
+					 "can be used to visualize the results of SQL statements"
+					 "on a live database"));
 	}
-   void onMenuStyleShtInpFrmTrig(bool b);
-   void onMenuStyleShtATrig(bool b);
+	void onMenuStyleShtInpFrmTrig(bool b);
+	void onMenuStyleShtATrig(bool b);
 	void onActExportTrig() {
 		INFO << "!";
 	}
-   void onUnderConstrTrig();
-   void onSetFont();
-   void initDocks();
-   void onActHideSqlQueryTrig();
-   void onSetAlterRowColTrig();
-   void initializeMdl(QSqlQueryModel *model);
+	void onUnderConstrTrig();
+	void onSetFont();
+	void initDocks();
+	void onActHideSqlQueryTrig();
+	void onSetAlterRowColTrig();
 	void connectActions(ConnectReceiver receivers = connectThis);
-   void onCyclic();
+	void onCyclic();
 	void onResizerDlgTrig();
 	void onInpFrmButtonClick(bool);
 
 protected slots:
-   void makeMenuBar();
+	void makeMenuBar();
 	void onActCfgInpFrmTabOrdTrig() {
 		emit inpFrm->changeFocusOrder(Qt::FocusChange_init);
 	}
-	void initial();
 	void onActSaveTrig();
 	void onActOpenTrig();
 	bool restoreActionObjects();
@@ -92,22 +92,7 @@ protected slots:
 private slots:
 	void onOpenCloseInpFrm(bool onOff);
 	void onTblOpen(bool);
-   void onActCloseTrig();
-//   void restoreMainWindowGeometry() {
-//      QSETTINGS;
-//      restoreGeometry( config.value(this->objectName() +
-//                                    "/Geometry", " ").toByteArray() );
-//   }
-//   void saveMainWindowGeometry() {
-//      QSETTINGS;
-//      config.setValue(this->objectName() +
-//                      "/Geometry", this->saveGeometry());
-//   }
-//   void restoreMainWindowState() {
-//      QSETTINGS;
-//      restoreState( config.value(this->objectName() +
-//                                    "/State", " ").toByteArray() );
-//   }
+	void onActCloseTrig();
 
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
@@ -116,15 +101,15 @@ protected:
 	void closeEvent(QCloseEvent *e);
 
 private:
-   Ui::MainWindow *ui;
-   static int   fuse;
-   Browser      *browser;
-   InpFrm       *inpFrm;
-   QMenu        *cfgMenu;
-   QWidget      *wid;
-   MDStateBar   *stateBar;
-   SortWindow   *sortwindow;
-   QMenu        *mBar;
+	Ui::MainWindow *ui;
+	static int   fuse;
+	Browser      *browser;
+	InpFrm       *inpFrm;
+	QMenu        *cfgMenu;
+	QWidget      *wid;
+	MDStateBar   *stateBar;
+	SortWindow   *sortwindow;
+	QMenu        *mBar;
 	DbController *mDbc;
 
 

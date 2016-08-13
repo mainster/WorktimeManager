@@ -22,10 +22,10 @@ InpFrm::InpFrm(QWidget *parent) :
     ui->gbSqlQuery->hide();
     this->setFixedHeight(125);
 
-    WIN_RESTORE(this);
+//    WIN_RESTORE(this);
 
     initComboboxes();
-    restoreTabOrder();
+//    restoreTabOrder();
 
     //	ui->gboxWorker->hide();
     /* ======================================================================== */
@@ -689,6 +689,8 @@ void InpFrm::hideEvent(QShowEvent *) {
 
 }
 void InpFrm::showEvent(QShowEvent *) {
+	update();
+	updateGeometry();
     mEscapeTrigger = false;
     //	mapCbTableProxy();
 }

@@ -492,17 +492,30 @@ void Browser::onCyclic() {
 		}
 	}
 }
-
-/*! Notify signal via proberty class */
 void Browser::onTvSelectorChanged() {
+	/*! Notify signal via proberty class */
+	INFO << tr("m_tvSelector:") << tvSelector();
 	/**** Safe all action states from Browser
 	\*/
 	ACTION_STORE(this);
 }
+void Browser::onActMenuTrigd(bool state) {
+	Q_UNUSED(state)
 
-void Browser::onActMenuTrigd(bool state = false) {
-	INFO << sender() << sender()->objectName();
-	INFO << qobject_cast<QAction *>(sender())->text();
+	QAction *actSender = qobject_cast<QAction *>(sender());
+	QList<QActionGroup *> muGroups = browsMenu->findChildren<QActionGroup *>();
+
+	if (false) {
+		INFO << actSender->objectName()
+			  << tr("%1").arg(actSender->text())
+			  << actSender->isChecked();
+	}
+
+	/*! Find actSenders corresponding action group */
+	if (muGroups.at( muGroups.indexOf(actSender->actionGroup()) )
+		 ->objectName().contains(tr("muGrSel"))) {
+		setTvSelector(actSender->data().value<TvSelector>());
+	}
 }
 /* ======================================================================== */
 /*                              Event handler                               */
@@ -578,17 +591,15 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 	  */
 	return QObject::eventFilter(obj, e);
 }
-void Browser::showEvent(QShowEvent *e) {
-	QSPLT_RESTORE;
+void Browser::showEvent(QShowEvent *) {
+	SPLT_RESTORE(this);
 	emit visibilityChanged( true );
-	QWidget::showEvent( e );
 }
-void Browser::hideEvent(QHideEvent *e) {
-	QSPLT_STORE;
+void Browser::hideEvent(QHideEvent *) {
+	SPLT_STORE(this);
 	emit visibilityChanged( false );
-	QWidget::hideEvent( e );
 }
-void Browser::closeEvent(QCloseEvent *e) {
+void Browser::closeEvent(QCloseEvent *) {
 	QSETTINGS;
 
 	/**** Write splitter sizes to config
@@ -602,63 +613,81 @@ void Browser::closeEvent(QCloseEvent *e) {
 
 	/**** Safe all action states from Browser
 	\*/
-	ACTION_STORE(this);
+	QList<QAction *> acts;
 
-	QWidget::closeEvent( e );
+	acts = findChildren<QAction *>();
+	foreach (QAction *act, acts) {
+		if (act->objectName().isEmpty())
+			continue;
+		config.setValue(objectName() + "/" + act->objectName(), act->isChecked());
+	}
+
+	acts.clear();
+	acts = browsMenu->findChildren<QAction *>();
+	foreach (QAction *act, acts)
+		config.setValue(browsMenu->objectName() + "/" + act->objectName(), act->isChecked());
+
+	config.setValue(objectName() + tr("/actionCtr"), acts.length());
+	config.sync();
+
+//	ACTION_STORE(this);
+//	ACTION_STORE(browsMenu);
 }
 /* ======================================================================== */
 /*                              Init methodes                               */
 /* ======================================================================== */
 QMenu *Browser::menuBarElement() {
-	QMenu *muBrowser = new QMenu(tr("Browser"));
-	QMenu *tvSelCfg = muBrowser->addMenu(tr("Table selector config"));
+	browsMenu = new QMenu(tr("Browser"));
+	QMenu *tvSelCfgMu = browsMenu->addMenu(tr("Table selector config"));
 
-	QAction *selByGrBx,
-			*selByVport,
-			*actSep_1;
+	QActionGroup *muGrSel = new QActionGroup(browsMenu),
+			*muGrAct = new QActionGroup(browsMenu);
 
-	selByGrBx = tvSelCfg->addAction("Select by Group Box", this, &Browser::onActMenuTrigd);
-	selByVport= tvSelCfg->addAction("Select by View Port", this, &Browser::onActMenuTrigd);
-	actSep_1 = tvSelCfg->addSeparator();
-	selByGrBx->setCheckable(true);
-	selByVport->setCheckable(true);
+	QAction *muSelByNone = tvSelCfgMu->addAction("Select by None", this, &Browser::onActMenuTrigd),
+			*muSelByGrBx = tvSelCfgMu->addAction("Select by Group Box", this, &Browser::onActMenuTrigd),
+			*muSelByVport = tvSelCfgMu->addAction("Select by View Port", this, &Browser::onActMenuTrigd),
+			*muSelByBoth = tvSelCfgMu->addAction("Select by Both", this, &Browser::onActMenuTrigd),
+			*muSep_1 = tvSelCfgMu->addSeparator();
+	muSelByNone->setData(QVariant::fromValue(TvSelector::selectByNone));
+	muSelByGrBx->setData(QVariant::fromValue(TvSelector::selectByGroupBox));
+	muSelByVport->setData(QVariant::fromValue(TvSelector::selectByViewPort));
+	muSelByBoth->setData(QVariant::fromValue(TvSelector::selectByBoth));
+	muGrSel->addAction(PONAM(muSelByNone));
+	muGrSel->addAction(PONAM(muSelByGrBx));
+	muGrSel->addAction(PONAM(muSelByVport));
+	muGrSel->addAction(PONAM(muSelByBoth));
+	muGrSel->addAction(PONAM(muSep_1));
 
-	QMenu *setTvCnt = muBrowser->addMenu(tr("Table View count config"));
-	QActionGroup *gact = new QActionGroup(this);
+	foreach (QAction *act, muGrSel->actions())
+		act->setCheckable(true);
+	muGrSel->setExclusive(true);
+
+	/* ======================================================================== */
+
+	QMenu *setTvCntMu = browsMenu->addMenu(tr("Table View count config"));
 
 	for (int k = 3; k < 9; k++) {
-		gact->addAction(setTvCnt->addAction(tr(" %1 ").arg(k), this, &Browser::onActMenuTrigd));
-		gact->actions().last()->setCheckable(true);
+		muGrAct->addAction(setTvCntMu->addAction(tr(" %1 ").arg(k), this, &Browser::onActMenuTrigd));
+		muGrAct->actions().last()->setCheckable(true);
+		muGrAct->actions().last()->setObjectName(tr("muTvsN_%1").arg(k));
 	}
-	gact->setExclusive(true);
-	gact->actions().at(gact->actions().length() -2 )->setChecked(true);
+	muGrAct->setExclusive(true);
 
-	QAction *actSep_2	= setTvCnt->addSeparator();
-	return muBrowser;
-}
-void Browser::initializeMdl(QSqlQueryModel *model) {
-	QSqlDatabase pDb = connectionWidget->currentDatabase();
-	model->setQuery("select * from worker", pDb);
-	model->setHeaderData(0, Qt::Horizontal, QObject::tr("workerID"));
-	model->setHeaderData(1, Qt::Horizontal, QObject::tr("Nachname"));
-	model->setHeaderData(2, Qt::Horizontal, QObject::tr("Vorname"));
-	INFO << model->lastError().databaseText();
-	INFO << model->lastError().driverText();
-	INFO << model->lastError();
+	QAction *muSep_2	= setTvCntMu->addSeparator();
+	muGrAct->addAction(PONAM(muSep_2));
 
-	////   mdl->setQuery("SELECT prjID, clientID, SubID, Beschreibung, Kurzform "
-	////                 "FROM prj", pDb);
-	//   mdl->setQuery("SELECT * FROM prj");
-	//   mdl->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
-	//   mdl->setHeaderData(1, Qt::Horizontal, QObject::tr("clId"));
-	//   mdl->setHeaderData(2, Qt::Horizontal, QObject::tr("subId"));
+	PONAM(muGrSel);
+	PONAM(muGrAct);
+	PONAM(tvSelCfgMu);
+	PONAM(setTvCntMu);
+
+	return browsMenu;
 }
 void Browser::createUi(QWidget *passParent) {
 	/*!
 	 * Build UI.
 	 */
 
-	setStyleSheet(browserStyleSheet);
 	grLay = new QGridLayout(passParent);
 	connectionWidget = new ConnectionWidget();
 

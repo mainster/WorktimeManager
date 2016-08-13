@@ -19,15 +19,15 @@ class TabView : public QWidget {
 
 	Q_OBJECT
 	Q_PROPERTY(bool activeSelection READ isActiveSelected WRITE setActiveSelected)
-	Q_PROPERTY(bool selected READ isSelected WRITE setSelected)
+//	Q_PROPERTY(bool selected READ isSelected WRITE setSelected)
 
 public:
 	static QString tvStyleSheet;
 	bool isActiveSelected()						{ return m_activeSelected; };
 	void setActiveSelected(bool value)		{ m_activeSelected = value; };
-	void clearActiveSelected()					{ m_activeSelected = false; };
-	bool isSelected()								{ return m_selected; };
-	void setSelected(bool selected)			{ m_selected = selected; };
+//	void clearActiveSelected()					{ m_activeSelected = false; };
+//	bool isSelected()								{ return m_selected; };
+//	void setSelected(bool selected)			{ m_selected = selected; };
 
 	explicit TabView(QWidget *parent = 0);
 	~TabView();

@@ -15,13 +15,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	connectActions(connectThis);
 
 	QSETTINGS_INIT; QSETTINGS;
-	initDocks();
+//	initDocks();
+
 
 	stateBar		= new MDStateBar( this );
-	browser		= new Browser( this );
+	browser		= new Browser( parent );
 	mDbc			= new DbController(this);
 	inpFrm		= new InpFrm( this );
 	sortwindow  = new SortWindow( parent );
+
+	setStyleSheet(browser->browserStyleSheet);
 
 	stateBar->setClockVisible(true);
 	setStatusBar( stateBar );
@@ -150,12 +153,6 @@ void MainWindow::onMenuStyleShtInpFrmTrig(bool b) {
 	//   }
 }
 void MainWindow::onUnderConstrTrig() {
-	QSqlQueryModel plainMdl;
-
-	//   EditableSqlMdl editableMdl;
-	initializeMdl( &plainMdl );
-	//   createView( &plainMdl, QObject::tr("plainMdl Query Model"));
-	return;
 
 #define QFOLDINGSTART {
 
@@ -196,7 +193,9 @@ void MainWindow::onCyclic() {
 }
 void MainWindow::onActCloseTrig() {
 	//    qApp->closeAllWindows();
-	this->close();
+	browser->close();
+	inpFrm->close();
+	close();
 }
 void MainWindow::onActSaveTrig() {
 	//	QSETTINGS;
@@ -261,7 +260,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	\*/
 	ACTION_STORE(this);
 
-	QWidget::closeEvent( e );
+//	QWidget::closeEvent( e );
 }
 /* ======================================================================== */
 /*									    Init methodes										    */
@@ -332,8 +331,6 @@ bool MainWindow::restoreActionObjects () {
 	//		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
 
 	return returnState;
-}
-void MainWindow::initial() {
 }
 void MainWindow::makeMenuBar() {
 	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&File"));
@@ -413,43 +410,7 @@ void MainWindow::initDocks() {
 
 	addDockWidget(dockArea, inpFrm);
 }
-void MainWindow::initializeMdl(QSqlQueryModel *model) {
-	QSETTINGS;
-	QSqlDatabase pDb = browser->getCurrentDatabase();
-	QString queryStr =
-			config.value("InpFrm/default_worktime_query_plain").toString();
 
-	model->setQuery(QSqlQuery(queryStr, pDb));
-	model->setHeaderData(0, Qt::Horizontal, QObject::tr("workerID"));
-	model->setHeaderData(1, Qt::Horizontal, QObject::tr("Nachname"));
-	model->setHeaderData(2, Qt::Horizontal, QObject::tr("Vorname"));
-	INFO << config.value("InpFrm/default_worktime_query_plain").toString();
-
-
-	////   mdl->setQuery("SELECT prjID, clientID, SubID, Beschreibung, Kurzform "
-	////                 "FROM prj", pDb);
-	//   mdl->setQuery("SELECT * FROM prj");
-	//   mdl->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
-	//   mdl->setHeaderData(1, Qt::Horizontal, QObject::tr("clId"));
-	//   mdl->setHeaderData(2, Qt::Horizontal, QObject::tr("subId"));
-
-
-	{
-		//QTableView* MainWindow::createView(QSqlQueryModel *model,
-		//                                const QString &title) {
-		//   QTableView *view = new QTableView(0);
-		//   view->setModel(model);
-		//   static int offset = 0;
-
-		//   view->setWindowTitle(title);
-		//   view->move(100 + offset, 100 + offset);
-		//   offset += 20;
-		//   view->show();
-
-		//   return view;
-		//
-	}
-}
 
 
 

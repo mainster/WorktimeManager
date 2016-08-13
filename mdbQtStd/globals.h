@@ -126,11 +126,9 @@
 	config.sync(); \
 	}
 #define     ACTION_STORE(obj) { QSETTINGS; \
-	QList<QAction *> acts = /*obj->*/findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly); \
+	QList<QAction *> acts = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly); \
 	foreach (QAction *act, acts) \
 	config.setValue(obj->objectName() + "/" + act->objectName(), act->isChecked()); \
-	\
-	config.setValue(obj->objectName() + "/" + "actionCtr", acts.length()); \
 	config.sync(); \
 }
 #define     ACTION_RESTORE(obj) { QSETTINGS; \

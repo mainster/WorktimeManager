@@ -71,8 +71,7 @@ class ConnectionWidget;
 class Browser : public QWidget {
 
 	Q_OBJECT
-	Q_PROPERTY(TvSelector tvSelector READ tvSelector WRITE setTvSelector NOTIFY tvSelectorChanged)
-	Q_ENUMS(TvSelector)
+	Q_PROPERTY(TvSelectors tvSelector READ tvSelector WRITE setTvSelector NOTIFY tvSelectorChanged)
 
 public:
 	enum TvSelector {
@@ -85,8 +84,10 @@ public:
 	Q_DECLARE_FLAGS(TvSelectors, TvSelector)
 	Q_FLAG(TvSelectors)
 
-	TvSelector tvSelector() const { return m_tvSelector; }
-	void setTvSelector(const TvSelector &tvSelector) { m_tvSelector = tvSelector; }
+
+
+	TvSelectors tvSelector() const { return m_tvSelector; }
+	void setTvSelector(TvSelectors tvSelector) { m_tvSelector = tvSelector; }
 
 	/* ======================================================================== */
 	/*                Public structure to deal with table data!                 */
@@ -168,7 +169,6 @@ public slots:
 	void requeryWorktimeTableView(QString nonDefaulQuery = "");
 	void showRelatTable(const QString &tNam, TabView *tvc);
 	QTableView *createView(QSqlQueryModel *model, const QString &title);
-	void initializeMdl(QSqlQueryModel *model);
 	QSqlDatabase getCurrentDatabase() {
 		return connectionWidget->currentDatabase();
 	}
@@ -186,7 +186,7 @@ protected slots:
 	bool eventFilter(QObject *obj, QEvent *e);
 	void closeEvent(QCloseEvent *e);
 	void onTvSelectorChanged();
-	void onActMenuTrigd(bool state);
+	void onActMenuTrigd(bool state = false);
 
 private:
 	static Browser		*inst;
@@ -197,15 +197,15 @@ private:
 	SfiltMdl				*proxyModel;
 	SortWindow			*filterForm;
 	MDStateBar			*stateBar;
-	TvSelector			m_tvSelector;
+	QMenu					*browsMenu;
+	TvSelectors			m_tvSelector;
 	QSplitter	*splitter, *splitter_2, *splitter_3,
 	*splitter_4, *splitter_5, *splitter_6, *splitter_7;
 public:
 	static const QString browserStyleSheet;
 };
 
-
 Q_DECLARE_OPERATORS_FOR_FLAGS(Browser::TvSelectors)
-
+Q_DECLARE_METATYPE(Browser::TvSelector)
 #endif
 
