@@ -7,6 +7,7 @@
 #include <QtSql>
 #include <QSqlError>
 #include <QtWidgets>
+#include <QMenu>
 
 #include "ui_dbconndlg.h"
 #include "browser.h"

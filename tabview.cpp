@@ -52,13 +52,13 @@ void TabView::refreshView() {
     this->update();
 }
 QAction *TabView::fieldStrategyAction() const {
-    return tblActs[ tblActs.indexOf(ui->fieldStrategyAction) ];
+	 return tblActs[ tblActs.indexOf(actFieldStrategy) ];
 }
 QAction *TabView::rowStrategyAction() const {
-    return tblActs[ tblActs.indexOf(ui->rowStrategyAction) ];
+	 return tblActs[ tblActs.indexOf(actRowStrategy) ];
 }
 QAction *TabView::manualStrategyAction() const {
-    return tblActs[ tblActs.indexOf(ui->manualStrategyAction) ];
+	 return tblActs[ tblActs.indexOf(actManualStrategy) ];
 }
 QList<QAction *> TabView::getTblActs() const
 {

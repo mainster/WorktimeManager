@@ -56,8 +56,6 @@
 #include "tabview.h"
 #include "connectionwidget.h"
 
-//#include "ui_browser.h"
-
 
 namespace Ui {
 class Browser;
@@ -66,40 +64,33 @@ class Browser;
 class TabView;
 class ConnectionWidget;
 
-/*!
- * \class [class name]
- *
- * \brief [brief description]
- *
- * [detailed description]
- *
- * \author [your name]
- * \date
- */
 
-
-//#define TVA    "TableLeft"
-//#define TVB    "TableCenter"
-//#define TVC    "TableRight"
-//#define TVD    "TableBottom"
-//#define TVL2   "TableLong1"
-//#define TVL1   "TableLong2"
-
-
-//TVA  = "TableLeft",
-//TVB  = "TableCenter",
-//TVC  = "TableRight",
-//TVD  = "TableBottom",
-//TVL2 = "TableLong1",
-//TVL1 = "TableLong2";
-
+/* ======================================================================== */
+/*                      class Browser : public QWidget                      */
+/* ======================================================================== */
 class Browser : public QWidget {
 
 	Q_OBJECT
+	Q_PROPERTY(TvSelector tvSelector READ tvSelector WRITE setTvSelector NOTIFY tvSelectorChanged)
+	Q_ENUMS(TvSelector)
 
 public:
+	enum TvSelector {
+		selectByNone = 0x01,
+		selectByViewPort = 0x02,
+		selectByGroupBox = 0x04,
+		selectByBoth = selectByViewPort | selectByGroupBox,
+		empty = 0x10,
+	};
+	Q_DECLARE_FLAGS(TvSelectors, TvSelector)
+	Q_FLAG(TvSelectors)
 
-	/*! Public structure to deal with table data! */
+	TvSelector tvSelector() const { return m_tvSelector; }
+	void setTvSelector(const TvSelector &tvSelector) { m_tvSelector = tvSelector; }
+
+	/* ======================================================================== */
+	/*                Public structure to deal with table data!                 */
+	/* ======================================================================== */
 	struct mTabs_t {
 		/*! Constructor */
 		mTabs_t() :
@@ -129,8 +120,8 @@ public:
 		QList<TabView *>  mTvs;
 	};
 	static struct mTabs_t mTabs;
-
-	static const QString browserStyleSheet;
+	/* ======================================================================== */
+	static QString tvStyleSheet;
 
 	explicit Browser(QWidget *parent = 0);
 	static Browser *instance(QWidget *parent = 0x00) {
@@ -153,14 +144,13 @@ public:
 	QList<TabView *> *tvs() {
 		return mTabs.tvs();
 	}
-//	void QSPLT_RESTORE();
-//	void QSPLT_STORE();
 
 signals:
 	void stateMsg(const QString &message, const int delay = 0);
 	void tabViewSelChanged(TabView *sel);
 	void visibilityChanged(bool b);
 	void updateActions();
+	void tvSelectorChanged();
 
 public slots:
 	void showMetaData(const QString &table);
@@ -185,39 +175,37 @@ public slots:
 	void autofitRowCol();
 	void onActFilterForm(bool b);
 	void onBeforeUpdate(int row, QSqlRecord &record);
+	QMenu *menuBarElement();
 
-protected:
+ protected:
 	void createUi(QWidget *passParent = 0);
 
 protected slots:
 	void showEvent(QShowEvent *e) override;
 	void hideEvent(QHideEvent *e) override;
 	bool eventFilter(QObject *obj, QEvent *e);
-//	void mousePressEvent(QMouseEvent *e) override;
-private slots:
-	//   QAbstractItemModel *createMailModel(QObject *parent);
+	void closeEvent(QCloseEvent *e);
+	void onTvSelectorChanged();
+	void onActMenuTrigd(bool state);
 
 private:
-	static Browser      *inst;
-	ConnectionWidget *connectionWidget;
-	QGridLayout *grLay;
-
-	QSplitter *splitter, *splitter_2, *splitter_3, *splitter_4,
-	*splitter_5, *splitter_6, *splitter_7;
-
-
-	//    Ui::Browser         *ui;
-	QTimer              *timCyc;
+	static Browser		*inst;
+	ConnectionWidget	*connectionWidget;
+	QGridLayout			*grLay;
+	QTimer				*timCyc;
 	bool					cyclicObjInfo;
-	SfiltMdl			*proxyModel;
-	SortWindow          *filterForm;
-	MDStateBar          *stateBar;
-
-
-	// QWidget interface
-protected:
-	void closeEvent(QCloseEvent *e);
+	SfiltMdl				*proxyModel;
+	SortWindow			*filterForm;
+	MDStateBar			*stateBar;
+	TvSelector			m_tvSelector;
+	QSplitter	*splitter, *splitter_2, *splitter_3,
+	*splitter_4, *splitter_5, *splitter_6, *splitter_7;
+public:
+	static const QString browserStyleSheet;
 };
+
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Browser::TvSelectors)
 
 #endif
 

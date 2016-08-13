@@ -78,9 +78,10 @@ Browser::Browser(QWidget *parent)
 	setObjectName("Browser");
 
 	createUi(this);
-
 	connect(connectionWidget,	&ConnectionWidget::tableActivated,
 			  this,					&Browser::onConnectionWidgetTableActivated);
+
+	connect(this, &Browser::tvSelectorChanged, this, &Browser::onTvSelectorChanged);
 
 	if (QSqlDatabase::drivers().isEmpty()) {
 		QMessageBox::information
@@ -491,30 +492,52 @@ void Browser::onCyclic() {
 		}
 	}
 }
+
+/*! Notify signal via proberty class */
+void Browser::onTvSelectorChanged() {
+	/**** Safe all action states from Browser
+	\*/
+	ACTION_STORE(this);
+}
+
+void Browser::onActMenuTrigd(bool state = false) {
+	INFO << sender() << sender()->objectName();
+	INFO << qobject_cast<QAction *>(sender())->text();
+}
 /* ======================================================================== */
 /*                              Event handler                               */
 /* ======================================================================== */
 bool Browser::eventFilter(QObject *obj, QEvent *e) {
 
 	if (e->type() == QEvent::MouseButtonPress) {
-		bool ok;
-
 		TabView *tv = NULL;
 
 		foreach (TabView *_tv, mTabs.tvsNoPtr())
-			if ((_tv->tv()->viewport() == obj) ||
-				 (_tv->grBox() == obj)) {
-				tv = _tv;
-				break;
+			switch (tvSelector()) {
+				case selectByViewPort: {
+					if (_tv->tv()->viewport() == obj)
+						tv = _tv;
+				}; break;
+
+				case selectByGroupBox: {
+					if (_tv->grBox() == obj)
+						tv = _tv;
+				}; break;
+
+				case selectByBoth: {
+					if ((_tv->grBox() == obj) ||
+						 (_tv->tv()->viewport() == obj))
+						tv = _tv;
+				}; break;
+
+				default:	break;
 			}
 
-		INFO << tv;
-		INFO << obj << obj->metaObject()->className();
 
 		if (tv != NULL) {
 			if (mTabs.tvIds().join(',').contains(tv->objectName())) {
 
-			/**
+				/**
 			 * Unselect if view was selected earlier
 			 */
 				if (QVariant(tv->grBox()->property("select")).toBool()) {
@@ -531,92 +554,6 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 			}
 			else {
 				INFO << tr("event receiver obj has NON of the known table names!  ");
-			}
-		}
-
-		/*!
-		 * Maybe the sender is a viewport? Try it..
-		 * QWidget(0xb9fee0, name = qt_scrollarea_viewport) qt_scrollarea_viewport mtv gb
-		 */
-		QList<TabView *> tvcs;
-		QList<QGroupBox *> gbcs;
-
-		/*!
-		 * Tree traverse upstairs until we find a expected child but max. N stairs
-		 */
-		for (int n = 2; n < 8; n++) {
-			tvcs = listCast<TabView *>(treeTravers<QObject>(obj, n, &ok)->children(), true);
-			gbcs = listCast<QGroupBox *>(treeTravers<QObject>(obj, n, &ok)->children(), true);
-			if ((! ok) || (tvcs.length() != 0) || (gbcs.length() != 0))
-				break;
-		}
-
-		if (tvcs.length() >= 2) {
-			foreach (TabView *tv, tvcs)
-				if (tv->tv()->viewport() != obj)
-					tvcs.removeOne(tv);
-		}
-
-		if (gbcs.length() >= 2) {
-			foreach (QGroupBox *gb, gbcs)
-				if (gb != obj)
-					gbcs.removeOne(gb);
-		}
-
-		if (tvcs.length() == 1) {
-			foreach (TabView *tv, tvcs) {
-				if (mTabs.tvIds().join(',').contains(tv->objectName())) {
-
-					/**
-					 * Unselect if view was selected earlier
-					 */
-					if (QVariant(tv->grBox()->property("select")).toBool()) {
-						tv->grBox()->setProperty("select", false);
-						emit tabViewSelChanged( 0 );
-					}
-					else {
-						tv->grBox()->setProperty("select", true);
-						tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
-						emit tabViewSelChanged(tv);
-					}
-
-					return true;
-				}
-				else {
-					INFO << tr("event receiver obj has NON of the known table names!  ");
-				}
-			}
-		}
-
-		if (gbcs.length() == 1) {
-			foreach (QGroupBox *gb, gbcs) {
-				if (mTabs.tvIds().join(',').contains(tv->objectName())) {
-
-					/**
-					 * Unselect if view was selected earlier
-					 */
-					if (QVariant(tv->grBox()->property("select")).toBool()) {
-						tv->grBox()->setProperty("select", false);
-						emit tabViewSelChanged( 0 );
-					}
-					else {
-						tv->grBox()->setProperty("select", true);
-						tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
-						emit tabViewSelChanged(tv);
-					}
-
-					return true;
-				}
-				else {
-					INFO << tr("event receiver obj has NON of the known table names!  ");
-				}
-			}
-		}
-		if (false) {
-			QList<QObject *> objs = obj->children();
-
-			for (int i = 0; i < objs.length(); i++) {
-				INFO << "obj child no." << i << objs[i]->objectName();
 			}
 		}
 	}
@@ -672,6 +609,33 @@ void Browser::closeEvent(QCloseEvent *e) {
 /* ======================================================================== */
 /*                              Init methodes                               */
 /* ======================================================================== */
+QMenu *Browser::menuBarElement() {
+	QMenu *muBrowser = new QMenu(tr("Browser"));
+	QMenu *tvSelCfg = muBrowser->addMenu(tr("Table selector config"));
+
+	QAction *selByGrBx,
+			*selByVport,
+			*actSep_1;
+
+	selByGrBx = tvSelCfg->addAction("Select by Group Box", this, &Browser::onActMenuTrigd);
+	selByVport= tvSelCfg->addAction("Select by View Port", this, &Browser::onActMenuTrigd);
+	actSep_1 = tvSelCfg->addSeparator();
+	selByGrBx->setCheckable(true);
+	selByVport->setCheckable(true);
+
+	QMenu *setTvCnt = muBrowser->addMenu(tr("Table View count config"));
+	QActionGroup *gact = new QActionGroup(this);
+
+	for (int k = 3; k < 9; k++) {
+		gact->addAction(setTvCnt->addAction(tr(" %1 ").arg(k), this, &Browser::onActMenuTrigd));
+		gact->actions().last()->setCheckable(true);
+	}
+	gact->setExclusive(true);
+	gact->actions().at(gact->actions().length() -2 )->setChecked(true);
+
+	QAction *actSep_2	= setTvCnt->addSeparator();
+	return muBrowser;
+}
 void Browser::initializeMdl(QSqlQueryModel *model) {
 	QSqlDatabase pDb = connectionWidget->currentDatabase();
 	model->setQuery("select * from worker", pDb);

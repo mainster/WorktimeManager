@@ -15,7 +15,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	connectActions(connectThis);
 
 	QSETTINGS_INIT; QSETTINGS;
-
 	initDocks();
 
 	stateBar		= new MDStateBar( this );
@@ -26,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
 	stateBar->setClockVisible(true);
 	setStatusBar( stateBar );
+	makeMenuBar();
 
 	/*!
 	 * Connect the inpFrm's statusMessage signal to the statebar message slot
@@ -47,8 +47,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	\*/
 	WIN_RESTORE(this);
 
-	makeMenuBar();
-//	installEventFilter(this);
+	//	installEventFilter(this);
 
 	setWindowTitle( MAINWINDOW_TITLE );
 	config.fileName();
@@ -71,9 +70,9 @@ void MainWindow::onBrowseSqlTrig(bool doBrowse) {
 			mDbc->getConnectionState();
 	}
 	else {
-//		QSETTINGS;
-//		saveMainWindowGeometry();
-//		QMetaObject::invokeMethod(browser, "close");
+		//		QSETTINGS;
+		//		saveMainWindowGeometry();
+		//		QMetaObject::invokeMethod(browser, "close");
 		browser->hide();
 	}
 }
@@ -200,17 +199,17 @@ void MainWindow::onActCloseTrig() {
 	this->close();
 }
 void MainWindow::onActSaveTrig() {
-//	QSETTINGS;
-//	config.setValue(tr("testgeometry/") + objectName(), saveGeometry());
-//	config.setValue(tr("teststate/") + objectName(), saveState());
-//	config.sync();
+	//	QSETTINGS;
+	//	config.setValue(tr("testgeometry/") + objectName(), saveGeometry());
+	//	config.setValue(tr("teststate/") + objectName(), saveState());
+	//	config.sync();
 	WIN_STORE(this);
 }
 void MainWindow::onActOpenTrig() {
 	WIN_RESTORE(this);
-//	QSETTINGS;
-//	restoreGeometry(config.value(tr("testgeometry/") + objectName()).toByteArray());
-//	restoreState(config.value(tr("teststate/") + objectName()).toByteArray());
+	//	QSETTINGS;
+	//	restoreGeometry(config.value(tr("testgeometry/") + objectName()).toByteArray());
+	//	restoreState(config.value(tr("teststate/") + objectName()).toByteArray());
 }
 /* ======================================================================== */
 /*                              Event handler                               */
@@ -275,15 +274,15 @@ bool MainWindow::restoreActionObjects () {
 	\*/
 	ACTION_RESTORE(this);
 
-//	QList<QAction *> acts = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
-//	foreach (QAction *ac, acts) {
-//		if ( config.value("MainWindow/" + ac->objectName(), false).toBool() ) {
-//			if (ac != ui->actFilterForm) {
-//				emit ac->trigger();
-//				INFO << tr("QAction") << ac->text() << tr("triggered");
-//			}
-//		}
-//	}
+	//	QList<QAction *> acts = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
+	//	foreach (QAction *ac, acts) {
+	//		if ( config.value("MainWindow/" + ac->objectName(), false).toBool() ) {
+	//			if (ac != ui->actFilterForm) {
+	//				emit ac->trigger();
+	//				INFO << tr("QAction") << ac->text() << tr("triggered");
+	//			}
+	//		}
+	//	}
 
 	/**** Restore visibility flag for the SQL command interface
 	\*/
@@ -338,27 +337,27 @@ void MainWindow::initial() {
 }
 void MainWindow::makeMenuBar() {
 	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&File"));
-	fileMenu->addAction(QObject::tr("Add &Connection..."),
-							  mDbc, SLOT(addConnection()));
+	fileMenu->addAction(tr("Add &Connection..."), mDbc, SLOT(addConnection()));
 	fileMenu->addSeparator();
-	fileMenu->addAction(QObject::tr("&Quit"), qApp, SLOT(quit()));
-
-	//   cfgMenu->addMenu(tr("StyleSheets"));
-	//   cfgMenu->addAction(QObject::tr("gbStyleShtA"), this,
-	//                      SLOT(onMenuStyleShtATrig(bool)));
-	//   cfgMenu->addAction(QObject::tr("gbStyleShtInpFrm"), this,
-	//                      SLOT(onMenuStyleShtInpFrmTrig(bool)));
+	fileMenu->addAction(tr("&Quit"), qApp, SLOT(quit()));
 
 	QMenu *helpMenu = menuBar()->addMenu(QObject::tr("&Help"));
-	helpMenu->addAction(QObject::tr("About"), this, SLOT(about()));
-	helpMenu->addAction(QObject::tr("About Qt"), qApp, SLOT(aboutQt()));
+	helpMenu->addAction(tr("About"), this, SLOT(about()));
+	helpMenu->addAction(tr("About Qt"), qApp, SLOT(aboutQt()));
 
+	/* ======================================================================== */
+	/*                        Inherited menu components                         */
+	/* ======================================================================== */
+	QMenu *browserMenu = Browser::instance()->menuBarElement();
+	menuBar()->addMenu( browserMenu );
+
+//	browserMenu->addActions(Browser::instance()->menuBarElement());
 }
 void MainWindow::connectActions(ConnectReceiver receivers) {
 	ui->actHideSqlQuery->setChecked( true );
 
 	if ((receivers == connectThis) ||
-		(receivers == connectAll)) {
+		 (receivers == connectAll)) {
 		connect(ui->actBrowseSQL, &QAction::triggered, this, &MainWindow::onBrowseSqlTrig);
 		connect(ui->actInpForm, &QAction::triggered, this, &MainWindow::onOpenCloseInpFrm);
 		connect(ui->actShowTbl, &QAction::triggered, this, &MainWindow::onTblOpen);
@@ -377,7 +376,7 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 	}
 
 	if ((receivers == connectOthers) ||
-		(receivers == connectAll)) {
+		 (receivers == connectAll)) {
 		connect(ui->actCyclicObjInfo, &QAction::triggered, browser, &Browser::onCyclicObjInfoTrig);
 		connect(ui->actAutoFitTables,	&QAction::triggered, browser, &Browser::autofitRowCol);
 		connect(ui->actFilterForm, &QAction::triggered, browser, &Browser::onActFilterForm);
