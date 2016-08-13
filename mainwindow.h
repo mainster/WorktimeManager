@@ -9,6 +9,7 @@
 #include <QtWidgets>
 #include <QMenu>
 #include <QRegularExpression>
+#include <QActionGroup>
 
 #include "ui_dbconndlg.h"
 #include "browser.h"
@@ -103,6 +104,8 @@ protected slots:
 	bool restoreActionObjects();
 	void createActions();
 
+	void ACTION_STORE(QObject *obj, QString regex);
+	void onActionTriggered(QAction *sender);
 private slots:
 	void onOpenCloseInpFrm(bool onOff) {
 		inpFrm->setVisible(onOff);
@@ -124,9 +127,9 @@ protected:
 	void showEvent(QShowEvent *e);
 	void hideEvent(QHideEvent *) override;
 	void closeEvent(QCloseEvent *e);
+	void actionEvent(QActionEvent *e) override;
 
 	void ACTION_RESTORE(QObject *obj, QString regex);
-	void ACTION_STORE(QObject *obj, QString regex);
 private:
 	Ui::MainWindow *ui;
 	static int   fuse;
@@ -138,31 +141,14 @@ private:
 	SortWindow   *sortwindow;
 	QMenu        *mBar;
 	DbController *mDbc;
-	QAction
-	*actNew,
-	*actOpen,
-	*actSave,
-	*actExport,
-	*actBrowseSQL,
-	*actInpForm,
-	*actShowTbl,
-	*actDbModMaster,
-	*actClose,
-	*actGbStyleShtA,
-	*actGbSShtInpFrm,
-	*actUnderConstr,
-	*actSelFont,
-	*actCyclicObjInfo,
-	*actResizerDlg,
-	*actHideSqlQuery,
-	*actSetAlterRowCol,
-	*actAutoFitTables,
-	*actFilterTable,
-	*actFilterTableWindow,
-	*actFilterForm,
-	*actCfgInpFrmTabOrd;
 
+	QActionGroup *actGroup;
 
+	QAction *actNew, *actOpen, *actSave, *actExport, *actBrowseSQL, *actInpForm, *actShowTbl,
+			*actDbModMaster, *actClose, *actGbStyleShtA, *actGbSShtInpFrm, *actUnderConstr,
+			*actSelFont, *actCyclicObjInfo, *actResizerDlg, *actHideSqlQuery, *actSetAlterRowCol,
+			*actAutoFitTables, *actFilterTable, *actFilterTableWindow, *actFilterForm,
+			*actCfgInpFrmTabOrd;
 
 };
 

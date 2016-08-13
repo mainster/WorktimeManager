@@ -228,9 +228,17 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	\*/
 	WIN_STORE(this);
 
+//	foreach (QAction *a, acts) {
+//		INFO << a->objectName() << a->isChecked();
+//		config.setValue(objectName() + tr("/") + a->objectName(), a->isChecked());
+//	}
+
 	/**** Safe all action states from MainWindow
 	\*/
-	ACTION_STORE(this, tr("act*"));
+	//	ACTION_STORE(this, tr("act*"));
+}
+void MainWindow::actionEvent(QActionEvent *e) {
+	INFO << tr("action event");
 }
 /* ======================================================================== */
 /*									    Init methodes										    */
@@ -238,58 +246,76 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 bool MainWindow::restoreActionObjects () {
 	QSETTINGS;
 
-	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
+	actGroup->blockSignals(true);
 
-	foreach (QAction *act, acts)
-		if (act->objectName().isEmpty())
-			acts.removeOne(act);
-	qSort(acts.begin(), acts.end());
-
-	foreach (QAction *act, acts) {
-		if (! config.allKeys().join(',').contains( act->objectName() )) {
-			WARN << tr("act->objectName() %1 not found!").arg(act->objectName());
+	foreach (QAction *a, actGroup->actions()) {
+		INFO << a;
+		if (! config.allKeys().join(',').contains(a->objectName()))
 			continue;
-		}
 
-		bool test = config.value(objectName() + tr("/") + act->objectName()).toBool();
-		act->setChecked( test );
-		INFO << act->objectName() << tr("set checked: ") << test;
-	}
-	/**** Restore visibility flag for the SQL command interface
-	\*/
-	try {
-		if (!config.value(objectName() + tr("/actHideSqlQuery"), true).toBool()) {
-			inpFrm->setQueryBoxVisible( true );
-			actHideSqlQuery->setChecked( false );
-		}
-		else {
-			inpFrm->setQueryBoxVisible( false );
-			actHideSqlQuery->setChecked( true );
+		if (config.value(objectName() + tr("/") + a->objectName(), false).toBool()) {
+			if (! a->isChecked())
+				a->trigger();
 		}
 	}
-	catch (...) {
-		CRIT << tr("!");
-	}
 
-	/**** Recall dock states
-	 \*/
-	if (actInpForm->isChecked()) {
-		inpFrm->show();
-		Qt::DockWidgetArea dwa = static_cast<Qt::DockWidgetArea>(
-											 config.value(inpFrm->objectName() + tr("/DockWidgetArea"),
-															  Qt::BottomDockWidgetArea).toUInt());
-		/*!
-		 * Produces unexpected behavior
-		 * this->addDockWidget(dwa, inpFrm, Qt::Vertical);
-		 */
-		INFO << dwa;
-	}
-	else inpFrm->hide();
-	//		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
-
+	actGroup->blockSignals(false);
 	return true;
+
+
+//	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
+
+//	foreach (QAction *act, acts)
+//		if (act->objectName().isEmpty())
+//			acts.removeOne(act);
+//	qSort(acts.begin(), acts.end());
+
+//	foreach (QAction *act, acts) {
+//		if (! config.allKeys().join(',').contains( act->objectName() )) {
+//			WARN << tr("act->objectName() %1 not found!").arg(act->objectName());
+//			continue;
+//		}
+
+//		bool test = config.value(objectName() + tr("/") + act->objectName()).toBool();
+//		act->setChecked( test );
+//		INFO << act->objectName() << tr("set checked: ") << test;
+//	}
+//	/**** Restore visibility flag for the SQL command interface
+//	\*/
+//	try {
+//		if (!config.value(objectName() + tr("/actHideSqlQuery"), true).toBool()) {
+//			inpFrm->setQueryBoxVisible( true );
+//			actHideSqlQuery->setChecked( false );
+//		}
+//		else {
+//			inpFrm->setQueryBoxVisible( false );
+//			actHideSqlQuery->setChecked( true );
+//		}
+//	}
+//	catch (...) {
+//		CRIT << tr("!");
+//	}
+
+//	/**** Recall dock states
+//	 \*/
+//	if (actInpForm->isChecked()) {
+//		inpFrm->show();
+//		Qt::DockWidgetArea dwa = static_cast<Qt::DockWidgetArea>(
+//											 config.value(inpFrm->objectName() + tr("/DockWidgetArea"),
+//															  Qt::BottomDockWidgetArea).toUInt());
+//		/*!
+//		 * Produces unexpected behavior
+//		 * this->addDockWidget(dwa, inpFrm, Qt::Vertical);
+//		 */
+//		INFO << dwa;
+//	}
+//	else inpFrm->hide();
+//	//		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
+
+//	return true;
 }
 void MainWindow::createActions() {
+
 	actNew = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
 	actOpen = new QAction(QIcon(":/images/open.png"), tr("Open"), this);
 	actSave = new QAction(QIcon(":/images/save.png"), tr("Save"), this);
@@ -298,11 +324,11 @@ void MainWindow::createActions() {
 	actInpForm = new QAction(QIcon(":/images/databaseSubmit.png"), tr("InpForm"), this);
 	actShowTbl = new QAction(QIcon(":/images/databaseDelegate.png"), tr("ShowTbl"), this);
 	actDbModMaster = new QAction(QIcon(":/images/databaseConf.png"), tr("DbModMaster"), this);
+	actUnderConstr = new QAction(QIcon(":/images/underConstruct.svg"), tr("Under construc"), this);
 	actClose = new QAction(QIcon(":/icoDelete"), tr("Close"), this);
 
 	actGbStyleShtA = new QAction("actGbStyleShtA", this);
 	actGbSShtInpFrm = new QAction("actGbSShtInpFrm", this);
-	actUnderConstr = new QAction("actUnderConstr", this);
 	actSelFont = new QAction("actSelFont", this);
 	actCyclicObjInfo = new QAction("actCyclicObjInfo", this);
 	actResizerDlg = new QAction("actResizerDlg", this);
@@ -313,6 +339,36 @@ void MainWindow::createActions() {
 	actFilterTableWindow = new QAction("actFilterTableWindow", this);
 	actFilterForm = new QAction("actFilterForm", this);
 	actCfgInpFrmTabOrd = new QAction("actCfgInpFrmTabOrd", this);
+
+	//	acts = this->findChildren<QAction *>(QRegularExpression("act*"), Qt::FindChildrenRecursively);
+	//	INFO << acts.length();
+
+	QList<QAction *> acts;
+
+	acts << PONAM(actNew) << PONAM(actOpen) << PONAM(actSave) << PONAM(actExport) <<
+			  PONAM(actBrowseSQL) << PONAM(actInpForm) << PONAM(actShowTbl) << PONAM(actDbModMaster)
+		  << PONAM(actClose) << PONAM(actGbStyleShtA) << PONAM(actGbSShtInpFrm) <<
+			  PONAM(actUnderConstr) << PONAM(actSelFont) << PONAM(actCyclicObjInfo) <<
+			  PONAM(actResizerDlg) << PONAM(actHideSqlQuery) << PONAM(actSetAlterRowCol) <<
+			  PONAM(actAutoFitTables) << PONAM(actFilterTable) << PONAM(actFilterTableWindow) <<
+			  PONAM(actFilterForm) << PONAM(actCfgInpFrmTabOrd);
+
+	actGroup = new QActionGroup(this);
+	actGroup->setExclusive(false);
+	PONAM(actGroup);
+
+	actGroup->addAction(actNew);
+	actGroup->addAction(actOpen);
+	actGroup->addAction(actSave);
+	actGroup->addAction(actExport);
+	actGroup->addAction(actBrowseSQL);
+	actGroup->addAction(actInpForm);
+	actGroup->addAction(actShowTbl);
+	actGroup->addAction(actDbModMaster);
+	actGroup->addAction(actUnderConstr);
+	actGroup->addAction(actClose);
+
+	connect(actGroup, &QActionGroup::triggered, this, &MainWindow::onActionTriggered);
 
 	actBrowseSQL->setCheckable(true);
 	actInpForm->setCheckable(true);
@@ -341,6 +397,12 @@ void MainWindow::createActions() {
 	actInpForm->setToolTip(tr("<html><head/><body><p>Öffnet die <span style="" "
 									  "font-weight:600;"">Eingabeform</span> um neue Einträge in "
 									  "die in die Arbeitszeitentabelle einzutragen</p></body></html>"));
+}
+void MainWindow::onActionTriggered(QAction *sender) {
+	QSETTINGS;
+	INFO << objectName() + tr("/") + sender->objectName();
+
+	config.setValue(objectName() + tr("/") + sender->objectName(), sender->isChecked());
 }
 void MainWindow::makeMenuBar() {
 	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&File"));
@@ -382,8 +444,9 @@ void MainWindow::makeMenuBar() {
 
 	/* ======================================================================== */
 	ui->mainToolBar->addActions(QList<QAction*>()
-										 << actNew << actOpen << actSave << actExport << actBrowseSQL
-										 << actInpForm << actShowTbl << actDbModMaster << actClose);
+										 << actNew << actOpen << actSave << actExport
+										 << actBrowseSQL << actInpForm << actShowTbl
+										 << actDbModMaster << actUnderConstr << actClose);
 
 	/* ======================================================================== */
 	/*                        Inherited menu components                         */
@@ -444,11 +507,21 @@ void MainWindow::initDocks() {
 }
 void MainWindow::ACTION_STORE(QObject *obj, QString regex) {
 	QSETTINGS;
-	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
+	QPair<QString, bool> pair;
+	QList<QPair<QString, bool>> pairs;
+
+	QList<QAction *> acts = ui->mainToolBar->findChildren<QAction *>();
+
 	foreach (QAction *act, acts) {
-		config.setValue(obj->objectName() + QString("/") + act->objectName(), act->isChecked());
-		INFO << obj->objectName() + QString("/") + act->objectName() << act->isChecked();
+		pair.first = act->objectName();
+		pair.second = act->isChecked();
+		pairs << pair;
 	}
+
+	INFO << pairs;
+
+	//	config.setValue(obj->objectName() + QString("/") + act->objectName(), act->isChecked());
+	//	INFO << obj->objectName() + QString("/") + act->objectName() << act->isChecked();
 
 	config.setValue(obj->objectName() + QString("/actionCtr"), acts.length());
 	config.sync();
@@ -460,7 +533,3 @@ void MainWindow::ACTION_RESTORE(QObject *obj, QString regex) {
 	foreach (QAction *act, acts)
 		act->setChecked(config.value(obj->objectName() + QString("/") + act->objectName()).toBool());
 }
-
-
-
-
