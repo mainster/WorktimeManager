@@ -499,30 +499,97 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 	if (e->type() == QEvent::MouseButtonPress) {
 		bool ok;
 
+		TabView *tv = NULL;
+
+		foreach (TabView *_tv, mTabs.tvsNoPtr())
+			if ((_tv->tv()->viewport() == obj) ||
+				 (_tv->grBox() == obj)) {
+				tv = _tv;
+				break;
+			}
+
+		INFO << tv;
+		INFO << obj << obj->metaObject()->className();
+
+		if (tv != NULL) {
+			if (mTabs.tvIds().join(',').contains(tv->objectName())) {
+
+			/**
+			 * Unselect if view was selected earlier
+			 */
+				if (QVariant(tv->grBox()->property("select")).toBool()) {
+					tv->grBox()->setProperty("select", false);
+					emit tabViewSelChanged( 0 );
+				}
+				else {
+					tv->grBox()->setProperty("select", true);
+					tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
+					emit tabViewSelChanged(tv);
+				}
+
+				return true;
+			}
+			else {
+				INFO << tr("event receiver obj has NON of the known table names!  ");
+			}
+		}
+
 		/*!
 		 * Maybe the sender is a viewport? Try it..
 		 * QWidget(0xb9fee0, name = qt_scrollarea_viewport) qt_scrollarea_viewport mtv gb
 		 */
-		QList<TabView *> tvCasts;
+		QList<TabView *> tvcs;
+		QList<QGroupBox *> gbcs;
 
 		/*!
 		 * Tree traverse upstairs until we find a expected child but max. N stairs
 		 */
 		for (int n = 2; n < 8; n++) {
-			tvCasts = listCast<TabView *>(
-							 treeTraversation<QObject>(obj, n, &ok)->children(), true);
-			if ((! ok) || (tvCasts.length() != 0))
+			tvcs = listCast<TabView *>(treeTravers<QObject>(obj, n, &ok)->children(), true);
+			gbcs = listCast<QGroupBox *>(treeTravers<QObject>(obj, n, &ok)->children(), true);
+			if ((! ok) || (tvcs.length() != 0) || (gbcs.length() != 0))
 				break;
 		}
 
-		if (tvCasts.length() >= 2) {
-			foreach (TabView *tv, tvCasts)
+		if (tvcs.length() >= 2) {
+			foreach (TabView *tv, tvcs)
 				if (tv->tv()->viewport() != obj)
-					tvCasts.removeOne(tv);
+					tvcs.removeOne(tv);
 		}
 
-		if (tvCasts.length() == 1) {
-			foreach (TabView *tv, tvCasts) {
+		if (gbcs.length() >= 2) {
+			foreach (QGroupBox *gb, gbcs)
+				if (gb != obj)
+					gbcs.removeOne(gb);
+		}
+
+		if (tvcs.length() == 1) {
+			foreach (TabView *tv, tvcs) {
+				if (mTabs.tvIds().join(',').contains(tv->objectName())) {
+
+					/**
+					 * Unselect if view was selected earlier
+					 */
+					if (QVariant(tv->grBox()->property("select")).toBool()) {
+						tv->grBox()->setProperty("select", false);
+						emit tabViewSelChanged( 0 );
+					}
+					else {
+						tv->grBox()->setProperty("select", true);
+						tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
+						emit tabViewSelChanged(tv);
+					}
+
+					return true;
+				}
+				else {
+					INFO << tr("event receiver obj has NON of the known table names!  ");
+				}
+			}
+		}
+
+		if (gbcs.length() == 1) {
+			foreach (QGroupBox *gb, gbcs) {
 				if (mTabs.tvIds().join(',').contains(tv->objectName())) {
 
 					/**

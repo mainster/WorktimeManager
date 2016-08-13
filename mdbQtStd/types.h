@@ -113,7 +113,7 @@ QList<T> listFindByName(QList<T> ts, const QString name) {
 /*               Traverse upstairs in parent/child hierarchy                */
 /* ======================================================================== */
 template<class U>
-U *treeTraversation(U *obj, const int steps, bool *ok = NULL) {
+U *treeTravers(U *obj, const int steps, bool *ok = NULL) {
 	if (ok != NULL)	*ok = true;
 
 	QList<U *> tree;
