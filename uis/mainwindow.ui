@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>257</width>
-    <height>442</height>
+    <width>439</width>
+    <height>508</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,28 @@
     <normaloff>:/images/database.png</normaloff>:/images/database.png</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">*[mandatoryField=&quot;true&quot;] { background-color: yellow }
+
+ QGroupBox {
+   background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
+   border-radius: 5px;
+   margin-top: 1ex; /* leave space at the top for the title */
+   font: italic 9pt &quot;Arial&quot;;
+   font-weight: bold;
+   color: black;
+}
+
+QGroupBox#myGb[urgent=false] { border: 2px solid gray;	}
+QGroupBox#myGb[urgent=true] { border: 2px dashed gray;	}
+/*QTableView#myTv[prop=&quot;rank1&quot;] { background: red; }
+QTableView#myTv[prop=&quot;rank2&quot;] { background: blue; }*/
+
+QGroupBox::title {
+   subcontrol-origin: margin; /* margin boarder padding content */
+   subcontrol-position: top center; /* position at the top center */
+   top: 3px;   
+   padding: 0px 6px
+} </string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
@@ -34,7 +55,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>257</width>
+     <width>439</width>
      <height>27</height>
     </rect>
    </property>

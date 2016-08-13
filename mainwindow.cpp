@@ -36,11 +36,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	Qt::DockWidgetArea dockArea = static_cast<Qt::DockWidgetArea>(var.toInt());
 	addDockWidget(dockArea, inpFrm);
 
-
 	sortwindow  = new SortWindow( parent );
-	sortwindow->setStyleSheet(browser->browserStyleSheet);
-
-	setStyleSheet(browser->browserStyleSheet);
 
 	stateBar->setClockVisible(true);
 	setStatusBar( stateBar );
@@ -113,7 +109,7 @@ void MainWindow::onActHideSqlQueryTrig() {
 	bool dohide = actHideSqlQuery->isChecked();
 	QSETTINGS;
 	config.setValue(objectName() + "/HideSqlQuery", dohide);
-	inpFrm->setSqlQueryTextboxVisible( !dohide );
+	inpFrm->setQueryBoxVisible( !dohide );
 }
 void MainWindow::onMenuStyleShtATrig(bool b) {
 	if (!b) return;
@@ -127,6 +123,11 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 }
 void MainWindow::onUnderConstrTrig() {
 
+	INFO << actHideSqlQuery->isCheckable() << actHideSqlQuery->isChecked();
+	actHideSqlQuery->setCheckable(true);
+	actHideSqlQuery->setChecked(true);
+
+	return;
 #define QFOLDINGSTART {
 
 	wid = new QWidget();
@@ -258,11 +259,11 @@ bool MainWindow::restoreActionObjects () {
 	\*/
 	try {
 		if (!config.value(objectName() + tr("/actHideSqlQuery"), true).toBool()) {
-			inpFrm->setSqlQueryTextboxVisible( true );
+			inpFrm->setQueryBoxVisible( true );
 			actHideSqlQuery->setChecked( false );
 		}
 		else {
-			inpFrm->setSqlQueryTextboxVisible( false );
+			inpFrm->setQueryBoxVisible( false );
 			actHideSqlQuery->setChecked( true );
 		}
 	}

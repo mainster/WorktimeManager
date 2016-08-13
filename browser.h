@@ -56,14 +56,8 @@
 #include "tabview.h"
 #include "connectionwidget.h"
 
-
-namespace Ui {
-class Browser;
-}
-
 class TabView;
-class ConnectionWidget;
-
+//class ConnectionWidget;
 
 /* ======================================================================== */
 /*                      class Browser : public QWidget                      */
@@ -215,7 +209,7 @@ private:
 	*splitter_4, *splitter_5, *splitter_6, *splitter_7;
 public:
 	QMenu					*browsMenu;
-	static const QString browserStyleSheet;
+	static const QString  browserStyleSheet, browserStyleSheetv2;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Browser::TvSelectors)

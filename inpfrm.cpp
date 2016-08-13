@@ -4,6 +4,8 @@
 #define QUERYPREFIX  tr("CUSTOM_QUERY_")
 #define NEWQUERY     tr("NewQuery")
 
+#define FIXED_HEIGHT	 350
+
 class MdComboBox;
 
 /* ======================================================================== */
@@ -13,18 +15,29 @@ InpFrm* InpFrm::inst = 0;
 InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 	ui(new Ui::InpFrm), mEscapeTrigger(false) {
 	ui->setupUi(this);
-	inst = this;
+	hide();	inst = this;
+
+	fixedHeights = InpFrm::fixedHeights_t(2 * FIXED_HEIGHT, FIXED_HEIGHT);
+
+	QSETTINGS;
+	if (config.allKeys().join(',').contains( objectName() + tr("/fixedHeight") ))
+		fixedHeights.sqlQueryInvisible =
+				config.value(objectName() + tr("/fixedHeight")).toInt();
+
+	if (config.allKeys().join(',').contains( objectName() + tr("/fixedHeightQuery") ))
+		fixedHeights.sqlQueryVisible =
+				config.value(objectName() + tr("/fixedHeightQuery")).toInt();
 
 	connectActions();
 
 	ui->cbQueryIdent->setDuplicatesEnabled( false );
 	ui->datePicker->setDate(QDate::currentDate());
-	ui->gbSqlQuery->hide();
-	this->setFixedHeight(125);
-
+//	ui->gbSqlQuery->hide();
 	WIN_RESTORE(this);
 
+	setFixedHeight(fixedHeights.sqlQueryInvisible);
 	initComboboxes();
+
 	//    restoreTabOrder();
 
 	//	ui->gboxWorker->hide();
@@ -421,14 +434,17 @@ void InpFrm::onSqlQuerysTextChanged() {
 
 	ui->cbQueryIdent->setCurrentIndex(0);
 }
-void InpFrm::setSqlQueryTextboxVisible(bool visible) {
+void InpFrm::setQueryBoxVisible(bool visible) {
 	ui->gbSqlQuery->setVisible( visible );
 
-	(visible) ? (setSizePolicy(QSizePolicy(QSizePolicy::Expanding,
-														QSizePolicy::Expanding)),
-					 ui->teSqlQuerys->setFocusPolicy(Qt::ClickFocus),
-					 setMaximumHeight(300))
-				 : (setFixedHeight(125));
+	if (visible) {
+		setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		ui->teSqlQuerys->setFocusPolicy(Qt::ClickFocus);
+		setMaximumHeight( fixedHeights.sqlQueryVisible );
+		return;
+	}
+
+	setFixedHeight( fixedHeights.sqlQueryInvisible );
 }
 void InpFrm::onCbQueryIndexChaned(int idx) {
 	Q_UNUSED(idx);

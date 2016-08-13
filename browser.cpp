@@ -67,8 +67,56 @@ const QString Browser::browserStyleSheet = QString(
 															 "QHeaderView::up-arrow {"
 															 "	image: url(:/images/up_arrow.png);"
 															 "}*/");
-#define QFOLDINGEND }
 
+const QString Browser::browserStyleSheetv2 = QString(
+																"QSplitter::handle {"
+																"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, "
+																"    stop:0 rgba(255, 255, 255, 0), "
+																"    stop:0.407273 rgba(200, 200, 200, 255), "
+																"    stop:0.4825 rgba(101, 104, 113, 235), "
+																"    stop:0.6 rgba(255, 255, 255, 0));"
+																"    image: url(:/images/splitter.png);"
+																"}"
+																"QTreeView {"
+																"    show-decoration-selected: 1;"
+																"}"
+																"QTreeView::item {"
+																"    border: 1px solid #d9d9d9;"
+																"    border-top-color: transparent;"
+																"    border-bottom-color: transparent;"
+																"}"
+																"QTreeView::item:hover {"
+																"    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);"
+																"    border: 1px solid #bfcde4;"
+																"}"
+																"QTreeView::item:selected {"
+																"    border: 1px solid #567dbc;"
+																"}"
+																"QTreeView::item:selected:active{"
+																"    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6ea1f1, stop: 1 #567dbc);"
+																"}"
+																"QTreeView::item:selected:!active {"
+																"    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6b9be8, stop: 1 #577fbf);"
+																"}"
+																"QTreeView{"
+																"   background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
+																"   border-radius: 5px;"
+																"   margin-top: 1ex; /* leave space at the top for the title */"
+																"   font: italic 9pt ""Arial"";"
+																"   /*font-weight: bold;*/"
+																"   color: black;"
+																"}"
+																"QToolTip {"
+																"    border: 2px solid darkkhaki;"
+																"    padding: 5px;"
+																"    border-radius: 3px;"
+																"    opacity: 400;"
+																"}"
+																"QLabel{"
+																"color: ;"
+																"	color: rgb(70, 70, 70);"
+																"}");
+#define QFOLDINGEND }
 /* ======================================================================== */
 /*                             Browser::Browser                             */
 /* ======================================================================== */
@@ -77,7 +125,7 @@ Browser::Browser(QWidget *parent)
 	inst = this;
 	setObjectName("Browser");
 
-	setStyleSheet(browserStyleSheet);
+	setStyleSheet(browserStyleSheetv2);
 	style()->unpolish(this);
 	style()->polish(this);
 	update();
@@ -764,10 +812,6 @@ void Browser::createUi(QWidget *passParent) {
 	splitter_7->addWidget(splitter_4);
 	splitter_7->addWidget(splitter_6);
 
-	passParent->setStyleSheet(browserStyleSheet);
-	passParent->style()->unpolish(passParent);
-	passParent->style()->polish(passParent);
-	passParent->update();
 
 	QList<QString> accName = mTabs.tvIds();
 

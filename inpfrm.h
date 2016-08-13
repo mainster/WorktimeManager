@@ -46,6 +46,11 @@ Q_ENUMS(FocusOrderState)
 class InpFrm : public QDockWidget {
 
 	Q_OBJECT
+//	Q_PROPERTY(TvSelectors tvSelector READ tvSelector WRITE setTvSelector NOTIFY tvSelectorChanged)
+
+//public slots:
+//	TvSelectors tvSelector() const { return m_tvSelector; }
+//	void setTvSelector(TvSelectors tvSelector) { m_tvSelector = tvSelector; }
 
 public:
 	struct fieldGroup_t {
@@ -93,7 +98,7 @@ public:
 	}
 	~InpFrm();
 
-	void setSqlQueryTextboxVisible(bool visible);
+	void setQueryBoxVisible(bool visible);
 	void onInpFormUserCommit();
 	Qt::FocusOrderState getChangeFocusFlag() const;
 	void setChangeFocusFlag(const Qt::FocusOrderState &stateFlag);
@@ -147,6 +152,14 @@ private:
 	Qt::FocusOrderState			mChangeFocusFlag;
 	bool								mEscapeTrigger;
 
+	struct fixedHeights_t {
+		fixedHeights_t(int visible = 0, int invisible = 0)
+			: sqlQueryVisible(visible),
+			  sqlQueryInvisible(invisible) { }
+
+		int sqlQueryVisible, sqlQueryInvisible;
+	};
+	fixedHeights_t fixedHeights;
 };
 
 #endif // INPFRM_H
