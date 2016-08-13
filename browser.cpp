@@ -73,7 +73,7 @@ const QString Browser::browserStyleSheet = QString(
 /*                             Browser::Browser                             */
 /* ======================================================================== */
 Browser::Browser(QWidget *parent)
-	: QWidget(parent), cyclicObjInfo(false) {
+	: QWidget(parent), m_cyclicObjInfo(false) {
 	inst = this;
 	setObjectName("Browser");
 
@@ -463,7 +463,7 @@ void Browser::onCyclic() {
 	/* ---------------------------------------------------------------- */
 	/*         Get the name of object under the mouse pointer           */
 	/* ----------------------------------------------------------------*/
-	if (cyclicObjInfo) {
+	if (m_cyclicObjInfo) {
 		QWidget *widget = qApp->widgetAt(QCursor::pos());
 
 		if (widget != 0x00) {
@@ -793,7 +793,7 @@ QTableView* Browser::createView(QSqlQueryModel *model, const QString &title) {
 
 	return view;
 }
-void Browser::ACTION_STORE(QObject *obj, QString regex) {
+void Browser::ACTION_STORE(QObject *obj, QString) {
 	QSETTINGS;
 	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
 

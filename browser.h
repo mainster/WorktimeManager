@@ -72,6 +72,7 @@ class Browser : public QWidget {
 
 	Q_OBJECT
 	Q_PROPERTY(TvSelectors tvSelector READ tvSelector WRITE setTvSelector NOTIFY tvSelectorChanged)
+	Q_PROPERTY(bool cyclicObjInfo READ cyclicObjInfo WRITE setCyclicObjInfo NOTIFY cyclicObjInfoChanged)
 
 public:
 	enum TvSelector {
@@ -83,11 +84,6 @@ public:
 	};
 	Q_DECLARE_FLAGS(TvSelectors, TvSelector)
 	Q_FLAG(TvSelectors)
-
-
-
-	TvSelectors tvSelector() const { return m_tvSelector; }
-	void setTvSelector(TvSelectors tvSelector) { m_tvSelector = tvSelector; }
 
 	/* ======================================================================== */
 	/*                Public structure to deal with table data!                 */
@@ -155,8 +151,14 @@ signals:
 	void visibilityChanged(bool b);
 	void updateActions();
 	void tvSelectorChanged();
+	void cyclicObjInfoChanged();
 
 public slots:
+	TvSelectors tvSelector() const { return m_tvSelector; }
+	void setTvSelector(TvSelectors tvSelector) { m_tvSelector = tvSelector; }
+	bool cyclicObjInfo() const { return m_cyclicObjInfo; }
+	void setCyclicObjInfo(bool cyclicObjInfo) { m_cyclicObjInfo = cyclicObjInfo; }
+
 	void showMetaData(const QString &table);
 	void currentChanged(QModelIndex,QModelIndex) { emit updateActions(); }
 	void onConnectionWidgetTableActivated(const QString &sqlTab);
@@ -167,7 +169,6 @@ public slots:
 	void customMenuRequested(QPoint pos);
 	QFont selectFont();
 	int setFontAcc(QFont &font);
-	void onCyclicObjInfoTrig(bool b) { cyclicObjInfo = b; }
 	void exec();
 	void requeryWorktimeTableView(QString nonDefaulQuery = "");
 	void showRelatTable(const QString &tNam, TabView *tvc);
@@ -178,10 +179,11 @@ public slots:
 	void autofitRowCol();
 	void onActFilterForm(bool b);
 	QMenu *menuBarElement();
+	void onActMenuTrigd(bool state = false);
 
 protected:
 	void createUi(QWidget *passParent = 0);
-	void ACTION_STORE(QObject *obj, QString regex);
+	void ACTION_STORE(QObject *obj, QString);
 	void ACTION_RESTORE(QObject *obj, QString regex);
 
 protected slots:
@@ -191,17 +193,16 @@ protected slots:
 	bool eventFilter(QObject *obj, QEvent *e);
 	void closeEvent(QCloseEvent *e);
 	void onTvSelectorChanged();
-	void onActMenuTrigd(bool state = false);
 
 private:
 	static Browser		*inst;
 	ConnectionWidget	*connectionWidget;
 	QGridLayout			*grLay;
 	QTimer				*timCyc;
-	bool					cyclicObjInfo;
 	SfiltMdl				*proxyModel;
 	SortWindow			*filterForm;
 	MDStateBar			*stateBar;
+	bool					m_cyclicObjInfo;
 	TvSelectors			m_tvSelector;
 	QSplitter	*splitter, *splitter_2, *splitter_3,
 	*splitter_4, *splitter_5, *splitter_6, *splitter_7;

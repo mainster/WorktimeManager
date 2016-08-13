@@ -64,18 +64,6 @@ QGroupBox::title {
     <property name="title">
      <string>&amp;Setup</string>
     </property>
-    <widget class="QMenu" name="menuS_tyleSheets">
-     <property name="title">
-      <string>S&amp;tyleSheets</string>
-     </property>
-    </widget>
-    <widget class="QMenu" name="menuSchriftfont">
-     <property name="title">
-      <string>Schriftfont</string>
-     </property>
-    </widget>
-    <addaction name="menuS_tyleSheets"/>
-    <addaction name="menuSchriftfont"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuView">

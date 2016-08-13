@@ -58,9 +58,7 @@ public:
 signals:
 
 public slots:
-	void onBrowseSqlTrig(bool onOff) {
-		browser->setVisible(onOff);
-	}
+	void initDocks();
 	void about() {
 		QMessageBox::about
 				(this, tr("About"),
@@ -68,11 +66,23 @@ public slots:
 					 "can be used to visualize the results of SQL statements"
 					 "on a live database"));
 	}
+	void connectActions(ConnectReceiver receivers = connectThis);
+
+protected slots:
+	void makeMenuBar();
+	void onActCfgInpFrmTabOrdTrig() {
+		emit inpFrm->changeFocusOrder(Qt::FocusChange_init);
+	}
+	void onActSaveTrig();
+	void onActOpenTrig();
+	void onBrowseSqlTrig(bool onOff) {
+		browser->setVisible(onOff);
+	}
 	void onMenuStyleShtInpFrmTrig(bool b) {
 		if (!b) return;
 
-		//   ui->actStyleShtA->setChecked( !b );
-		//   ui->actStyleShtInpFrm->setChecked( b );
+		//   actStyleShtA->setChecked( !b );
+		//   actStyleShtInpFrm->setChecked( b );
 
 		//   *browser->tvs()[0]->getGrBox();
 		//   foreach (QGroupBox *gb, browser->getGBoxs()) {
@@ -85,21 +95,11 @@ public slots:
 	}
 	void onUnderConstrTrig();
 	void onSetFont();
-	void initDocks();
 	void onActHideSqlQueryTrig();
 	void onSetAlterRowColTrig();
-	void connectActions(ConnectReceiver receivers = connectThis);
 	void onCyclic();
 	void onResizerDlgTrig();
 	void onInpFrmButtonClick(bool);
-
-protected slots:
-	void makeMenuBar();
-	void onActCfgInpFrmTabOrdTrig() {
-		emit inpFrm->changeFocusOrder(Qt::FocusChange_init);
-	}
-	void onActSaveTrig();
-	void onActOpenTrig();
 	bool restoreActionObjects();
 	void createActions();
 
@@ -111,6 +111,7 @@ private slots:
 		INFO << tr("I am an empty slot, use me!!!");
 	}
 	void onActCloseTrig();
+	void onStyleSheetTrig();
 
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
