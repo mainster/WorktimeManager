@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	/*!
 	  * Connect InpFrm::newWorktimeRecord() to TabView::update()
 	  */
-	foreach (TabView *tv, *Browser::instance()->tvs())
+	foreach (TabView *tv, browser->mTabs.tvsNoPtr())
 		connect(inpFrm, &InpFrm::newWorktimeRecord, tv, &TabView::refreshView);
 
 

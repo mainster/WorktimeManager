@@ -3,70 +3,70 @@
 #define T_CYCLIC 250e-3
 #define	COMMENT_OUT_UNUSED
 
-Browser::mTvs Browser::mTvs = Browser::mTvs();
+struct Browser::mTabs_t Browser::mTabs = Browser::mTabs_t();
 Browser *Browser::inst = 0;
 #define QFOLDINGSTART {
 const QString Browser::browserStyleSheet = QString(
-		"QGroupBox{"
-		"   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
-		"   	border-radius: 5px;"
-		"  	margin-top: 1ex; /* leave space at the top for the title */"
-		"   	font: italic 9pt ""Arial"";"
-		"   	font-weight: bold;"
-		"	border: 1px solid;    "
-		" 	border-color: rgb(105, 105, 105);"
-		"   	color: black;"
-		"}"
-		""
-		"QGroupBox::title {"
-		"   	subcontrol-origin: margin; /* margin boarder padding content */"
-		"   	subcontrol-position: top center; /* position at the top center */"
-		"   	top: 1.2ex;   "
-		"  	padding: 0px 8px"
-		"}"
-		""
-		"QGroupBox::title:hover {"
-		"    color: rgba(235, 235, 235, 255);"
-		"}"
-		""
-		" QTableView{"
-		"	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF);"
-		"	border: 0px solid gray;"
-		"	border-radius: 5px;"
-		"	margin-top: 15px; /* leave space at the top for the title */"
-		" }"
-		""
-		"QTableView[select=false]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF); }"
-		"QGroupBox[select=false]{ border: 1px solid; }"
-		""
-		"QTableView[select=true]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); }"
-		"QGroupBox[select=true]{ border: 3px solid; }"
-		""
-		"/* Customize Table header */"
-		" QHeaderView::section {"
-		"     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
-		"                                       stop:    0 #616161, stop: 0.5 #505050,"
-		"                                       stop: 0.6 #434343, stop:    1 #656565);"
-		"     color: white;"
-		"     padding-left: 4px;"
-		"     padding-right: 4px;"
-		"     padding-top: 2px;"
-		"     padding-bottom: 2px;"
-		"     border: 1px solid #6c6c6c;"
-		" }"
-		""
-		" QHeaderView::section:checked {"
-		"     background-color: rgb(31, 94, 233);"
-		" }"
-		""
-		" /* style the sort indicator "
-		"QHeaderView::down-arrow {"
-		"	image: url(:/images/down_arrow.png);"
-		"}"
-		""
-		"QHeaderView::up-arrow {"
-		"	image: url(:/images/up_arrow.png);"
-		"}*/");
+															 "QGroupBox{"
+															 "   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
+															 "   	border-radius: 5px;"
+															 "  	margin-top: 1ex; /* leave space at the top for the title */"
+															 "   	font: italic 9pt ""Arial"";"
+															 "   	font-weight: bold;"
+															 "	border: 1px solid;    "
+															 " 	border-color: rgb(105, 105, 105);"
+															 "   	color: black;"
+															 "}"
+															 ""
+															 "QGroupBox::title {"
+															 "   	subcontrol-origin: margin; /* margin boarder padding content */"
+															 "   	subcontrol-position: top center; /* position at the top center */"
+															 "   	top: 1.2ex;   "
+															 "  	padding: 0px 8px"
+															 "}"
+															 ""
+															 "QGroupBox::title:hover {"
+															 "    color: rgba(235, 235, 235, 255);"
+															 "}"
+															 ""
+															 " QTableView{"
+															 "	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF);"
+															 "	border: 0px solid gray;"
+															 "	border-radius: 5px;"
+															 "	margin-top: 15px; /* leave space at the top for the title */"
+															 " }"
+															 ""
+															 "QTableView[select=false]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF); }"
+															 "QGroupBox[select=false]{ border: 1px solid; }"
+															 ""
+															 "QTableView[select=true]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); }"
+															 "QGroupBox[select=true]{ border: 3px solid; }"
+															 ""
+															 "/* Customize Table header */"
+															 " QHeaderView::section {"
+															 "     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+															 "                                       stop:    0 #616161, stop: 0.5 #505050,"
+															 "                                       stop: 0.6 #434343, stop:    1 #656565);"
+															 "     color: white;"
+															 "     padding-left: 4px;"
+															 "     padding-right: 4px;"
+															 "     padding-top: 2px;"
+															 "     padding-bottom: 2px;"
+															 "     border: 1px solid #6c6c6c;"
+															 " }"
+															 ""
+															 " QHeaderView::section:checked {"
+															 "     background-color: rgb(31, 94, 233);"
+															 " }"
+															 ""
+															 " /* style the sort indicator "
+															 "QHeaderView::down-arrow {"
+															 "	image: url(:/images/down_arrow.png);"
+															 "}"
+															 ""
+															 "QHeaderView::up-arrow {"
+															 "	image: url(:/images/up_arrow.png);"
+															 "}*/");
 #define QFOLDINGEND }
 
 /* ======================================================================== */
@@ -107,7 +107,7 @@ Browser::Browser(QWidget *parent)
 	filterForm->hide();
 }
 Browser::~Browser() {
-	INFO << tr("close browser??!");
+	INFO << tr("close browser!");
 	//	delete ui;
 }
 
@@ -121,15 +121,15 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	/*!
 	 * Get list of all table views and requery all of them with gb name "worktime".
 	 */
-	QList<TabView *> mTvs = findChildren<TabView *>();
-	foreach (TabView *tv, mTvs) {
+	QList<TabView *> tvs = findChildren<TabView *>();
+	foreach (TabView *tv, tvs) {
 		if (! tv->grBox()->title().contains(tr("worktime")))
-			mTvs.removeOne(tv);
+			tvs.removeOne(tv);
 	}
 
 
 	/** Select "tableMain" as target table view widget */
-	QTableView *tvResp = tvl1->tv();
+	QTableView *tvResp = mTabs.tvl1->tv();
 	QSqlQueryModel *queryModel = new QSqlQueryModel(tvResp);
 	QSqlQuery query;
 
@@ -165,7 +165,7 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 		emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
 							  queryModel->query().numRowsAffected()));
 
-	tvl1->resizeRowsColsToContents();
+	mTabs.tvl1->resizeRowsColsToContents();
 	//	tvResp->setVisible( false );
 	//	tvResp->resizeColumnsToContents();
 	//	tvResp->resizeRowsToContents();
@@ -176,11 +176,11 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 void Browser::exec() {
 	InpFrm *inpFrm = InpFrm::instance();
 
-	QSqlQueryModel *model = new QSqlQueryModel(tvl1->tv());
+	QSqlQueryModel *model = new QSqlQueryModel(mTabs.tvl1->tv());
 
 	model->setQuery(QSqlQuery(inpFrm->getQueryText(),
 									  connectionWidget->currentDatabase()));
-	tvl1->tv()->setModel(model);
+	mTabs.tvl1->tv()->setModel(model);
 
 	if (model->lastError().type() != QSqlError::NoError)
 		emit stateMsg(model->lastError().text());
@@ -190,14 +190,14 @@ void Browser::exec() {
 		emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
 							  model->query().numRowsAffected()));
 
-	tvl1->tv()->setSortingEnabled( true );
+	mTabs.tvl1->tv()->setSortingEnabled( true );
 
 	//	tvq->setVisible( false );
 	//	tvq->resizeColumnsToContents();
 	//	tvq->resizeRowsToContents();
 	//	tvq->setVisible( true );
 
-	tvl1->resizeRowsColsToContents();
+	mTabs.tvl1->resizeRowsColsToContents();
 	emit updateActions();
 }
 void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
@@ -321,7 +321,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	tvc->setEditTriggers( QAbstractItemView::DoubleClicked |
 								 QAbstractItemView::EditKeyPressed );
 
-	/** !!!!!!!!!!!!!!!!!!!! mTvs.first()->tv()->selectionModel() changed to
+	/** !!!!!!!!!!!!!!!!!!!! tvs()->first()->tv()->selectionModel() changed to
 	  * mTvs[3]->tv()->selectionModel()
 	 */
 
@@ -346,7 +346,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 void Browser::showMetaData(const QString &t) {
 
 	QSqlRecord rec = connectionWidget->currentDatabase().record(t);
-	QStandardItemModel *model = new QStandardItemModel(mTvs.first()->tv());
+	QStandardItemModel *model = new QStandardItemModel(tvs()->first()->tv());
 
 	model->insertRows(0, rec.count());
 	model->insertColumns(0, 7);
@@ -374,20 +374,20 @@ void Browser::showMetaData(const QString &t) {
 		model->setData(model->index(i, 6), fld.defaultValue());
 	}
 
-	mTvs.first()->tv()->setModel(model);
-	mTvs.first()->tv()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	mTabs.tvs()->first()->tv()->setModel(model);
+	mTabs.tvs()->first()->tv()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
 	emit updateActions();
 }
 void Browser::customMenuRequested(QPoint pos) {
-	QModelIndex index = this->mTvs.first()->tv()->indexAt(pos);
+	QModelIndex index = this->tvs()->first()->tv()->indexAt(pos);
 	Q_UNUSED(index);
 
 	QMenu *menu = new QMenu(this);
 	menu->addAction(new QAction("Action 1", this));
 	menu->addAction(new QAction("Action 2", this));
 	menu->addAction(new QAction("Action 3", this));
-	menu->popup(mTvs.first()->tv()->viewport()->mapToGlobal(pos));
+	menu->popup(tvs()->first()->tv()->viewport()->mapToGlobal(pos));
 }
 void Browser::onBeforeUpdate(int row, QSqlRecord &record) {
 	INFO << row;
@@ -397,7 +397,7 @@ void Browser::onActFilterForm(bool b) {
 	filterForm->setVisible(b);
 
 	if (b) {
-		filterForm->setSourceModel( mTvs.last()->tv()->model() );
+		filterForm->setSourceModel( tvs()->last()->tv()->model() );
 		filterForm->raise();
 		filterForm->activateWindow();
 	}
@@ -417,7 +417,7 @@ void Browser::onConnectionWidgetTableActivated(const QString &sqlTbl) {
 	 * swap sql tables during runtime, a double-mouse-click event is captured
 	 * and the user-selected tv instance becomes addressed by the event handler.
 	 */
-	foreach (TabView *tv, mTvs) {
+	foreach (TabView *tv, mTabs.tvsNoPtr()) {
 		/**
 		 * Check for pending active select requests.
 		 */
@@ -455,11 +455,11 @@ void Browser::onConnectionWidgetTableActivated(const QString &sqlTbl) {
 	}
 }
 int  Browser::setFontAcc(QFont &font) {
-	this->tva->tv()->setFont(font);
+	mTabs.tva->tv()->setFont(font);
 	return 0;
 }
 void Browser::autofitRowCol() {
-	foreach (TabView *tvc, mTvs)
+	foreach (TabView *tvc, mTabs.tvsNoPtr())
 		tvc->resizeRowsColsToContents();
 }
 QFont Browser::selectFont() {
@@ -497,63 +497,54 @@ void Browser::onCyclic() {
 bool Browser::eventFilter(QObject *obj, QEvent *e) {
 
 	if (e->type() == QEvent::MouseButtonPress) {
-
-		QList<QString> objNames;
-		QString tableNames =
-				((QStringList) TVA << TVB << TVC << TVD << TVL1 << TVL2).join(',');
-
-
 		bool ok;
-
-		INFO << obj->children();
-		INFO << treeTraversation<QObject>(obj, 2)->children();
-		INFO << treeTraversation<QObject>(obj, 3)->children();
-		INFO << treeTraversation<QObject>(obj, 4)->children();
-		INFO << treeTraversation<QObject>(obj, 44, &ok)->children();
-
-		INFO << ok;
 
 		/*!
 		 * Maybe the sender is a viewport? Try it..
 		 * QWidget(0xb9fee0, name = qt_scrollarea_viewport) qt_scrollarea_viewport mtv gb
 		 */
-		TabView *tv;
+		QList<TabView *> tvCasts;
 
-		if (! static_cast<TabView *>(obj->parent()))
-			if (! static_cast<TabView *>(obj->parent()->parent()))
-				if (! static_cast<TabView *>(obj->parent()->parent()->parent()))
-					return QObject::eventFilter(obj, e);
-				else tv = static_cast<TabView *>(obj->parent()->parent()->parent());
-			else tv = static_cast<TabView *>(obj->parent()->parent());
-		else tv = static_cast<TabView *>(obj->parent());
+		/*!
+		 * Tree traverse upstairs until we find a expected child but max. N stairs
+		 */
+		for (int n = 2; n < 8; n++) {
+			tvCasts = listCast<TabView *>(
+							 treeTraversation<QObject>(obj, n, &ok)->children(), true);
+			if ((! ok) || (tvCasts.length() != 0))
+				break;
+		}
 
-		INFO << tv->grBox()->objectName();
-		INFO << tv->tv()->objectName();
-		/**
-			* If event receiver object has one of the tabview accessnames...
-			* ... reset all tabviews from beeing selected and mark the obj
-			* obj->parent() after static casting to TabView...
-			*/
-//		if ( ()
-//			  .contains( tv->/*parent()->*/objectName()) ) {
+		if (tvCasts.length() >= 2) {
+			foreach (TabView *tv, tvCasts)
+				if (tv->tv()->viewport() != obj)
+					tvCasts.removeOne(tv);
+		}
 
-			/**
-				 * Unselect if view was selected earlier
-				 */
-			if (QVariant(tv->grBox()->property("select")).toBool()) {
-				tv->grBox()->setProperty("select", false);
-				emit tabViewSelChanged( 0 );
-			} else {
-				tv->grBox()->setProperty("select", true);
-				tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
-				emit tabViewSelChanged(tv);
+		if (tvCasts.length() == 1) {
+			foreach (TabView *tv, tvCasts) {
+				if (mTabs.tvIds().join(',').contains(tv->objectName())) {
+
+					/**
+					 * Unselect if view was selected earlier
+					 */
+					if (QVariant(tv->grBox()->property("select")).toBool()) {
+						tv->grBox()->setProperty("select", false);
+						emit tabViewSelChanged( 0 );
+					}
+					else {
+						tv->grBox()->setProperty("select", true);
+						tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
+						emit tabViewSelChanged(tv);
+					}
+
+					return true;
+				}
+				else {
+					INFO << tr("event receiver obj has NON of the known table names!  ");
+				}
 			}
-//		}
-//		else {
-			INFO << tr("event receiver obj has NON of the known table names!  ");
-//				  <<  widget->parentWidget()->objectName();
-//		}
-
+		}
 		if (false) {
 			QList<QObject *> objs = obj->children();
 
@@ -561,8 +552,6 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 				INFO << "obj child no." << i << objs[i]->objectName();
 			}
 		}
-
-		return true;
 	}
 
 	if ((e->type() == QEvent::KeyPress) && false) {
@@ -580,52 +569,10 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 
 	}
 
-	return false;
-
 	/**
 	  * standard event processing
 	  */
 	return QObject::eventFilter(obj, e);
-}
-void Browser::mousePressEvent(QMouseEvent *e) {
-	QWidget *widget = qApp->widgetAt(QCursor::pos());
-
-	if (widget) {
-		INFO << widget->parentWidget()->objectName();
-		INFO << widget->objectName();
-	}
-
-	INFO << widget << widget->objectName() << widget->parent()->objectName();
-
-	/**
-		* If event receiver object has one of the tabview accessnames...
-		* ... reset all tabviews from beeing selected and mark the obj
-		* obj->parent() after static casting to TabView...
-		*/
-	if ( (((QStringList) TVA << TVB << TVC << TVD << TVL1 << TVL2).join(','))
-		  .contains( widget->parent()->objectName()) ) {
-
-		TabView *tv = static_cast<TabView *>(widget->parent());
-
-		/**
-		 * Unselect if view was selected earlier
-		 */
-		if (QVariant(tv->grBox()->property("select")).toBool()) {
-			tv->grBox()->setProperty("select", false);
-			emit tabViewSelChanged( 0 );
-		} else {
-			tv->grBox()->setProperty("select", true);
-			tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
-			emit tabViewSelChanged(tv);
-		}
-
-		e->accept();
-		return;
-	}
-	INFO << tr("event receiver obj has NON of the known table names!  ")
-		  <<  widget->parentWidget()->objectName();
-	e->ignore();
-	return;
 }
 void Browser::showEvent(QShowEvent *e) {
 	QSPLT_RESTORE;
@@ -646,7 +593,7 @@ void Browser::closeEvent(QCloseEvent *e) {
 
 	/**** Write tabView <-> SQL table relations
 	  \*/
-	foreach (TabView *tv, mTvs)
+	foreach (TabView *tv, mTabs.tvsNoPtr())
 		config.setValue(objectName() + "/" + tv->objectName(), tv->grBox()->title());
 
 	/**** Safe all action states from Browser
@@ -684,19 +631,19 @@ void Browser::createUi(QWidget *passParent) {
 	grLay = new QGridLayout(passParent);
 	connectionWidget = new ConnectionWidget();
 
-	tva = new TabView(passParent);
-	tvb = new TabView(passParent);
-	tvc = new TabView(passParent);
-	tvd = new TabView(passParent);
-	tvl1 = new TabView(passParent);
-	tvl2 = new TabView(passParent);
+	mTabs.tva = new TabView();
+	mTabs.tvb = new TabView();
+	mTabs.tvc = new TabView();
+	mTabs.tvd = new TabView();
+	mTabs.tvl1 = new TabView();
+	mTabs.tvl2 = new TabView();
 
-	PONAM(tva);
-	PONAM(tvb);
-	PONAM(tvc);
-	PONAM(tvd);
-	PONAM(tvl1);
-	PONAM(tvl2);
+	mTabs.tva->setObjectName(tr("tva"));
+	mTabs.tvb->setObjectName(tr("tvb"));
+	mTabs.tvc->setObjectName(tr("tvc"));
+	mTabs.tvd->setObjectName(tr("tvd"));
+	mTabs.tvl1->setObjectName(tr("tvl1"));
+	mTabs.tvl2->setObjectName(tr("tvl2"));
 
 	splitter = new QSplitter(passParent);
 	splitter_2 = new QSplitter(passParent);
@@ -730,28 +677,25 @@ void Browser::createUi(QWidget *passParent) {
 	grLay->addWidget(splitter_6);
 	grLay->addWidget(splitter_7);
 
-	splitter->addWidget(tva);
-	splitter->addWidget(tvb);
+	splitter->addWidget(mTabs.tva);
+	splitter->addWidget(mTabs.tvb);
 	splitter_2->addWidget(connectionWidget);
-	splitter_2->addWidget(tvd);
+	splitter_2->addWidget(mTabs.tvd);
 	splitter_3->addWidget(splitter);
 	splitter_3->addWidget(splitter_2);
 
 	splitter_4->addWidget(splitter_3);
 
-	splitter_5->addWidget(tvl1);
-	splitter_5->addWidget(tvl2);
+	splitter_5->addWidget(mTabs.tvl1);
+	splitter_5->addWidget(mTabs.tvl2);
 	splitter_6->addWidget(splitter_5);
-	splitter_6->addWidget(tvc);
+	splitter_6->addWidget(mTabs.tvc);
 	splitter_7->addWidget(splitter_4);
 	splitter_7->addWidget(splitter_6);
 
-	mTvs << tva << tvb << tvc << tvd << tvl1 << tvl2;
+	QList<QString> accName = mTabs.tvIds();
 
-	QList<QString> accName =
-			QStringList() << TVA << TVB << TVC << TVD << TVL1 << TVL2;
-
-	foreach (TabView *tv, mTvs) {
+	foreach (TabView *tv, mTabs.tvsNoPtr()) {
 		QString currentName = accName.takeFirst();
 		tv->setAccessibleName( currentName );
 		tv->setObjectName( currentName );
@@ -841,17 +785,17 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 	QList<bool> bl;
 
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTvs[0],   SLOT(onTabViewSelChanged(TabView *))));
+									  mTabs.tvsNoPtr()[0],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTvs[1],   SLOT(onTabViewSelChanged(TabView *))));
+									  mTabs.tvsNoPtr()[1],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTvs[2],   SLOT(onTabViewSelChanged(TabView *))));
+									  mTabs.tvsNoPtr()[2],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTvs[3],   SLOT(onTabViewSelChanged(TabView *))));
+									  mTabs.tvsNoPtr()[3],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTvs[4],   SLOT(onTabViewSelChanged(TabView *))));
+									  mTabs.tvsNoPtr()[4],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTvs[5],   SLOT(onTabViewSelChanged(TabView *))));
+									  mTabs.tvsNoPtr()[5],   SLOT(onTabViewSelChanged(TabView *))));
 
 	if (bl.contains(false))
 		INFO << tr("connect.tabViewSelChanged[0...6]:") << bl;
@@ -888,3 +832,4 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 
 #endif
 #define QFOLDINGEND }
+

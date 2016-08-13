@@ -98,16 +98,37 @@ class Browser : public QWidget {
 	Q_OBJECT
 
 public:
-	static struct mTvs {
-		QList<TabView *>  obj;
-		QList<QString *>  name;
-		QString TVA, TVB, TVC, TVD, TVL1, TVL2;
 
-		mTvs() :
+	/*! Public structure to deal with table data! */
+	struct mTabs_t {
+		/*! Constructor */
+		mTabs_t() :
 			TVA(QString("TableLeft")), TVB(QString("TableCenter")),
 			TVC(QString("TableRight")), TVD(QString("TableBottom")),
-			TVL2(QString("TableLong1")), TVL1(QString("TableLong2")) {	}
-	} mTvs;
+			TVL1(QString("TableLong1")), TVL2(QString("TableLong2")) {	}
+
+	public:
+		QList<TabView *> tvsNoPtr()	const {
+			return QList<TabView *>() << tva << tvb << tvc
+											  << tvd << tvl1 << tvl2;
+		}
+		QList<TabView *> *tvs()					{
+			mTvs << tva << tvb << tvc
+				  << tvd << tvl1 << tvl2;
+			return &mTvs;
+		}
+		QList<QString> tvIds() {
+			return QList<QString>() << TVA << TVB << TVC
+											<< TVD << TVL1 << TVL2;
+		}
+
+		TabView *tva, *tvb, *tvc, *tvd, *tvl1, *tvl2;
+
+	private:
+		QString TVA, TVB, TVC, TVD, TVL1, TVL2;
+		QList<TabView *>  mTvs;
+	};
+	static struct mTabs_t mTabs;
 
 	static const QString browserStyleSheet;
 
@@ -130,7 +151,7 @@ public:
 		tv->style()->unpolish(tv);
 	}
 	QList<TabView *> *tvs() {
-		return &mTvs;
+		return mTabs.tvs();
 	}
 //	void QSPLT_RESTORE();
 //	void QSPLT_STORE();
@@ -172,7 +193,7 @@ protected slots:
 	void showEvent(QShowEvent *e) override;
 	void hideEvent(QHideEvent *e) override;
 	bool eventFilter(QObject *obj, QEvent *e);
-	void mousePressEvent(QMouseEvent *e) override;
+//	void mousePressEvent(QMouseEvent *e) override;
 private slots:
 	//   QAbstractItemModel *createMailModel(QObject *parent);
 
@@ -180,7 +201,7 @@ private:
 	static Browser      *inst;
 	ConnectionWidget *connectionWidget;
 	QGridLayout *grLay;
-	TabView *tva, *tvb, *tvc, *tvd, *tvl1, *tvl2;
+
 	QSplitter *splitter, *splitter_2, *splitter_3, *splitter_4,
 	*splitter_5, *splitter_6, *splitter_7;
 

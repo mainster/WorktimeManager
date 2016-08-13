@@ -48,10 +48,50 @@ void resizeList(QList<T> & list, int newSize) {
 /*                      Cast list of type T to type U                       */
 /* ======================================================================== */
 template<class U, class T>
-QList<U> listCast (QList<T> ts) {
+QList<U> listCast (QList<T> ts, bool removeNullptr = false, bool *ok = NULL) {
+	/*!
+	 * If one or more casts will fail, the *ok flag is cleared to notifiy
+	 * the template class user that each list member has to be checked against
+	 * 0x00 value befor using the pointer element.
+	 */
+	if (ok != NULL)
+		*ok = true;
+
 	QList<U> us;
 	foreach (T t, ts) {
 		us << static_cast<U>(t);
+
+		if ((! us.last()) && (removeNullptr))
+			us.removeLast();
+		else
+			if ((! us.last()) && (! removeNullptr) && (ok != NULL))
+				*ok = false;
+	}
+	return us;
+}
+
+/* ======================================================================== */
+/*							Cast object list of to type U									 */
+/* ======================================================================== */
+template<class U>
+QList<U> listCast (QList<QObject *> objs, bool removeNullptr = false, bool *ok = NULL) {
+	/*!
+	 * If one or more casts will fail, the *ok flag is cleared to notifiy
+	 * the template class user that each list member has to be checked against
+	 * 0x00 value befor using the pointer element.
+	 */
+	if (ok != NULL)
+		*ok = true;
+
+	QList<U> us;
+	foreach (QObject *o, objs) {
+		us << qobject_cast<U>(o);
+
+		if ((! us.last()) && (removeNullptr))
+			us.removeLast();
+		else
+			if ((! us.last()) && (! removeNullptr) && (ok != NULL))
+				*ok = false;
 	}
 	return us;
 }
@@ -67,31 +107,6 @@ QList<T> listFindByName(QList<T> ts, const QString name) {
 			out << t;
 	}
 	return out;
-}
-
-/* ======================================================================== */
-/*               Traverse upstairs in parent/child hierarchy                */
-/* ======================================================================== */
-template<class U>
-U *treeTraversation(U *obj, const int steps, bool *ok) {
-	if (ok != NULL)	*ok = true;
-
-	QList<U *> tree;
-	tree << obj;
-
-	for (int n = steps; n > 0; n--) {
-		/*! Check tree against nullptr! */
-		if (! tree.last()) {
-			qDebug().noquote() << QString("Traversation tree out-of-bounds!");
-			tree.removeLast();
-			if (ok != NULL)
-				*ok = false;
-
-			break;
-		}
-		tree << tree.last()->parent();
-	}
-	return tree.last();
 }
 
 /* ======================================================================== */
