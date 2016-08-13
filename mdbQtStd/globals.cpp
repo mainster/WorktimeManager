@@ -1,11 +1,4 @@
 #include <QtGui>
-#include <QWidget>
-#include <QObject>
-#include <QVariant>
-#include <QTypeInfo>
-#include <QMainWindow>
-
-#include <QMetaType>
 
 #include "globals.h"
 #include "types.h"
@@ -13,18 +6,18 @@
 #include "types.h"
 
 QString Globals::ddgbStyleShtA = "QGroupBox {"
-		"background-color: qlineargradient("
-		"x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
-		"border: 2px solid gray; border-radius: 5px;"
-		"margin-top: 4ex;"          /* leave space at the top for the title */
-		"}"
+											"background-color: qlineargradient("
+											"x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
+											"border: 2px solid gray; border-radius: 5px;"
+											"margin-top: 4ex;"          /* leave space at the top for the title */
+											"}"
 
-		"QGroupBox::title {"
-		"subcontrol-origin: margin;"
-		"subcontrol-position: top center; "  /* position at the top center */
-		"padding: 0 3px;"
-		"background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-		"stop: 0 #FFOECE, stop: 1 #FFFFFF);}";
+											"QGroupBox::title {"
+											"subcontrol-origin: margin;"
+											"subcontrol-position: top center; "  /* position at the top center */
+											"padding: 0 3px;"
+											"background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+											"stop: 0 #FFOECE, stop: 1 #FFFFFF);}";
 
 QString Globals::ddgbCheckableStyleSht =
 		" QGroupBox::indicator {"
@@ -72,22 +65,22 @@ QString Globals::ddtvStyleShtA =
 		"}";
 
 QString Globals::ddgbStyleShtCenterHead =
-	  " QGroupBox {"
-	  "      background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
-	  "      border: 2px solid gray;"
-	  "      border-radius: 5px;"
-	  "   margin-top: 1ex; /* leave space at the top for the title */"
-	  "      font: italic 9pt \"Arial\";"
-	  "   font-weight: bold;"
-	  "   color: black;"
-	  " }"
-	  ""
-	  " QGroupBox::title {"
-	  "   subcontrol-origin: margin; /* margin boarder padding content */"
-	  "   subcontrol-position: top center; /* position at the top center */"
-	  "   top: 3px;   "
-	  "   padding: 0px 6px"
-	  " }";
+		" QGroupBox {"
+		"      background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
+		"      border: 2px solid gray;"
+		"      border-radius: 5px;"
+		"   margin-top: 1ex; /* leave space at the top for the title */"
+		"      font: italic 9pt \"Arial\";"
+		"   font-weight: bold;"
+		"   color: black;"
+		" }"
+		""
+		" QGroupBox::title {"
+		"   subcontrol-origin: margin; /* margin boarder padding content */"
+		"   subcontrol-position: top center; /* position at the top center */"
+		"   top: 3px;   "
+		"   padding: 0px 6px"
+		" }";
 
 QString Globals::gbStyleShtCenterPROPERTYS =
 		"QGroupBox#tva[selected=false] { border: 2px solid gray;  }"

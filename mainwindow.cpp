@@ -15,13 +15,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	connectActions(connectThis);
 
 	QSETTINGS_INIT; QSETTINGS;
-//	initDocks();
+	//	initDocks();
 
 
 	stateBar		= new MDStateBar( this );
 	browser		= new Browser( parent );
 	mDbc			= new DbController(this);
+
+	/* ======================================================================== */
+	/*                                new InpFrm                                */
+	/* ======================================================================== */
 	inpFrm		= new InpFrm( this );
+
+	QVariant var;
+	inpFrm->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
+	var.setValue (config.value(inpFrm->objectName() + tr("/DockWidgetArea"), Qt::BottomDockWidgetArea) );
+	INFO << var << var.value<Qt::DockWidgetArea>() << var.value<Qt::DockWidgetAreas>();
+
+	Qt::DockWidgetArea dockArea = static_cast<Qt::DockWidgetArea>(var.toInt());
+	addDockWidget(dockArea, inpFrm);
+
+
 	sortwindow  = new SortWindow( parent );
 
 	setStyleSheet(browser->browserStyleSheet);
@@ -41,14 +55,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	foreach (TabView *tv, browser->mTabs.tvsNoPtr())
 		connect(inpFrm, &InpFrm::newWorktimeRecord, tv, &TabView::refreshView);
 
+	/**** Restore mainWindow geometry and window state
+	\*/
+	WIN_RESTORE(this);
 
 	/**** Restore splitter sizes to config
 	\*/
 	SPLT_RESTORE(this);
-
-	/**** Restore mainWindow geometry and window state
-	\*/
-	WIN_RESTORE(this);
 
 	//	installEventFilter(this);
 
@@ -56,49 +69,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	config.fileName();
 	connectActions(connectOthers);
 
+
 	QTimer::singleShot(50, this, SLOT(restoreActionObjects()));
+	QTimer *t2 = new QTimer(this);
+	t2->setInterval(100);
+	t2->connect(t2, SIGNAL(timeout()), this, SLOT(onCyclic()));
+	t2->start();
 }
 MainWindow::~MainWindow() {
 	delete ui;
 }
 void MainWindow::onInpFrmButtonClick(bool ) {
 
-}
-void MainWindow::onBrowseSqlTrig(bool doBrowse) {
-	if (doBrowse) {
-		browser->show();
-
-		if ((! mDbc->getDb().isOpen()) ||
-			 (mDbc->getDb().isOpenError()))
-			mDbc->getConnectionState();
-	}
-	else {
-		//		QSETTINGS;
-		//		saveMainWindowGeometry();
-		//		QMetaObject::invokeMethod(browser, "close");
-		browser->hide();
-	}
-}
-void MainWindow::onOpenCloseInpFrm(bool onOff) {
-	QSETTINGS;
-	inpFrm->setVisible(onOff);
-	//   this->addDockWidget(Qt::BottomDockWidgetArea, inpForm);
-
-	//	if (b) {
-	////		InpFrm::instance()->restoreInpFrmGeometry();
-	//		//      addDockWidget( static_cast<Qt::DockWidgetArea>(
-	//		//                        config.value("inpForm/DockWidgetArea", "8").toInt) );
-	//		inpFrm->show();
-	//	}
-	//	else {
-
-	//		//      config.setValue("inpForm/DockWidgetArea", (uint)dockWidgetArea(inpForm));
-	//		inpFrm->saveInpFrmGeometry();
-	//		inpFrm->hide();
-	//	}
-}
-void MainWindow::onTblOpen(bool) {
-	INFO << tr("I am an empty slot, use me!!!");
 }
 void MainWindow::onSetAlterRowColTrig() {
 	QPalette pal = browser->tvs()->first()->tv()->palette();
@@ -141,17 +123,6 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 		tv->setStyleSheet( Globals::gbStyleShtCenterPROPERTYS);
 	}
 }
-void MainWindow::onMenuStyleShtInpFrmTrig(bool b) {
-	if (!b) return;
-
-	//   ui->actStyleShtA->setChecked( !b );
-	//   ui->actStyleShtInpFrm->setChecked( b );
-
-	//   *browser->tvs()[0]->getGrBox();
-	//   foreach (QGroupBox *gb, browser->getGBoxs()) {
-	//      gb->setStyleSheet( Globals::gbStyleShtInpFrm);
-	//   }
-}
 void MainWindow::onUnderConstrTrig() {
 
 #define QFOLDINGSTART {
@@ -189,7 +160,12 @@ void MainWindow::onSetFont() {
 	}
 }
 void MainWindow::onCyclic() {
+	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
+	QList<int> ba;
+	foreach (QAction *act, acts)
+		ba << (int)act->isChecked();
 
+	INFO << ba;
 }
 void MainWindow::onActCloseTrig() {
 	//    qApp->closeAllWindows();
@@ -198,17 +174,10 @@ void MainWindow::onActCloseTrig() {
 	close();
 }
 void MainWindow::onActSaveTrig() {
-	//	QSETTINGS;
-	//	config.setValue(tr("testgeometry/") + objectName(), saveGeometry());
-	//	config.setValue(tr("teststate/") + objectName(), saveState());
-	//	config.sync();
-	WIN_STORE(this);
+
 }
 void MainWindow::onActOpenTrig() {
-	WIN_RESTORE(this);
-	//	QSETTINGS;
-	//	restoreGeometry(config.value(tr("testgeometry/") + objectName()).toByteArray());
-	//	restoreState(config.value(tr("teststate/") + objectName()).toByteArray());
+
 }
 /* ======================================================================== */
 /*                              Event handler                               */
@@ -234,7 +203,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
 	return QObject::eventFilter(obj, event);
 }
 void MainWindow::showEvent(QShowEvent *e) {
-
 	setCentralWidget(browser);
 	QWidget::showEvent( e );
 }
@@ -246,7 +214,8 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 
 	/**** Safe current docking area of dock widgets
 	\*/
-	config.setValue("inpForm/DockWidgetArea", (uint)dockWidgetArea(inpFrm));
+	config.setValue(inpFrm->objectName() + tr("/DockWidgetArea"),
+						 (uint)dockWidgetArea(inpFrm));
 
 	/**** Write splitter sizes to config
 	\*/
@@ -258,35 +227,35 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 
 	/**** Safe all action states from MainWindow
 	\*/
-	ACTION_STORE(this);
-
-//	QWidget::closeEvent( e );
+	ACTION_STORE(this, tr("act*"));
 }
 /* ======================================================================== */
 /*									    Init methodes										    */
 /* ======================================================================== */
 bool MainWindow::restoreActionObjects () {
 	QSETTINGS;
-	bool returnState = true;
 
-	/**** Restore all action states from MainWindow
-	\*/
-	ACTION_RESTORE(this);
+	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
 
-	//	QList<QAction *> acts = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
-	//	foreach (QAction *ac, acts) {
-	//		if ( config.value("MainWindow/" + ac->objectName(), false).toBool() ) {
-	//			if (ac != ui->actFilterForm) {
-	//				emit ac->trigger();
-	//				INFO << tr("QAction") << ac->text() << tr("triggered");
-	//			}
-	//		}
-	//	}
+	foreach (QAction *act, acts)
+		if (act->objectName().isEmpty())
+			acts.removeOne(act);
+	qSort(acts.begin(), acts.end());
 
+	foreach (QAction *act, acts) {
+		if (! config.allKeys().join(',').contains( act->objectName() )) {
+			WARN << tr("act->objectName() %1 not found!").arg(act->objectName());
+			continue;
+		}
+
+		bool test = config.value(objectName() + tr("/") + act->objectName()).toBool();
+		act->setChecked( test );
+		INFO << act->objectName() << tr("set checked: ") << test;
+	}
 	/**** Restore visibility flag for the SQL command interface
 	\*/
 	try {
-		if (!config.value("MainWindow/actHideSqlQuery", true).toBool()) {
+		if (!config.value(objectName() + tr("/actHideSqlQuery"), true).toBool()) {
 			inpFrm->setSqlQueryTextboxVisible( true );
 			ui->actHideSqlQuery->setChecked( false );
 		}
@@ -299,27 +268,12 @@ bool MainWindow::restoreActionObjects () {
 		CRIT << tr("!");
 	}
 
-	/**** Restore tabview <-> SQL table assignements, but only if valid keys are stored
-	 \*/
-	foreach (TabView *tv, *browser->tvs()) {
-		QString settingsKey = QString(browser->objectName() + "/" + tv->objectName());
-
-		if (! config.allKeys().contains(settingsKey)) {
-			returnState = false;
-			continue;
-		}
-
-		tv->restoreView();
-		QString tabNam = config.value(settingsKey).toString();
-		browser->showRelatTable( tabNam, tv );
-	}
-
 	/**** Recall dock states
 	 \*/
 	if (ui->actInpForm->isChecked()) {
 		inpFrm->show();
 		Qt::DockWidgetArea dwa = static_cast<Qt::DockWidgetArea>(
-											 config.value("inpForm/DockWidgetArea",
+											 config.value(inpFrm->objectName() + tr("/DockWidgetArea"),
 															  Qt::BottomDockWidgetArea).toUInt());
 		/*!
 		 * Produces unexpected behavior
@@ -330,7 +284,7 @@ bool MainWindow::restoreActionObjects () {
 	else inpFrm->hide();
 	//		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
 
-	return returnState;
+	return true;
 }
 void MainWindow::makeMenuBar() {
 	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&File"));
@@ -348,7 +302,7 @@ void MainWindow::makeMenuBar() {
 	QMenu *browserMenu = Browser::instance()->menuBarElement();
 	menuBar()->addMenu( browserMenu );
 
-//	browserMenu->addActions(Browser::instance()->menuBarElement());
+	//	browserMenu->addActions(Browser::instance()->menuBarElement());
 }
 void MainWindow::connectActions(ConnectReceiver receivers) {
 	ui->actHideSqlQuery->setChecked( true );
@@ -395,20 +349,25 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 	//            browser,        SLOT( SORTIT()));
 }
 void MainWindow::initDocks() {
+
+}
+void MainWindow::ACTION_STORE(QObject *obj, QString regex) {
 	QSETTINGS;
-	inpFrm = InpFrm::instance( this );
-	inpFrm->hide();
+	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
+	foreach (QAction *act, acts) {
+		config.setValue(obj->objectName() + QString("/") + act->objectName(), act->isChecked());
+		INFO << obj->objectName() + QString("/") + act->objectName() << act->isChecked();
+	}
 
-	inpFrm->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
+	config.setValue(obj->objectName() + QString("/actionCtr"), acts.length());
+	config.sync();
+}
+void MainWindow::ACTION_RESTORE(QObject *obj, QString regex) {
+	QSETTINGS;
+	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
 
-	/*!
-	  * Restore inpFrms last doc position.
-	  */
-	QVariant v = QVariant::fromValue(config.value("inpForm/DockWidgetArea",
-																 Qt::BottomDockWidgetArea) );
-	Qt::DockWidgetArea dockArea = static_cast<Qt::DockWidgetArea>(v.toInt());
-
-	addDockWidget(dockArea, inpFrm);
+	foreach (QAction *act, acts)
+		act->setChecked(config.value(obj->objectName() + QString("/") + act->objectName()).toBool());
 }
 
 

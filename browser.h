@@ -100,11 +100,14 @@ public:
 			TVL1(QString("TableLong1")), TVL2(QString("TableLong2")) {	}
 
 	public:
-		QList<TabView *> tvsNoPtr()	const {
-			return QList<TabView *>() << tva << tvb << tvc
-											  << tvd << tvl1 << tvl2;
+		QList<TabView *> tvsNoPtr() {
+			mTvs.clear();
+			mTvs << tva << tvb << tvc
+				  << tvd << tvl1 << tvl2;
+			return mTvs;
 		}
 		QList<TabView *> *tvs()					{
+			mTvs.clear();
 			mTvs << tva << tvb << tvc
 				  << tvd << tvl1 << tvl2;
 			return &mTvs;
@@ -174,13 +177,15 @@ public slots:
 	}
 	void autofitRowCol();
 	void onActFilterForm(bool b);
-	void onBeforeUpdate(int row, QSqlRecord &record);
 	QMenu *menuBarElement();
 
- protected:
+protected:
 	void createUi(QWidget *passParent = 0);
+	void ACTION_STORE(QObject *obj, QString regex);
+	void ACTION_RESTORE(QObject *obj, QString regex);
 
 protected slots:
+	bool restoreUi();
 	void showEvent(QShowEvent *e) override;
 	void hideEvent(QHideEvent *e) override;
 	bool eventFilter(QObject *obj, QEvent *e);
@@ -197,11 +202,11 @@ private:
 	SfiltMdl				*proxyModel;
 	SortWindow			*filterForm;
 	MDStateBar			*stateBar;
-	QMenu					*browsMenu;
 	TvSelectors			m_tvSelector;
 	QSplitter	*splitter, *splitter_2, *splitter_3,
 	*splitter_4, *splitter_5, *splitter_6, *splitter_7;
 public:
+	QMenu					*browsMenu;
 	static const QString browserStyleSheet;
 };
 

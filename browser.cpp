@@ -106,6 +106,8 @@ Browser::Browser(QWidget *parent)
 	filterForm = SortWindow::getInstance();
 	filterForm->setWindowTitle(tr("The window title ") + filterForm->objectName());
 	filterForm->hide();
+
+	QTimer::singleShot(50, this, SLOT(restoreUi()));
 }
 Browser::~Browser() {
 	INFO << tr("close browser!");
@@ -390,10 +392,6 @@ void Browser::customMenuRequested(QPoint pos) {
 	menu->addAction(new QAction("Action 3", this));
 	menu->popup(tvs()->first()->tv()->viewport()->mapToGlobal(pos));
 }
-void Browser::onBeforeUpdate(int row, QSqlRecord &record) {
-	INFO << row;
-	INFO << record;
-}
 void Browser::onActFilterForm(bool b) {
 	filterForm->setVisible(b);
 
@@ -434,7 +432,7 @@ void Browser::onConnectionWidgetTableActivated(const QString &sqlTbl) {
 				 * Update TabViews group box title to match the prior activated sql
 				 * table name
 				 */
-			tv->grBox()->setTitle( sqlTbl );
+			//			tv->grBox()->setTitle( sqlTbl );
 			return;
 		}
 		else {
@@ -455,26 +453,9 @@ void Browser::onConnectionWidgetTableActivated(const QString &sqlTbl) {
 		}
 	}
 }
-int  Browser::setFontAcc(QFont &font) {
-	mTabs.tva->tv()->setFont(font);
-	return 0;
-}
 void Browser::autofitRowCol() {
 	foreach (TabView *tvc, mTabs.tvsNoPtr())
 		tvc->resizeRowsColsToContents();
-}
-QFont Browser::selectFont() {
-	bool ok;
-	QFont font = QFontDialog::getFont(
-						 &ok, QFont("Helvetica [Cronyx]", 10), this);
-
-	if (ok) {
-		INFO << font;
-	} else {
-		INFO << font;
-	}
-
-	return QFont();
 }
 void Browser::onCyclic() {
 
@@ -497,7 +478,7 @@ void Browser::onTvSelectorChanged() {
 	INFO << tr("m_tvSelector:") << tvSelector();
 	/**** Safe all action states from Browser
 	\*/
-	ACTION_STORE(this);
+	//	Globals::ACTION_STORE(this);
 }
 void Browser::onActMenuTrigd(bool state) {
 	Q_UNUSED(state)
@@ -516,6 +497,23 @@ void Browser::onActMenuTrigd(bool state) {
 		 ->objectName().contains(tr("muGrSel"))) {
 		setTvSelector(actSender->data().value<TvSelector>());
 	}
+}
+int  Browser::setFontAcc(QFont &font) {
+	mTabs.tva->tv()->setFont(font);
+	return 0;
+}
+QFont Browser::selectFont() {
+	bool ok;
+	QFont font = QFontDialog::getFont(
+						 &ok, QFont("Helvetica [Cronyx]", 10), this);
+
+	if (ok) {
+		INFO << font;
+	} else {
+		INFO << font;
+	}
+
+	return QFont();
 }
 /* ======================================================================== */
 /*                              Event handler                               */
@@ -602,6 +600,8 @@ void Browser::hideEvent(QHideEvent *) {
 void Browser::closeEvent(QCloseEvent *) {
 	QSETTINGS;
 
+	INFO << findChildren<QSplitter *>(QString(), Qt::FindDirectChildrenOnly);
+
 	/**** Write splitter sizes to config
 	\*/
 	SPLT_STORE(this);
@@ -613,29 +613,35 @@ void Browser::closeEvent(QCloseEvent *) {
 
 	/**** Safe all action states from Browser
 	\*/
-	QList<QAction *> acts;
-
-	acts = findChildren<QAction *>();
-	foreach (QAction *act, acts) {
-		if (act->objectName().isEmpty())
-			continue;
-		config.setValue(objectName() + "/" + act->objectName(), act->isChecked());
-	}
-
-	acts.clear();
-	acts = browsMenu->findChildren<QAction *>();
-	foreach (QAction *act, acts)
-		config.setValue(browsMenu->objectName() + "/" + act->objectName(), act->isChecked());
-
-	config.setValue(objectName() + tr("/actionCtr"), acts.length());
-	config.sync();
-
-//	ACTION_STORE(this);
-//	ACTION_STORE(browsMenu);
+	ACTION_STORE(this, tr("act*"));
 }
 /* ======================================================================== */
 /*                              Init methodes                               */
 /* ======================================================================== */
+bool Browser::restoreUi() {
+	bool ret = true;
+	QSETTINGS;
+
+	/**** Restore splitter sizes to config
+	\*/
+	SPLT_RESTORE(this);
+
+	/**** Restore tabview <-> SQL table assignements, but only if valid keys are stored
+	 \*/
+
+	foreach (TabView *tv, mTabs.tvsNoPtr()) {
+		if (! config.allKeys().join(',').contains( tv->objectName() ))
+			continue;
+
+		QString tabNam = config.value(objectName() + tr("/") + tv->objectName()).toString();
+		tv->restoreView();
+		showRelatTable( tabNam, tv );
+	}
+	/**** Restore all action states from Browser
+	\*/
+	ACTION_RESTORE(this, tr("act*"));
+	return ret;
+}
 QMenu *Browser::menuBarElement() {
 	browsMenu = new QMenu(tr("Browser"));
 	QMenu *tvSelCfgMu = browsMenu->addMenu(tr("Table selector config"));
@@ -787,7 +793,24 @@ QTableView* Browser::createView(QSqlQueryModel *model, const QString &title) {
 
 	return view;
 }
+void Browser::ACTION_STORE(QObject *obj, QString regex) {
+	QSETTINGS;
+	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
 
+	foreach (QAction *act, acts)
+		config.setValue(obj->objectName() + QString("/") + act->objectName(), act->isChecked());
+
+	config.setValue(obj->objectName() + QString("/actionCtr"), acts.length());
+	config.sync();
+}
+void Browser::ACTION_RESTORE(QObject *obj, QString regex) {
+	QSETTINGS;
+	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
+
+	qSort(acts.begin(), acts.end());
+	foreach (QAction *act, acts)
+		act->setChecked(config.value(obj->objectName() + QString("/") + act->objectName()).toBool());
+}
 
 #define QFOLDINGSTART {
 #ifndef COMMENT_OUT_UNUSED

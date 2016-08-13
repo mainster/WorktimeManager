@@ -8,6 +8,7 @@
 #include <QSqlError>
 #include <QtWidgets>
 #include <QMenu>
+#include <QRegularExpression>
 
 #include "ui_dbconndlg.h"
 #include "browser.h"
@@ -57,7 +58,9 @@ public:
 signals:
 
 public slots:
-	void onBrowseSqlTrig(bool b);
+	void onBrowseSqlTrig(bool onOff) {
+		browser->setVisible(onOff);
+	}
 	void about() {
 		QMessageBox::about
 				(this, tr("About"),
@@ -65,7 +68,17 @@ public slots:
 					 "can be used to visualize the results of SQL statements"
 					 "on a live database"));
 	}
-	void onMenuStyleShtInpFrmTrig(bool b);
+	void onMenuStyleShtInpFrmTrig(bool b) {
+		if (!b) return;
+
+		//   ui->actStyleShtA->setChecked( !b );
+		//   ui->actStyleShtInpFrm->setChecked( b );
+
+		//   *browser->tvs()[0]->getGrBox();
+		//   foreach (QGroupBox *gb, browser->getGBoxs()) {
+		//      gb->setStyleSheet( Globals::gbStyleShtInpFrm);
+		//   }
+	}
 	void onMenuStyleShtATrig(bool b);
 	void onActExportTrig() {
 		INFO << "!";
@@ -90,8 +103,12 @@ protected slots:
 	bool restoreActionObjects();
 
 private slots:
-	void onOpenCloseInpFrm(bool onOff);
-	void onTblOpen(bool);
+	void onOpenCloseInpFrm(bool onOff) {
+		inpFrm->setVisible(onOff);
+	}
+	void onTblOpen(bool) {
+		INFO << tr("I am an empty slot, use me!!!");
+	}
 	void onActCloseTrig();
 
 protected:
@@ -100,6 +117,8 @@ protected:
 	void hideEvent(QHideEvent *) override;
 	void closeEvent(QCloseEvent *e);
 
+	void ACTION_RESTORE(QObject *obj, QString regex);
+	void ACTION_STORE(QObject *obj, QString regex);
 private:
 	Ui::MainWindow *ui;
 	static int   fuse;

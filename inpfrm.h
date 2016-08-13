@@ -128,6 +128,7 @@ protected slots:
 	void onInpFormChanges(QDate date);
 	void onChangeFocusOrder(Qt::FocusOrderState state);
 	void hideEvent(QShowEvent *);
+	void closeEvent(QCloseEvent *) override;
 
 private slots:
 
@@ -135,21 +136,17 @@ private:
 	Ui::InpFrm						*ui;
 	static InpFrm					*inst;
 	int								workerIdx, projIdx;
-//	QSqlRelationalTableModel	*model;
-//	QSqlTableModel					*prjmd, *clmd, *wkmd;
-//	QDataWidgetMapper				*prjm, *clm, *wkm;
 	MDStateBar						*stateBar;
 	QDateEdit						*de;
 	QDialog							*dlg;
 	QVector<QRadioButton*>		rbv;
-//	QList<QWidget *>				mSqlCbs;
 	QList<MdComboBox *>			mSqlCbs;
 	QSqlQuery						query;
 	QStringList						tblLst;
 	QTextEdit						*gbSqlQuery;
 	Qt::FocusOrderState			mChangeFocusFlag;
 	bool								mEscapeTrigger;
-//	SortFilterProxyModel			*proxyModel;
+
 };
 
 #endif // INPFRM_H

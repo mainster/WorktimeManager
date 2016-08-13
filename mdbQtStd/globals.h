@@ -120,24 +120,31 @@
 	obj->restoreGeometry(config.value(obj->objectName() + GEOM,"").toByteArray()); \
 	}
 #define     SPLT_STORE(obj)   { QSETTINGS; \
-	QList<QSplitter *> spls = obj->findChildren<QSplitter *>(QString(), Qt::FindDirectChildrenOnly); \
+	QList<QSplitter *> spls = obj->findChildren<QSplitter *>(); \
 	foreach (QSplitter *sp, spls) \
 	config.setValue(obj->objectName() + "/" + sp->objectName(), sp->saveState()); \
 	config.sync(); \
 	}
-#define     ACTION_STORE(obj) { QSETTINGS; \
-	QList<QAction *> acts = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly); \
+#define     __ACTION_STORE(obj,regex) { QSETTINGS; \
+	if (QString(regex).isEmpty()) \
+	regex = QString("*"); \
+	QList<QAction *> acts = obj->findChildren<QAction *>(regex); \
+	qSort(acts.begin(), acts.end());	\
 	foreach (QAction *act, acts) \
-	config.setValue(obj->objectName() + "/" + act->objectName(), act->isChecked()); \
+	config.setValue(obj->objectName() + QString("/") + act->objectName(), act->isChecked()); \
+	config.setValue(obj->objectName() + QString("/actionCtr"), acts.length()); \
 	config.sync(); \
 }
-#define     ACTION_RESTORE(obj) { QSETTINGS; \
-	QList<QAction *> acts = obj->findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly); \
+#define     __ACTION_RESTORE(obj,regex) { QSETTINGS; \
+	if (QString(regex).isEmpty()) \
+	regex = QString("*"); \
+	QList<QAction *> acts = obj->findChildren<QAction *>(regex); \
+	qSort(acts.begin(), acts.end());	\
 	foreach (QAction *act, acts) \
-	act->setChecked( config.value(obj->objectName() + "/" + act->objectName(), false).toBool()); \
+	act->setChecked(config.value(obj->objectName() + QString("/") + act->objectName()).toBool()); \
 	}
-#define     SPLT_RESTORE(obj)   { QSETTINGS; \
-	QList<QSplitter *> spls = obj->findChildren<QSplitter *>(QString(), Qt::FindDirectChildrenOnly); \
+#define     SPLT_RESTORE(obj)  { QSETTINGS; \
+	QList<QSplitter *> spls = obj->findChildren<QSplitter *>(); \
 	foreach (QSplitter *sp, spls) \
 	sp->restoreState(config.value(obj->objectName() + "/" + sp->objectName(), " ").toByteArray()); \
 	config.sync(); \
