@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
 
 	sortwindow  = new SortWindow( parent );
+	sortwindow->setStyleSheet(browser->browserStyleSheet);
 
 	setStyleSheet(browser->browserStyleSheet);
 
@@ -75,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	QTimer *t2 = new QTimer(this);
 	t2->setInterval(100);
 	t2->connect(t2, SIGNAL(timeout()), this, SLOT(onCyclic()));
-//	t2->start();
+	//	t2->start();
 }
 MainWindow::~MainWindow() {
 	delete ui;
@@ -357,26 +358,28 @@ void MainWindow::makeMenuBar() {
 	QMenu *muSup = static_cast<QMenu *>(menuBar()->findChild<QMenu *>(tr("menu_Setup")));
 	QMenu *muView = static_cast<QMenu *>(menuBar()->findChild<QMenu *>(tr("muView)")));
 
-	QAction *muSetStyleSh = muSup->addAction(tr("St&yleSheets"), this, &MainWindow::onStyleSheetTrig),
-			*muSetFont = muSup->addAction("Schriftfont", this, &MainWindow::onSetFont),
-			*muSetRowCol = muSup->addAction("Alternierender \n Zeilenhintergrund", this, &MainWindow::onSetAlterRowColTrig),
-			*muSetObjInfo = muSup->addAction("Cyclic object info", browser, &Browser::setCyclicObjInfo),
-			*muSetResize = muSup->addAction("Fenstergröße anpassen", this, &MainWindow::onResizerDlgTrig),
-			*muSetHidQuery = muSup->addAction("Eingabefeld für SQL querys ausblenden", browser, &Browser::on),
-			*muSetTabOrd = muSup->addAction("Tabulator Reihenfolge ändern", this, &MainWindow::onActCfgInpFrmTabOrdTrig),
-			*muSep_1 = muSup->addSeparator(),
-			*muSetAutofit = muSup->addAction("Autofit für Zeilen/Spalten", browser, &Browser::autofitRowCol),
-			*muSetfilt = muSup->addAction("Filter/Suchfenster einblenden ", browser, &Browser::onActFilterForm),
-			*muSetClose = muSup->addAction("Close", this, &MainWindow::close);
+	QAction *muSetStyleSh, *muSetFont, *muSetRowCol, *muSetObjInfo, *muSetResize,
+			*muSetHidQuery, *muSetTabOrd, *muSep_1, *muSetAutofit, *muSetfilt, *muSetClose;
 
-			muSetClose->setShortcut(QKeySequence("Ctrl+Q"));
-			muSetAutofit->setShortcut(QKeySequence("Ctrl+Alt+A"));
-			muSetHidQuery->setShortcuts(QList<QKeySequence>()
-												 << QKeySequence("Ctrl+Shifr+Q")
-												 << QKeySequence("Ctrl+H"));
+	muSetStyleSh	= muSup->addAction("St&yleSheets",			this, &MainWindow::onStyleSheetTrig);
+	muSetFont		= muSup->addAction("Schriftfont",			this, &MainWindow::onSetFont);
+	muSetRowCol		= muSup->addAction("Zeilenhintergrund",	this, &MainWindow::onSetAlterRowColTrig);
+	muSetObjInfo	= muSup->addAction("Cyclic object info",	browser, &Browser::setCyclicObjInfo);
+	muSetResize		= muSup->addAction("Fenstergröße ändern", this, &MainWindow::onResizerDlgTrig);
+	muSetHidQuery	= muSup->addAction("Eingabefeld SQL querys", this, &MainWindow::onActHideSqlQueryTrig);
+	muSetTabOrd		= muSup->addAction("Tabulator Reihenfolge", this, &MainWindow::onActCfgInpFrmTabOrdTrig);
+	muSep_1			= muSup->addSeparator();
+	muSetAutofit	= muSup->addAction("Autofit Zeile/Spalte", browser, &Browser::autofitRowCol);
+	muSetfilt		= muSup->addAction("Suchfenster anzeigen", browser, &Browser::onActFilterForm);
+	muSetClose		= muSup->addAction("Close", this, &MainWindow::close);
+
+	muSetClose->setShortcut(QKeySequence("Ctrl+Q"));
+	muSetAutofit->setShortcut(QKeySequence("Ctrl+Alt+A"));
+	muSetHidQuery->setShortcuts(QList<QKeySequence>()
+										 << QKeySequence("Ctrl+Shifr+Q")
+										 << QKeySequence("Ctrl+H"));
 
 	/* ======================================================================== */
-
 	ui->mainToolBar->addActions(QList<QAction*>()
 										 << actNew << actOpen << actSave << actExport << actBrowseSQL
 										 << actInpForm << actShowTbl << actDbModMaster << actClose);

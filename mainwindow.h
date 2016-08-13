@@ -114,6 +114,12 @@ private slots:
 	void onStyleSheetTrig();
 
 protected:
+	void setStyleSheet(const QString& styleSheet) {
+		QWidget::setStyleSheet( styleSheet );
+		style()->unpolish(this);
+		style()->polish(this);
+		update();
+	}
 	bool eventFilter(QObject *obj, QEvent *event);
 	void showEvent(QShowEvent *e);
 	void hideEvent(QHideEvent *) override;

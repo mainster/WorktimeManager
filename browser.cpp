@@ -77,6 +77,11 @@ Browser::Browser(QWidget *parent)
 	inst = this;
 	setObjectName("Browser");
 
+	setStyleSheet(browserStyleSheet);
+	style()->unpolish(this);
+	style()->polish(this);
+	update();
+
 	createUi(this);
 	connect(connectionWidget,	&ConnectionWidget::tableActivated,
 			  this,					&Browser::onConnectionWidgetTableActivated);
@@ -695,14 +700,14 @@ void Browser::createUi(QWidget *passParent) {
 	 */
 
 	grLay = new QGridLayout(passParent);
-	connectionWidget = new ConnectionWidget();
+	connectionWidget = new ConnectionWidget(passParent);
 
-	mTabs.tva = new TabView();
-	mTabs.tvb = new TabView();
-	mTabs.tvc = new TabView();
-	mTabs.tvd = new TabView();
-	mTabs.tvl1 = new TabView();
-	mTabs.tvl2 = new TabView();
+	mTabs.tva = new TabView(passParent);
+	mTabs.tvb = new TabView(passParent);
+	mTabs.tvc = new TabView(passParent);
+	mTabs.tvd = new TabView(passParent);
+	mTabs.tvl1 = new TabView(passParent);
+	mTabs.tvl2 = new TabView(passParent);
 
 	mTabs.tva->setObjectName(tr("tva"));
 	mTabs.tvb->setObjectName(tr("tvb"));
@@ -759,6 +764,11 @@ void Browser::createUi(QWidget *passParent) {
 	splitter_7->addWidget(splitter_4);
 	splitter_7->addWidget(splitter_6);
 
+	passParent->setStyleSheet(browserStyleSheet);
+	passParent->style()->unpolish(passParent);
+	passParent->style()->polish(passParent);
+	passParent->update();
+
 	QList<QString> accName = mTabs.tvIds();
 
 	foreach (TabView *tv, mTabs.tvsNoPtr()) {
@@ -811,7 +821,6 @@ void Browser::ACTION_RESTORE(QObject *obj, QString regex) {
 	foreach (QAction *act, acts)
 		act->setChecked(config.value(obj->objectName() + QString("/") + act->objectName()).toBool());
 }
-
 #define QFOLDINGSTART {
 #ifndef COMMENT_OUT_UNUSED
 QAbstractItemModel *Browser::createMailModel(QObject *parent) {

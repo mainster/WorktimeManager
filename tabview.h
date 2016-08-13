@@ -44,7 +44,6 @@ public:
 
 public slots:
 	void onObjectNameChanged(const QString &objNam);
-	void setGrBoxStyleSht(const QString &ss);
 	void setGrBoxTitle(QString s);
 	void onTabViewSelChanged(TabView *tv);
 	void setAlternateRowCol(QColor &col, bool alternateEnabled = true);

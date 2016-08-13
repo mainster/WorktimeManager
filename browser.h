@@ -133,6 +133,13 @@ public:
 
 	//    void insertRow(QTableView *tv);
 	void deleteRow(QTableView *tv);
+	void setStyleSheet(const QString& styleSheet) {
+		QWidget::setStyleSheet( styleSheet );
+		style()->unpolish(this);
+		style()->polish(this);
+		update();
+	}
+
 	void resetStyleSheet(TabView *tv) {
 		tv->setStyleSheet(styleSheet());
 		style()->unpolish(tv);
