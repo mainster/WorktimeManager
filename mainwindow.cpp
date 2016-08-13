@@ -286,6 +286,59 @@ bool MainWindow::restoreActionObjects () {
 
 	return true;
 }
+void MainWindow::createActions() {
+	actNew = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
+	actOpen = new QAction(QIcon(":/images/open.pmg"), tr("Open"), this);
+	actSave = new QAction(QIcon(":/images/save.png"), tr("Save"), this);
+	actExport = new QAction(QIcon(":/images/export-3.png"), tr("Export"), this);
+	actBrowseSQL = new QAction(QIcon(":/images/database.png"), tr("BrowseSQL"), this);
+	actInpForm = new QAction(QIcon(":/images/databaseSubmit.png"), tr("InpForm"), this);
+	actShowTbl = new QAction(QIcon(":/images/databaseDelegate.png"), tr("ShowTbl"), this);
+	actDbModMaster = new QAction(QIcon(":/images/databaseConf.png"), tr("DbModMaster"), this);
+	actClose = new QAction(QIcon(":/icoDelete"), tr("Close"), this);
+
+	actGbStyleShtA = new QAction("actGbStyleShtA", this);
+	actGbSShtInpFrm = new QAction("actGbSShtInpFrm", this);
+	actUnderConstr = new QAction("actUnderConstr", this);
+	actSelFont = new QAction("actSelFont", this);
+	actCyclicObjInfo = new QAction("actCyclicObjInfo", this);
+	actResizerDlg = new QAction("actResizerDlg", this);
+	actHideSqlQuery = new QAction("actHideSqlQuery", this);
+	actSetAlterRowCol = new QAction("actSetAlterRowCol", this);
+	actAutoFitTables = new QAction("actAutoFitTables", this);
+	actFilterTable = new QAction("actFilterTable", this);
+	actFilterTableWindow = new QAction("actFilterTableWindow", this);
+	actFilterForm = new QAction("actFilterForm", this);
+	actCfgInpFrmTabOrd = new QAction("actCfgInpFrmTabOrd", this);
+
+	actBrowseSQL->setCheckable(true);
+	actInpForm->setCheckable(true);
+	actShowTbl->setCheckable(true);
+	actDbModMaster->setCheckable(true);
+	actGbStyleShtA->setCheckable(true);
+	actGbSShtInpFrm->setCheckable(true);
+	actCyclicObjInfo->setCheckable(true);
+	actHideSqlQuery->setCheckable(true);
+	actFilterTableWindow->setCheckable(true);
+	actFilterForm->setCheckable(true);
+
+	actInpForm->setToolTip(tr("<html><head/><body><p>Öffnet die <span style="" "
+									  "font-weight:600;"">Eingabeform</span> um neue Einträge in "
+									  "die in die Arbeitszeitentabelle einzutragen</p></body></html>"));
+	actNew->setToolTip(tr("Create a new file"));
+	actOpen->setToolTip(tr("Open an existing file "));
+	actSave->setToolTip(tr("Save the document"));
+	actExport->setToolTip(tr("Export dataset to document"));
+	actBrowseSQL->setToolTip(tr("Browser for SQL database"));
+	actShowTbl->setToolTip(tr("Open work time database table"));
+	actDbModMaster->setToolTip(tr("Stammdaten erweitern"));
+	actClose->setToolTip(tr("Alle Fenster schließen "));
+	actSelFont->setToolTip(tr("Font "));
+	actResizerDlg->setToolTip(tr("Resize MainWindow to x"));
+	actHideSqlQuery->setToolTip(tr("Hide or show the input field to submit manuall SQL querys thru database driver backend"));
+	actSetAlterRowCol->setToolTip(tr("Farbe für alternierenden Zeilenhintergund"));
+
+}
 void MainWindow::makeMenuBar() {
 	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&File"));
 	fileMenu->addAction(tr("Add &Connection..."), mDbc, SLOT(addConnection()));

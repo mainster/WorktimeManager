@@ -101,6 +101,7 @@ protected slots:
 	void onActSaveTrig();
 	void onActOpenTrig();
 	bool restoreActionObjects();
+	void createActions();
 
 private slots:
 	void onOpenCloseInpFrm(bool onOff) {
@@ -130,6 +131,30 @@ private:
 	SortWindow   *sortwindow;
 	QMenu        *mBar;
 	DbController *mDbc;
+	QAction
+	*actNew,
+	*actOpen,
+	*actSave,
+	*actExport,
+	*actBrowseSQL,
+	*actInpForm,
+	*actShowTbl,
+	*actDbModMaster,
+	*actClose,
+	*actGbStyleShtA,
+	*actGbSShtInpFrm,
+	*actUnderConstr,
+	*actSelFont,
+	*actCyclicObjInfo,
+	*actResizerDlg,
+	*actHideSqlQuery,
+	*actSetAlterRowCol,
+	*actAutoFitTables,
+	*actFilterTable,
+	*actFilterTableWindow,
+	*actFilterForm,
+	*actCfgInpFrmTabOrd;
+
 
 
 };
