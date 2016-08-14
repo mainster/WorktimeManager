@@ -533,6 +533,11 @@ void Browser::onTvSelectorChanged() {
 	\*/
 	//	Globals::ACTION_STORE(this);
 }
+
+ConnectionWidget *Browser::getConnectionWidget() const
+{
+	return connectionWidget;
+}
 void Browser::onActMenuTrigd(bool state) {
 	Q_UNUSED(state)
 

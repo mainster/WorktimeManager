@@ -20,13 +20,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	connectActions(connectThis);
 
 	stateBar		= new MDStateBar( this );
+	stateBar->setSlInfoAlign(Qt::AlignCenter);
+	stateBar->setClockAlign(Qt::AlignCenter);
+
 	browser		= new Browser( parent );
 	mDbc			= new DbController(this);
-
-	/* ======================================================================== */
-	/*                                new InpFrm                                */
-	/* ======================================================================== */
+	sortwindow  = new SortWindow( parent );
 	inpFrm		= new InpFrm( this );
+
+	connect(browser->getConnectionWidget(),	SIGNAL(detailesChanged(QString&)),
+			  stateBar,									SLOT(showInfo(QString&)));
 
 	QVariant var;
 	inpFrm->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
@@ -35,8 +38,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
 	Qt::DockWidgetArea dockArea = static_cast<Qt::DockWidgetArea>(var.toInt());
 	addDockWidget(dockArea, inpFrm);
-
-	sortwindow  = new SortWindow( parent );
 
 	stateBar->setClockVisible(true);
 	setStatusBar( stateBar );
@@ -441,6 +442,10 @@ void MainWindow::makeMenuBar() {
 	muSetHidQuery->setShortcuts(QList<QKeySequence>()
 										 << QKeySequence("Ctrl+Shifr+Q")
 										 << QKeySequence("Ctrl+H"));
+	muSetHidQuery->setCheckable(true);
+	muSetfilt->setCheckable(true);
+	muSetObjInfo->setCheckable(true);
+	muSetHidQuery->setCheckable(true);
 
 	/* ======================================================================== */
 	ui->mainToolBar->addActions(QList<QAction*>()

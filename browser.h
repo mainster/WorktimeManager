@@ -210,6 +210,7 @@ private:
 public:
 	QMenu					*browsMenu;
 	static const QString  browserStyleSheet, browserStyleSheetv2;
+	ConnectionWidget *getConnectionWidget() const;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Browser::TvSelectors)

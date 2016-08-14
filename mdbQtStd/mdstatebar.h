@@ -23,6 +23,8 @@
 
 class MDStateBar : public QStatusBar {
 	Q_OBJECT
+	Q_PROPERTY(Qt::Alignment slInfoAlign READ slInfoAlign WRITE setSlInfoAlign)
+	Q_PROPERTY(Qt::Alignment clockAlign READ clockAlign WRITE setClockAlign)
 
 public:
 	enum msgType {
@@ -44,11 +46,27 @@ public:
 	void setTeStat(QTextEdit *value);
 	static MDStateBar *getObjectPtr();
 
+	Qt::Alignment slInfoAlign() {
+		return mslot[type_info]->alignment();
+	}
+	void setSlInfoAlign(const Qt::Alignment &infoSlotAlign) {
+		mslot[type_info]->setAlignment(infoSlotAlign);
+	}
+	Qt::Alignment clockAlign() {
+		return mslot[clock.slotNo]->alignment();
+	}
+	void setClockAlign(const Qt::Alignment &clockAlign) {
+		mslot[ clock.slotNo - 1 ]->setAlignment(clockAlign);
+	}
+
 public slots:
 	void showError(const QString s, const int timeout = 0);
 	void showMessage2sec(QString &s);
 	void showMessage(const QString s, const int timeout);
-	void showInfo(const QString s, const int timeout = 0);
+	void showInfo(const QString s, const int timeout);
+	void showInfo(QString &s) {
+		showInfo(s, 0);
+	}
 	void showInSlot(const QVariant var, int slotNo);
 	void appendError(const QString s, const QString sep = " ");
 	void appendMessage(const QString s, const QString sep = " ");

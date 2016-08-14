@@ -198,5 +198,7 @@ void MDStateBar::onCyclic() {
 	//    Q_INFO << clock.time << clock.date << tr("visible: ")
 	//                         << clock.visible;
 }
+
+
 QTextEdit *MDStateBar::getTeStat() const { return new QTextEdit(); }
 void MDStateBar::setTeStat(QTextEdit *value) { Q_UNUSED(value); }

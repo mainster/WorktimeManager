@@ -37,6 +37,7 @@
 #include <QtWidgets>
 #include <QtSql>
 
+
 ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent) {
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	tree = new QTreeWidget(this);
@@ -52,13 +53,15 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent) {
 	tree->setContextMenuPolicy(Qt::ActionsContextMenu);
 
 	layout->addWidget(tree);
+	tree->expandAll();
 
 	QMetaObject::connectSlotsByName(this);
 
 	QTimer::singleShot(500, Qt::CoarseTimer, this, SLOT(refresh()));
 }
 ConnectionWidget::~ConnectionWidget() {}
-static QString qDBCaption(const QSqlDatabase &db) {
+
+static QString qDBCaptionOri(const QSqlDatabase &db) {
 	QString nm = db.driverName();
 	nm.append(QLatin1Char(':'));
 	if (!db.userName().isEmpty())
@@ -66,6 +69,28 @@ static QString qDBCaption(const QSqlDatabase &db) {
 	nm.append(db.databaseName());
 	return nm;
 }
+static QList<QString *> qDBCaption(const QSqlDatabase &db) {
+	QFileInfo fi(db.databaseName());
+	QList<QString *> str;
+
+	str << new QString(db.driverName());	// tree header/root element
+	str.at(0)->append(QLatin1Char(':'));
+	str.at(0)->append(fi.baseName());
+
+	str << new QString(db.driverName());
+	str.at(1)->append(QLatin1Char(':'));
+	str.at(1)->append(db.databaseName());
+
+	if (!db.userName().isEmpty())
+		str.at(1)->append(db.userName());
+	if (!db.hostName().isEmpty()) {
+		str.at(1)->append(QLatin1Char('@'));
+		str.at(1)->append(db.hostName());
+	}
+
+	return str;
+}
+
 void ConnectionWidget::refresh() {
 	tree->clear();
 	QStringList connectionNames = QSqlDatabase::connectionNames();
@@ -74,7 +99,11 @@ void ConnectionWidget::refresh() {
 	for (int i = 0; i < connectionNames.count(); ++i) {
 		QTreeWidgetItem *root = new QTreeWidgetItem(tree);
 		QSqlDatabase db = QSqlDatabase::database(connectionNames.at(i), false);
-		root->setText(0, qDBCaption(db));
+
+		root->setText(0, *qDBCaption(db).at(0));
+		QString s = *qDBCaption(db).at(1);
+		setDetails(s);
+
 		if (connectionNames.at(i) == activeDb) {
 			gotActiveDb = true;
 			setActive(root);
@@ -92,11 +121,14 @@ void ConnectionWidget::refresh() {
 		setActive(tree->topLevelItem(0));
 	}
 
-	tree->doItemsLayout();  // HACK
+	tree->doItemsLayout();
+	tree->expandAll();
 }
 QSqlDatabase ConnectionWidget::currentDatabase() const {
 	return QSqlDatabase::database(activeDb);
 }
+
+
 static void qSetBold(QTreeWidgetItem *item, bool bold) {
 	QFont font = item->font(0);
 	font.setBold(bold);
@@ -114,6 +146,7 @@ void ConnectionWidget::setActive(QTreeWidgetItem *item) {
 	activeDb =
 			QSqlDatabase::connectionNames().value(tree->indexOfTopLevelItem(item));
 }
+
 void ConnectionWidget::on_tree_itemActivated(QTreeWidgetItem *item,
 															int /* column */) {
 
@@ -137,6 +170,8 @@ void ConnectionWidget::on_tree_currentItemChanged(QTreeWidgetItem *current,
 																  QTreeWidgetItem *) {
 	metaDataAction->setEnabled(current && current->parent());
 }
+
+
 
 #define QFOLDINGSTART {
 // ConnectionWidget::ConnectionWidget(QWidget *parent)
