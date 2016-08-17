@@ -32,7 +32,7 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 
 	ui->cbQueryIdent->setDuplicatesEnabled( false );
 	ui->datePicker->setDate(QDate::currentDate());
-//	ui->gbSqlQuery->hide();
+	ui->gbSqlQuery->hide();
 	WIN_RESTORE(this);
 
 	setFixedHeight(fixedHeights.sqlQueryInvisible);

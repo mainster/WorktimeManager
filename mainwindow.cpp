@@ -1,13 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#define  RESTORE_SQL_DATABASE_PATH
-
-#ifdef STATIC_SIGNAL_CLASS
-StaticSignal *StaticSignal::inst = 0;
-#endif
-
-int MainWindow::fuse = 5;
+#define	ON_CYCLIC_INTERVAL_MS	250
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	ui(new Ui::MainWindow) {
@@ -68,12 +62,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	config.fileName();
 	connectActions(connectOthers);
 
+	timCyc = new QTimer(this);
+	timCyc->setInterval(ON_CYCLIC_INTERVAL_MS);
+	timCyc->connect(timCyc, SIGNAL(timeout()), this, SLOT(onCyclic()));
+	timCyc->start();
 
 	QTimer::singleShot(50, this, SLOT(restoreActionObjects()));
-	QTimer *t2 = new QTimer(this);
-	t2->setInterval(100);
-	t2->connect(t2, SIGNAL(timeout()), this, SLOT(onCyclic()));
-	//	t2->start();
 }
 MainWindow::~MainWindow() {
 	delete ui;
@@ -106,12 +100,6 @@ void MainWindow::onResizerDlgTrig() {
 		resize(QDesktopWidget().availableGeometry(this)
 				 .size() * text.toDouble() / 100);
 }
-void MainWindow::onActHideSqlQueryTrig() {
-	bool dohide = actHideSqlQuery->isChecked();
-	QSETTINGS;
-	config.setValue(objectName() + "/HideSqlQuery", dohide);
-	inpFrm->setQueryBoxVisible( !dohide );
-}
 void MainWindow::onMenuStyleShtATrig(bool b) {
 	if (!b) return;
 
@@ -124,9 +112,9 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 }
 void MainWindow::onUnderConstrTrig() {
 
-	INFO << actHideSqlQuery->isCheckable() << actHideSqlQuery->isChecked();
-	actHideSqlQuery->setCheckable(true);
-	actHideSqlQuery->setChecked(true);
+	INFO << actShowSqlQuery->isCheckable() << actShowSqlQuery->isChecked();
+	actShowSqlQuery->setCheckable(true);
+	actShowSqlQuery->setChecked(true);
 
 	return;
 #define QFOLDINGSTART {
@@ -164,12 +152,26 @@ void MainWindow::onSetFont() {
 	}
 }
 void MainWindow::onCyclic() {
+	if (false) {
 	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
 	QList<int> ba;
 	foreach (QAction *act, acts)
 		ba << (int)act->isChecked();
-
 	INFO << ba;
+	}
+	/* ---------------------------------------------------------------- */
+	/*         Get the name of object under the mouse pointer           */
+	/* ----------------------------------------------------------------*/
+	if (actGrTbMenu->actions().at(
+			 actGrTbMenu->actions().indexOf(actCyclicObjInfo))->isChecked()) {
+		QWidget *widget = qApp->widgetAt(QCursor::pos());
+
+		if (widget != 0x00) {
+			QString widName = widget->objectName();
+			if (!widName.isEmpty())
+				INFO << widName << widget->children();
+		}
+	}
 }
 void MainWindow::onActCloseTrig() {
 	//    qApp->closeAllWindows();
@@ -187,7 +189,13 @@ void MainWindow::onActOpenTrig() {
 /*                              Event handler                               */
 /* ======================================================================== */
 bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
-
+	QMouseEvent *mouseEv = static_cast<QMouseEvent *>(event);
+	if (mouseEv) {
+		INFO << tr("mouseEv << mouseEv->type()") << mouseEv << mouseEv->type();
+		if (obj->objectName().contains(tr("manuBar")))
+			if (mouseEv->type() == QEvent::MouseButtonPress)
+				INFO << tr("Sender:") << obj;
+	}
 #ifdef ENABLE_MAINWINDOW_EVEN_PROCESSING
 	if ((event->type() == QEvent::MouseButtonDblClick) ||
 		 (event->type() == QEvent::MouseButtonPress) ||
@@ -229,10 +237,10 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	\*/
 	WIN_STORE(this);
 
-//	foreach (QAction *a, acts) {
-//		INFO << a->objectName() << a->isChecked();
-//		config.setValue(objectName() + tr("/") + a->objectName(), a->isChecked());
-//	}
+	//	foreach (QAction *a, acts) {
+	//		INFO << a->objectName() << a->isChecked();
+	//		config.setValue(objectName() + tr("/") + a->objectName(), a->isChecked());
+	//	}
 
 	/**** Safe all action states from MainWindow
 	\*/
@@ -247,76 +255,81 @@ void MainWindow::actionEvent(QActionEvent *e) {
 bool MainWindow::restoreActionObjects () {
 	QSETTINGS;
 
-	actGroup->blockSignals(true);
+	actGrTbMain->blockSignals(true);
+	actGrTbMenu->blockSignals(true);
 
-	foreach (QAction *a, actGroup->actions()) {
-		INFO << a;
+	foreach (QAction *a, QList<QAction *>()
+				<< actGrTbMain->actions()
+				<< actGrTbMenu->actions()) {
 		if (! config.allKeys().join(',').contains(a->objectName()))
 			continue;
-
 		if (config.value(objectName() + tr("/") + a->objectName(), false).toBool()) {
 			if (! a->isChecked())
 				a->trigger();
 		}
 	}
 
-	actGroup->blockSignals(false);
+	actGrTbMain->blockSignals(false);
+	actGrTbMenu->blockSignals(false);
 	return true;
 
 
-//	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
+	//	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
 
-//	foreach (QAction *act, acts)
-//		if (act->objectName().isEmpty())
-//			acts.removeOne(act);
-//	qSort(acts.begin(), acts.end());
+	//	foreach (QAction *act, acts)
+	//		if (act->objectName().isEmpty())
+	//			acts.removeOne(act);
+	//	qSort(acts.begin(), acts.end());
 
-//	foreach (QAction *act, acts) {
-//		if (! config.allKeys().join(',').contains( act->objectName() )) {
-//			WARN << tr("act->objectName() %1 not found!").arg(act->objectName());
-//			continue;
-//		}
+	//	foreach (QAction *act, acts) {
+	//		if (! config.allKeys().join(',').contains( act->objectName() )) {
+	//			WARN << tr("act->objectName() %1 not found!").arg(act->objectName());
+	//			continue;
+	//		}
 
-//		bool test = config.value(objectName() + tr("/") + act->objectName()).toBool();
-//		act->setChecked( test );
-//		INFO << act->objectName() << tr("set checked: ") << test;
-//	}
-//	/**** Restore visibility flag for the SQL command interface
-//	\*/
-//	try {
-//		if (!config.value(objectName() + tr("/actHideSqlQuery"), true).toBool()) {
-//			inpFrm->setQueryBoxVisible( true );
-//			actHideSqlQuery->setChecked( false );
-//		}
-//		else {
-//			inpFrm->setQueryBoxVisible( false );
-//			actHideSqlQuery->setChecked( true );
-//		}
-//	}
-//	catch (...) {
-//		CRIT << tr("!");
-//	}
+	//		bool test = config.value(objectName() + tr("/") + act->objectName()).toBool();
+	//		act->setChecked( test );
+	//		INFO << act->objectName() << tr("set checked: ") << test;
+	//	}
+	//	/**** Restore visibility flag for the SQL command interface
+	//	\*/
+	//	try {
+	//		if (!config.value(objectName() + tr("/actShowSqlQuery"), true).toBool()) {
+	//			inpFrm->setQueryBoxVisible( true );
+	//			actShowSqlQuery->setChecked( false );
+	//		}
+	//		else {
+	//			inpFrm->setQueryBoxVisible( false );
+	//			actShowSqlQuery->setChecked( true );
+	//		}
+	//	}
+	//	catch (...) {
+	//		CRIT << tr("!");
+	//	}
 
-//	/**** Recall dock states
-//	 \*/
-//	if (actInpForm->isChecked()) {
-//		inpFrm->show();
-//		Qt::DockWidgetArea dwa = static_cast<Qt::DockWidgetArea>(
-//											 config.value(inpFrm->objectName() + tr("/DockWidgetArea"),
-//															  Qt::BottomDockWidgetArea).toUInt());
-//		/*!
-//		 * Produces unexpected behavior
-//		 * this->addDockWidget(dwa, inpFrm, Qt::Vertical);
-//		 */
-//		INFO << dwa;
-//	}
-//	else inpFrm->hide();
-//	//		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
+	//	/**** Recall dock states
+	//	 \*/
+	//	if (actInpForm->isChecked()) {
+	//		inpFrm->show();
+	//		Qt::DockWidgetArea dwa = static_cast<Qt::DockWidgetArea>(
+	//											 config.value(inpFrm->objectName() + tr("/DockWidgetArea"),
+	//															  Qt::BottomDockWidgetArea).toUInt());
+	//		/*!
+	//		 * Produces unexpected behavior
+	//		 * this->addDockWidget(dwa, inpFrm, Qt::Vertical);
+	//		 */
+	//		INFO << dwa;
+	//	}
+	//	else inpFrm->hide();
+	//	//		this->addDockWidget(dwa, inpFrm, Qt::Vertical);
 
-//	return true;
+	//	return true;
 }
 void MainWindow::createActions() {
 
+	/*!
+	 * Create main toolbar actions.
+	 */
 	actNew = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
 	actOpen = new QAction(QIcon(":/images/open.png"), tr("Open"), this);
 	actSave = new QAction(QIcon(":/images/save.png"), tr("Save"), this);
@@ -328,49 +341,71 @@ void MainWindow::createActions() {
 	actUnderConstr = new QAction(QIcon(":/images/underConstruct.svg"), tr("Under construc"), this);
 	actClose = new QAction(QIcon(":/icoDelete"), tr("Close"), this);
 
+	/*!
+	 * Create menu toolbar actions.
+	 */
 	actGbStyleShtA = new QAction("actGbStyleShtA", this);
 	actGbSShtInpFrm = new QAction("actGbSShtInpFrm", this);
-	actSelFont = new QAction("actSelFont", this);
-	actCyclicObjInfo = new QAction("actCyclicObjInfo", this);
-	actResizerDlg = new QAction("actResizerDlg", this);
-	actHideSqlQuery = new QAction("actHideSqlQuery", this);
-	actSetAlterRowCol = new QAction("actSetAlterRowCol", this);
-	actAutoFitTables = new QAction("actAutoFitTables", this);
 	actFilterTable = new QAction("actFilterTable", this);
 	actFilterTableWindow = new QAction("actFilterTableWindow", this);
-	actFilterForm = new QAction("actFilterForm", this);
-	actCfgInpFrmTabOrd = new QAction("actCfgInpFrmTabOrd", this);
 
-	//	acts = this->findChildren<QAction *>(QRegularExpression("act*"), Qt::FindChildrenRecursively);
-	//	INFO << acts.length();
+	actSelFont = new QAction("Schriftfont", this);
+	actCyclicObjInfo = new QAction("Cyclic object info", this);
+	actResizerDlg = new QAction("Fenstergröße ändern", this);
+	actShowSqlQuery = new QAction("Eingabefeld SQL querys", this);
+	actSetAlterRowCol = new QAction("Zeilenhintergrund", this);
+	actAutoFitTables = new QAction("Autofit Zeile/Spalte", this);
+	actFilterForm = new QAction("Suchfenster anzeigen", this);
+	actCfgInpFrmTabOrd = new QAction("Tabulator Reihenfolge", this);
+
+	/* ======================================================================== */
+	/*                             Action grouping                              */
+	/* ======================================================================== */
+	/*!
+	 * Create action group for main toolbar actions.
+	 */
+	actGrTbMain = new QActionGroup(this);
+	PONAM(actGrTbMain)->setExclusive(false);
 
 	QList<QAction *> acts;
+	acts << PONAM(actNew) << PONAM(actOpen) << PONAM(actSave) << PONAM(actExport)
+		  << PONAM(actBrowseSQL) << PONAM(actInpForm) << PONAM(actShowTbl)
+		  << PONAM(actDbModMaster) <<  PONAM(actUnderConstr) << PONAM(actClose);
 
-	acts << PONAM(actNew) << PONAM(actOpen) << PONAM(actSave) << PONAM(actExport) <<
-			  PONAM(actBrowseSQL) << PONAM(actInpForm) << PONAM(actShowTbl) << PONAM(actDbModMaster)
-		  << PONAM(actClose) << PONAM(actGbStyleShtA) << PONAM(actGbSShtInpFrm) <<
-			  PONAM(actUnderConstr) << PONAM(actSelFont) << PONAM(actCyclicObjInfo) <<
-			  PONAM(actResizerDlg) << PONAM(actHideSqlQuery) << PONAM(actSetAlterRowCol) <<
-			  PONAM(actAutoFitTables) << PONAM(actFilterTable) << PONAM(actFilterTableWindow) <<
-			  PONAM(actFilterForm) << PONAM(actCfgInpFrmTabOrd);
+	foreach (QAction *act, acts)
+		actGrTbMain->addAction(act);
 
-	actGroup = new QActionGroup(this);
-	actGroup->setExclusive(false);
-	PONAM(actGroup);
+	/*!
+	 * Connect action group triggered signal to a save-action-state slot.
+	 */
+	connect(actGrTbMain, &QActionGroup::triggered, this, &MainWindow::onActionGroupTrigd);
 
-	actGroup->addAction(actNew);
-	actGroup->addAction(actOpen);
-	actGroup->addAction(actSave);
-	actGroup->addAction(actExport);
-	actGroup->addAction(actBrowseSQL);
-	actGroup->addAction(actInpForm);
-	actGroup->addAction(actShowTbl);
-	actGroup->addAction(actDbModMaster);
-	actGroup->addAction(actUnderConstr);
-	actGroup->addAction(actClose);
+	/*!
+	 * Create action group for toolbar menu actions.
+	 */
+	actGrTbMenu = new QActionGroup(this);
+	PONAM(actGrTbMenu)->setExclusive(false);
 
-	connect(actGroup, &QActionGroup::triggered, this, &MainWindow::onActionTriggered);
+	acts.clear();
+	acts << PONAM(actGbStyleShtA) << PONAM(actGbSShtInpFrm) << PONAM(actSelFont)
+		  << PONAM(actCyclicObjInfo) << PONAM(actResizerDlg) << PONAM(actShowSqlQuery)
+		  << PONAM(actSetAlterRowCol) << PONAM(actAutoFitTables) << PONAM(actFilterTable)
+		  << PONAM(actFilterTableWindow) << PONAM(actFilterForm) << PONAM(actCfgInpFrmTabOrd);
 
+	foreach (QAction *act, acts)
+		actGrTbMenu->addAction(act);
+
+	/*!
+	 * Connect action group triggered signal to a save-action-state slot.
+	 */
+	connect(actGrTbMenu, &QActionGroup::triggered, this, &MainWindow::onActionGroupTrigd);
+
+	/* ======================================================================== */
+	/*                       Action object configurations                       */
+	/* ======================================================================== */
+	/*!
+	 * Config some action objects to be checkable.
+	 */
 	actBrowseSQL->setCheckable(true);
 	actInpForm->setCheckable(true);
 	actShowTbl->setCheckable(true);
@@ -378,10 +413,18 @@ void MainWindow::createActions() {
 	actGbStyleShtA->setCheckable(true);
 	actGbSShtInpFrm->setCheckable(true);
 	actCyclicObjInfo->setCheckable(true);
-	actHideSqlQuery->setCheckable(true);
+	actShowSqlQuery->setCheckable(true);
 	actFilterTableWindow->setCheckable(true);
 	actFilterForm->setCheckable(true);
 
+	actClose->setShortcut(QKeySequence("Ctrl+Q"));
+	actAutoFitTables->setShortcut(QKeySequence("Ctrl+Alt+A"));
+	actShowSqlQuery->setShortcuts(QList<QKeySequence>()
+											<< QKeySequence("Ctrl+Shifr+Q")
+											<< QKeySequence("Ctrl+H"));
+	/*!
+	 * Set action object tooltips.
+	 */
 	actSelFont->setToolTip(tr("Font"));
 	actNew->setToolTip(tr("Create a new file"));
 	actOpen->setToolTip(tr("Open an existing file"));
@@ -392,14 +435,14 @@ void MainWindow::createActions() {
 	actDbModMaster->setToolTip(tr("Stammdaten erweitern"));
 	actClose->setToolTip(tr("Alle Fenster schließen "));
 	actResizerDlg->setToolTip(tr("Resize MainWindow to x"));
-	actHideSqlQuery->setToolTip(tr("Hide or show the input field to submit manuall "
+	actShowSqlQuery->setToolTip(tr("Hide or show the input field to submit manuall "
 											 "SQL querys thru database driver backend"));
 	actSetAlterRowCol->setToolTip(tr("Farbe für alternierenden Zeilenhintergund"));
 	actInpForm->setToolTip(tr("<html><head/><body><p>Öffnet die <span style="" "
 									  "font-weight:600;"">Eingabeform</span> um neue Einträge in "
 									  "die in die Arbeitszeitentabelle einzutragen</p></body></html>"));
 }
-void MainWindow::onActionTriggered(QAction *sender) {
+void MainWindow::onActionGroupTrigd(QAction *sender) {
 	QSETTINGS;
 	INFO << objectName() + tr("/") + sender->objectName();
 
@@ -422,30 +465,23 @@ void MainWindow::makeMenuBar() {
 	QMenu *muSup = static_cast<QMenu *>(menuBar()->findChild<QMenu *>(tr("menu_Setup")));
 	QMenu *muView = static_cast<QMenu *>(menuBar()->findChild<QMenu *>(tr("muView)")));
 
-	QAction *muSetStyleSh, *muSetFont, *muSetRowCol, *muSetObjInfo, *muSetResize,
-			*muSetHidQuery, *muSetTabOrd, *muSep_1, *muSetAutofit, *muSetfilt, *muSetClose;
+	QAction *muSetStyleSh = muSup->addAction("St&yleSheets", this, &MainWindow::onStyleSheetTrig);
+	muSup->addActions(QList<QAction *>() << actSelFont << actSetAlterRowCol
+							<< actCyclicObjInfo << actResizerDlg << actShowSqlQuery
+							<< actCfgInpFrmTabOrd);
 
-	muSetStyleSh	= muSup->addAction("St&yleSheets",			this, &MainWindow::onStyleSheetTrig);
-	muSetFont		= muSup->addAction("Schriftfont",			this, &MainWindow::onSetFont);
-	muSetRowCol		= muSup->addAction("Zeilenhintergrund",	this, &MainWindow::onSetAlterRowColTrig);
-	muSetObjInfo	= muSup->addAction("Cyclic object info",	browser, &Browser::setCyclicObjInfo);
-	muSetResize		= muSup->addAction("Fenstergröße ändern", this, &MainWindow::onResizerDlgTrig);
-	muSetHidQuery	= muSup->addAction("Eingabefeld SQL querys", this, &MainWindow::onActHideSqlQueryTrig);
-	muSetTabOrd		= muSup->addAction("Tabulator Reihenfolge", this, &MainWindow::onActCfgInpFrmTabOrdTrig);
-	muSep_1			= muSup->addSeparator();
-	muSetAutofit	= muSup->addAction("Autofit Zeile/Spalte", browser, &Browser::autofitRowCol);
-	muSetfilt		= muSup->addAction("Suchfenster anzeigen", browser, &Browser::onActFilterForm);
-	muSetClose		= muSup->addAction("Close", this, &MainWindow::close);
+	muSup->addSeparator();
+	muSup->addActions(QList<QAction *>() << actAutoFitTables << actFilterForm << actClose);
 
-	muSetClose->setShortcut(QKeySequence("Ctrl+Q"));
-	muSetAutofit->setShortcut(QKeySequence("Ctrl+Alt+A"));
-	muSetHidQuery->setShortcuts(QList<QKeySequence>()
-										 << QKeySequence("Ctrl+Shifr+Q")
-										 << QKeySequence("Ctrl+H"));
-	muSetHidQuery->setCheckable(true);
-	muSetfilt->setCheckable(true);
-	muSetObjInfo->setCheckable(true);
-	muSetHidQuery->setCheckable(true);
+	//	muSetFont		= muSup->addAction("Schriftfont",			this, &MainWindow::onSetFont);
+//	muSetRowCol		= muSup->addAction("Zeilenhintergrund",	this, &MainWindow::onSetAlterRowColTrig);
+//	muSetObjInfo	= muSup->addAction("Cyclic object info",	browser, &Browser::setCyclicObjInfo);
+//	muSetResize		= muSup->addAction("Fenstergröße ändern", this, &MainWindow::onResizerDlgTrig);
+//	muSetHidQuery	= muSup->addAction("Eingabefeld SQL querys", this, &MainWindow::onActShowSqlQueryTrig);
+//	muSetTabOrd		= muSup->addAction("Tabulator Reihenfolge", this, &MainWindow::onActCfgInpFrmTabOrdTrig);
+//	muSetAutofit	= muSup->addAction("Autofit Zeile/Spalte", browser, &Browser::autofitRowCol);
+//	muSetfilt		= muSup->addAction("Suchfenster anzeigen", browser, &Browser::onActFilterForm);
+//	muSetClose		= muSup->addAction("Close", this, &MainWindow::close);
 
 	/* ======================================================================== */
 	ui->mainToolBar->addActions(QList<QAction*>()
@@ -465,8 +501,6 @@ void MainWindow::onStyleSheetTrig() {
 
 }
 void MainWindow::connectActions(ConnectReceiver receivers) {
-	actHideSqlQuery->setChecked( true );
-
 	if ((receivers == connectThis) ||
 		 (receivers == connectAll)) {
 		connect(actBrowseSQL, &QAction::triggered, this, &MainWindow::onBrowseSqlTrig);
@@ -479,7 +513,7 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		connect(actUnderConstr, &QAction::triggered, this, &MainWindow::onUnderConstrTrig);
 		connect(actSelFont, &QAction::triggered, this, &MainWindow::onSetFont);
 		connect(actResizerDlg, &QAction::triggered, this, &MainWindow::onResizerDlgTrig);
-		connect(actHideSqlQuery, &QAction::triggered, this, &MainWindow::onActHideSqlQueryTrig);
+//		connect(actShowSqlQuery, &QAction::toggled, this, &MainWindow::onShowSqlQueryTogd);
 		connect(actSetAlterRowCol, &QAction::triggered, this, &MainWindow::onSetAlterRowColTrig);
 		connect(actCfgInpFrmTabOrd,  &QAction::triggered, this, &MainWindow::onActCfgInpFrmTabOrdTrig);
 		connect(actSave,  &QAction::triggered, this, &MainWindow::onActSaveTrig);
@@ -493,19 +527,8 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		connect(browser, &Browser::stateMsg, stateBar, &MDStateBar::showMessage);
 		connect(inpFrm, &InpFrm::visibilityChanged, actInpForm, &QAction::setChecked);
 		connect(browser, &Browser::visibilityChanged, actBrowseSQL, &QAction::setChecked);
+		connect(actShowSqlQuery, &QAction::toggled, inpFrm, &InpFrm::setQueryBoxVisible);
 	}
-	//    connect(	actFilterTableWindow,	SIGNAL(triggered(bool)),
-	//                browser,					SLOT(onActFilterWindowTable(bool)));
-	//    connect(	this,						SIGNAL(mainwindowCloses()),
-	//                browser->getSortwindow0(),	SLOT(close()));
-	//    connect(	this,						SIGNAL(mainwindowCloses()),
-	//                browser->getSortwindow1(),	SLOT(close()));
-	//    connect(	browser->getSortwindow0(),	SIGNAL(closesUncheck(bool)),
-	//                actFilterTableWindow,	SLOT(setChecked(bool)));
-	//    connect(	browser->getSortwindow1(),	SIGNAL(closesUncheck(bool)),
-	//                actFilterTableWindow,	SLOT(setChecked(bool)));
-	//    connect(actFilterTable, SIGNAL(triggered()),
-	//            browser,        SLOT( SORTIT()));
 }
 void MainWindow::initDocks() {
 

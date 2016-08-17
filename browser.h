@@ -66,7 +66,6 @@ class Browser : public QWidget {
 
 	Q_OBJECT
 	Q_PROPERTY(TvSelectors tvSelector READ tvSelector WRITE setTvSelector NOTIFY tvSelectorChanged)
-	Q_PROPERTY(bool cyclicObjInfo READ cyclicObjInfo WRITE setCyclicObjInfo NOTIFY cyclicObjInfoChanged)
 
 public:
 	enum TvSelector {
@@ -152,13 +151,10 @@ signals:
 	void visibilityChanged(bool b);
 	void updateActions();
 	void tvSelectorChanged();
-	void cyclicObjInfoChanged();
 
 public slots:
 	TvSelectors tvSelector() const { return m_tvSelector; }
 	void setTvSelector(TvSelectors tvSelector) { m_tvSelector = tvSelector; }
-	bool cyclicObjInfo() const { return m_cyclicObjInfo; }
-	void setCyclicObjInfo(bool cyclicObjInfo) { m_cyclicObjInfo = cyclicObjInfo; }
 
 	void showMetaData(const QString &table);
 	void currentChanged(QModelIndex,QModelIndex) { emit updateActions(); }
@@ -203,7 +199,6 @@ private:
 	SfiltMdl				*proxyModel;
 	SortWindow			*filterForm;
 	MDStateBar			*stateBar;
-	bool					m_cyclicObjInfo;
 	TvSelectors			m_tvSelector;
 	QSplitter	*splitter, *splitter_2, *splitter_3,
 	*splitter_4, *splitter_5, *splitter_6, *splitter_7;

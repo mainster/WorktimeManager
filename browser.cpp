@@ -121,7 +121,7 @@ const QString Browser::browserStyleSheetv2 = QString(
 /*                             Browser::Browser                             */
 /* ======================================================================== */
 Browser::Browser(QWidget *parent)
-	: QWidget(parent), m_cyclicObjInfo(false) {
+	: QWidget(parent) {
 	inst = this;
 	setObjectName("Browser");
 
@@ -512,19 +512,7 @@ void Browser::autofitRowCol() {
 }
 void Browser::onCyclic() {
 
-	//   currentChanged();
-	/* ---------------------------------------------------------------- */
-	/*         Get the name of object under the mouse pointer           */
-	/* ----------------------------------------------------------------*/
-	if (m_cyclicObjInfo) {
-		QWidget *widget = qApp->widgetAt(QCursor::pos());
 
-		if (widget != 0x00) {
-			QString widName = widget->objectName();
-			if (!widName.isEmpty())
-				INFO << widName << widget->children();
-		}
-	}
 }
 void Browser::onTvSelectorChanged() {
 	/*! Notify signal via proberty class */

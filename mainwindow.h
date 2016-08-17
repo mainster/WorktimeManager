@@ -38,7 +38,9 @@ QT_FORWARD_DECLARE_CLASS(QSqlError)
 /*                             class MainWindow                             */
 /* ======================================================================== */
 class MainWindow : public QMainWindow {
+
 	Q_OBJECT
+//	Q_PROPERTY(bool cyclicObjInfo READ cyclicObjInfo WRITE setCyclicObjInfo NOTIFY cyclicObjInfoChanged)
 
 public:
 	/*!
@@ -57,8 +59,12 @@ public:
 	~MainWindow();
 
 signals:
+//	void cyclicObjInfoChanged();
+
 
 public slots:
+//	bool cyclicObjInfo() const { return m_cyclicObjInfo; }
+//	void setCyclicObjInfo(bool cyclicObjInfo) { m_cyclicObjInfo = cyclicObjInfo; }
 	void initDocks();
 	void about() {
 		QMessageBox::about
@@ -96,16 +102,16 @@ protected slots:
 	}
 	void onUnderConstrTrig();
 	void onSetFont();
-	void onActHideSqlQueryTrig();
+//	void onShowSqlQueryTogd(bool b);
 	void onSetAlterRowColTrig();
 	void onCyclic();
 	void onResizerDlgTrig();
 	void onInpFrmButtonClick(bool);
 	bool restoreActionObjects();
 	void createActions();
-
 	void ACTION_STORE(QObject *obj, QString regex);
-	void onActionTriggered(QAction *sender);
+	void onActionGroupTrigd(QAction *sender);
+
 private slots:
 	void onOpenCloseInpFrm(bool onOff) {
 		inpFrm->setVisible(onOff);
@@ -128,25 +134,25 @@ protected:
 	void hideEvent(QHideEvent *) override;
 	void closeEvent(QCloseEvent *e);
 	void actionEvent(QActionEvent *e) override;
-
 	void ACTION_RESTORE(QObject *obj, QString regex);
+
 private:
 	Ui::MainWindow *ui;
-	static int   fuse;
 	Browser      *browser;
 	InpFrm       *inpFrm;
-	QMenu        *cfgMenu;
-	QWidget      *wid;
 	MDStateBar   *stateBar;
 	SortWindow   *sortwindow;
-	QMenu        *mBar;
 	DbController *mDbc;
 
-	QActionGroup *actGroup;
+	QMenu        *cfgMenu, *mBar;
+	QWidget      *wid;
+	QTimer		 *timCyc;
+
+	QActionGroup *actGrTbMain, *actGrTbMenu;
 
 	QAction *actNew, *actOpen, *actSave, *actExport, *actBrowseSQL, *actInpForm, *actShowTbl,
 			*actDbModMaster, *actClose, *actGbStyleShtA, *actGbSShtInpFrm, *actUnderConstr,
-			*actSelFont, *actCyclicObjInfo, *actResizerDlg, *actHideSqlQuery, *actSetAlterRowCol,
+			*actSelFont, *actCyclicObjInfo, *actResizerDlg, *actShowSqlQuery, *actSetAlterRowCol,
 			*actAutoFitTables, *actFilterTable, *actFilterTableWindow, *actFilterForm,
 			*actCfgInpFrmTabOrd;
 
