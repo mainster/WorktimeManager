@@ -109,7 +109,6 @@ protected slots:
 	void onInpFrmButtonClick(bool);
 	bool restoreActionObjects();
 	void createActions();
-	void ACTION_STORE(QObject *obj, QString regex);
 	void onActionGroupTrigd(QAction *sender);
 
 private slots:
@@ -134,7 +133,6 @@ protected:
 	void hideEvent(QHideEvent *) override;
 	void closeEvent(QCloseEvent *e);
 	void actionEvent(QActionEvent *e) override;
-	void ACTION_RESTORE(QObject *obj, QString regex);
 
 private:
 	Ui::MainWindow *ui;

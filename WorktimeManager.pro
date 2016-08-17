@@ -89,6 +89,7 @@ FORMS += \
 	 uis/inpfrm.ui \
 	 uis/mainwindow.ui \
 	 uis/sortwindow.ui \
-	 uis/tabview.ui
+	 uis/tabview.ui \
+    uis/_form.ui
 
 

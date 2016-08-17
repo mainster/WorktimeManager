@@ -124,18 +124,19 @@ Browser::Browser(QWidget *parent)
 	: QWidget(parent) {
 	inst = this;
 	setObjectName("Browser");
-
+	
 	setStyleSheet(browserStyleSheetv2);
 	style()->unpolish(this);
 	style()->polish(this);
 	update();
 
+	createActions();
 	createUi(this);
 	connect(connectionWidget,	&ConnectionWidget::tableActivated,
 			  this,					&Browser::onConnectionWidgetTableActivated);
-
+	
 	connect(this, &Browser::tvSelectorChanged, this, &Browser::onTvSelectorChanged);
-
+	
 	if (QSqlDatabase::drivers().isEmpty()) {
 		QMessageBox::information
 				(this, tr("No database drivers found"),
@@ -150,16 +151,16 @@ Browser::Browser(QWidget *parent)
 		connect( timCyc, &QTimer::timeout, this, &Browser::onCyclic);
 		timCyc->start();
 	}
-
+	
 	emit stateMsg(tr("Browser Ready."));
-
+	
 	//	SqlRtm *cm = new SqlRtm();
 	//	cm->setCenterCols(QVector<int>(0, 1));
-
+	
 	filterForm = SortWindow::getInstance();
 	filterForm->setWindowTitle(tr("The window title ") + filterForm->objectName());
 	filterForm->hide();
-
+	
 	QTimer::singleShot(50, this, SLOT(restoreUi()));
 }
 Browser::~Browser() {
@@ -173,7 +174,7 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	 * Get pointer to current active database connection.
 	 */
 	QSqlDatabase pdb = connectionWidget->currentDatabase();
-
+	
 	/*!
 	 * Get list of all table views and requery all of them with gb name "worktime".
 	 */
@@ -182,13 +183,13 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 		if (! tv->grBox()->title().contains(tr("worktime")))
 			tvs.removeOne(tv);
 	}
-
-
+	
+	
 	/** Select "tableMain" as target table view widget */
 	QTableView *tvResp = mTabs.tvl1->tv();
 	QSqlQueryModel *queryModel = new QSqlQueryModel(tvResp);
 	QSqlQuery query;
-
+	
 	if (! nonDefaulQuery.isEmpty())
 		query = QSqlQuery( nonDefaulQuery, pdb);
 	else {
@@ -198,7 +199,7 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 		 */
 		QTextEdit *te = new QTextEdit();
 		te->hide();
-
+		
 		foreach (QString str, configQ.allKeys()) {
 			if (str.contains("default_worktime_query")) {
 				QString s = configQ.value(str, "").toString();
@@ -209,10 +210,10 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 		INFO << te->toPlainText();
 		delete te;
 	}
-
+	
 	queryModel->setQuery( query );
 	tvResp->setModel( queryModel );
-
+	
 	if (queryModel->lastError().type() != QSqlError::NoError)
 		emit stateMsg(queryModel->lastError().text());
 	else if (queryModel->query().isSelect())
@@ -220,24 +221,24 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	else
 		emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
 							  queryModel->query().numRowsAffected()));
-
+	
 	mTabs.tvl1->resizeRowsColsToContents();
 	//	tvResp->setVisible( false );
 	//	tvResp->resizeColumnsToContents();
 	//	tvResp->resizeRowsToContents();
 	//	tvResp->setVisible( true );
 	emit updateActions();
-
+	
 }
 void Browser::exec() {
 	InpFrm *inpFrm = InpFrm::instance();
-
+	
 	QSqlQueryModel *model = new QSqlQueryModel(mTabs.tvl1->tv());
-
+	
 	model->setQuery(QSqlQuery(inpFrm->getQueryText(),
 									  connectionWidget->currentDatabase()));
 	mTabs.tvl1->tv()->setModel(model);
-
+	
 	if (model->lastError().type() != QSqlError::NoError)
 		emit stateMsg(model->lastError().text());
 	else if (model->query().isSelect())
@@ -245,14 +246,14 @@ void Browser::exec() {
 	else
 		emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
 							  model->query().numRowsAffected()));
-
+	
 	mTabs.tvl1->tv()->setSortingEnabled( true );
-
+	
 	//	tvq->setVisible( false );
 	//	tvq->resizeColumnsToContents();
 	//	tvq->resizeRowsToContents();
 	//	tvq->setVisible( true );
-
+	
 	mTabs.tvl1->resizeRowsColsToContents();
 	emit updateActions();
 }
@@ -260,7 +261,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	/**
 	 * Relational table model - View relational WORKS 12-11-2015
 	 */
-
+	
 	/**
 	 * Get active database pointer
 	 */
@@ -284,20 +285,20 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 			/** Remember the indexes of the columns */
 			int colEmp = rmod->fieldIndex("workerID");
 			int colPrj = rmod->fieldIndex("prjID");
-
+			
 			/** Set the relations to the other database tables */
 			rmod->setRelation(colEmp, QSqlRelation(
 										"worker", "workerID", "Nachname"));
 			rmod->setRelation(colPrj, QSqlRelation(
 										"prj", "prjID", "Beschreibung"));
-
+			
 			// Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("worktimID"), Qt::Horizontal, tr("ID"));
 			rmod->setHeaderData(rmod->fieldIndex("dat"), Qt::Horizontal, tr("Datum"));
 			rmod->setHeaderData(colEmp, Qt::Horizontal, tr("Mitarb"));
 			rmod->setHeaderData(colPrj, Qt::Horizontal, tr("Beschreibung"));
 			rmod->setHeaderData(rmod->fieldIndex("hours"), Qt::Horizontal, tr("Std"));
-
+			
 			break;
 		}
 		/* --------------------------------------------------------- */
@@ -306,15 +307,15 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 		if (tNam.contains("prj", Qt::CaseInsensitive)) {
 			/** Remember the indexes of the columns */
 			int colClient = rmod->fieldIndex("clientID");
-
+			
 			/** Set the relations to the other database tables */
 			rmod->setRelation(colClient, QSqlRelation(
 										"client", "clientID", "Name"));
-
+			
 			// Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("prjID"), Qt::Horizontal, tr("ID"));
 			rmod->setHeaderData(rmod->fieldIndex("clientID"), Qt::Horizontal, tr("Kunde, Name"));
-
+			
 			break;
 		}
 		/* --------------------------------------------------------- */
@@ -325,7 +326,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 			rmod->setHeaderData(rmod->fieldIndex("workerID"), Qt::Horizontal, tr("ID"));
 			rmod->setHeaderData(rmod->fieldIndex("PersonalNr"), Qt::Horizontal, tr("PN"));
 			rmod->setHeaderData(rmod->fieldIndex("Stundensatz"), Qt::Horizontal, tr("€/h"));
-
+			
 			break;
 		}
 		/* --------------------------------------------------------- */
@@ -336,7 +337,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 			rmod->setHeaderData(rmod->fieldIndex("clientID"), Qt::Horizontal, tr("ID"));
 			rmod->setHeaderData(rmod->fieldIndex("Nummer"), Qt::Horizontal, tr("Knd. #"));
 			rmod->setHeaderData(rmod->fieldIndex("Stundensatz"), Qt::Horizontal, tr("€/h"));
-
+			
 			break;
 		}
 		/* --------------------------------------------------------- */
@@ -345,7 +346,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 		if (tNam.contains("fehlzeit", Qt::CaseInsensitive)) {
 			// Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("fehlID"), Qt::Horizontal, tr("ID"));
-
+			
 			break;
 		}
 		/* --------------------------------------------------------- */
@@ -354,7 +355,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 		if (tNam.contains("arch", Qt::CaseInsensitive)) {
 			// Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("archID"), Qt::Horizontal, tr("ID"));
-
+			
 			break;
 		}
 		/* --------------------------------------------------------- */
@@ -365,33 +366,33 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 									.arg(tNam), QMessageBox::Ok);
 		break;
 	}
-
+	
 	// Populate the model
 	rmod->select();
-
+	
 	// Set the model and hide the ID column
 	tvc->setColumnHidden(rmod->fieldIndex("ID"), false);
 	tvc->setSelectionMode(QAbstractItemView::ContiguousSelection);
-
+	
 	tvc->setModel(rmod);
 	tvc->setEditTriggers( QAbstractItemView::DoubleClicked |
 								 QAbstractItemView::EditKeyPressed );
-
+	
 	/** !!!!!!!!!!!!!!!!!!!! tvs()->first()->tv()->selectionModel() changed to
 	  * mTvs[3]->tv()->selectionModel()
 	 */
-
+	
 	if (! (bool) connect( tvc->selectionModel(),
 								 SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
 								 this, SLOT(currentChanged(QModelIndex,QModelIndex)) ) )
 		emit stateMsg(tr("Slot connection returns false"));
-
+	
 	//	tv->setVisible( false );
 	//	tv->resizeColumnsToContents();
 	//	tv->resizeRowsToContents();
 	//	tv->setVisible( true );
 	tvc->resizeRowsColsToContents();
-
+	
 	//    emit updateActions();
 	/**
 	 * Update TabViews group box title to match the prior activated sql
@@ -400,13 +401,13 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	tvc->grBox()->setTitle( tNam );
 }
 void Browser::showMetaData(const QString &t) {
-
+	
 	QSqlRecord rec = connectionWidget->currentDatabase().record(t);
 	QStandardItemModel *model = new QStandardItemModel(tvs()->first()->tv());
-
+	
 	model->insertRows(0, rec.count());
 	model->insertColumns(0, 7);
-
+	
 	model->setHeaderData(0, Qt::Horizontal, "Fieldname");
 	model->setHeaderData(1, Qt::Horizontal, "Type");
 	model->setHeaderData(2, Qt::Horizontal, "Length");
@@ -414,8 +415,8 @@ void Browser::showMetaData(const QString &t) {
 	model->setHeaderData(4, Qt::Horizontal, "Required");
 	model->setHeaderData(5, Qt::Horizontal, "AutoValue");
 	model->setHeaderData(6, Qt::Horizontal, "DefaultValue");
-
-
+	
+	
 	for (int i = 0; i < rec.count(); ++i) {
 		QSqlField fld = rec.field(i);
 		model->setData(model->index(i, 0), fld.name());
@@ -429,16 +430,16 @@ void Browser::showMetaData(const QString &t) {
 		model->setData(model->index(i, 5), fld.isAutoValue());
 		model->setData(model->index(i, 6), fld.defaultValue());
 	}
-
+	
 	mTabs.tvs()->first()->tv()->setModel(model);
 	mTabs.tvs()->first()->tv()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
+	
 	emit updateActions();
 }
 void Browser::customMenuRequested(QPoint pos) {
 	QModelIndex index = this->tvs()->first()->tv()->indexAt(pos);
 	Q_UNUSED(index);
-
+	
 	QMenu *menu = new QMenu(this);
 	menu->addAction(new QAction("Action 1", this));
 	menu->addAction(new QAction("Action 2", this));
@@ -447,7 +448,7 @@ void Browser::customMenuRequested(QPoint pos) {
 }
 void Browser::onActFilterForm(bool b) {
 	filterForm->setVisible(b);
-
+	
 	if (b) {
 		filterForm->setSourceModel( tvs()->last()->tv()->model() );
 		filterForm->raise();
@@ -461,7 +462,7 @@ void Browser::onConnectionWidgetTableActivated(const QString &sqlTbl) {
 	/**
 	 * Entered after double clicking a table item in connection widget tree view
 	 */
-
+	
 	/**
 	 * Determine which TabView should be targeted by the activated tab model.
 	 * Either select an instance of TabView which hasn't a model loaded yet. To
@@ -511,7 +512,7 @@ void Browser::autofitRowCol() {
 		tvc->resizeRowsColsToContents();
 }
 void Browser::onCyclic() {
-
+	
 
 }
 void Browser::onTvSelectorChanged() {
@@ -521,28 +522,27 @@ void Browser::onTvSelectorChanged() {
 	\*/
 	//	Globals::ACTION_STORE(this);
 }
-
 ConnectionWidget *Browser::getConnectionWidget() const
 {
 	return connectionWidget;
 }
-void Browser::onActMenuTrigd(bool state) {
-	Q_UNUSED(state)
+void Browser::onActGroupTrigd(QAction *sender) {
+	QSETTINGS;
 
-	QAction *actSender = qobject_cast<QAction *>(sender());
-	QList<QActionGroup *> muGroups = browsMenu->findChildren<QActionGroup *>();
+	if (sender->isCheckable()) {
+		/*!
+		 * If action group is exclusive, clear all action config flags.
+		 */
+		if (sender->actionGroup()->isExclusive())
+			foreach(QAction *act, sender->actionGroup()->actions())
+				config.setValue(objectName() + tr("/") + act->objectName(), false);
 
-	if (false) {
-		INFO << actSender->objectName()
-			  << tr("%1").arg(actSender->text())
-			  << actSender->isChecked();
+		config.setValue(objectName() + tr("/") + sender->objectName(), sender->isChecked());
+		config.sync();
 	}
 
-	/*! Find actSenders corresponding action group */
-	if (muGroups.at( muGroups.indexOf(actSender->actionGroup()) )
-		 ->objectName().contains(tr("muGrSel"))) {
-		setTvSelector(actSender->data().value<TvSelector>());
-	}
+	if (sender->actionGroup() == actGrTvSelectBy)
+		setTvSelector(sender->data().value<TvSelector>());
 }
 int  Browser::setFontAcc(QFont &font) {
 	mTabs.tva->tv()->setFont(font);
@@ -552,48 +552,48 @@ QFont Browser::selectFont() {
 	bool ok;
 	QFont font = QFontDialog::getFont(
 						 &ok, QFont("Helvetica [Cronyx]", 10), this);
-
+	
 	if (ok) {
 		INFO << font;
 	} else {
 		INFO << font;
 	}
-
+	
 	return QFont();
 }
 /* ======================================================================== */
 /*                              Event handler                               */
 /* ======================================================================== */
 bool Browser::eventFilter(QObject *obj, QEvent *e) {
-
+	
 	if (e->type() == QEvent::MouseButtonPress) {
 		TabView *tv = NULL;
-
+		
 		foreach (TabView *_tv, mTabs.tvsNoPtr())
 			switch (tvSelector()) {
 				case selectByViewPort: {
 					if (_tv->tv()->viewport() == obj)
 						tv = _tv;
 				}; break;
-
+					
 				case selectByGroupBox: {
 					if (_tv->grBox() == obj)
 						tv = _tv;
 				}; break;
-
+					
 				case selectByBoth: {
 					if ((_tv->grBox() == obj) ||
 						 (_tv->tv()->viewport() == obj))
 						tv = _tv;
 				}; break;
-
+					
 				default:	break;
 			}
-
-
+		
+		
 		if (tv != NULL) {
 			if (mTabs.tvIds().join(',').contains(tv->objectName())) {
-
+				
 				/**
 			 * Unselect if view was selected earlier
 			 */
@@ -606,7 +606,7 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 					tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
 					emit tabViewSelChanged(tv);
 				}
-
+				
 				return true;
 			}
 			else {
@@ -614,22 +614,22 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 			}
 		}
 	}
-
+	
 	if ((e->type() == QEvent::KeyPress) && false) {
 		QKeyEvent *kev = static_cast<QKeyEvent *>(e);
 		INFO << "Keypress " << kev->key() << "by obj:" ;
 		INFO << "obj name:" << obj->objectName();
 		INFO << "obj parent name:" << obj->parent()->objectName();
-
+		
 		QList<QObject *> objs = obj->children();
-
+		
 		for (int i = 0; i < objs.length(); i++) {
 			INFO << "obj child no." << i << objs[i]->objectName();
 			INFO << "obj child no." << i << objs[i]->isWidgetType();
 		}
-
+		
 	}
-
+	
 	/**
 	  * standard event processing
 	  */
@@ -645,21 +645,21 @@ void Browser::hideEvent(QHideEvent *) {
 }
 void Browser::closeEvent(QCloseEvent *) {
 	QSETTINGS;
-
+	
 	INFO << findChildren<QSplitter *>(QString(), Qt::FindDirectChildrenOnly);
-
+	
 	/**** Write splitter sizes to config
 	\*/
 	SPLT_STORE(this);
-
+	
 	/**** Write tabView <-> SQL table relations
 	  \*/
 	foreach (TabView *tv, mTabs.tvsNoPtr())
 		config.setValue(objectName() + "/" + tv->objectName(), tv->grBox()->title());
-
+	
 	/**** Safe all action states from Browser
 	\*/
-	ACTION_STORE(this, tr("act*"));
+	//	ACTION_STORE(this, tr("act*"));
 }
 /* ======================================================================== */
 /*                              Init methodes                               */
@@ -667,71 +667,83 @@ void Browser::closeEvent(QCloseEvent *) {
 bool Browser::restoreUi() {
 	bool ret = true;
 	QSETTINGS;
-
+	
 	/**** Restore splitter sizes to config
 	\*/
 	SPLT_RESTORE(this);
-
+	
 	/**** Restore tabview <-> SQL table assignements, but only if valid keys are stored
 	 \*/
-
+	
 	foreach (TabView *tv, mTabs.tvsNoPtr()) {
 		if (! config.allKeys().join(',').contains( tv->objectName() ))
 			continue;
-
+		
 		QString tabNam = config.value(objectName() + tr("/") + tv->objectName()).toString();
 		tv->restoreView();
 		showRelatTable( tabNam, tv );
 	}
 	/**** Restore all action states from Browser
 	\*/
-	ACTION_RESTORE(this, tr("act*"));
+	//	ACTION_RESTORE(this);
+	restoreActionObjects();
 	return ret;
+}
+void Browser::createActions() {
+	/* ======================================================================== */
+	/*                          Create QAction objects                          */
+	/* ======================================================================== */
+	actSelByNone = new QAction(tr("Select by &None"), this);
+	actSelByGrBx = new QAction(tr("Select by &Group Box"), this);
+	actSelByVPort = new QAction(tr("Select by &View Port"), this);
+	actSelByBoth = new QAction(tr("Select by &Both"), this);
+
+	actSelByNone->setData(QVariant::fromValue(TvSelector::selectByNone));
+	actSelByGrBx->setData(QVariant::fromValue(TvSelector::selectByGroupBox));
+	actSelByVPort->setData(QVariant::fromValue(TvSelector::selectByViewPort));
+	actSelByBoth->setData(QVariant::fromValue(TvSelector::selectByBoth));
+
+	/* ======================================================================== */
+	/*                             Action grouping                              */
+	/* ======================================================================== */
+	actGrTvSelectBy = new QActionGroup(this);
+	PONAM(actGrTvSelectBy)->setExclusive(true);
+
+	QList<QAction *> acts;
+	acts << PONAM(actSelByNone) << PONAM(actSelByGrBx)
+		  << PONAM(actSelByVPort) << PONAM(actSelByBoth);
+
+	foreach (QAction *act, acts) {
+		actGrTvSelectBy->addAction(act);
+		act->setCheckable(true);
+	}
+
+	connect(actGrTvSelectBy, &QActionGroup::triggered, this, &Browser::onActGroupTrigd);
+
+	/* ======================================================================== */
+	actGrTvCount = new QActionGroup(this);
+	PONAM(actGrTvCount)->setExclusive(true);
+
+	for (int k = 3; k < 9; k++) {
+		actGrTvCount->addAction(new QAction(tr(" %1 ").arg(k), actGrTvCount));
+		actGrTvCount->actions().last()->setCheckable(true);
+		actGrTvCount->actions().last()->setObjectName(tr("actTvCountN_%1").arg(k));
+	}
+	actGrTvCount->setExclusive(true);
+
+	connect(actGrTvCount, &QActionGroup::triggered, this, &Browser::onActGroupTrigd);
+
+	//	QAction *muSep_2	= setTvCntMu->addSeparator();
+	//	muGrAct->addAction(PONAM(muSep_2));
 }
 QMenu *Browser::menuBarElement() {
 	browsMenu = new QMenu(tr("Browser"));
-	QMenu *tvSelCfgMu = browsMenu->addMenu(tr("Table selector config"));
 
-	QActionGroup *muGrSel = new QActionGroup(browsMenu),
-			*muGrAct = new QActionGroup(browsMenu);
+	QMenu *tvSelectByMenu = browsMenu->addMenu(tr("Table selector config"));
+	PONAM(tvSelectByMenu)->addActions(actGrTvSelectBy->actions());
 
-	QAction *muSelByNone = tvSelCfgMu->addAction("Select by None", this, &Browser::onActMenuTrigd),
-			*muSelByGrBx = tvSelCfgMu->addAction("Select by Group Box", this, &Browser::onActMenuTrigd),
-			*muSelByVport = tvSelCfgMu->addAction("Select by View Port", this, &Browser::onActMenuTrigd),
-			*muSelByBoth = tvSelCfgMu->addAction("Select by Both", this, &Browser::onActMenuTrigd),
-			*muSep_1 = tvSelCfgMu->addSeparator();
-	muSelByNone->setData(QVariant::fromValue(TvSelector::selectByNone));
-	muSelByGrBx->setData(QVariant::fromValue(TvSelector::selectByGroupBox));
-	muSelByVport->setData(QVariant::fromValue(TvSelector::selectByViewPort));
-	muSelByBoth->setData(QVariant::fromValue(TvSelector::selectByBoth));
-	muGrSel->addAction(PONAM(muSelByNone));
-	muGrSel->addAction(PONAM(muSelByGrBx));
-	muGrSel->addAction(PONAM(muSelByVport));
-	muGrSel->addAction(PONAM(muSelByBoth));
-	muGrSel->addAction(PONAM(muSep_1));
-
-	foreach (QAction *act, muGrSel->actions())
-		act->setCheckable(true);
-	muGrSel->setExclusive(true);
-
-	/* ======================================================================== */
-
-	QMenu *setTvCntMu = browsMenu->addMenu(tr("Table View count config"));
-
-	for (int k = 3; k < 9; k++) {
-		muGrAct->addAction(setTvCntMu->addAction(tr(" %1 ").arg(k), this, &Browser::onActMenuTrigd));
-		muGrAct->actions().last()->setCheckable(true);
-		muGrAct->actions().last()->setObjectName(tr("muTvsN_%1").arg(k));
-	}
-	muGrAct->setExclusive(true);
-
-	QAction *muSep_2	= setTvCntMu->addSeparator();
-	muGrAct->addAction(PONAM(muSep_2));
-
-	PONAM(muGrSel);
-	PONAM(muGrAct);
-	PONAM(tvSelCfgMu);
-	PONAM(setTvCntMu);
+	QMenu *tvCountMenu = browsMenu->addMenu(tr("Table View count config"));
+	PONAM(tvCountMenu)->addActions(actGrTvCount->actions());
 
 	return browsMenu;
 }
@@ -739,24 +751,24 @@ void Browser::createUi(QWidget *passParent) {
 	/*!
 	 * Build UI.
 	 */
-
+	
 	grLay = new QGridLayout(passParent);
 	connectionWidget = new ConnectionWidget(passParent);
-
+	
 	mTabs.tva = new TabView(passParent);
 	mTabs.tvb = new TabView(passParent);
 	mTabs.tvc = new TabView(passParent);
 	mTabs.tvd = new TabView(passParent);
 	mTabs.tvl1 = new TabView(passParent);
 	mTabs.tvl2 = new TabView(passParent);
-
+	
 	mTabs.tva->setObjectName(tr("tva"));
 	mTabs.tvb->setObjectName(tr("tvb"));
 	mTabs.tvc->setObjectName(tr("tvc"));
 	mTabs.tvd->setObjectName(tr("tvd"));
 	mTabs.tvl1->setObjectName(tr("tvl1"));
 	mTabs.tvl2->setObjectName(tr("tvl2"));
-
+	
 	splitter = new QSplitter(passParent);
 	splitter_2 = new QSplitter(passParent);
 	splitter_3 = new QSplitter(passParent);
@@ -764,7 +776,7 @@ void Browser::createUi(QWidget *passParent) {
 	splitter_5 = new QSplitter(passParent);
 	splitter_6 = new QSplitter(passParent);
 	splitter_7 = new QSplitter(passParent);
-
+	
 	PONAM(splitter);
 	PONAM(splitter_2);
 	PONAM(splitter_3);
@@ -772,7 +784,7 @@ void Browser::createUi(QWidget *passParent) {
 	PONAM(splitter_5);
 	PONAM(splitter_6);
 	PONAM(splitter_7);
-
+	
 	splitter_7->setOrientation(Qt::Horizontal);
 	splitter->setOrientation(Qt::Horizontal);
 	splitter_2->setOrientation(Qt::Horizontal);
@@ -780,7 +792,7 @@ void Browser::createUi(QWidget *passParent) {
 	splitter_3->setOrientation(Qt::Vertical);
 	splitter_4->setOrientation(Qt::Vertical);
 	splitter_6->setOrientation(Qt::Vertical);
-
+	
 	grLay->addWidget(splitter);
 	grLay->addWidget(splitter_2);
 	grLay->addWidget(splitter_3);
@@ -788,37 +800,37 @@ void Browser::createUi(QWidget *passParent) {
 	grLay->addWidget(splitter_5);
 	grLay->addWidget(splitter_6);
 	grLay->addWidget(splitter_7);
-
+	
 	splitter->addWidget(mTabs.tva);
 	splitter->addWidget(mTabs.tvb);
 	splitter_2->addWidget(connectionWidget);
 	splitter_2->addWidget(mTabs.tvd);
 	splitter_3->addWidget(splitter);
 	splitter_3->addWidget(splitter_2);
-
+	
 	splitter_4->addWidget(splitter_3);
-
+	
 	splitter_5->addWidget(mTabs.tvl1);
 	splitter_5->addWidget(mTabs.tvl2);
 	splitter_6->addWidget(splitter_5);
 	splitter_6->addWidget(mTabs.tvc);
 	splitter_7->addWidget(splitter_4);
 	splitter_7->addWidget(splitter_6);
-
-
+	
+	
 	QList<QString> accName = mTabs.tvIds();
-
+	
 	foreach (TabView *tv, mTabs.tvsNoPtr()) {
 		QString currentName = accName.takeFirst();
 		tv->setAccessibleName( currentName );
 		tv->setObjectName( currentName );
-
+		
 		tv->setToolTip( tr("Tooltip: ") + currentName);
 		tv->setContextMenuPolicy(Qt::ActionsContextMenu);
 		tv->grBox()->installEventFilter( this );
 		tv->tv()->viewport()->installEventFilter( this );
 		tv->grBox()->setObjectName("gb");
-
+		
 		/*!
 		  * Connect TabView Signals/Slots
 		  */
@@ -832,43 +844,97 @@ QTableView* Browser::createView(QSqlQueryModel *model, const QString &title) {
 	QTableView *view = new QTableView(0);
 	view->setModel(model);
 	static int offset = 0;
-
+	
 	view->setWindowTitle(title);
 	view->move(100 + offset, 100 + offset);
 	offset += 20;
 	view->show();
-
+	
 	return view;
 }
-void Browser::ACTION_STORE(QObject *obj, QString) {
+bool Browser::restoreActionObjects () {
 	QSETTINGS;
-	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
 
-	foreach (QAction *act, acts)
-		config.setValue(obj->objectName() + QString("/") + act->objectName(), act->isChecked());
+	/*!
+	 * This restore loop handles only QAction objects which are kind of QActionGroup.
+	 */
+	QList<QActionGroup *> actGroups = findChildren<QActionGroup *>();
 
-	config.setValue(obj->objectName() + QString("/actionCtr"), acts.length());
-	config.sync();
+	foreach (QActionGroup *actGrp, actGroups) {
+		actGrp->blockSignals(true);
+
+		foreach (QAction *a, actGrp->actions()) {
+			if (! config.allKeys().join(',').contains(a->objectName()))
+				continue;
+
+			a->setChecked(config.value(objectName() + tr("/") + a->objectName(), false).toBool());
+
+			if (a->isChecked()) {
+				if (a->actionGroup() == actGrTvSelectBy) {
+					setTvSelector(a->data().value<TvSelector>());
+					continue;
+				}
+				if (a->actionGroup() == actGrTvCount) {
+					//					setTvCount....
+					continue;
+				}
+			}
+		}
+
+		actGrp->blockSignals(false);
+	}
+
+	/*!
+	 * Create list of ungrouped QAction objects.
+	 */
+	QList<QAction *> ungroupedActs;
+	foreach (QAction * a, findChildren<QAction *>(QRegularExpression("act*")))
+		if (! a->actionGroup())
+			ungroupedActs << a;
+
+	if (! ungroupedActs.isEmpty())
+		INFO << tr("Ungrouped QAction objects:\n")
+			  << listObjectNames<QAction *>(ungroupedActs)->join("\n");
+
+	return true;
 }
-void Browser::ACTION_RESTORE(QObject *obj, QString regex) {
-	QSETTINGS;
-	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
 
-	qSort(acts.begin(), acts.end());
-	foreach (QAction *act, acts)
-		act->setChecked(config.value(obj->objectName() + QString("/") + act->objectName()).toBool());
-}
+//void Browser::ACTION_STORE(QObject *obj, QString) {
+//	QSETTINGS;
+//	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
+
+//	foreach (QAction *act, acts)
+//		config.setValue(obj->objectName() + QString("/") + act->objectName(), act->isChecked());
+
+//	config.setValue(obj->objectName() + QString("/actionCtr"), acts.length());
+//	config.sync();
+//}
+//void Browser::ACTION_RESTORE(QObject *obj) {
+//	QSETTINGS;
+//	QList<QAction *> acts = obj->findChildren<QAction *>(QRegularExpression("act*"));
+
+//	INFO << tr("\n") << listObjectNames<QAction *>(acts)->join("\n");
+
+//	qSort(acts.begin(), acts.end());
+//	foreach (QAction *act, acts) {
+//		if (! config.allKeys().contains(act->objectName()))
+//			 WARN << tr("config doesn't contain") << act->objectName();
+
+//		if (act->isCheckable())
+//			act->setChecked(config.value(obj->objectName() + QString("/") + act->objectName()).toBool());
+//	}
+//}
 #define QFOLDINGSTART {
 #ifndef COMMENT_OUT_UNUSED
 QAbstractItemModel *Browser::createMailModel(QObject *parent) {
 	QStandardItemModel *model = new QStandardItemModel(0, 3, parent);
-
+	
 	model->setHeaderData(0, Qt::Horizontal, QObject::tr("Subject"));
 	model->setHeaderData(1, Qt::Horizontal, QObject::tr("Sender"));
 	model->setHeaderData(2, Qt::Horizontal, QObject::tr("Date"));
-
+	
 	stateBar->showMessage(tr("createMailModel"));
-
+	
 	//    addMail(model, "Happy New Year!", "Grace K. <grace@software-inc.com>",
 	//            QDateTime(QDate(2006, 12, 31), QTime(17, 03)));
 	//    addMail(model, "Radically new concept", "Grace K. <grace@software-inc.com>",
@@ -889,7 +955,7 @@ QAbstractItemModel *Browser::createMailModel(QObject *parent) {
 	//            QDateTime(QDate(2007, 01, 05), QTime(12, 00)));
 	//    addMail(model, "RE: Sports", "Petra Schmidt <petras@nospam.com>",
 	//            QDateTime(QDate(2007, 01, 05), QTime(12, 01)));
-
+	
 	return model;
 }
 
@@ -900,19 +966,19 @@ QAbstractItemModel *Browser::createMailModel(QObject *parent) {
 
 void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser) {
 	setupUi(this);
-
+	
 	inst = this;
-
+	
 	QStringList accNam;
 	accNam << TVA << TVB << TVC << TVD << TVL1 << TVL2;
 	initTableView( inst, accNam);
-
+	
 	//   connect (ui->btnA,      SIGNAL(clicked()),
 	//            this,          SLOT(onTestBtnClicked()));
 	//   connect (ui->btnB,      SIGNAL(clicked()),
 	//            this,          SLOT(onTestBtnClicked()));
 	QList<bool> bl;
-
+	
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
 									  mTabs.tvsNoPtr()[0],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
@@ -925,13 +991,13 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 									  mTabs.tvsNoPtr()[4],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
 									  mTabs.tvsNoPtr()[5],   SLOT(onTabViewSelChanged(TabView *))));
-
+	
 	if (bl.contains(false))
 		INFO << tr("connect.tabViewSelChanged[0...6]:") << bl;
-
+	
 	INFO << QSqlDatabase::connectionNames()
 		  << QSqlDatabase::drivers();
-
+	
 	if (QSqlDatabase::drivers().isEmpty()) {
 		QMessageBox::information
 				(this, tr("No database drivers found"),
@@ -945,16 +1011,16 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 					this,      SLOT(onCyclic()));
 		timCyc->start();
 	}
-
+	
 	emit stateMsg(tr("Browser Ready."));
-
+	
 	SqlTm *cm = new SqlTm();
 	cm->setCCol(QVector<int>(0, 1));
-
+	
 	//    sortwindow.append( new SortWindow(0) );
 	//    sortwindow.append( new SortWindow(0) );
 	filterForm = SortWindow::getInstance();
-
+	
 	//    sortwindow.last()->setVisible(false);
 	filterForm->setVisible(false);
 }

@@ -51,7 +51,7 @@ QGroupBox::title {
 QGroupBox::title:hover {
     color: rgba(235, 235, 235, 255);
 }
- QTableView{
+QTableView {
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF);
 	border: 0px solid gray;
 	border-radius: 5px;
@@ -63,9 +63,7 @@ QGroupBox[select=false]{ border-color: rgb(105, 105, 105); }
 QTableView[select=true]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); }
 QGroupBox[select=true]{ border-color: rgb(0, 28, 170) }
 
-
-/* Customize Table header */
- QHeaderView::section {
+QHeaderView::section {
      background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                        stop:    0 #616161, stop: 0.5 #505050,
                                        stop: 0.6 #434343, stop:    1 #656565);
@@ -76,19 +74,11 @@ QGroupBox[select=true]{ border-color: rgb(0, 28, 170) }
      padding-bottom: 2px;
      border: 1px solid #6c6c6c;
  }
-
  QHeaderView::section:checked {
      background-color: rgb(31, 94, 233);
  }
 
- /* style the sort indicator */
-QHeaderView::down-arrow {
-/*     image: url(:/images/down_arrow.png);*/
- }
-
- QHeaderView::up-arrow {
-/*     image: url(:/images/up_arrow.png);*/
- }</string>
+</string>
      </property>
      <property name="title">
       <string>GroupBox</string>

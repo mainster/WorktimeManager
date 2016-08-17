@@ -146,10 +146,10 @@ U *treeTravers(U *obj, const int steps, bool *ok = NULL) {
 /*                            under construction                            */
 /* ======================================================================== */
 template<class T>
-QList<QString> listObjectNames (QList<T> ts/*, const QString methodeName*/) {
-	QList<QString> l;
+QList<QString> *listObjectNames (QList<T> /*&*/ts/*, const QString methodeName*/) {
+	QList<QString> *l = new QList<QString>();
 	foreach (T t, ts)
-		l << t->objectName();
+		*l << t->objectName();
 	return l;
 }
 

@@ -153,11 +153,11 @@ void MainWindow::onSetFont() {
 }
 void MainWindow::onCyclic() {
 	if (false) {
-	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
-	QList<int> ba;
-	foreach (QAction *act, acts)
-		ba << (int)act->isChecked();
-	INFO << ba;
+		QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
+		QList<int> ba;
+		foreach (QAction *act, acts)
+			ba << (int)act->isChecked();
+		INFO << ba;
 	}
 	/* ---------------------------------------------------------------- */
 	/*         Get the name of object under the mouse pointer           */
@@ -252,7 +252,7 @@ void MainWindow::actionEvent(QActionEvent *e) {
 /* ======================================================================== */
 /*									    Init methodes										    */
 /* ======================================================================== */
-bool MainWindow::restoreActionObjects () {
+bool MainWindow::restoreActionObjects() {
 	QSETTINGS;
 
 	actGrTbMain->blockSignals(true);
@@ -327,19 +327,22 @@ bool MainWindow::restoreActionObjects () {
 }
 void MainWindow::createActions() {
 
+	/* ======================================================================== */
+/*                          Create QAction objects                          */
+/* ======================================================================== */
 	/*!
 	 * Create main toolbar actions.
 	 */
-	actNew = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
-	actOpen = new QAction(QIcon(":/images/open.png"), tr("Open"), this);
-	actSave = new QAction(QIcon(":/images/save.png"), tr("Save"), this);
-	actExport = new QAction(QIcon(":/images/export-3.png"), tr("Export"), this);
-	actBrowseSQL = new QAction(QIcon(":/images/database.png"), tr("BrowseSQL"), this);
-	actInpForm = new QAction(QIcon(":/images/databaseSubmit.png"), tr("InpForm"), this);
+	actNew = new QAction(QIcon(":/images/new.png"), tr("&Neu"), this);
+	actOpen = new QAction(QIcon(":/images/open.png"), tr("Öffnen"), this);
+	actSave = new QAction(QIcon(":/images/save.png"), tr("Speichern"), this);
+	actExport = new QAction(QIcon(":/images/export-3.png"), tr("Exportieren"), this);
+	actBrowseSQL = new QAction(QIcon(":/images/database.png"), tr("Zeige SQL Tabellen"), this);
+	actInpForm = new QAction(QIcon(":/images/databaseSubmit.png"), tr("&Eingabeform"), this);
 	actShowTbl = new QAction(QIcon(":/images/databaseDelegate.png"), tr("ShowTbl"), this);
-	actDbModMaster = new QAction(QIcon(":/images/databaseConf.png"), tr("DbModMaster"), this);
-	actUnderConstr = new QAction(QIcon(":/images/underConstruct.svg"), tr("Under construc"), this);
-	actClose = new QAction(QIcon(":/icoDelete"), tr("Close"), this);
+	actDbModMaster = new QAction(QIcon(":/images/databaseConf.png"), tr("Stammdaten bearbeiten"), this);
+	actUnderConstr = new QAction(QIcon(":/images/underConstruct.svg"), tr("Under construction"), this);
+	actClose = new QAction(QIcon(":/icoDelete"), tr("&Schließen"), this);
 
 	/*!
 	 * Create menu toolbar actions.
@@ -379,6 +382,8 @@ void MainWindow::createActions() {
 	 * Connect action group triggered signal to a save-action-state slot.
 	 */
 	connect(actGrTbMain, &QActionGroup::triggered, this, &MainWindow::onActionGroupTrigd);
+
+	/* ======================================================================== */
 
 	/*!
 	 * Create action group for toolbar menu actions.
@@ -425,69 +430,89 @@ void MainWindow::createActions() {
 	/*!
 	 * Set action object tooltips.
 	 */
-	actSelFont->setToolTip(tr("Font"));
+	actSelFont->setToolTip(tr("Schriftart ändern"));
 	actNew->setToolTip(tr("Create a new file"));
 	actOpen->setToolTip(tr("Open an existing file"));
 	actSave->setToolTip(tr("Save the document"));
 	actExport->setToolTip(tr("Export dataset to document"));
-	actBrowseSQL->setToolTip(tr("Browser for SQL database"));
+	actBrowseSQL->setToolTip(tr("Öffnet alle Tabellen der SQL Datenbank mit "
+										 "<b>Lesezugriff</b>"));
 	actShowTbl->setToolTip(tr("Open work time database table"));
-	actDbModMaster->setToolTip(tr("Stammdaten erweitern"));
-	actClose->setToolTip(tr("Alle Fenster schließen "));
+	actDbModMaster->setToolTip(tr("<b>Bearbeiten</b> der Datenbank-<b>Stammdaten</b>.\n"
+											"Zum Anlegen/ändern von Projekten, Mitarbeitern oder "
+											"Kunden"));
+	actClose->setToolTip(tr("Schließen aller Fenster"));
 	actResizerDlg->setToolTip(tr("Resize MainWindow to x"));
 	actShowSqlQuery->setToolTip(tr("Hide or show the input field to submit manuall "
 											 "SQL querys thru database driver backend"));
 	actSetAlterRowCol->setToolTip(tr("Farbe für alternierenden Zeilenhintergund"));
-	actInpForm->setToolTip(tr("<html><head/><body><p>Öffnet die <span style="" "
-									  "font-weight:600;"">Eingabeform</span> um neue Einträge in "
-									  "die in die Arbeitszeitentabelle einzutragen</p></body></html>"));
+	actInpForm->setToolTip(tr("Öffnet die <b>Eingabeform</b> um neue Einträge in die "
+									  "Arbeitszeitentabelle einzutragen"));
+
+	foreach (QAction *act, actGrTbMain->actions())
+		act->setToolTip(tr("<p style='white-space:pre'>") +
+//							 tr("<div style=\"width: 600px;\">") +
+							 act->toolTip() /*+ tr("</div>")*/);
 }
 void MainWindow::onActionGroupTrigd(QAction *sender) {
 	QSETTINGS;
-	INFO << objectName() + tr("/") + sender->objectName();
 
-	config.setValue(objectName() + tr("/") + sender->objectName(), sender->isChecked());
+	if (sender->isCheckable()) {
+		/*!
+		 * If action group is exclusive, clear all action config flags.
+		 */
+		if (sender->actionGroup()->isExclusive())
+			foreach(QAction *act, sender->actionGroup()->actions())
+				config.setValue(objectName() + tr("/") + act->objectName(), false);
+
+		config.setValue(objectName() + tr("/") + sender->objectName(), sender->isChecked());
+		config.sync();
+	}
 }
 void MainWindow::makeMenuBar() {
-	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&File"));
+	/* ======================================================================== */
+	/*                               Main Toolbar                               */
+	/* ======================================================================== */
+//	ui->mainToolBar->addActions(QList<QAction*>()
+//										 << actNew << actOpen << actSave << actExport
+//										 << actBrowseSQL << actInpForm << actShowTbl
+//										 << actDbModMaster << actUnderConstr << actClose);
+	ui->mainToolBar->addActions( actGrTbMain->actions() );
+
+	/* ======================================================================== */
+	/*                                 fileMenu                                 */
+	/* ======================================================================== */
+	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&Datei"));
 	fileMenu->addAction(tr("Add &Connection..."), mDbc, SLOT(addConnection()));
 	fileMenu->addSeparator();
-	fileMenu->addAction(tr("&Quit"), qApp, SLOT(quit()));
+//	fileMenu->addAction(tr("&Quit"), qApp, SLOT(quit()));
+	fileMenu->addActions(QList<QAction *>()
+								<< actClose);
 
-	QMenu *helpMenu = menuBar()->addMenu(QObject::tr("&Help"));
+	/* ======================================================================== */
+	/*                                 helpMenu                                 */
+	/* ======================================================================== */
+	QMenu *helpMenu = menuBar()->addMenu(QObject::tr("&Hilfe"));
 	helpMenu->addAction(tr("About"), this, SLOT(about()));
 	helpMenu->addAction(tr("About Qt"), qApp, SLOT(aboutQt()));
 
 	/* ======================================================================== */
+	/*                                setupMenu                                 */
+	/* ======================================================================== */
+	QMenu *setupMenu = menuBar()->addMenu(QObject::tr("&Setup"));
+	setupMenu->addActions(QList<QAction *>()
+								 << actSelFont << actSetAlterRowCol << actCyclicObjInfo
+								 << actResizerDlg << actShowSqlQuery << actCfgInpFrmTabOrd);
+	QAction *muSetStyleSh = setupMenu->addAction("St&yleSheets", this, &MainWindow::onStyleSheetTrig);
 
-	INFO << menuBar()->children();
-
-	QMenu *muSup = static_cast<QMenu *>(menuBar()->findChild<QMenu *>(tr("menu_Setup")));
-	QMenu *muView = static_cast<QMenu *>(menuBar()->findChild<QMenu *>(tr("muView)")));
-
-	QAction *muSetStyleSh = muSup->addAction("St&yleSheets", this, &MainWindow::onStyleSheetTrig);
-	muSup->addActions(QList<QAction *>() << actSelFont << actSetAlterRowCol
-							<< actCyclicObjInfo << actResizerDlg << actShowSqlQuery
-							<< actCfgInpFrmTabOrd);
-
-	muSup->addSeparator();
-	muSup->addActions(QList<QAction *>() << actAutoFitTables << actFilterForm << actClose);
-
-	//	muSetFont		= muSup->addAction("Schriftfont",			this, &MainWindow::onSetFont);
-//	muSetRowCol		= muSup->addAction("Zeilenhintergrund",	this, &MainWindow::onSetAlterRowColTrig);
-//	muSetObjInfo	= muSup->addAction("Cyclic object info",	browser, &Browser::setCyclicObjInfo);
-//	muSetResize		= muSup->addAction("Fenstergröße ändern", this, &MainWindow::onResizerDlgTrig);
-//	muSetHidQuery	= muSup->addAction("Eingabefeld SQL querys", this, &MainWindow::onActShowSqlQueryTrig);
-//	muSetTabOrd		= muSup->addAction("Tabulator Reihenfolge", this, &MainWindow::onActCfgInpFrmTabOrdTrig);
-//	muSetAutofit	= muSup->addAction("Autofit Zeile/Spalte", browser, &Browser::autofitRowCol);
-//	muSetfilt		= muSup->addAction("Suchfenster anzeigen", browser, &Browser::onActFilterForm);
-//	muSetClose		= muSup->addAction("Close", this, &MainWindow::close);
+	setupMenu->addSeparator();
 
 	/* ======================================================================== */
-	ui->mainToolBar->addActions(QList<QAction*>()
-										 << actNew << actOpen << actSave << actExport
-										 << actBrowseSQL << actInpForm << actShowTbl
-										 << actDbModMaster << actUnderConstr << actClose);
+	/*                                 viewMenu                                 */
+	/* ======================================================================== */
+	QMenu *viewMenu = menuBar()->addMenu(QObject::tr("&Anzeige"));
+	viewMenu->addActions(QList<QAction *>()
+								<< actAutoFitTables << actFilterForm);
 
 	/* ======================================================================== */
 	/*                        Inherited menu components                         */
@@ -513,7 +538,7 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		connect(actUnderConstr, &QAction::triggered, this, &MainWindow::onUnderConstrTrig);
 		connect(actSelFont, &QAction::triggered, this, &MainWindow::onSetFont);
 		connect(actResizerDlg, &QAction::triggered, this, &MainWindow::onResizerDlgTrig);
-//		connect(actShowSqlQuery, &QAction::toggled, this, &MainWindow::onShowSqlQueryTogd);
+		//		connect(actShowSqlQuery, &QAction::toggled, this, &MainWindow::onShowSqlQueryTogd);
 		connect(actSetAlterRowCol, &QAction::triggered, this, &MainWindow::onSetAlterRowColTrig);
 		connect(actCfgInpFrmTabOrd,  &QAction::triggered, this, &MainWindow::onActCfgInpFrmTabOrdTrig);
 		connect(actSave,  &QAction::triggered, this, &MainWindow::onActSaveTrig);
@@ -533,31 +558,31 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 void MainWindow::initDocks() {
 
 }
-void MainWindow::ACTION_STORE(QObject *obj, QString regex) {
-	QSETTINGS;
-	QPair<QString, bool> pair;
-	QList<QPair<QString, bool>> pairs;
+//void MainWindow::ACTION_STORE(QObject *obj, QString regex) {
+//	QSETTINGS;
+//	QPair<QString, bool> pair;
+//	QList<QPair<QString, bool>> pairs;
 
-	QList<QAction *> acts = ui->mainToolBar->findChildren<QAction *>();
+//	QList<QAction *> acts = ui->mainToolBar->findChildren<QAction *>();
 
-	foreach (QAction *act, acts) {
-		pair.first = act->objectName();
-		pair.second = act->isChecked();
-		pairs << pair;
-	}
+//	foreach (QAction *act, acts) {
+//		pair.first = act->objectName();
+//		pair.second = act->isChecked();
+//		pairs << pair;
+//	}
 
-	INFO << pairs;
+//	INFO << pairs;
 
-	//	config.setValue(obj->objectName() + QString("/") + act->objectName(), act->isChecked());
-	//	INFO << obj->objectName() + QString("/") + act->objectName() << act->isChecked();
+//	//	config.setValue(obj->objectName() + QString("/") + act->objectName(), act->isChecked());
+//	//	INFO << obj->objectName() + QString("/") + act->objectName() << act->isChecked();
 
-	config.setValue(obj->objectName() + QString("/actionCtr"), acts.length());
-	config.sync();
-}
-void MainWindow::ACTION_RESTORE(QObject *obj, QString regex) {
-	QSETTINGS;
-	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
+//	config.setValue(obj->objectName() + QString("/actionCtr"), acts.length());
+//	config.sync();
+//}
+//void MainWindow::ACTION_RESTORE(QObject *obj, QString regex) {
+//	QSETTINGS;
+//	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
 
-	foreach (QAction *act, acts)
-		act->setChecked(config.value(obj->objectName() + QString("/") + act->objectName()).toBool());
-}
+//	foreach (QAction *act, acts)
+//		act->setChecked(config.value(obj->objectName() + QString("/") + act->objectName()).toBool());
+//}

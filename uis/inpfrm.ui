@@ -73,12 +73,12 @@ QComboBox::down-arrow:on { /* shift the arrow when popup is open */
 	top: 1px;
 	left: 1px;
 }
-/* ----------------------------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------------------------- 
 QGroupBox, QTextEdit {
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
 	border: 2px solid rgb(140,140,140);
 	border-radius: 5px;
-	margin-top: 1ex; /* leave space at the top for the title */
+	margin-top: 1ex; 
 }
 QGroupBox {
 	font: italic 10pt &quot;Arial&quot;;
@@ -86,11 +86,12 @@ QGroupBox {
 	font-weight: bold;
 }
 QGroupBox::title {
-	subcontrol-origin: margin; /* margin boarder padding content */
-	subcontrol-position: top center; /* position at the top center */
+	subcontrol-origin: margin; 
+	subcontrol-position: top center; 
 	top: 1.2ex;
 	padding: 0 8px
 }
+*/
 /* ----------------------------------------------------------------------------------------------- */
 QLabel {
 	color: rgb(70, 70, 70);

@@ -155,7 +155,6 @@ signals:
 public slots:
 	TvSelectors tvSelector() const { return m_tvSelector; }
 	void setTvSelector(TvSelectors tvSelector) { m_tvSelector = tvSelector; }
-
 	void showMetaData(const QString &table);
 	void currentChanged(QModelIndex,QModelIndex) { emit updateActions(); }
 	void onConnectionWidgetTableActivated(const QString &sqlTab);
@@ -176,13 +175,13 @@ public slots:
 	void autofitRowCol();
 	void onActFilterForm(bool b);
 	QMenu *menuBarElement();
-	void onActMenuTrigd(bool state = false);
 
 protected:
 	void createUi(QWidget *passParent = 0);
-	void ACTION_STORE(QObject *obj, QString);
-	void ACTION_RESTORE(QObject *obj, QString regex);
+//	void ACTION_STORE(QObject *obj, QString);
+	void ACTION_RESTORE(QObject *obj);
 
+	void createActions();
 protected slots:
 	bool restoreUi();
 	void showEvent(QShowEvent *e) override;
@@ -191,6 +190,8 @@ protected slots:
 	void closeEvent(QCloseEvent *e);
 	void onTvSelectorChanged();
 
+	void onActGroupTrigd(QAction *action);
+	bool restoreActionObjects();
 private:
 	static Browser		*inst;
 	ConnectionWidget	*connectionWidget;
@@ -202,6 +203,10 @@ private:
 	TvSelectors			m_tvSelector;
 	QSplitter	*splitter, *splitter_2, *splitter_3,
 	*splitter_4, *splitter_5, *splitter_6, *splitter_7;
+
+	QActionGroup		*actGrTvSelectBy, *actGrTvCount;
+	QAction				*actSelByNone, *actSelByGrBx, *actSelByVPort, *actSelByBoth;
+
 public:
 	QMenu					*browsMenu;
 	static const QString  browserStyleSheet, browserStyleSheetv2;
