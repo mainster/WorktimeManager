@@ -78,7 +78,7 @@ public slots:
 	void connectActions(ConnectReceiver receivers = connectThis);
 
 protected slots:
-	void makeMenuBar();
+	void makeMenu();
 	void onActCfgInpFrmTabOrdTrig() {
 		emit inpFrm->changeFocusOrder(Qt::FocusChange_init);
 	}

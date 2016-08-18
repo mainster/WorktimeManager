@@ -19,16 +19,7 @@ public:
 
 	~MdMenu();
 
-	bool event (QEvent * e) {
-		const QHelpEvent *helpEvent = static_cast <QHelpEvent *>(e);
-		if (helpEvent->type() == QEvent::ToolTip && activeAction() != 0) {
-			QToolTip::showText(helpEvent->globalPos(), activeAction()->toolTip());
-		}
-		else {
-			QToolTip::hideText();
-		}
-		return MdMenu::event(e);
-	}
+	virtual bool event (QEvent * e);
 };
 
 #endif // MDMENU_H

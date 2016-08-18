@@ -10,6 +10,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	QSETTINGS_INIT; QSETTINGS;
 	//	initDocks();
 
+
+//	MdMenu *menu = new MdMenu();
+//	menu->setTitle("Test menu");
+//	menuBar()->addMenu(menu);
+
+//	QAction *action1 =  menu->addAction("First");
+//	action1->setToolTip("First action");
+
+//	QAction *action2 =  menu->addAction("Second");
+//	action2->setToolTip("Second action");
+
+//	menu->show();
+//	return;
+
 	createActions();
 	connectActions(connectThis);
 
@@ -57,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	stateBar->setClockAlign(Qt::AlignCenter);
 	stateBar->setClockVisible(true);
 	setStatusBar( stateBar );
-	makeMenuBar();
+	makeMenu();
 
 	/*!
 	 * Connect the inpFrm's statusMessage signal to the statebar message slot
@@ -528,26 +542,34 @@ void MainWindow::createActions() {
 							 //							 tr("<div style=\"width: 600px;\">") +
 							 act->toolTip() /*+ tr("</div>")*/);
 }
-void MainWindow::makeMenuBar() {
+void MainWindow::makeMenu() {
 	/* ======================================================================== */
 	/*                               Main Toolbar                               */
 	/* ======================================================================== */
-	//	ui->mainToolBar->addActions(QList<QAction*>()
-	//										 << actNew << actOpen << actSave << actExport
-	//										 << actBrowseSQL << actInpForm << actShowTbl
-	//										 << actDbModMaster << actUnderConstr << actClose);
 	ui->mainToolBar->addActions( actGrTbMain->actions() );
 
 	/* ======================================================================== */
 	/*                                 fileMenu                                 */
 	/* ======================================================================== */
+#define TRY1
+#ifdef TRY1
+	MdMenu *fileMenu = new MdMenu();
+	fileMenu->setTitle(tr("&Datei"));
+	fileMenu->addAction(tr("Add &Connection..."), mDbc, SLOT(addConnection()));
+	fileMenu->actions().last()->
+			setToolTip(tr("Neue SQLITE Datenbank Verbindung aufbauen."));
+	fileMenu->addSeparator();
+	fileMenu->addActions(QList<QAction *>() << actClose);
+	menuBar()->addMenu(fileMenu);
+	fileMenu->show();
+#else
 	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&Datei"));
 	fileMenu->addAction(tr("Add &Connection..."), mDbc, SLOT(addConnection()));
 	fileMenu->addSeparator();
 	//	fileMenu->addAction(tr("&Quit"), qApp, SLOT(quit()));
 	fileMenu->addActions(QList<QAction *>()
 								<< actClose);
-
+#endif
 	/* ======================================================================== */
 	/*                                 helpMenu                                 */
 	/* ======================================================================== */
