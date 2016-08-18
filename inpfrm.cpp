@@ -39,7 +39,7 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 	setFixedHeight(fixedHeights.sqlQueryInvisible);
 	initComboboxes();
 
-	//    restoreTabOrder();
+	restoreTabOrder();
 
 	//	ui->gboxWorker->hide();
 	/* ======================================================================== */
@@ -107,149 +107,8 @@ InpFrm::~InpFrm() {
 
 	delete ui;
 }
-void InpFrm::initComboboxes() {
-	/*!
-	  * Initialize sql combobox list member mSqlCbs.
-	  */
-	mSqlCbs = findChildren<MdComboBox *>();
-	foreach (MdComboBox *cb, mSqlCbs) {
-		if (! cb->property("hasSqlMapper").isValid())
-			mSqlCbs.removeOne(cb);
-		else {
-			/*!
-				 * Install custom event filter object for SQL mapping purposes.
-				 */
-			cb->installEventFilter( new SqlEventFilter(this) );
-		}
-	}
-
-	/*!
-	  * Append field groups to model struct mModels
-	  */
-	mModels << fieldGroup_t(tr("prj"), ui->cbPrj)
-			  << fieldGroup_t(tr("client"), ui->cbClient)
-			  << fieldGroup_t(tr("worker"), ui->cbWorker);
-
-	/*!
-	  * Set foreign key relations.
-	  */
-	mModels[IDX_PROJECT].tableModel->setRelation(
-				mModels[IDX_PROJECT].tableModel->fieldIndex("clientID"),
-				QSqlRelation("client", "clientID", "Name"));
-
-	foreach (fieldGroup_t field, mModels) {
-		/*!
-			* QSqlRelationalTableModel::Select and set proxy models source model.
-			*/
-		field.tableModel->select();
-		field.proxyModel->setSourceModel(field.tableModel);
-		field.proxyModel->invalidate();
-		/*!
-			* Set the combobox model to proxyModel.
-			*/
-		field.comboBox->setModel(field.proxyModel);
-	}
-
-	QList<QString> list;
-	foreach (fieldGroup_t field, mModels) {
-		list.clear();
-		list << tr("Table: %1").arg(field.tableModel->tableName());
-		for (int k = 0; k < field.tableModel->columnCount(QModelIndex()); k++)
-			list << field.tableModel->record().fieldName(k);
-		INFO << list;
-	}
-	/*!
-	  * Select the model columns which should be transformed into string list model and
-	  * used for comboboxes dropdown menu.
-	  */
-	QList<short> idx;
-	idx << mModels[IDX_PROJECT].tableModel->fieldIndex("Kurzform")
-		 << mModels[IDX_PROJECT].tableModel->fieldIndex("Nummer");
-//	INFO << idx;
-	ui->cbPrj->setModelColumns(idx);
-
-	idx.clear();
-	idx << mModels[IDX_CLIENT].tableModel->fieldIndex("Kurzform")
-		 << mModels[IDX_CLIENT].tableModel->fieldIndex("Nummer");
-//	INFO << idx;
-	ui->cbClient->setModelColumns(idx);
-
-	idx.clear();
-	idx << mModels[IDX_WORKER].tableModel->fieldIndex("Nachname")
-		 << mModels[IDX_WORKER].tableModel->fieldIndex("Vorname")
-		 << mModels[IDX_WORKER].tableModel->fieldIndex("PersonalNr");
-//	INFO << idx;
-	ui->cbWorker->setModelColumns(idx);
-
-	connect(ui->cbPrj, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
-	connect(ui->cbClient, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
-	connect(ui->cbWorker, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
-
-	//	ui->cbPrj->setModelColumns(QList<quint8>() << 1 << 5);
-	//	ui->cbClient->setModelColumns(QList<quint8>() << 1 << 3);
-	//	ui->cbWorker->setModelColumns(QList<quint8>() << 1 << 2);
-
-}
-void InpFrm::onCbIndexChanged(const int index) {
-	MdComboBox *cbSender = qobject_cast<MdComboBox *>(QObject::sender());
-
-	INFO  << cbSender << cbSender->currentText() << index << cbSender->currentIndex();
-
-	/*!
-	  * Since the combobox text could be a project number or project "Kurzform", we
-	  * have to find the correct record within the SQL table "prj" and set the row
-	  * to be viewed via ui->lblPrj.
-	  */
-	if (cbSender == ui->cbPrj) {
-		return;
-	}
-	if (cbSender == ui->cbClient) {
-
-		return;
-	}
-	if (cbSender == ui->cbWorker) {
-
-		return;
-	}
-}
 QString InpFrm::getQueryText() const {
 	return ui->teSqlQuerys->toPlainText();
-}
-void InpFrm::connectActions() {
-
-	connect(ui->datePicker,         SIGNAL(dateChanged(QDate)),
-			  this,                   SLOT(onInpFormChanges(QDate)));
-	connect(ui->sbID,               SIGNAL(valueChanged(int)),
-			  this,                   SLOT(onInpFormChanges(int)));
-	connect(ui->teSqlQuerys,        SIGNAL(textChanged()),
-			  this,                   SLOT(onSqlQuerysTextChanged()));
-	connect(ui->cbQueryIdent,       SIGNAL(currentIndexChanged(int)),
-			  this,                   SLOT(onCbQueryIndexChaned(int)));
-
-	connect(this, &InpFrm::changeFocusOrder, this, &InpFrm::onChangeFocusOrder);
-	connect(this, &InpFrm::dockLocationChanged, this, &InpFrm::onDockLocationChanged);
-	connect(this, &InpFrm::topLevelChanged, this, &InpFrm::onUndockEvent);
-
-	QList<QComboBox*> cbs = findChildren<QComboBox *>();
-	QList<QPushButton*> pbs = findChildren<QPushButton *>();
-
-	foreach (QComboBox *cb, cbs)
-		connect(cb, SIGNAL(currentIndexChanged(int)), this, SLOT(onInpFormChanges(int)));
-
-	foreach (QPushButton *pb, pbs) {
-		if (pb->objectName() == tr("btnSaveQuery")) {
-			connect(pb, &QPushButton::clicked, this, &InpFrm::saveSqlQueryInputText);
-			continue;
-		}
-
-		if (pb->objectName() == tr("btnRestoreQuery")) {
-			connect(pb, &QPushButton::clicked, this, &InpFrm::restoreSqlQueryInputText);
-			continue;
-		}
-
-		if (! (bool)connect(pb, &QPushButton::clicked, this, &InpFrm::aButtonClick))
-			CRIT << tr("connect(..) returned false or button %1").arg(pb->objectName());
-	}
 }
 void InpFrm::onInpFormUserCommit() {
 	QSqlQuery query;
@@ -344,6 +203,28 @@ void InpFrm::onInpFormUserCommit() {
 	INFO << query.lastQuery();
 
 }
+void InpFrm::onCbIndexChanged(const int index) {
+	MdComboBox *cbSender = qobject_cast<MdComboBox *>(QObject::sender());
+
+	INFO  << cbSender << cbSender->currentText() << index << cbSender->currentIndex();
+
+	/*!
+	  * Since the combobox text could be a project number or project "Kurzform", we
+	  * have to find the correct record within the SQL table "prj" and set the row
+	  * to be viewed via ui->lblPrj.
+	  */
+	if (cbSender == ui->cbPrj) {
+		return;
+	}
+	if (cbSender == ui->cbClient) {
+
+		return;
+	}
+	if (cbSender == ui->cbWorker) {
+
+		return;
+	}
+}
 void InpFrm::aButtonClick(bool) {
 	QPushButton *pbSender = qobject_cast<QPushButton *>(QObject::sender());
 	QList<QWidget *> ws;
@@ -377,11 +258,12 @@ void InpFrm::aButtonClick(bool) {
 		onInpFormUserCommit();
 	}
 	if (pbSender == ui->btnUndo) {
-		ui->teSqlQuerys->show();
-		ui->teSqlQuerys->setEnabled(true);
-		ui->teSqlQuerys->setReadOnly(false);
-		ui->teSqlQuerys->setText(tr("testtext"));
-		//		ui->teSqlQuerys->setWr
+
+		QList<QWidget *> targs =
+				QList<QWidget *>() << ui->datePicker << ui->leHrs << ui->btnOk << ui->cbPrj
+										 << ui->cbWorker << ui->cbClient;
+		setFocusOrder(targs);
+
 	}
 	if (pbSender == ui->btnRedo) {
 		//		Browser *browser = Browser::instance();
@@ -399,7 +281,25 @@ void InpFrm::aButtonClick(bool) {
 			  << mModels.at(IDX_PROJECT).tableModel->columnCount(mix);
 	}
 }
+QList<QWidget *> InpFrm::getTabableWidgets() {
+	QList<QWidget *> inpWids;
 
+	inpWids << listCast<QWidget*>(findChildren<QComboBox *>(QRegularExpression("cb*")));
+	inpWids << listCast<QWidget*>(findChildren<QDateEdit *>(QRegularExpression("date*")));
+	inpWids << listCast<QWidget*>(findChildren<QSpinBox *>(QRegularExpression("sb*")));
+	inpWids << listCast<QWidget*>(findChildren<QLineEdit *>(QRegularExpression("le*")));
+	inpWids << listCast<QWidget*>(findChildren<QRadioButton *>(QRegularExpression("rb*")));
+	inpWids << listCast<QWidget*>(findChildren<QPushButton *>(QRegularExpression("pb*")));
+	inpWids << listCast<QWidget*>(findChildren<QPushButton *>(QRegularExpression("btn*")));
+
+	foreach (QWidget *w, inpWids)
+		if (w->objectName().contains("qt_"))
+			inpWids.removeOne(w);
+
+	INFO << (*listObjectNames<QWidget *>(inpWids)).join("\n");
+
+	return inpWids;
+}
 void InpFrm::onInpFormChanges(int idx) {
 	Q_UNUSED(idx);
 	//   INFO << idx;
@@ -408,7 +308,6 @@ void InpFrm::onInpFormChanges(QDate date) {
 	Q_UNUSED(date);
 	//   INFO << date;
 }
-
 void InpFrm::onSqlQuerysTextChanged() {
 	/**
 	  * Check if teSqlQuery hasFocus to determine if the textCHanged signal
@@ -432,21 +331,342 @@ void InpFrm::onSqlQuerysTextChanged() {
 }
 void InpFrm::setQueryBoxVisible(bool visible) {
 	ui->gbSqlQuery->setVisible( visible );
-
 	if (visible) {
 		setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		ui->teSqlQuerys->setFocusPolicy(Qt::ClickFocus);
 		setMaximumHeight( fixedHeights.sqlQueryVisible );
 		return;
 	}
-
 	setFixedHeight( fixedHeights.sqlQueryInvisible );
 }
 void InpFrm::onCbQueryIndexChaned(int idx) {
 	Q_UNUSED(idx);
 	ui->teSqlQuerys->setHtml( ui->cbQueryIdent->currentData().toString() );
 }
+void InpFrm::onChangeFocusOrder(Qt::FocusOrderState state) {
+	/** Interrupt a running changeTabOrder process */
+	if ((mChangeFocusFlag == Qt::FocusChange_isRunning ||
+		  mChangeFocusFlag == Qt::FocusChange_rejected) &&
+		 state == Qt::FocusChange_init) {
+		emit stateMessage(tr("Change tab order process interrupted."
+									"No changes in current tab order."), 2000);
+		mChangeFocusFlag = Qt::FocusChange_none;
+		return;
+	}
 
+	//	/** If changeTabOrder process is not active && state == init, ... */
+	//	if (! (mChangeFocusFlag == Qt::FocusChange_isRunning) &&
+	//	    state == Qt::FocusChange_init) {
+	//		mObjFocusOrder.clear();
+	//		mChangeFocusFlag = Qt::FocusChange_isRunning;
+	//		emit stateMessage(tr("Init process to change the "
+	//		                     "input form tab order..."), 2000);
+	//		return;
+	//	}
+
+	//	/** --> Succesfull change of tab order objects
+	//	 * If this slot is called with parameter FocusChange_done &&
+	//	 * current state is FocusChange_isRunning
+	//	 * --> Succesfull change of tab order objects, run all setTabOrder(..) now
+	//	 */
+	//	if (mChangeFocusFlag == Qt::FocusChange_isRunning &&
+	//	    state == Qt::FocusChange_done) {
+
+	//		QList<QWidget *> widTabOrder = listCast<QWidget*, QObject*>( mObjFocusOrder );
+	//		QStringList lst;
+	//		for (int i=0; i < widTabOrder.length()-1; i++) {
+	//			widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
+	//			lst.append(widTabOrder[i]->objectName());
+	//		}
+
+	//		//        INFO << lst;
+	//		mChangeFocusFlag = Qt::FocusChange_done;
+
+	//		QSETTINGS;
+	//		config.setValue(this->objectName() + "/TabOrder", lst.join(","));
+	//		emit stateMessage(tr("Input form tab order successfully changed!"), 2000);
+	//		return;
+	//	}
+
+	//	return;
+
+}
+void InpFrm::restoreTabOrder() {
+	/*!
+	  * Check for valied tab order configuration data
+	  */
+	QSETTINGS;
+	QStringList wNames;
+	QList<QWidget *> tabOrderList;
+
+	if (config.allKeys().join(',').contains(objectName() + Md::keys.focusOrder)) {
+		emit stateMessage(tr("Valied tab order configuration found!"), 4000);
+
+		foreach (const QString s, config.value(
+						objectName() + Md::keys.focusOrder).toString().split(','))
+			tabOrderList << findChildren<QWidget *>(s);
+	}
+	else {
+		/*!
+			* Here a valid tab order list must be generated.
+			*/
+		INFO << tr("NO valied tab order configuration found!");
+		tabOrderList = findChildren<QWidget *>();
+		foreach (QWidget *w, tabOrderList)
+			if (! w->property("hasSqlMapper").isValid())
+				tabOrderList.removeOne(w);
+	}
+	/* ======================================================================== */
+	setFocusOrder(tabOrderList/* << tabOrderList.first() */);
+
+	//	for (int k = 0; k< (tabOrderList.length() - 1); k++) {
+	//		setTabOrder(tabOrderList.at(k), tabOrderList.at(k+1));
+	//		INFO << tr("setTabOrder([%1]").arg(k) << tabOrderList.at(k)->objectName()
+	//		     << tr(",[%1]").arg(k+1) << tabOrderList.at(k+1)->objectName();
+	//	}
+
+	/* ======================================================================== */
+}
+bool InpFrm::setFocusOrder(QList<QWidget *> targets) {
+	/*!
+	  * Request all child widgets from InpFrm and iterate through the QWidget list.
+	  * If (*it).property("hasSqlMapper")->isValied() returns false, remove current
+	  * widget from allTabable list.
+	  */
+
+	if ((targets.isEmpty()) ||
+		 (targets.length() > getTabableWidgets().length()))
+		bReturn("Wrong size of focusOrder list parameter");
+
+	/*!
+			* Remove the widget that is processed after this line from allTabable list. After
+			* break of the while loop, allTabable list represents the difference list:
+			* (allTabable - targets) --> set Qt::NoFocus policy
+			*/
+	/*!
+	 * If (*it) points to last list element, register .first() and break
+	 */
+	for (int k = 0; k < (targets.length() - 1); k++) {
+		setTabOrder(targets.at(k), targets.at(k + 1));
+		INFO << tr("setTabOrder([%1]").arg(k) << targets.at(k)->objectName()
+			  << tr(",[%1]").arg(k+1) << targets.at(k+1)->objectName();
+	}
+
+	/*!
+	 * Clear now tab function for all other input widgets.
+	 */
+	QList<QWidget *> noFocusWids = getTabableWidgets();
+	INFO << *listObjectNames<QWidget *>(noFocusWids);
+	INFO << *listObjectNames<QWidget *>(targets);
+
+	foreach (QWidget *w, targets)
+		noFocusWids.removeOne(w);
+
+	INFO << *listObjectNames<QWidget *>(noFocusWids);
+
+	foreach (QWidget *w, noFocusWids)
+		w->setFocusPolicy(Qt::NoFocus);
+
+	/*!
+	  * Save the focus order list.
+	  */
+	mTabOrder.current = targets;
+
+	/*!
+	 * Write tab order to config file.
+	 */
+	QSETTINGS;
+	config.setValue(objectName() + Md::keys.focusOrder,
+						 listObjectNames<QWidget *>(mTabOrder.current)->join(','));
+	config.sync();
+
+	return true;
+}
+Qt::FocusOrderState InpFrm::InpFrm::getChangeFocusFlag() const {
+	return mChangeFocusFlag;
+}
+void InpFrm::setChangeFocusFlag(const Qt::FocusOrderState &stateFlag) {
+	mChangeFocusFlag = stateFlag;
+}
+void InpFrm::onDockLocationChanged(Qt::DockWidgetArea area) {
+	QSETTINGS;
+	config.setValue(objectName() + tr("/") + KEY_DOCKWIDGETAREA, (uint) area);
+
+}
+void InpFrm::onUndockEvent(bool isUndocked) {
+	if (isUndocked)
+		WIN_RESTORE(this);
+}
+/* ======================================================================== */
+/*                             Event callbacks                              */
+/* ======================================================================== */
+void InpFrm::showEvent(QShowEvent *) {
+	update();
+	updateGeometry();
+	mEscapeTrigger = false;
+	//	mapCbTableProxy();
+}
+void InpFrm::hideEvent(QShowEvent *) {
+
+}
+void InpFrm::closeEvent(QCloseEvent *) {
+	QSETTINGS;
+
+	//	if (dock)
+	/**** Write mainWindow geometry and window state
+	\*/
+	WIN_STORE(this);
+}
+void InpFrm::keyPressEvent(QKeyEvent *e) {
+	/**
+	  * If key press event for "Enter" is detected, emit a btnOk Clicked()
+	  * signal to access onBtnOkClicked()
+	  */
+	if (e->key() == Qt::Key_Enter) {
+		emit ui->btnOk->clicked();
+		e->accept();
+		return;
+	}
+
+	/*!
+	  * First escape key press event resets the current InpFrm widget focus to initial.
+	  * Second escape key press event within 800ms hides the InpFrm::
+	  */
+	if (e->key() == Qt::Key_Escape) {
+		if (! mEscapeTrigger) {
+			mTabOrder.current.first()->setFocus(Qt::TabFocusReason);
+			INFO << tr("start singledshot");
+		}
+		else hide();
+	}
+	e->accept();
+}
+void InpFrm::resizeEvent(QResizeEvent *) {
+//	if (isFloating())
+//		WIN_STORE(this);
+}
+/* ======================================================================== */
+/*									    Init methodes										    */
+/* ======================================================================== */
+void InpFrm::initComboboxes() {
+	/*!
+	  * Initialize sql combobox list member mSqlCbs.
+	  */
+	mSqlCbs = findChildren<MdComboBox *>();
+	foreach (MdComboBox *cb, mSqlCbs) {
+		if (! cb->property("hasSqlMapper").isValid())
+			mSqlCbs.removeOne(cb);
+		else {
+			/*!
+				 * Install custom event filter object for SQL mapping purposes.
+				 */
+			cb->installEventFilter( new SqlEventFilter(this) );
+		}
+	}
+
+	/*!
+	  * Append field groups to model struct mModels
+	  */
+	mModels << fieldGroup_t(tr("prj"), ui->cbPrj)
+			  << fieldGroup_t(tr("client"), ui->cbClient)
+			  << fieldGroup_t(tr("worker"), ui->cbWorker);
+
+	/*!
+	  * Set foreign key relations.
+	  */
+	mModels[IDX_PROJECT].tableModel->setRelation(
+				mModels[IDX_PROJECT].tableModel->fieldIndex("clientID"),
+				QSqlRelation("client", "clientID", "Name"));
+
+	foreach (fieldGroup_t field, mModels) {
+		/*!
+			* QSqlRelationalTableModel::Select and set proxy models source model.
+			*/
+		field.tableModel->select();
+		field.proxyModel->setSourceModel(field.tableModel);
+		field.proxyModel->invalidate();
+		/*!
+			* Set the combobox model to proxyModel.
+			*/
+		field.comboBox->setModel(field.proxyModel);
+	}
+
+	QList<QString> list;
+	foreach (fieldGroup_t field, mModels) {
+		list.clear();
+		list << tr("Table: %1").arg(field.tableModel->tableName());
+		for (int k = 0; k < field.tableModel->columnCount(QModelIndex()); k++)
+			list << field.tableModel->record().fieldName(k);
+		INFO << list;
+	}
+	/*!
+	  * Select the model columns which should be transformed into string list model and
+	  * used for comboboxes dropdown menu.
+	  */
+	QList<short> idx;
+	idx << mModels[IDX_PROJECT].tableModel->fieldIndex("Kurzform")
+		 << mModels[IDX_PROJECT].tableModel->fieldIndex("Nummer");
+	//	INFO << idx;
+	ui->cbPrj->setModelColumns(idx);
+
+	idx.clear();
+	idx << mModels[IDX_CLIENT].tableModel->fieldIndex("Kurzform")
+		 << mModels[IDX_CLIENT].tableModel->fieldIndex("Nummer");
+	//	INFO << idx;
+	ui->cbClient->setModelColumns(idx);
+
+	idx.clear();
+	idx << mModels[IDX_WORKER].tableModel->fieldIndex("Nachname")
+		 << mModels[IDX_WORKER].tableModel->fieldIndex("Vorname")
+		 << mModels[IDX_WORKER].tableModel->fieldIndex("PersonalNr");
+	//	INFO << idx;
+	ui->cbWorker->setModelColumns(idx);
+
+	connect(ui->cbPrj, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
+	connect(ui->cbClient, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
+	connect(ui->cbWorker, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
+
+	//	ui->cbPrj->setModelColumns(QList<quint8>() << 1 << 5);
+	//	ui->cbClient->setModelColumns(QList<quint8>() << 1 << 3);
+	//	ui->cbWorker->setModelColumns(QList<quint8>() << 1 << 2);
+
+}
+void InpFrm::connectActions() {
+
+	connect(ui->datePicker,         SIGNAL(dateChanged(QDate)),
+			  this,                   SLOT(onInpFormChanges(QDate)));
+	connect(ui->sbID,               SIGNAL(valueChanged(int)),
+			  this,                   SLOT(onInpFormChanges(int)));
+	connect(ui->teSqlQuerys,        SIGNAL(textChanged()),
+			  this,                   SLOT(onSqlQuerysTextChanged()));
+	connect(ui->cbQueryIdent,       SIGNAL(currentIndexChanged(int)),
+			  this,                   SLOT(onCbQueryIndexChaned(int)));
+
+	connect(this, &InpFrm::changeFocusOrder, this, &InpFrm::onChangeFocusOrder);
+	connect(this, &InpFrm::dockLocationChanged, this, &InpFrm::onDockLocationChanged);
+	connect(this, &InpFrm::topLevelChanged, this, &InpFrm::onUndockEvent);
+
+	QList<QComboBox*> cbs = findChildren<QComboBox *>();
+	QList<QPushButton*> pbs = findChildren<QPushButton *>();
+
+	foreach (QComboBox *cb, cbs)
+		connect(cb, SIGNAL(currentIndexChanged(int)), this, SLOT(onInpFormChanges(int)));
+
+	foreach (QPushButton *pb, pbs) {
+		if (pb->objectName() == tr("btnSaveQuery")) {
+			connect(pb, &QPushButton::clicked, this, &InpFrm::saveSqlQueryInputText);
+			continue;
+		}
+
+		if (pb->objectName() == tr("btnRestoreQuery")) {
+			connect(pb, &QPushButton::clicked, this, &InpFrm::restoreSqlQueryInputText);
+			continue;
+		}
+
+		if (! (bool)connect(pb, &QPushButton::clicked, this, &InpFrm::aButtonClick))
+			CRIT << tr("connect(..) returned false or button %1").arg(pb->objectName());
+	}
+}
 void InpFrm::saveSqlQueryInputText() {
 	/**
  * Different SQL query commands could be saved in config file. A unique query
@@ -527,233 +747,6 @@ void InpFrm::restoreSqlQueryInputText() {
 		ui->cbQueryIdent->addItem(customQueryID.last(),
 										  configQ.value(str).toString());
 	}
-}
-
-void InpFrm::onChangeFocusOrder(Qt::FocusOrderState state) {
-	/** Interrupt a running changeTabOrder process */
-	if ((mChangeFocusFlag == Qt::FocusChange_isRunning ||
-		  mChangeFocusFlag == Qt::FocusChange_rejected) &&
-		 state == Qt::FocusChange_init) {
-		emit stateMessage(tr("Change tab order process interrupted."
-									"No changes in current tab order."), 2000);
-		mChangeFocusFlag = Qt::FocusChange_none;
-		return;
-	}
-
-	//	/** If changeTabOrder process is not active && state == init, ... */
-	//	if (! (mChangeFocusFlag == Qt::FocusChange_isRunning) &&
-	//	    state == Qt::FocusChange_init) {
-	//		mObjFocusOrder.clear();
-	//		mChangeFocusFlag = Qt::FocusChange_isRunning;
-	//		emit stateMessage(tr("Init process to change the "
-	//		                     "input form tab order..."), 2000);
-	//		return;
-	//	}
-
-	//	/** --> Succesfull change of tab order objects
-	//	 * If this slot is called with parameter FocusChange_done &&
-	//	 * current state is FocusChange_isRunning
-	//	 * --> Succesfull change of tab order objects, run all setTabOrder(..) now
-	//	 */
-	//	if (mChangeFocusFlag == Qt::FocusChange_isRunning &&
-	//	    state == Qt::FocusChange_done) {
-
-	//		QList<QWidget *> widTabOrder = listCast<QWidget*, QObject*>( mObjFocusOrder );
-	//		QStringList lst;
-	//		for (int i=0; i < widTabOrder.length()-1; i++) {
-	//			widTabOrder[i]->setTabOrder(widTabOrder[i], widTabOrder[i+1]);
-	//			lst.append(widTabOrder[i]->objectName());
-	//		}
-
-	//		//        INFO << lst;
-	//		mChangeFocusFlag = Qt::FocusChange_done;
-
-	//		QSETTINGS;
-	//		config.setValue(this->objectName() + "/TabOrder", lst.join(","));
-	//		emit stateMessage(tr("Input form tab order successfully changed!"), 2000);
-	//		return;
-	//	}
-
-	//	return;
-
-}
-void InpFrm::restoreTabOrder() {
-	/*!
-	  * Check for valied tab order configuration data
-	  */
-	QSETTINGS;
-	QStringList wNames;
-	QList<QWidget *> tabOrderList;
-
-	if (config.allKeys().contains(this->objectName() + Md::keys.focusOrder)) {
-		INFO << tr("Valied tab order configuration data found!");
-		emit stateMessage(tr("Valied tab order configuration data found!"), 4000);
-
-		wNames = config.value(this->objectName() + tr("/TabOrder"), "")
-					.toString().split(",");
-
-		foreach (QString name, wNames) {
-			/*!
-				 * Check if widget with object name name and ->property("hasSqlMapper")
-				 * .isValid() == true could be found.
-				 */
-
-			if (false) {
-				INFO << listFindByName<MdComboBox*>(mSqlCbs, name);
-
-				auto itObj = std::find_if (mSqlCbs.begin(), mSqlCbs.end(), [](QComboBox *w)
-				{ return w->objectName() == "cbPrjNummer"; } );
-				INFO << *itObj;
-			}
-
-			//			if (userCtrlsChilds.indexOf(name) < 0)
-			//				CRIT << tr("Cild not found");
-
-			//			userCtrlsChilds.at( userCtrlsChilds.indexOf(name) )
-			//					->property("hasSqlMapper").isValid()) {
-			//				CRIT << tr("Cannot find child widget %1 with valid "
-			//							  """hasSqlMapper"" property!").arg(name);
-			//				continue;
-			//			}
-
-			//			tabOrderList << userCtrlsChilds.at( userCtrlsChilds.indexOf(name) );
-		}
-	}
-	else {
-		/*!
-			* Here a valid tab order list must be generated.
-			*/
-		tabOrderList = listCast<QWidget*,QObject*>(ui->userCtrlsLayout->children());
-		foreach (QWidget *w, tabOrderList)
-			if (! w->property("hasSqlMapper").isValid())
-				tabOrderList.removeOne(w);
-	}
-	/* ======================================================================== */
-	setFocusOrder(tabOrderList);
-	/* ======================================================================== */
-}
-bool InpFrm::setFocusOrder(QList<QWidget *> targets) {
-	/*!
-	  * Request all child widgets from InpFrm and iterate through the QWidget list.
-	  * If (*it).property("hasSqlMapper")->isValied() returns false, remove current
-	  * widget from allTabable list.
-	  */
-	QList<QWidget *> allTabable = findChildren<QWidget *>();
-	foreach (QWidget *w, allTabable)
-		if (! w->property("hasSqlMapper").isValid())
-			allTabable.removeOne(w);
-
-	if ((targets.isEmpty()) ||
-		 (targets.length() > allTabable.length()))
-		bReturn("Wrong size of focusOrder list parameter");
-
-	QList<QWidget *>::iterator it = targets.begin();
-
-	while ((it - targets.begin()) < targets.length()) {
-		/*!
-			* Remove the widget that is processed after this line from allTabable list. After
-			* break of the while loop, allTabable list represents the difference list:
-			* (allTabable - targets) --> set Qt::NoFocus policy
-			*/
-		allTabable.removeOne(*it);
-		/*!
-			* If (*it) points to last list element, register .first() and break
-			*/
-		if ((it - targets.begin()) == targets.length() - 1) {
-			setTabOrder((*it), targets.first());
-
-			INFO << tr("setTabOrder(%1, %2); (Last)")
-					  .arg((*it)->objectName())
-					  .arg(targets.first()->objectName());
-			break;
-		}
-		else {
-			setTabOrder(*it, *(++it));
-			INFO << tr("setTabOrder(%1, %2);")
-					  .arg((*(it-1))->objectName())
-					  .arg((*it)->objectName());
-		}
-	}
-
-	/*!
-	  * allTabable represents now the list difference:
-	  * (allTabable - targets) --> set Qt::NoFocus policy
-	  */
-	foreach (QWidget *w, allTabable)
-		w->setFocusPolicy(Qt::NoFocus);
-
-	/*!
-	  * Save the focus order list.
-	  */
-	mTabOrder.current = targets;
-	return true;
-}
-Qt::FocusOrderState InpFrm::InpFrm::getChangeFocusFlag() const {
-	return mChangeFocusFlag;
-}
-void InpFrm::setChangeFocusFlag(const Qt::FocusOrderState &stateFlag) {
-	mChangeFocusFlag = stateFlag;
-}
-void InpFrm::onDockLocationChanged(Qt::DockWidgetArea area) {
-	QSETTINGS;
-	config.setValue(objectName() + tr("/") + KEY_DOCKWIDGETAREA, (uint) area);
-}
-void InpFrm::onUndockEvent(bool isUndocked) {
-	if (isUndocked)
-		WIN_RESTORE(this);
-}
-/* ======================================================================== */
-/*                             Event callbacks                              */
-/* ======================================================================== */
-void InpFrm::showEvent(QShowEvent *) {
-	update();
-	updateGeometry();
-	mEscapeTrigger = false;
-	//	mapCbTableProxy();
-}
-void InpFrm::hideEvent(QShowEvent *) {
-
-}
-void InpFrm::closeEvent(QCloseEvent *) {
-	QSETTINGS;
-
-	//	if (dock)
-	/**** Write mainWindow geometry and window state
-	\*/
-	WIN_STORE(this);
-}
-void InpFrm::keyPressEvent(QKeyEvent *e) {
-	/**
-	  * If key press event for "Enter" is detected, emit a btnOk Clicked()
-	  * signal to access onBtnOkClicked()
-	  */
-	if (e->key() == Qt::Key_Enter) {
-		emit ui->btnOk->clicked();
-		e->accept();
-		return;
-	}
-
-	/*!
-	  * First escape key press event resets the current InpFrm widget focus to initial.
-	  * Second escape key press event within 800ms hides the InpFrm::
-	  */
-	if (e->key() == Qt::Key_Escape) {
-		if (! mEscapeTrigger) {
-			mTabOrder.current.first()->setFocus(Qt::TabFocusReason);
-			INFO << tr("start singledshot");
-		}
-		else hide();
-	}
-	e->accept();
-}
-bool InpFrm::eventFilter(QObject *obj, QEvent *event) {
-	if (! event)
-		return true;
-
-	/*!
-	  * standard event processing
-	  */
-	return QObject::eventFilter(obj, event);
 }
 
 #define QFOLDINGSTART {
@@ -871,6 +864,4 @@ bool InpFrm::eventFilter(QObject *obj, QEvent *event) {
 * objTabAble: cbPrjNummer,cbPrjKurzform,cbClientKurzform,cbClientNummer,cbWorkerPersonalNr,
 *					cbWorkerNachname,cbWorkerVorname,datePicker
 */
-
-
 

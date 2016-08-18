@@ -10,20 +10,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	QSETTINGS_INIT; QSETTINGS;
 	//	initDocks();
 
-
-//	MdMenu *menu = new MdMenu();
-//	menu->setTitle("Test menu");
-//	menuBar()->addMenu(menu);
-
-//	QAction *action1 =  menu->addAction("First");
-//	action1->setToolTip("First action");
-
-//	QAction *action2 =  menu->addAction("Second");
-//	action2->setToolTip("Second action");
-
-//	menu->show();
-//	return;
-
 	createActions();
 	connectActions(connectThis);
 
@@ -33,7 +19,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	sortwindow  = new SortWindow(parent);
 	connect(sortwindow,	&SortWindow::sourceTableChanged,
 			  browser,		&Browser::onSourceTableChanged);
-
 	inpFrm		= new InpFrm(this);
 	notes.toDo	= new MDNotes(tr("toDo"), parent);
 

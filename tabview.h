@@ -87,6 +87,7 @@ public slots:
 	void setModel(QAbstractItemModel *model);
 	void setEditTriggers(QTableView::EditTriggers triggers);
 	QItemSelectionModel *selectionModel();
+	void onSectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex);
 
 signals:
 	void sqlTableNameChanged(const QString &name);

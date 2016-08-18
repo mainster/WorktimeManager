@@ -119,25 +119,26 @@ public slots:
 	void restoreSqlQueryInputText();
 	void onSqlQuerysTextChanged();
 	void onCbQueryIndexChaned(int idx);
-	bool eventFilter(QObject *obj, QEvent *ev);
 	void showEvent(QShowEvent *);
 	void aButtonClick(bool);
 	void onInpFormChanges(int idx);
 	void onCbIndexChanged(const int index);
 
 protected:
-	void connectActions();
 	virtual void keyPressEvent(QKeyEvent *) override;
+	virtual void resizeEvent(QResizeEvent *) override;
+	void connectActions();
 	void restoreTabOrder();
 
+	QList<QWidget *> getTabableWidgets();
 protected slots:
 	void onInpFormChanges(QDate date);
 	void onChangeFocusOrder(Qt::FocusOrderState state);
 	void hideEvent(QShowEvent *);
 	void closeEvent(QCloseEvent *) override;
 	void onUndockEvent(bool isUndocked);
-
 	void onDockLocationChanged(Qt::DockWidgetArea area);
+
 private slots:
 
 private:
@@ -163,6 +164,7 @@ private:
 		int sqlQueryVisible, sqlQueryInvisible;
 	};
 	fixedHeights_t fixedHeights;
+
 };
 
 #endif // INPFRM_H

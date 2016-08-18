@@ -12,7 +12,6 @@ TabView::TabView(QWidget *parent) : QWidget(parent),
 	ui->setupUi(this);
 
 	addActions( createActions() );
-
 	connect(this, &TabView::objectNameChanged,	this, &TabView::onObjectNameChanged);
 
 	m_gb = ui->gb;
@@ -68,6 +67,11 @@ void TabView::deleteRow() {
 	}
 
 	onUpdateActions();
+}
+void TabView::onSectionMoved(int logicalIndex, int oldVisualIndex,
+									  int newVisualIndex) {
+	INFO << tr("logicalIndex: %1, oldVisualIndex: %2, newVisualIndex %3")
+			  .arg(logicalIndex).arg(oldVisualIndex).arg(newVisualIndex);
 }
 void TabView::onUpdateActions() {
 	/**
@@ -189,7 +193,9 @@ QItemSelectionModel *TabView::selectionModel() {
 	return m_tv->selectionModel();
 }
 void TabView::setModel(QAbstractItemModel *model) {
-	m_tv->setModel(model);
+	tv()->setModel(model);
+	connect(tv()->horizontalHeader(), &QHeaderView::sectionMoved,
+			  this, &TabView::onSectionMoved);
 }
 void TabView::setEditTriggers(QTableView::EditTriggers triggers) {
 	m_tv->setEditTriggers(triggers);
