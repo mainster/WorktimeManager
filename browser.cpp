@@ -737,7 +737,7 @@ void Browser::createActions() {
 	//	muGrAct->addAction(PONAM(muSep_2));
 }
 QMenu *Browser::menuBarElement() {
-	browsMenu = new QMenu(tr("Browser"));
+	browsMenu = new QMenu(tr("&Browser"));
 
 	QMenu *tvSelectByMenu = browsMenu->addMenu(tr("Table selector config"));
 	PONAM(tvSelectByMenu)->addActions(actGrTvSelectBy->actions());

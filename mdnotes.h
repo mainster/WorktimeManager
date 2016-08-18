@@ -36,6 +36,8 @@ protected slots:
 	void deleteLastLines(const int lineCount);
 
 	void createActions();
+	void onAnyKeyClicked(bool clicked);
+	void toggleLineStrikeout();
 private:
 	Ui::MDNotes *ui;
 	QString mSettingsKey;

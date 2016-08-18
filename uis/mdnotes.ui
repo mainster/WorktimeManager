@@ -29,20 +29,13 @@
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="1" column="0">
-         <widget class="QPushButton" name="pbOk">
+         <widget class="QPushButton" name="pbSave">
           <property name="text">
-           <string>&amp;Ok</string>
+           <string>&amp;Speichern</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="pbDeleteLast">
-          <property name="text">
-           <string>&amp;Löschen</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
+        <item row="1" column="3">
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -55,8 +48,22 @@
           </property>
          </spacer>
         </item>
-        <item row="0" column="0" colspan="3">
+        <item row="1" column="1">
+         <widget class="QPushButton" name="pbDeleteLast">
+          <property name="text">
+           <string>&amp;Löschen</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="4">
          <widget class="QTextEdit" name="textEdit"/>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="pbStrikeOut">
+          <property name="text">
+           <string>&amp;Erledigt</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

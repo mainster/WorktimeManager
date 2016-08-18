@@ -6,8 +6,9 @@ MDNotes::MDNotes(const QString settingsKey, QWidget *parent)
 	ui->setupUi(this);
 
 	ui->groupBox->setTitle(objectName() + tr("/") + settingsKey);
+	ui->pbSave->setIcon(QIcon(":/images/save.png"));
+	ui->pbStrikeOut->setIcon(QIcon(":/images/greenCheck.png"));
 	ui->pbDeleteLast->setIcon(QIcon(":icoDelete"));
-	ui->pbOk->setIcon(QIcon(":/images/greenCheck.png"));
 
 	/*!
 	 * Restore text edit contents.
@@ -17,17 +18,41 @@ MDNotes::MDNotes(const QString settingsKey, QWidget *parent)
 		config.setValue(objectName() + tr("/") + mSettingsKey,
 							 ui->textEdit->document()->toHtml());
 
+	ui->textEdit->setTabStopWidth(20);
 	ui->textEdit->setHtml(config.value(objectName() + tr("/") + mSettingsKey).toString());
 
 	/*!
 	 * Create and connect action objects.
 	 */
-	createActions();
+	//	createActions();
 	connectActions();
 }
 
 MDNotes::~MDNotes() {
 	delete ui;
+}
+void MDNotes::onAnyKeyClicked(bool clicked) {
+	QSETTINGS;
+	Q_UNUSED(clicked);
+
+	QPushButton *pb = qobject_cast<QPushButton *>(sender());
+	if (!pb)		return;
+
+	if (pb == ui->pbSave) {
+		config.setValue(objectName() + tr("/") + mSettingsKey,
+							 ui->textEdit->document()->toHtml());
+		emit settingsSaved(objectName() + tr(": Note added"));
+	}
+	if (pb == ui->pbDeleteLast) {
+		deleteLastLines(1);
+		config.setValue(objectName() + tr("/") + mSettingsKey,
+							 ui->textEdit->document()->toHtml());
+	}
+	if (pb == ui->pbStrikeOut) {
+		toggleLineStrikeout();
+	}
+
+	config.sync();
 }
 void MDNotes::onOkClicked(bool clicked) {
 	QSETTINGS;
@@ -52,26 +77,31 @@ QString MDNotes::settingsKey() const {
 void MDNotes::createActions() {
 	actKeyOk = new QAction(ui->textEdit);
 	actKeyDeleteLast = new QAction(ui->textEdit);
+	//	pbStrikeOut
 
-	QList<QChar> ampersChars;
-	foreach (QPushButton *pb, findChildren<QPushButton *>())
-		ampersChars << pb->text().at( ui->pbOk->text().toStdString().find("&") + 1);
+	if (false) {
+		QList<QChar> ampersChars;
+		foreach (QPushButton *pb, findChildren<QPushButton *>())
+			ampersChars << pb->text().at( ui->pbSave->text().toStdString().find("&") + 1);
 
-	/*!
+		/*!
 	 * Search for duplicate QChar in ampersChars.
 	 */
-	QSet<QChar> charSet = QSet<QChar>::fromList(ampersChars);
-	if (charSet.count() < ampersChars.count())
-		WARN << tr("Duplicate ampersanded character found!");
+		QSet<QChar> charSet = QSet<QChar>::fromList(ampersChars);
+		if (charSet.count() < ampersChars.count())
+			WARN << tr("Duplicate ampersanded character found!");
 
-	actKeyOk->setShortcut(tr("Alt+%1").arg(ampersChars.at(0)));
-	actKeyDeleteLast->setShortcut(tr("Alt+%1").arg(ampersChars.at(1)));
+		actKeyOk->setShortcut(tr("Alt+%1").arg(ampersChars.at(0)));
+		actKeyDeleteLast->setShortcut(tr("Alt+%1").arg(ampersChars.at(1)));
 
-	INFO << actKeyOk->shortcut() << actKeyDeleteLast->shortcut();
+		INFO << actKeyOk->shortcut() << actKeyDeleteLast->shortcut();
+	}
 }
 void MDNotes::connectActions() {
-	connect(ui->pbOk, &QPushButton::clicked, this, &MDNotes::onOkClicked);
-	connect(ui->pbDeleteLast, &QPushButton::clicked, this, &MDNotes::onDeleteLastClicked);
+	//	connect(ui->pbOk, &QPushButton::clicked, this, &MDNotes::onOkClicked);
+	//	connect(ui->pbDeleteLast, &QPushButton::clicked, this, &MDNotes::onDeleteLastClicked);
+	foreach (QPushButton *pb, findChildren<QPushButton *>())
+		connect(pb, &QPushButton::clicked, this, &MDNotes::onAnyKeyClicked);
 }
 void MDNotes::deleteLastLines(const int lineCount) {
 	ui->textEdit->setFocus();
@@ -86,4 +116,24 @@ void MDNotes::deleteLastLines(const int lineCount) {
 		ui->textEdit->setTextCursor(storeCursorPos);
 	}
 	emit settingsSaved(objectName() + tr(": %1 lines removed").arg(lineCount));
+}
+void MDNotes::toggleLineStrikeout() {
+	ui->textEdit->setFocus();
+
+	QTextCursor storeCursorPos = ui->textEdit->textCursor();
+	QTextCursor cursor(ui->textEdit->textCursor());
+
+	ui->textEdit->moveCursor(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
+	cursor.setPosition(ui->textEdit->textCursor().position(), QTextCursor::MoveAnchor);
+	ui->textEdit->moveCursor(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+	cursor.setPosition(ui->textEdit->textCursor().position(), QTextCursor::KeepAnchor);
+
+	QTextCharFormat format = cursor.charFormat();
+	format.setFontStrikeOut(! format.fontStrikeOut());
+	cursor.mergeCharFormat(format);
+
+	ui->textEdit->setTextCursor(storeCursorPos);
+
+	emit settingsSaved(objectName() + tr(": Line %1 striked out")
+							 .arg(ui->textEdit->textCursor().blockNumber() + 1));
 }

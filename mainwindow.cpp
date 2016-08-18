@@ -340,17 +340,17 @@ void MainWindow::createActions() {
 	/*!
 	 * Create main toolbar actions.
 	 */
-	actNew = new QAction(QIcon(":/images/new.png"), tr("&Neu"), this);
+	actNew = new QAction(QIcon(":/images/new.png"), tr("Neu"), this);
 	actOpen = new QAction(QIcon(":/images/open.png"), tr("Öffnen"), this);
 	actSave = new QAction(QIcon(":/images/save.png"), tr("Speichern"), this);
 	actExport = new QAction(QIcon(":/images/export-3.png"), tr("Exportieren"), this);
 	actBrowseSQL = new QAction(QIcon(":/images/database.png"), tr("Zeige SQL Tabellen"), this);
-	actInpForm = new QAction(QIcon(":/images/databaseSubmit.png"), tr("&Eingabeform"), this);
+	actInpForm = new QAction(QIcon(":/images/databaseSubmit.png"), tr("Eingabeform"), this);
 	actShowTbl = new QAction(QIcon(":/images/databaseDelegate.png"), tr("ShowTbl"), this);
 	actDbModMaster = new QAction(QIcon(":/images/databaseConf.png"), tr("Stammdaten bearbeiten"), this);
 	actUnderConstr = new QAction(QIcon(":/images/underConstruct.svg"), tr("Under construction"), this);
-	actNotes = new QAction(QIcon(":/images/notes.png"), tr("N&otizen"), this);
-	actClose = new QAction(QIcon(":/icoDelete"), tr("&Schließen"), this);
+	actNotes = new QAction(QIcon(":/images/notes.png"), tr("Notizen"), this);
+	actClose = new QAction(QIcon(":/icoDelete"), tr("Schließen"), this);
 
 	/*!
 	 * Create menu toolbar actions.
@@ -512,7 +512,7 @@ void MainWindow::makeMenuBar() {
 	/* ======================================================================== */
 	/*                                setupMenu                                 */
 	/* ======================================================================== */
-	QMenu *setupMenu = menuBar()->addMenu(QObject::tr("&Setup"));
+	QMenu *setupMenu = menuBar()->addMenu(QObject::tr("Se&tup"));
 	setupMenu->addActions(QList<QAction *>()
 								 << actSelFont << actSetAlterRowCol << actCyclicObjInfo
 								 << actResizerDlg << actShowSqlQuery << actCfgInpFrmTabOrd);
