@@ -18,17 +18,37 @@ class TabView;
 class TabView : public QWidget {
 
 	Q_OBJECT
-	Q_PROPERTY(bool activeSelection READ isActiveSelected WRITE setActiveSelected)
-//	Q_PROPERTY(bool selected READ isSelected WRITE setSelected)
+	Q_PROPERTY(bool isSelected READ isSelected WRITE setSelect NOTIFY selectChanged)
+	Q_PROPERTY(QString sqlTableName READ sqlTableName WRITE setSqlTableName NOTIFY sqlTableNameChanged)
 
 public:
-	static QString tvStyleSheet;
-	bool isActiveSelected()						{ return m_activeSelected; };
-	void setActiveSelected(bool value)		{ m_activeSelected = value; };
-//	void clearActiveSelected()					{ m_activeSelected = false; };
-//	bool isSelected()								{ return m_selected; };
-//	void setSelected(bool selected)			{ m_selected = selected; };
+	bool isSelected()		{ return m_select; };
+	void setSelect(bool select) {
+		m_select = select;
+		m_gb->setProperty("select", m_select);
+	};
 
+	QString &sqlTableName()		{ return m_sqlTableName; };
+	void setSqlTableName(const QString &name) {
+		m_sqlTableName = name;
+		emit sqlTableNameChanged(name);
+	};
+
+	static QString tvStyleSheet;
+
+public slots:
+	void setSelected() {
+		m_select = true;
+		m_gb->setProperty("select", m_select);
+		setStyleSheet(styleSheet());
+	};
+	void clearSelected() {
+		m_select = false;
+		m_gb->setProperty("select", m_select);
+		setStyleSheet(styleSheet());
+	};
+
+public:
 	explicit TabView(QWidget *parent = 0);
 	~TabView();
 
@@ -45,7 +65,6 @@ public:
 public slots:
 	void onObjectNameChanged(const QString &objNam);
 	void setGrBoxTitle(QString s);
-	void onTabViewSelChanged(TabView *tv);
 	void setAlternateRowCol(QColor &col, bool alternateEnabled = true);
 	void restoreView();
 
@@ -70,18 +89,26 @@ public slots:
 	QItemSelectionModel *selectionModel();
 
 signals:
-	void onSelChanged(TabView *tv);
+	void sqlTableNameChanged(const QString &name);
+	void selectChanged(bool isSelected);
+
 
 protected:
 	QList<QAction *> createActions();
 
+protected slots:
+	void onClearSelection() {
+
+	}
+
 private:
-	Ui::TabView         *ui;
-	QTableView          *m_tv;
-	QGroupBox           *m_gb;
-	QList<QAction *>    tblActs;
-	bool						m_activeSelected, m_selected;
-	QAction					*actInsertRow, *actDeleteRow, *actFieldStrategy,
+	Ui::TabView			*ui;
+	QTableView        *m_tv;
+	QGroupBox         *m_gb;
+	QList<QAction *>  tblActs;
+	QString				m_sqlTableName;
+	bool					m_select;
+	QAction				*actInsertRow, *actDeleteRow, *actFieldStrategy,
 	*actRowStrategy, *actManualStrategy,*actSubmit, *actRevert, *actSelect;
 };
 

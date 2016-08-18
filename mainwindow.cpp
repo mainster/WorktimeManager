@@ -17,7 +17,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	browser		= new Browser(parent);
 	mDbc			= new DbController(this);
 	sortwindow  = new SortWindow(parent);
-	connect(sortwindow, &SortWindow::sourceTableChanged, browser, &Browser::onSourceTableChanged);
+	connect(sortwindow,	&SortWindow::sourceTableChanged,
+			  browser,		&Browser::onSourceTableChanged);
 
 	inpFrm		= new InpFrm(this);
 	notes.toDo	= new MDNotes(tr("toDo"), parent);
@@ -132,10 +133,6 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 	}
 }
 void MainWindow::onUnderConstrTrig() {
-
-	INFO << dockWidgetArea(inpFrm);
-	return;
-
 	INFO << actShowSqlQuery->isCheckable() << actShowSqlQuery->isChecked();
 	actShowSqlQuery->setCheckable(true);
 	actShowSqlQuery->setChecked(true);
@@ -391,7 +388,7 @@ void MainWindow::createActions() {
 	actGbStyleShtA = new QAction("actGbStyleShtA", this);
 	actGbSShtInpFrm = new QAction("actGbSShtInpFrm", this);
 	actFilterTable = new QAction("actFilterTable", this);
-//	actFilterTableWindow = new QAction("actFilterTableWindow", this);
+	//	actFilterTableWindow = new QAction("actFilterTableWindow", this);
 
 	actSelFont = new QAction("Schriftfont", this);
 	actCyclicObjInfo = new QAction("Cyclic object info", this);
@@ -439,7 +436,7 @@ void MainWindow::createActions() {
 	acts << PONAM(actGbStyleShtA) << PONAM(actGbSShtInpFrm) << PONAM(actSelFont)
 		  << PONAM(actCyclicObjInfo) << PONAM(actResizerDlg) << PONAM(actShowSqlQuery)
 		  << PONAM(actSetAlterRowCol) << PONAM(actAutoFitTables) << PONAM(actFilterTable)
-		  /*<< PONAM(actFilterTableWindow)*/ << PONAM(actFilterForm) << PONAM(actCfgInpFrmTabOrd);
+			  /*<< PONAM(actFilterTableWindow)*/ << PONAM(actFilterForm) << PONAM(actCfgInpFrmTabOrd);
 
 	foreach (QAction *act, acts)
 		actGrTbMenu->addAction(act);
@@ -486,7 +483,7 @@ void MainWindow::createActions() {
 	actGbSShtInpFrm->setCheckable(true);
 	actCyclicObjInfo->setCheckable(true);
 	actShowSqlQuery->setCheckable(true);
-//	actFilterTableWindow->setCheckable(true);
+	//	actFilterTableWindow->setCheckable(true);
 	actFilterForm->setCheckable(true);
 	actFiltSelectedTbl->setCheckable(true);
 	actFiltWorktimeTbl->setCheckable(true);

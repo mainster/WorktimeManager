@@ -6,114 +6,106 @@
 
 class Browser;
 
-TabView::TabView(QWidget *parent)
-    : QWidget(parent), ui(new Ui::TabView) {
-    ui->setupUi(this);
 
-    //    connect( Browser::instance(),   &Browser::updateActions,
-    //             this,                  &TabView::updateActions);
+TabView::TabView(QWidget *parent) : QWidget(parent),
+	ui(new Ui::TabView) {
+	ui->setupUi(this);
 
 	addActions( createActions() );
 
-	connect( this,    SIGNAL(objectNameChanged(QString)),
-				this,    SLOT(onObjectNameChanged(QString)));
-	connect( this,    SIGNAL(onSelChanged(TabView*)),
-				this,    SLOT(onTabViewSelChanged(TabView*)));
+	connect(this, &TabView::objectNameChanged,	this, &TabView::onObjectNameChanged);
 
-    this->m_gb = ui->gb;
-    this->m_tv = ui->mtv;
-    this->m_gb->setProperty("select",false);
-    /**
-    * This could be seen as "re-render functionality" due
-    * to stylesheet changes
-    */
-    this->m_gb->setStyleSheet(this->m_gb->styleSheet());
+	m_gb = ui->gb;
+	m_tv = ui->mtv;
 
-    this->m_tv->setSortingEnabled( true );
-	 setActiveSelected( false );
+	/*! HACK to force redrawing if dynamic property stylesheets are used! */
+	m_gb->setStyleSheet(this->m_gb->styleSheet());
+
+	m_tv->setSortingEnabled( true );
+	clearSelected();
+//	setActiveSelected( false );
 }
 TabView::~TabView() {
-    delete ui;
+	delete ui;
 }
-
 void TabView::refreshView() {
-    this->update();
+	this->update();
 }
 QAction *TabView::fieldStrategyAction() const {
-	 return tblActs[ tblActs.indexOf(actFieldStrategy) ];
+	return tblActs[ tblActs.indexOf(actFieldStrategy) ];
 }
 QAction *TabView::rowStrategyAction() const {
-	 return tblActs[ tblActs.indexOf(actRowStrategy) ];
+	return tblActs[ tblActs.indexOf(actRowStrategy) ];
 }
 QAction *TabView::manualStrategyAction() const {
-	 return tblActs[ tblActs.indexOf(actManualStrategy) ];
+	return tblActs[ tblActs.indexOf(actManualStrategy) ];
 }
 QList<QAction *> TabView::getTblActs() const
 {
-    return tblActs;
+	return tblActs;
 }
 void TabView::insertRow() {
-    QModelIndex insertIndex = m_tv->currentIndex();
-    int row = insertIndex.row();
-    (row != -1)
-            ? insertIndex.row()
-            : 0;
+	QModelIndex insertIndex = m_tv->currentIndex();
+	int row = insertIndex.row();
+	(row != -1)
+			? insertIndex.row()
+			: 0;
 
-    m_tv->model()->insertRow(row);
-    insertIndex = m_tv->model()->index(row, 0);
-    m_tv->setCurrentIndex(insertIndex);
-    m_tv->edit(insertIndex);
+	m_tv->model()->insertRow(row);
+	insertIndex = m_tv->model()->index(row, 0);
+	m_tv->setCurrentIndex(insertIndex);
+	m_tv->edit(insertIndex);
 }
 void TabView::deleteRow() {
-    QModelIndexList currentSelection =
-            m_tv->selectionModel()->selectedIndexes();
+	QModelIndexList currentSelection =
+			m_tv->selectionModel()->selectedIndexes();
 
-    for (int i = 0; i < currentSelection.count(); ++i) {
-        if (currentSelection.at(i).column() != 0)
-            continue;
+	for (int i = 0; i < currentSelection.count(); ++i) {
+		if (currentSelection.at(i).column() != 0)
+			continue;
 
-        m_tv->model()->removeRow(currentSelection.at(i).row());
-    }
+		m_tv->model()->removeRow(currentSelection.at(i).row());
+	}
 
-    onUpdateActions();
+	onUpdateActions();
 }
 void TabView::onUpdateActions() {
-    /**
-     * DEPRECATED!!!
-     * Loop thru all available TableViews
-     *
-     * Instead of loop all TableViews, this methode should be connected
-     * to Browser::updateActions()
-     */
+	/**
+	  * DEPRECATED!!!
+	  * Loop thru all available TableViews
+	  *
+	  * Instead of loop all TableViews, this methode should be connected
+	  * to Browser::updateActions()
+	  */
 
-    SqlRtm *rtm = static_cast<SqlRtm *>(m_tv->model());
-    /*!
-     * Check if cast of underlying table model is valid.
-     */
-    if (! rtm)
-        tr("cast failed: SqlRtm *rtm = static_cast<SqlRtm *>( %1 );")
-                .arg(m_tv->model()->metaObject()->className());
+	SqlRtm *rtm = static_cast<SqlRtm *>(m_tv->model());
+	/*!
+	  * Check if cast of underlying table model is valid.
+	  */
+	if (! rtm)
+		tr("cast failed: SqlRtm *rtm = static_cast<SqlRtm *>( %1 );")
+				.arg(m_tv->model()->metaObject()->className());
 
-    bool enableIns = (bool) rtm,
-            enableDel = (bool) (enableIns && m_tv->currentIndex().isValid());
+	bool enableIns = (bool) rtm,
+			enableDel = (bool) (enableIns && m_tv->currentIndex().isValid());
 
-    int k = 0;
-    tblActs[k++]->setEnabled( enableIns );
-    tblActs[k++]->setEnabled( enableDel );
+	int k = 0;
+	tblActs[k++]->setEnabled( enableIns );
+	tblActs[k++]->setEnabled( enableDel );
 
-    for (;k < tblActs.length(); k++)
-        tblActs[k]->setEnabled( (bool) rtm );
+	for (;k < tblActs.length(); k++)
+		tblActs[k]->setEnabled( (bool) rtm );
 
 
-    if (rtm) {
-        QSqlRelationalTableModel::EditStrategy es = rtm->editStrategy();
-        fieldStrategyAction()->setChecked(
-                    es == QSqlRelationalTableModel::OnFieldChange);
-        rowStrategyAction()->setChecked(
-                    es == QSqlRelationalTableModel::OnRowChange);
-        manualStrategyAction()->setChecked(
-                    es == QSqlRelationalTableModel::OnManualSubmit);
-    }
+	if (rtm) {
+		QSqlRelationalTableModel::EditStrategy es = rtm->editStrategy();
+		fieldStrategyAction()->setChecked(
+					es == QSqlRelationalTableModel::OnFieldChange);
+		rowStrategyAction()->setChecked(
+					es == QSqlRelationalTableModel::OnRowChange);
+		manualStrategyAction()->setChecked(
+					es == QSqlRelationalTableModel::OnManualSubmit);
+	}
 
 }
 void TabView::onActInsertRowtriggered() {
@@ -167,34 +159,36 @@ void TabView::onActSelect() {
 		tm->select();
 }
 void TabView::onObjectNameChanged(const QString &objNam) {
-    m_gb->setTitle( objNam );
-    m_gb->setAccessibleName(tr("gboxOf")+objNam);
-    m_tv->setAccessibleName(objNam);
+	m_gb->setTitle( objNam );
+//	m_gb->setAccessibleName(tr("gboxOf")+objNam);
+//	m_tv->setAccessibleName(objNam);
 }
 QTableView *TabView::tv() const {
-    return m_tv;
+	return m_tv;
 }
 void TabView::setGrBoxTitle(QString s) {
-    m_gb->setTitle(s);
-    ui->gb = m_gb;
+	m_gb->setTitle(s);
+	ui->gb = m_gb;
 }
 QGroupBox *TabView::grBox() const {
-    return m_gb;
+	return m_gb;
 }
-void TabView::onTabViewSelChanged(TabView *tv) {
-    /**
-    * If its not me, reset the StyleSheet for this instance
-    */
-    if (tv != NULL) {
-        if (this->objectName().contains(tv->objectName()))  {
-				setActiveSelected( true );
-            return;
-        }
-        m_gb->setProperty("select", false);
-        m_gb->setStyleSheet(m_gb->styleSheet());
-		  setActiveSelected( false );
-    }
-}
+//void TabView::onTabViewSelChanged(TabView *tv) {
+//	/**
+//	 * If its not me, reset the StyleSheet for this instance
+//	 */
+//	if (tv != NULL) {
+//		if (this->objectName().contains(tv->objectName()))  {
+//			setActiveSelected( true );
+//			return;
+//		}
+//		setSelect(false);
+//		setActiveSelected( false );
+//	}
+//}
+//void TabView::onSelectChanged(bool select) {
+//	setActiveSelected(select);
+//}
 void TabView::resizeRowsColsToContents() {
 	m_tv->setVisible( false );
 	m_tv->resizeColumnsToContents();
@@ -220,16 +214,16 @@ void TabView::setEditTriggers(QTableView::EditTriggers triggers) {
 /*                              Init methodes                               */
 /* ======================================================================== */
 void TabView::restoreView() {
-	 /** Make column/row position movable by dragging */
-	 m_tv->horizontalHeader()->setSectionsMovable(true);
-	 m_tv->verticalHeader()->setSectionsMovable(true);
+	/** Make column/row position movable by dragging */
+	m_tv->horizontalHeader()->setSectionsMovable(true);
+	m_tv->verticalHeader()->setSectionsMovable(true);
 
-	 /** Restore alternating row color */
-	 QSETTINGS;
-	 bool altOnOff = config.value(objectName() + "/AlternateRowColEnable", "true").toBool();
-	 QColor col = config.value(objectName() + "/AlternateRowColor", "").value<QColor>();
-	 if (col.isValid())
-		  setAlternateRowCol( col, altOnOff);
+	/** Restore alternating row color */
+	QSETTINGS;
+	bool altOnOff = config.value(objectName() + "/AlternateRowColEnable", "true").toBool();
+	QColor col = config.value(objectName() + "/AlternateRowColor", "").value<QColor>();
+	if (col.isValid())
+		setAlternateRowCol( col, altOnOff);
 }
 QList<QAction *> TabView::createActions() {
 	actInsertRow =		new QAction(tr("&Insert Row"), this);
@@ -254,19 +248,19 @@ QList<QAction *> TabView::createActions() {
 /*                             Helper methodes                              */
 /* ======================================================================== */
 void TabView::setAlternateRowCol(QColor &col, bool alternateEnabled) {
-    m_tv->setAlternatingRowColors(alternateEnabled);
+	m_tv->setAlternatingRowColors(alternateEnabled);
 
-    if (alternateEnabled && col.isValid()) {
-        m_tv->setStyleSheet(
-                    QString("alternate-background-color: rgba(%1,%2,%3,%4);")
-                    .arg( col.red())
-                    .arg( col.green())
-                    .arg( col.blue())
-                    .arg( col.alpha()) );
-        QSETTINGS;
-        config.setValue(objectName() + "/AlternateRowColEnable", alternateEnabled);
-        config.setValue(objectName() + "/AlternateRowColor", col);
-    }
+	if (alternateEnabled && col.isValid()) {
+		m_tv->setStyleSheet(
+					QString("alternate-background-color: rgba(%1,%2,%3,%4);")
+					.arg( col.red())
+					.arg( col.green())
+					.arg( col.blue())
+					.arg( col.alpha()) );
+		QSETTINGS;
+		config.setValue(objectName() + "/AlternateRowColEnable", alternateEnabled);
+		config.setValue(objectName() + "/AlternateRowColor", col);
+	}
 }
 
 

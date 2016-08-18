@@ -43,7 +43,8 @@ QTableView {
 	border-radius: 5px;
 	margin-top: 15px; /* leave space at the top for the title */
  }
-QTableView[select=false]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF); }
+/*QTableView*/
+TabView[select=false]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF); }
 QGroupBox[select=false]{ 
 /*  	margin-top: 7px;
 	margin-bottom: 2px;

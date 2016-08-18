@@ -147,17 +147,23 @@ public:
 
 signals:
 	void stateMsg(const QString &message, const int delay = 0);
-	void tabViewSelChanged(TabView *sel);
 	void visibilityChanged(bool b);
 	void updateActions();
 	void tvSelectorChanged();
+	/*!
+	 * \brief clearSelection signal is emitted from Browser::eventFilter if a tabview
+	 * selection was detected. Each TabView instance have to connect this signal to a
+	 * onClearSelection() slot. After unselecting all TabView instances, the new selected
+	 * TabView instance could be set by Browser::eventFilter.
+	 */
+	void clearSelections();
 
 public slots:
 	TvSelectors tvSelector() const { return m_tvSelector; }
 	void setTvSelector(TvSelectors tvSelector) { m_tvSelector = tvSelector; }
 	void showMetaData(const QString &table);
 	void currentChanged(QModelIndex,QModelIndex) { emit updateActions(); }
-	void onConnectionWidgetTableActivated(const QString &sqlTab);
+	void onConWidgetTableActivated(const QString &sqlTab);
 	void on_connectionWidget_metaDataRequested(const QString &table) {
 		showMetaData(table);
 	}

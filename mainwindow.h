@@ -142,13 +142,6 @@ private:
 	DbController *mDbc;
 
 	struct notes_t {
-//		notes_t (QWidget *parent)
-//			: toDo(new MDNotes(parent)),
-//			  comments(new MDNotes(parent)) {
-//			toDo->hide();
-//			comments->hide();
-//		}
-
 		MDNotes *toDo, *comments;
 	} notes;
 

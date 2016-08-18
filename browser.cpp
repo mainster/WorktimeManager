@@ -133,7 +133,7 @@ Browser::Browser(QWidget *parent)
 	createActions();
 	createUi(this);
 	connect(connectionWidget,	&ConnectionWidget::tableActivated,
-			  this,					&Browser::onConnectionWidgetTableActivated);
+			  this,					&Browser::onConWidgetTableActivated);
 	
 	connect(this, &Browser::tvSelectorChanged, this, &Browser::onTvSelectorChanged);
 
@@ -406,7 +406,10 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	/*!
 	 * Set tvcs object name to grBox()->title.
 	 */
-//	tvc->setObjectName(tvc->grBox()->title());
+	tvc->setSqlTableName(tNam);
+	//	tvc->setObjectName(tvc->grBox()->title());
+
+	connect(this, &Browser::clearSelections, tvc, &TabView::clearSelected);
 }
 void Browser::showMetaData(const QString &t) {
 	
@@ -467,44 +470,35 @@ void Browser::onActFilterForm(bool b) {
 		filterForm->hide();
 	}
 }
-void Browser::onConnectionWidgetTableActivated(const QString &sqlTbl) {
-	/**
-	 * Entered after double clicking a table item in connection widget tree view
-	 */
-	
-	/**
-	 * Determine which TabView should be targeted by the activated tab model.
-	 * Either select an instance of TabView which hasn't a model loaded yet. To
-	 *
-	 * swap sql tables during runtime, a double-mouse-click event is captured
-	 * and the user-selected tv instance becomes addressed by the event handler.
+void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
+	/*! Invoked after double clicking a table item in connection widget tree view. */
+	/*!
+	 * Determine which TabView should be targeted by the activated tab model. Either select
+	 * an instance of TabView which hasn't a model loaded yet. To swap sql tables during
+	 * runtime, a double-mouse-click event is captured and the user-selected tv instance
+	 * becomes addressed by the event handler.
 	 */
 	foreach (TabView *tv, mTabs.tvsNoPtr()) {
-		/**
+		/*!
 		 * Check for pending active select requests.
 		 */
-		if (tv->isActiveSelected()) {
-			/**
-			 * If selected view is TableMain AND the activated connection widget
-			 * table is "tagesberichte" then select the "relational table model"
-			 *
-			 * 18-11-2015  Alles auf relational table model umgebaut
-			 */
+		if (tv->isSelected()) {
 			showRelatTable( sqlTbl, tv );
 			return;
 		}
-		else {
-			/**
-				 * If no table widget is selected actively, use the tvc from mTvs which has
-			 * currently no model loaded
-			 */
-			if (tv->tv()->model() == 0x00) {
-				showRelatTable(sqlTbl, tv);
-				return;
-			}
-			INFO << tr("No model-less table view widget found!");
+	}
+
+	foreach (TabView *tv, mTabs.tvsNoPtr()) {
+		/*!
+		 * If no table widget is selected actively, use the tvc from mTvs which has
+		 * currently no model loaded.
+		 */
+		if (tv->tv()->model() == 0x00) {
+			showRelatTable(sqlTbl, tv);
+			return;
 		}
 	}
+	INFO << tr("No model-less table view widget found!");
 }
 void Browser::autofitRowCol() {
 	foreach (TabView *tvc, mTabs.tvsNoPtr())
@@ -573,64 +567,90 @@ void Browser::onSourceTableChanged(SortWindow::SourceTable sourceTable) {
 /*                              Event handler                               */
 /* ======================================================================== */
 bool Browser::eventFilter(QObject *obj, QEvent *e) {
-	
+	TabView *tv = NULL;
+	bool ok = true;
+	int k = 0;
+
+	/*!
+	 * Here we try determine a mouse button click within QGroupBox or QTableView::viewport()
+	 * area. If true, set current selected TabView as the "selected" tabView.
+	 */
 	if (e->type() == QEvent::MouseButtonPress) {
-		TabView *tv = NULL;
-		
-		foreach (TabView *_tv, mTabs.tvsNoPtr())
-			switch (tvSelector()) {
-				case selectByViewPort: {
-					if (_tv->tv()->viewport() == obj)
-						tv = _tv;
-				}; break;
-					
-				case selectByGroupBox: {
-					if (_tv->grBox() == obj)
-						tv = _tv;
-				}; break;
-					
-				case selectByBoth: {
-					if ((_tv->grBox() == obj) ||
-						 (_tv->tv()->viewport() == obj))
-						tv = _tv;
-				}; break;
-					
-				default:	break;
-			}
-		
-		
-		if (tv != NULL) {
-			if (mTabs.tvIds().join(',').contains(tv->objectName())) {
-				
-				/**
-			 * Unselect if view was selected earlier
-			 */
-				if (QVariant(tv->grBox()->property("select")).toBool()) {
-					tv->grBox()->setProperty("select", false);
-					emit tabViewSelChanged( 0 );
-				}
-				else {
-					tv->grBox()->setProperty("select", true);
-					tv->grBox()->setStyleSheet(tv->grBox()->styleSheet());
-					emit tabViewSelChanged(tv);
-				}
-				
-				return true;
-			}
-			else {
-				INFO << tr("event receiver obj has NON of the known table names!  ");
-			}
+
+		/*!
+		 * tvSelector() returns the property which determines the valid sender objects.
+		 * This could be none, QTableView::viewport(), QGroupBox or both.
+		 * If obj->parent() obj could be casted to a QTableView, then the sender object obj
+		 * was a viewPort instance.
+		 */
+		switch (tvSelector()) {
+			case selectByViewPort: {
+				/*!
+				 * If obj->findChild<QTableView *> could be found, obj must be a QGroupBox.
+				 */
+				if (qobject_cast<QTableView *>(
+						 obj->findChild<QTableView *>(QString(), Qt::FindDirectChildrenOnly)))
+					return false;
+			}; break;
+
+			case selectByGroupBox: {
+				/*!
+				 * If obj->parent() is a QTableView, obj must be a viewPort.
+				 */
+				if (qobject_cast<QTableView *>(obj->parent()))
+					return false;
+			}; break;
+
+			case selectByNone:	return false;	break;
+			case selectByBoth:	break;
+			default:	break;
 		}
+
+
+		while (! (qobject_cast<TabView *>(treeTravers<QObject>(obj, ++k, &ok))))
+			if (! ok)	break;
+
+		tv = qobject_cast<TabView *>(treeTravers<QObject>(obj, k, &ok));
+
+		if (tv == NULL)
+			bReturn("Cannot cast sender of mouse click event!");
+
+		/*!
+		 * If the casted TabView instance is currently NOT selected, emit the clearSelect
+		 * signal and invoke tv->setSelect();
+		 */
+		if (! tv->isSelected()) {
+			emit clearSelections();
+			tv->setSelected();
+		}
+
+#define QFOLDINGSTART {
+#ifdef DEBUG_EVENT_FILTER_OBJECTS
+		for (int k = 0; k<6; k++) {
+			QStringList s = QStringList()
+								 << tr("obj->parent(%1)->classname: ").arg(k)
+								 << treeTravers<QObject>(obj, k, &ok)->metaObject()->className();
+			s << QString::number((int) ok);
+			if (QString(treeTravers<QObject>(obj, k, &ok)->metaObject()->className())
+				 .contains(tr("TabView"))) {
+				tv = qobject_cast<TabView *>(treeTravers<QObject>(obj, k, &ok));
+				INFO << s << tv->sqlTableName();
+				break;
+			}
+			INFO << s;
+		}
+#endif
+#define QFOLDINGEND }
 	}
-	
+
 	if ((e->type() == QEvent::KeyPress) && false) {
 		QKeyEvent *kev = static_cast<QKeyEvent *>(e);
 		INFO << "Keypress " << kev->key() << "by obj:" ;
 		INFO << "obj name:" << obj->objectName();
 		INFO << "obj parent name:" << obj->parent()->objectName();
-		
+
 		QList<QObject *> objs = obj->children();
-		
+
 		for (int i = 0; i < objs.length(); i++) {
 			INFO << "obj child no." << i << objs[i]->objectName();
 			INFO << "obj child no." << i << objs[i]->isWidgetType();
@@ -842,8 +862,8 @@ void Browser::createUi(QWidget *passParent) {
 		/*!
 		  * Connect TabView Signals/Slots
 		  */
-		if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &TabView::onTabViewSelChanged))
-			qReturn("Connection fail!");
+		//		if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &TabView::onTabViewSelChanged))
+		//			qReturn("Connection fail!");
 		if (! (bool)  connect(this, &Browser::updateActions, tv, &TabView::onUpdateActions))
 			qReturn("Connection fail!");
 	}
