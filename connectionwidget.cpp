@@ -61,14 +61,6 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent) {
 }
 ConnectionWidget::~ConnectionWidget() {}
 
-static QString qDBCaptionOri(const QSqlDatabase &db) {
-	QString nm = db.driverName();
-	nm.append(QLatin1Char(':'));
-	if (!db.userName().isEmpty())
-		nm.append(db.userName()).append(QLatin1Char('@'));
-	nm.append(db.databaseName());
-	return nm;
-}
 static QList<QString *> qDBCaption(const QSqlDatabase &db) {
 	QFileInfo fi(db.databaseName());
 	QList<QString *> str;

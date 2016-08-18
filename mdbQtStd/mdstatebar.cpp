@@ -77,7 +77,7 @@ void MDStateBar::showMessage(const QString s, const int timeout) {
 
 	QTimer::singleShot(timeout, Qt::CoarseTimer, this, SLOT(clearMessage()));
 }
-void MDStateBar::showMessage2sec(QString &s) {
+void MDStateBar::showMessage2sec(const QString &s) {
 	mslot[type_msg]->setText(prefix.str[type_msg] + s);
 	Q_INFO << s;
 	QTimer::singleShot(2000, Qt::CoarseTimer, this, SLOT(clearMessage()));

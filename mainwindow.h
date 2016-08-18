@@ -22,6 +22,7 @@
 #include "tabledelegate.h"
 #include "types.h"
 #include "dbcontroller.h"
+#include "mdnotes.h"
 
 namespace Ui {
 class MainWindow;
@@ -40,7 +41,7 @@ QT_FORWARD_DECLARE_CLASS(QSqlError)
 class MainWindow : public QMainWindow {
 
 	Q_OBJECT
-//	Q_PROPERTY(bool cyclicObjInfo READ cyclicObjInfo WRITE setCyclicObjInfo NOTIFY cyclicObjInfoChanged)
+	//	Q_PROPERTY(bool cyclicObjInfo READ cyclicObjInfo WRITE setCyclicObjInfo NOTIFY cyclicObjInfoChanged)
 
 public:
 	/*!
@@ -59,12 +60,12 @@ public:
 	~MainWindow();
 
 signals:
-//	void cyclicObjInfoChanged();
+	//	void cyclicObjInfoChanged();
 
 
 public slots:
-//	bool cyclicObjInfo() const { return m_cyclicObjInfo; }
-//	void setCyclicObjInfo(bool cyclicObjInfo) { m_cyclicObjInfo = cyclicObjInfo; }
+	//	bool cyclicObjInfo() const { return m_cyclicObjInfo; }
+	//	void setCyclicObjInfo(bool cyclicObjInfo) { m_cyclicObjInfo = cyclicObjInfo; }
 	void initDocks();
 	void about() {
 		QMessageBox::about
@@ -82,9 +83,7 @@ protected slots:
 	}
 	void onActSaveTrig();
 	void onActOpenTrig();
-	void onBrowseSqlTrig(bool onOff) {
-		browser->setVisible(onOff);
-	}
+	void onBrowseSqlToggd(bool b);
 	void onMenuStyleShtInpFrmTrig(bool b) {
 		if (!b) return;
 
@@ -102,7 +101,6 @@ protected slots:
 	}
 	void onUnderConstrTrig();
 	void onSetFont();
-//	void onShowSqlQueryTogd(bool b);
 	void onSetAlterRowColTrig();
 	void onCyclic();
 	void onResizerDlgTrig();
@@ -110,6 +108,7 @@ protected slots:
 	bool restoreActionObjects();
 	void createActions();
 	void onActionGroupTrigd(QAction *sender);
+	void onActNotesToggd(bool b);
 
 private slots:
 	void onOpenCloseInpFrm(bool onOff) {
@@ -131,8 +130,7 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 	void showEvent(QShowEvent *e);
 	void hideEvent(QHideEvent *) override;
-	void closeEvent(QCloseEvent *e);
-	void actionEvent(QActionEvent *e) override;
+	void closeEvent(QCloseEvent *);
 
 private:
 	Ui::MainWindow *ui;
@@ -142,17 +140,28 @@ private:
 	SortWindow   *sortwindow;
 	DbController *mDbc;
 
+	struct notes_t {
+//		notes_t (QWidget *parent)
+//			: toDo(new MDNotes(parent)),
+//			  comments(new MDNotes(parent)) {
+//			toDo->hide();
+//			comments->hide();
+//		}
+
+		MDNotes *toDo, *comments;
+	} notes;
+
 	QMenu        *cfgMenu, *mBar;
-	QWidget      *wid;
+	QWidget      *wid, *mCentralWidget;
 	QTimer		 *timCyc;
 
 	QActionGroup *actGrTbMain, *actGrTbMenu;
 
-	QAction *actNew, *actOpen, *actSave, *actExport, *actBrowseSQL, *actInpForm, *actShowTbl,
-			*actDbModMaster, *actClose, *actGbStyleShtA, *actGbSShtInpFrm, *actUnderConstr,
-			*actSelFont, *actCyclicObjInfo, *actResizerDlg, *actShowSqlQuery, *actSetAlterRowCol,
-			*actAutoFitTables, *actFilterTable, *actFilterTableWindow, *actFilterForm,
-			*actCfgInpFrmTabOrd;
+	QAction *actNew, *actOpen, *actSave, *actExport, *actBrowseSQL, *actInpForm,
+	*actShowTbl, *actDbModMaster, *actClose, *actUnderConstr, *actNotes, *actGbStyleShtA,
+	*actGbSShtInpFrm, *actSelFont, *actCyclicObjInfo, *actResizerDlg, *actShowSqlQuery,
+	*actSetAlterRowCol, *actAutoFitTables, *actFilterTable, *actFilterTableWindow,
+	*actFilterForm, *actCfgInpFrmTabOrd;
 
 };
 

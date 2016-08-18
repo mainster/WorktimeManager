@@ -17,13 +17,28 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	stateBar->setSlInfoAlign(Qt::AlignCenter);
 	stateBar->setClockAlign(Qt::AlignCenter);
 
-	browser		= new Browser( parent );
+	browser		= new Browser(parent);
 	mDbc			= new DbController(this);
-	sortwindow  = new SortWindow( parent );
-	inpFrm		= new InpFrm( this );
+	sortwindow  = new SortWindow(parent);
+	inpFrm		= new InpFrm(this);
+	notes.toDo	= new MDNotes(tr("toDo"), parent);
 
 	connect(browser->getConnectionWidget(),	SIGNAL(detailesChanged(QString&)),
 			  stateBar,									SLOT(showInfo(QString&)));
+	connect(notes.toDo,								SIGNAL(settingsSaved(const QString&)),
+			  stateBar,									SLOT(showMessage2sec(const QString&)));
+
+
+	QVBoxLayout *centralLayout = new QVBoxLayout(parent);
+	centralLayout->addWidget(browser);
+	centralLayout->addWidget(notes.toDo);
+
+	mCentralWidget = new QWidget(parent);
+	mCentralWidget->setLayout(centralLayout);
+
+	browser->show();
+	notes.toDo->hide();
+	setCentralWidget(mCentralWidget);
 
 	QVariant var;
 	inpFrm->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
@@ -185,6 +200,12 @@ void MainWindow::onActSaveTrig() {
 void MainWindow::onActOpenTrig() {
 
 }
+void MainWindow::onBrowseSqlToggd(bool b) {
+	browser->setVisible(b);
+}
+void MainWindow::onActNotesToggd(bool b) {
+	notes.toDo->setVisible(b);
+}
 /* ======================================================================== */
 /*                              Event handler                               */
 /* ======================================================================== */
@@ -215,13 +236,12 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
 	return QObject::eventFilter(obj, event);
 }
 void MainWindow::showEvent(QShowEvent *e) {
-	setCentralWidget(browser);
 	QWidget::showEvent( e );
 }
 void MainWindow::hideEvent(QHideEvent *e) {
 	QWidget::hideEvent( e );
 }
-void MainWindow::closeEvent(QCloseEvent *e) {
+void MainWindow::closeEvent(QCloseEvent *) {
 	QSETTINGS;
 
 	/**** Safe current docking area of dock widgets
@@ -236,18 +256,6 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	/**** Write mainWindow geometry and window state
 	\*/
 	WIN_STORE(this);
-
-	//	foreach (QAction *a, acts) {
-	//		INFO << a->objectName() << a->isChecked();
-	//		config.setValue(objectName() + tr("/") + a->objectName(), a->isChecked());
-	//	}
-
-	/**** Safe all action states from MainWindow
-	\*/
-	//	ACTION_STORE(this, tr("act*"));
-}
-void MainWindow::actionEvent(QActionEvent *e) {
-	INFO << tr("action event");
 }
 /* ======================================================================== */
 /*									    Init methodes										    */
@@ -326,10 +334,9 @@ bool MainWindow::restoreActionObjects() {
 	//	return true;
 }
 void MainWindow::createActions() {
-
 	/* ======================================================================== */
-/*                          Create QAction objects                          */
-/* ======================================================================== */
+	/*                          Create QAction objects                          */
+	/* ======================================================================== */
 	/*!
 	 * Create main toolbar actions.
 	 */
@@ -342,6 +349,7 @@ void MainWindow::createActions() {
 	actShowTbl = new QAction(QIcon(":/images/databaseDelegate.png"), tr("ShowTbl"), this);
 	actDbModMaster = new QAction(QIcon(":/images/databaseConf.png"), tr("Stammdaten bearbeiten"), this);
 	actUnderConstr = new QAction(QIcon(":/images/underConstruct.svg"), tr("Under construction"), this);
+	actNotes = new QAction(QIcon(":/images/notes.png"), tr("N&otizen"), this);
 	actClose = new QAction(QIcon(":/icoDelete"), tr("&Schließen"), this);
 
 	/*!
@@ -373,7 +381,8 @@ void MainWindow::createActions() {
 	QList<QAction *> acts;
 	acts << PONAM(actNew) << PONAM(actOpen) << PONAM(actSave) << PONAM(actExport)
 		  << PONAM(actBrowseSQL) << PONAM(actInpForm) << PONAM(actShowTbl)
-		  << PONAM(actDbModMaster) <<  PONAM(actUnderConstr) << PONAM(actClose);
+		  << PONAM(actDbModMaster) <<  PONAM(actUnderConstr) << PONAM(actNotes)
+		  << PONAM(actNotes) << PONAM(actClose);
 
 	foreach (QAction *act, acts)
 		actGrTbMain->addAction(act);
@@ -412,6 +421,7 @@ void MainWindow::createActions() {
 	 * Config some action objects to be checkable.
 	 */
 	actBrowseSQL->setCheckable(true);
+	actNotes->setCheckable(true);
 	actInpForm->setCheckable(true);
 	actShowTbl->setCheckable(true);
 	actDbModMaster->setCheckable(true);
@@ -442,6 +452,9 @@ void MainWindow::createActions() {
 											"Zum Anlegen/ändern von Projekten, Mitarbeitern oder "
 											"Kunden"));
 	actClose->setToolTip(tr("Schließen aller Fenster"));
+	actNotes->setToolTip(tr("Öffnet den <b>Notiz</b> Block. Programmfehler, "
+									"änderungswünsche\noder sonstige Kommentare an den "
+									"Programmierer \nsollten hier notiert werden!"));
 	actResizerDlg->setToolTip(tr("Resize MainWindow to x"));
 	actShowSqlQuery->setToolTip(tr("Hide or show the input field to submit manuall "
 											 "SQL querys thru database driver backend"));
@@ -451,7 +464,7 @@ void MainWindow::createActions() {
 
 	foreach (QAction *act, actGrTbMain->actions())
 		act->setToolTip(tr("<p style='white-space:pre'>") +
-//							 tr("<div style=\"width: 600px;\">") +
+							 //							 tr("<div style=\"width: 600px;\">") +
 							 act->toolTip() /*+ tr("</div>")*/);
 }
 void MainWindow::onActionGroupTrigd(QAction *sender) {
@@ -473,10 +486,10 @@ void MainWindow::makeMenuBar() {
 	/* ======================================================================== */
 	/*                               Main Toolbar                               */
 	/* ======================================================================== */
-//	ui->mainToolBar->addActions(QList<QAction*>()
-//										 << actNew << actOpen << actSave << actExport
-//										 << actBrowseSQL << actInpForm << actShowTbl
-//										 << actDbModMaster << actUnderConstr << actClose);
+	//	ui->mainToolBar->addActions(QList<QAction*>()
+	//										 << actNew << actOpen << actSave << actExport
+	//										 << actBrowseSQL << actInpForm << actShowTbl
+	//										 << actDbModMaster << actUnderConstr << actClose);
 	ui->mainToolBar->addActions( actGrTbMain->actions() );
 
 	/* ======================================================================== */
@@ -485,7 +498,7 @@ void MainWindow::makeMenuBar() {
 	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&Datei"));
 	fileMenu->addAction(tr("Add &Connection..."), mDbc, SLOT(addConnection()));
 	fileMenu->addSeparator();
-//	fileMenu->addAction(tr("&Quit"), qApp, SLOT(quit()));
+	//	fileMenu->addAction(tr("&Quit"), qApp, SLOT(quit()));
 	fileMenu->addActions(QList<QAction *>()
 								<< actClose);
 
@@ -503,7 +516,9 @@ void MainWindow::makeMenuBar() {
 	setupMenu->addActions(QList<QAction *>()
 								 << actSelFont << actSetAlterRowCol << actCyclicObjInfo
 								 << actResizerDlg << actShowSqlQuery << actCfgInpFrmTabOrd);
-	QAction *muSetStyleSh = setupMenu->addAction("St&yleSheets", this, &MainWindow::onStyleSheetTrig);
+	QAction *muSetStyleSh =
+			setupMenu->addAction("St&yleSheets", this, &MainWindow::onStyleSheetTrig);
+	Q_UNUSED(muSetStyleSh);
 
 	setupMenu->addSeparator();
 
@@ -528,7 +543,8 @@ void MainWindow::onStyleSheetTrig() {
 void MainWindow::connectActions(ConnectReceiver receivers) {
 	if ((receivers == connectThis) ||
 		 (receivers == connectAll)) {
-		connect(actBrowseSQL, &QAction::triggered, this, &MainWindow::onBrowseSqlTrig);
+		connect(actBrowseSQL, &QAction::toggled, this, &MainWindow::onBrowseSqlToggd);
+		connect(actNotes, &QAction::toggled, this, &MainWindow::onActNotesToggd);
 		connect(actInpForm, &QAction::triggered, this, &MainWindow::onOpenCloseInpFrm);
 		connect(actShowTbl, &QAction::triggered, this, &MainWindow::onTblOpen);
 		connect(actClose, &QAction::triggered, this, &MainWindow::onActCloseTrig);
@@ -558,31 +574,3 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 void MainWindow::initDocks() {
 
 }
-//void MainWindow::ACTION_STORE(QObject *obj, QString regex) {
-//	QSETTINGS;
-//	QPair<QString, bool> pair;
-//	QList<QPair<QString, bool>> pairs;
-
-//	QList<QAction *> acts = ui->mainToolBar->findChildren<QAction *>();
-
-//	foreach (QAction *act, acts) {
-//		pair.first = act->objectName();
-//		pair.second = act->isChecked();
-//		pairs << pair;
-//	}
-
-//	INFO << pairs;
-
-//	//	config.setValue(obj->objectName() + QString("/") + act->objectName(), act->isChecked());
-//	//	INFO << obj->objectName() + QString("/") + act->objectName() << act->isChecked();
-
-//	config.setValue(obj->objectName() + QString("/actionCtr"), acts.length());
-//	config.sync();
-//}
-//void MainWindow::ACTION_RESTORE(QObject *obj, QString regex) {
-//	QSETTINGS;
-//	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
-
-//	foreach (QAction *act, acts)
-//		act->setChecked(config.value(obj->objectName() + QString("/") + act->objectName()).toBool());
-//}

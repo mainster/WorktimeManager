@@ -899,31 +899,6 @@ bool Browser::restoreActionObjects () {
 	return true;
 }
 
-//void Browser::ACTION_STORE(QObject *obj, QString) {
-//	QSETTINGS;
-//	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
-
-//	foreach (QAction *act, acts)
-//		config.setValue(obj->objectName() + QString("/") + act->objectName(), act->isChecked());
-
-//	config.setValue(obj->objectName() + QString("/actionCtr"), acts.length());
-//	config.sync();
-//}
-//void Browser::ACTION_RESTORE(QObject *obj) {
-//	QSETTINGS;
-//	QList<QAction *> acts = obj->findChildren<QAction *>(QRegularExpression("act*"));
-
-//	INFO << tr("\n") << listObjectNames<QAction *>(acts)->join("\n");
-
-//	qSort(acts.begin(), acts.end());
-//	foreach (QAction *act, acts) {
-//		if (! config.allKeys().contains(act->objectName()))
-//			 WARN << tr("config doesn't contain") << act->objectName();
-
-//		if (act->isCheckable())
-//			act->setChecked(config.value(obj->objectName() + QString("/") + act->objectName()).toBool());
-//	}
-//}
 #define QFOLDINGSTART {
 #ifndef COMMENT_OUT_UNUSED
 QAbstractItemModel *Browser::createMailModel(QObject *parent) {
