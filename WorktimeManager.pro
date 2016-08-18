@@ -15,7 +15,8 @@ CONFIG+=c++11
 INCLUDEPATH += mdbQtStd
 
 DISTFILES += \
-	 NOTES
+	 NOTES \
+    ../../../../.config/delBassoDEV/WorktimeManager.ini
 
 INCLUDEPATH += \
 		delegates \

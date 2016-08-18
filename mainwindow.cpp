@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	createActions();
 	connectActions(connectThis);
 
+
 	stateBar		= new MDStateBar( this );
 	stateBar->setSlInfoAlign(Qt::AlignCenter);
 	stateBar->setClockAlign(Qt::AlignCenter);
@@ -40,12 +41,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	notes.toDo->hide();
 	setCentralWidget(mCentralWidget);
 
-	QVariant var;
+	/* ======================================================================== */
+	/*              InpFrm:: Dock location/window geometry restore              */
+	/* ======================================================================== */
 	inpFrm->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
-	var.setValue (config.value(inpFrm->objectName() + tr("/DockWidgetArea"), Qt::BottomDockWidgetArea) );
-	INFO << var << var.value<Qt::DockWidgetArea>() << var.value<Qt::DockWidgetAreas>();
-
-	Qt::DockWidgetArea dockArea = static_cast<Qt::DockWidgetArea>(var.toInt());
+	Qt::DockWidgetArea dockArea =
+			static_cast<Qt::DockWidgetArea>(
+				config.value(inpFrm->objectName() + tr("/") +
+								 KEY_DOCKWIDGETAREA, Qt::TopDockWidgetArea).toInt());
 	addDockWidget(dockArea, inpFrm);
 
 	stateBar->setClockVisible(true);
@@ -66,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	/**** Restore mainWindow geometry and window state
 	\*/
 	WIN_RESTORE(this);
+	WIN_STATE_RESTORE(this);
 
 	/**** Restore splitter sizes to config
 	\*/
@@ -126,6 +130,9 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 	}
 }
 void MainWindow::onUnderConstrTrig() {
+
+	INFO << dockWidgetArea(inpFrm);
+	return;
 
 	INFO << actShowSqlQuery->isCheckable() << actShowSqlQuery->isChecked();
 	actShowSqlQuery->setCheckable(true);
@@ -246,7 +253,7 @@ void MainWindow::closeEvent(QCloseEvent *) {
 
 	/**** Safe current docking area of dock widgets
 	\*/
-	config.setValue(inpFrm->objectName() + tr("/DockWidgetArea"),
+	config.setValue(inpFrm->objectName() + tr("/") + KEY_DOCKWIDGETAREA,
 						 (uint)dockWidgetArea(inpFrm));
 
 	/**** Write splitter sizes to config
@@ -256,6 +263,7 @@ void MainWindow::closeEvent(QCloseEvent *) {
 	/**** Write mainWindow geometry and window state
 	\*/
 	WIN_STORE(this);
+	WIN_STATE_STORE(this);
 }
 /* ======================================================================== */
 /*									    Init methodes										    */

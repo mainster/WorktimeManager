@@ -40,6 +40,7 @@ Q_ENUMS(FocusOrderState)
 #define	IDX_WORKER			2
 #define	IDX_CONTRACOTR		3
 
+#define KEY_DOCKWIDGETAREA	QString("DockWidgetArea")
 /* ======================================================================== */
 /*                               class InpFrm                               */
 /* ======================================================================== */
@@ -107,7 +108,7 @@ public:
 signals:
 	void changeFocusOrder(Qt::FocusOrderState state = Qt::FocusChange_init);
 	void stateMessage(const QString msg, const int option);
-    void newWorktimeRecord();
+	void newWorktimeRecord();
 	void buttonClicked(const QPushButton *button);
 	void showDropdownView(bool onOff );
 
@@ -134,7 +135,9 @@ protected slots:
 	void onChangeFocusOrder(Qt::FocusOrderState state);
 	void hideEvent(QShowEvent *);
 	void closeEvent(QCloseEvent *) override;
+	void onUndockEvent(bool isUndocked);
 
+	void onDockLocationChanged(Qt::DockWidgetArea area);
 private slots:
 
 private:

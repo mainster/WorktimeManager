@@ -117,7 +117,14 @@
 	config.sync(); \
 	}
 #define     WIN_RESTORE(obj)	{ QSETTINGS; \
-	obj->restoreGeometry(config.value(obj->objectName() + GEOM,"").toByteArray()); \
+	obj->restoreGeometry(config.value(obj->objectName() + GEOM).toByteArray()); \
+	}
+#define     WIN_STATE_STORE(obj)		{ QSETTINGS; \
+	config.setValue(obj->objectName() + STAT, obj->saveState()); \
+	config.sync(); \
+	}
+#define     WIN_STATE_RESTORE(obj)	{ QSETTINGS; \
+	obj->restoreState(config.value(obj->objectName() + STAT).toByteArray()); \
 	}
 #define     SPLT_STORE(obj)   { QSETTINGS; \
 	QList<QSplitter *> spls = obj->findChildren<QSplitter *>(); \

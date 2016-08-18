@@ -35,6 +35,7 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 	ui->gbSqlQuery->hide();
 	WIN_RESTORE(this);
 
+
 	setFixedHeight(fixedHeights.sqlQueryInvisible);
 	initComboboxes();
 
@@ -226,6 +227,8 @@ void InpFrm::connectActions() {
 			  this,                   SLOT(onCbQueryIndexChaned(int)));
 
 	connect(this, &InpFrm::changeFocusOrder, this, &InpFrm::onChangeFocusOrder);
+	connect(this, &InpFrm::dockLocationChanged, this, &InpFrm::onDockLocationChanged);
+	connect(this, &InpFrm::topLevelChanged, this, &InpFrm::onUndockEvent);
 
 	QList<QComboBox*> cbs = findChildren<QComboBox *>();
 	QList<QPushButton*> pbs = findChildren<QPushButton *>();
@@ -247,13 +250,6 @@ void InpFrm::connectActions() {
 		if (! (bool)connect(pb, &QPushButton::clicked, this, &InpFrm::aButtonClick))
 			CRIT << tr("connect(..) returned false or button %1").arg(pb->objectName());
 	}
-
-
-
-	//	connect(ui->btnSubmitQuery, &QPushButton::clicked, this, &InpFrm::onTest);
-	//    connect(ui->btnSubmitQuery,     SIGNAL(clicked()),
-	//            browser,                SLOT(exec()));
-
 }
 void InpFrm::onInpFormUserCommit() {
 	QSqlQuery query;
@@ -695,23 +691,35 @@ bool InpFrm::setFocusOrder(QList<QWidget *> targets) {
 Qt::FocusOrderState InpFrm::InpFrm::getChangeFocusFlag() const {
 	return mChangeFocusFlag;
 }
-void InpFrm::InpFrm::setChangeFocusFlag(const Qt::FocusOrderState &stateFlag) {
+void InpFrm::setChangeFocusFlag(const Qt::FocusOrderState &stateFlag) {
 	mChangeFocusFlag = stateFlag;
+}
+void InpFrm::onDockLocationChanged(Qt::DockWidgetArea area) {
+	QSETTINGS;
+	config.setValue(objectName() + tr("/") + KEY_DOCKWIDGETAREA, (uint) area);
+}
+void InpFrm::onUndockEvent(bool isUndocked) {
+	WIN_RESTORE(this);
 }
 /* ======================================================================== */
 /*                             Event callbacks                              */
 /* ======================================================================== */
-void InpFrm::hideEvent(QShowEvent *) {
-
-}
 void InpFrm::showEvent(QShowEvent *) {
 	update();
 	updateGeometry();
 	mEscapeTrigger = false;
 	//	mapCbTableProxy();
 }
-void InpFrm::closeEvent(QCloseEvent *) {
+void InpFrm::hideEvent(QShowEvent *) {
 
+}
+void InpFrm::closeEvent(QCloseEvent *) {
+	QSETTINGS;
+
+	//	if (dock)
+	/**** Write mainWindow geometry and window state
+	\*/
+	WIN_STORE(this);
 }
 void InpFrm::keyPressEvent(QKeyEvent *e) {
 	/**
