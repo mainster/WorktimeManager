@@ -173,22 +173,6 @@ void TabView::setGrBoxTitle(QString s) {
 QGroupBox *TabView::grBox() const {
 	return m_gb;
 }
-//void TabView::onTabViewSelChanged(TabView *tv) {
-//	/**
-//	 * If its not me, reset the StyleSheet for this instance
-//	 */
-//	if (tv != NULL) {
-//		if (this->objectName().contains(tv->objectName()))  {
-//			setActiveSelected( true );
-//			return;
-//		}
-//		setSelect(false);
-//		setActiveSelected( false );
-//	}
-//}
-//void TabView::onSelectChanged(bool select) {
-//	setActiveSelected(select);
-//}
 void TabView::resizeRowsColsToContents() {
 	m_tv->setVisible( false );
 	m_tv->resizeColumnsToContents();

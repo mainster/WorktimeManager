@@ -14,26 +14,34 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QGroupBox{
-   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
-   	border-radius: 5px;
-	margin-top: 1ex;
-/*  	margin-top: 7px;
-	margin-bottom: 2px;
-	margin-left: 2px;
-	margin-right: 2px;*/
-   	font: italic 9pt &quot;Arial&quot;;
-   	font-weight: bold;
-	border: 1px solid;    
- 	border-color: rgb(105, 105, 105);
-   	color: black;
-}
-QGroupBox::title {
+   <string notr="true">QGroupBox::title {
    	subcontrol-origin: margin; /* margin boarder padding content */
    	subcontrol-position: top center; /* position at the top center */
-   	top: 1.2ex;   
-  	padding: 0px 8px
+   	top: 1.0ex;   
+  	padding: 0px 8px;
+	color:  rgba(50,50,50,255);
+} [select=false] {
+	color:  rgba(245,0,0,255);
 } 
+QGroupBox {
+   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
+   	border-radius: 5px;
+	margin-top: 1ex; /*margin-bottom: 2px; margin-left: 2px; margin-right: 2px;*/
+   	font: italic 9pt &quot;Arial&quot;;
+   	font-weight: bold;
+	border: 2px solid;
+	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));
+	border-left-color: rgba(105,105,105,255);
+	border-right-color: rgba(105,105,105,205);
+	border-bottom-color: rgba(105,105,105,205);
+} [select=true] { 
+	/* margin-top: 5px; margin-bottom: -2px; margin-left: -2px; margin-right: -2px; */
+	border: 2px solid; 
+	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(255,0,0,255), stop:1 rgba(247, 247, 247, 250));
+	border-left-color: rgba(255,0,0,255);
+	border-right-color: rgba(255,0,0,255);
+	border-bottom-color: rgba(255,0,0,255);
+}
 QGroupBox::title:hover {
     color: rgba(235, 235, 235, 255);
 }
@@ -41,29 +49,11 @@ QTableView {
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF);
 	border: 0px solid gray;
 	border-radius: 5px;
-	margin-top: 15px; /* leave space at the top for the title */
- }
-/*QTableView*/
-TabView[select=false]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF); }
-QGroupBox[select=false]{ 
-/*  	margin-top: 7px;
-	margin-bottom: 2px;
-	margin-left: 2px;
-	margin-right: 2px;*/
-	border: 1px solid; 
-	border-color: rgb(105, 105, 105); 
+	margin-top: 15px;	
+	gridline-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0.19 rgba(97, 97, 97, 255), stop:1 rgba(247, 247, 247, 255));
+ } [select=true] {
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); 
 }
-
-QTableView[select=true]{ background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); }
-QGroupBox[select=true] {
-/*  	margin-top: 5px;
-	margin-bottom: 0px;
-	margin-left: 0px;
-	margin-right: 0px;*/
-	border: 1px solid;
-	border-color: rgb(42, 206, 255);
-}
-
 QHeaderView::section {
      background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                        stop:    0 #616161, stop: 0.5 #505050,
@@ -104,6 +94,9 @@ QHeaderView::section {
      </property>
      <property name="title">
       <string>GroupBox</string>
+     </property>
+     <property name="select" stdset="0">
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <property name="leftMargin">

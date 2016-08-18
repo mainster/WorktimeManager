@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1307</width>
-    <height>374</height>
+    <height>381</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -377,9 +377,6 @@ color: ;
           <italic>true</italic>
           <bold>true</bold>
          </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
         </property>
         <property name="title">
          <string>Projekt</string>

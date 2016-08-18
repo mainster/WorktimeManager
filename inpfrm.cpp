@@ -165,20 +165,20 @@ void InpFrm::initComboboxes() {
 	QList<short> idx;
 	idx << mModels[IDX_PROJECT].tableModel->fieldIndex("Kurzform")
 		 << mModels[IDX_PROJECT].tableModel->fieldIndex("Nummer");
-	INFO << idx;
+//	INFO << idx;
 	ui->cbPrj->setModelColumns(idx);
 
 	idx.clear();
 	idx << mModels[IDX_CLIENT].tableModel->fieldIndex("Kurzform")
 		 << mModels[IDX_CLIENT].tableModel->fieldIndex("Nummer");
-	INFO << idx;
+//	INFO << idx;
 	ui->cbClient->setModelColumns(idx);
 
 	idx.clear();
 	idx << mModels[IDX_WORKER].tableModel->fieldIndex("Nachname")
 		 << mModels[IDX_WORKER].tableModel->fieldIndex("Vorname")
 		 << mModels[IDX_WORKER].tableModel->fieldIndex("PersonalNr");
-	INFO << idx;
+//	INFO << idx;
 	ui->cbWorker->setModelColumns(idx);
 
 	connect(ui->cbPrj, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
@@ -727,8 +727,11 @@ void InpFrm::keyPressEvent(QKeyEvent *e) {
 	  * If key press event for "Enter" is detected, emit a btnOk Clicked()
 	  * signal to access onBtnOkClicked()
 	  */
-	if (e->key() == Qt::Key_Enter)
+	if (e->key() == Qt::Key_Enter) {
 		emit ui->btnOk->clicked();
+		e->accept();
+		return;
+	}
 
 	/*!
 	  * First escape key press event resets the current InpFrm widget focus to initial.
@@ -741,6 +744,7 @@ void InpFrm::keyPressEvent(QKeyEvent *e) {
 		}
 		else hide();
 	}
+	e->accept();
 }
 bool InpFrm::eventFilter(QObject *obj, QEvent *event) {
 	if (! event)

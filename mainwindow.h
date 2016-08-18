@@ -158,6 +158,7 @@ private:
 	*actSetAlterRowCol, *actAutoFitTables, *actFilterTable, *actFilterTableWindow,
 	*actFilterForm, *actCfgInpFrmTabOrd, *actFiltWorktimeTbl, *actFiltSelectedTbl;
 
+	void keyPressEvent(QKeyEvent *e);
 };
 
 

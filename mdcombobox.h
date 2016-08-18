@@ -75,7 +75,7 @@ public:
 		if (colCount <= *biggest)
 			bReturn("Invalid column index found");
 
-		INFO << rowCount << colCount;
+//		INFO << rowCount << colCount;
 
 		/*!
 		 * Prepare QStringList object stringList which later can be used to create

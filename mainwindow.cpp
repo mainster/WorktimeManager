@@ -297,6 +297,11 @@ void MainWindow::closeEvent(QCloseEvent *) {
 	WIN_STORE(this);
 	WIN_STATE_STORE(this);
 }
+void MainWindow::keyPressEvent(QKeyEvent *e) {
+	if (e->key() == Qt::Key_Escape) {
+		emit browser->clearSelections();
+	}
+}
 /* ======================================================================== */
 /*									    Init methodes										    */
 /* ======================================================================== */
@@ -599,11 +604,16 @@ void MainWindow::makeMenu() {
 	/* ======================================================================== */
 	MdMenu *browserMenu = Browser::instance()->menuBarElement();
 
-	foreach (MdMenu *mdm, findChildren<MdMenu *>()) {
+	/* ======================================================================== */
+	/*                    Add MdMenus to mainwindows toolBar                    */
+	/* ======================================================================== */
+	foreach (MdMenu *mdm, QList<MdMenu *>()
+				<< findChildren<MdMenu *>()
+				<< browserMenu) {
 		menuBar()->addMenu(mdm);
 		mdm->show();
 	}
-	//	browserMenu->addActions(Browser::instance()->menuBarElement());
+
 }
 void MainWindow::onStyleSheetTrig() {
 
