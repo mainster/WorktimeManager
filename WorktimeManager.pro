@@ -61,7 +61,8 @@ HEADERS += \
 	 delegates/sqlreldel.h \
     mdbQtStd/mdeventfilters.h \
 	 mdcombobox.h \
-    mdnotes.h
+    mdnotes.h \
+    mdmenu.h
 
 SOURCES += \
     delegates/tabledelegate.cpp \
@@ -85,7 +86,8 @@ SOURCES += \
 	 delegates/sqlreldel.cpp \
     mdbQtStd/mdeventfilters.cpp \
 	 mdcombobox.cpp \
-    mdnotes.cpp
+    mdnotes.cpp \
+    mdmenu.cpp
 
 FORMS += \
 	 uis/dbconndlg.ui \

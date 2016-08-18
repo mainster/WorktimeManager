@@ -23,6 +23,7 @@
 #include "types.h"
 #include "dbcontroller.h"
 #include "mdnotes.h"
+#include "mdmenu.h"
 
 namespace Ui {
 class MainWindow;
