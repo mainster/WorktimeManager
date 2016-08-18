@@ -537,10 +537,11 @@ void MainWindow::createActions() {
 												 "<b>Arbeitszeit</b>-Tabelle angewendet."));
 
 
-	foreach (QAction *act, actGrTbMain->actions())
-		act->setToolTip(tr("<p style='white-space:pre'>") +
-							 //							 tr("<div style=\"width: 600px;\">") +
-							 act->toolTip() /*+ tr("</div>")*/);
+	foreach (QAction *act, QList<QAction *>()
+				<< actGrTbMain->actions()
+				<< actGrTbMenu->actions()
+				<< actGrFilterWidg->actions())
+		act->setToolTip(tr("<p style='white-space:pre'>") + act->toolTip());
 }
 void MainWindow::makeMenu() {
 	/* ======================================================================== */
@@ -551,43 +552,34 @@ void MainWindow::makeMenu() {
 	/* ======================================================================== */
 	/*                                 fileMenu                                 */
 	/* ======================================================================== */
-#define TRY1
-#ifdef TRY1
-	MdMenu *fileMenu = new MdMenu();
+	MdMenu *fileMenu = new MdMenu(this);
 	fileMenu->setTitle(tr("&Datei"));
 	fileMenu->addAction(tr("Add &Connection..."), mDbc, SLOT(addConnection()));
 	fileMenu->actions().last()->
 			setToolTip(tr("Neue SQLITE Datenbank Verbindung aufbauen."));
 	fileMenu->addSeparator();
 	fileMenu->addActions(QList<QAction *>() << actClose);
-	menuBar()->addMenu(fileMenu);
-	fileMenu->show();
-#else
-	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&Datei"));
-	fileMenu->addAction(tr("Add &Connection..."), mDbc, SLOT(addConnection()));
-	fileMenu->addSeparator();
-	//	fileMenu->addAction(tr("&Quit"), qApp, SLOT(quit()));
-	fileMenu->addActions(QList<QAction *>()
-								<< actClose);
-#endif
+
 	/* ======================================================================== */
 	/*                                 helpMenu                                 */
 	/* ======================================================================== */
-	QMenu *helpMenu = menuBar()->addMenu(QObject::tr("&Hilfe"));
+	MdMenu *helpMenu = new MdMenu(this);
+	helpMenu->setTitle(tr("&Hilfe"));
 	helpMenu->addAction(tr("About"), this, SLOT(about()));
 	helpMenu->addAction(tr("About Qt"), qApp, SLOT(aboutQt()));
 
 	/* ======================================================================== */
 	/*                                setupMenu                                 */
 	/* ======================================================================== */
-	QMenu *setupMenu = menuBar()->addMenu(QObject::tr("Se&tup"));
-	setupMenu->addActions(QList<QAction *>()
-								 << actSelFont << actSetAlterRowCol << actCyclicObjInfo
-								 << actResizerDlg << actShowSqlQuery << actCfgInpFrmTabOrd);
+	MdMenu *setupMenu = new MdMenu(this);
+	setupMenu->setTitle(tr("Se&tup"));
 
-	QMenu *filterForm = setupMenu->addMenu(tr("Filter Fenster"));
-	filterForm->addActions(QList<QAction *>()
-								  << actFiltSelectedTbl << actFiltWorktimeTbl);
+	setupMenu->addActions(QList<QAction *>() << actSelFont << actSetAlterRowCol <<
+	actCyclicObjInfo << actResizerDlg << actShowSqlQuery << actCfgInpFrmTabOrd);
+
+	MdMenu *filterForm = new MdMenu(this);
+	filterForm->setTitle(tr("Filter Fenster"));
+	filterForm->addActions(QList<QAction *>() << actFiltSelectedTbl << actFiltWorktimeTbl);
 
 	QAction *muSetStyleSh =
 			setupMenu->addAction("St&yleSheets", this, &MainWindow::onStyleSheetTrig);
@@ -598,16 +590,19 @@ void MainWindow::makeMenu() {
 	/* ======================================================================== */
 	/*                                 viewMenu                                 */
 	/* ======================================================================== */
-	QMenu *viewMenu = menuBar()->addMenu(QObject::tr("&Anzeige"));
-	viewMenu->addActions(QList<QAction *>()
-								<< actAutoFitTables << actFilterForm);
+	MdMenu *viewMenu = new MdMenu(this);
+	viewMenu->setTitle(tr("&Anzeige"));
+	viewMenu->addActions(QList<QAction *>() << actAutoFitTables << actFilterForm);
 
 	/* ======================================================================== */
 	/*                        Inherited menu components                         */
 	/* ======================================================================== */
-	QMenu *browserMenu = Browser::instance()->menuBarElement();
-	menuBar()->addMenu( browserMenu );
+	MdMenu *browserMenu = Browser::instance()->menuBarElement();
 
+	foreach (MdMenu *mdm, findChildren<MdMenu *>()) {
+		menuBar()->addMenu(mdm);
+		mdm->show();
+	}
 	//	browserMenu->addActions(Browser::instance()->menuBarElement());
 }
 void MainWindow::onStyleSheetTrig() {

@@ -20,6 +20,18 @@ public:
 	~MdMenu();
 
 	virtual bool event (QEvent * e);
+	QAction *addMenu(MdMenu *menu) {
+		return QMenu::addMenu(static_cast<QMenu *>(menu));
+	}
+
+	MdMenu *addMenu(const QString &title) {
+		return static_cast<MdMenu *>(QMenu::addMenu(title));
+	}
+
+	MdMenu *addMenu(const QIcon &icon, const QString &title) {
+		return static_cast<MdMenu *>(QMenu::addMenu(icon, title));
+	}
+
 };
 
 #endif // MDMENU_H

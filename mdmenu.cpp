@@ -25,3 +25,4 @@ bool MdMenu::event(QEvent *e) {
 	}
 	return QMenu::event(e);
 }
+

@@ -136,11 +136,11 @@ protected:
 
 private:
 	Ui::MainWindow *ui;
-	Browser      *browser;
-	InpFrm       *inpFrm;
-	MDStateBar   *stateBar;
-	SortWindow   *sortwindow;
-	DbController *mDbc;
+	Browser			*browser;
+	InpFrm			*inpFrm;
+	MDStateBar		*stateBar;
+	SortWindow		*sortwindow;
+	DbController	*mDbc;
 
 	struct notes_t {
 		MDNotes *toDo, *comments;

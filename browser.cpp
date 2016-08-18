@@ -764,13 +764,13 @@ void Browser::createActions() {
 	//	QAction *muSep_2	= setTvCntMu->addSeparator();
 	//	muGrAct->addAction(PONAM(muSep_2));
 }
-QMenu *Browser::menuBarElement() {
-	browsMenu = new QMenu(tr("&Browser"));
+MdMenu *Browser::menuBarElement() {
+	browsMenu = new MdMenu(tr("&Browser"));
 
-	QMenu *tvSelectByMenu = browsMenu->addMenu(tr("Table selector config"));
+	MdMenu *tvSelectByMenu = browsMenu->addMenu(tr("Table selector config"));
 	PONAM(tvSelectByMenu)->addActions(actGrTvSelectBy->actions());
 
-	QMenu *tvCountMenu = browsMenu->addMenu(tr("Table View count config"));
+	MdMenu *tvCountMenu = browsMenu->addMenu(tr("Table View count config"));
 	PONAM(tvCountMenu)->addActions(actGrTvCount->actions());
 
 	return browsMenu;
