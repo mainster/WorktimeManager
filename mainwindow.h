@@ -23,6 +23,7 @@
 #include "types.h"
 #include "dbcontroller.h"
 #include "mdnotes.h"
+#include "mdmenu.h"
 
 namespace Ui {
 class MainWindow;
@@ -145,7 +146,7 @@ private:
 		MDNotes *toDo, *comments;
 	} notes;
 
-	QMenu        *cfgMenu, *mBar;
+	MdMenu        *cfgMenu, *mBar;
 	QWidget      *wid, *mCentralWidget;
 	QTimer		 *timCyc;
 

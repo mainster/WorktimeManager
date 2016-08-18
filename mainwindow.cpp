@@ -541,7 +541,7 @@ void MainWindow::makeMenuBar() {
 	/* ======================================================================== */
 	/*                                 fileMenu                                 */
 	/* ======================================================================== */
-	QMenu *fileMenu = menuBar()->addMenu(QObject::tr("&Datei"));
+	MdMenu *fileMenu = qobject_cast<MdMenu *>(menuBar()->addMenu(QObject::tr("&Datei")));
 	fileMenu->addAction(tr("Add &Connection..."), mDbc, SLOT(addConnection()));
 	fileMenu->addSeparator();
 	//	fileMenu->addAction(tr("&Quit"), qApp, SLOT(quit()));
@@ -551,19 +551,19 @@ void MainWindow::makeMenuBar() {
 	/* ======================================================================== */
 	/*                                 helpMenu                                 */
 	/* ======================================================================== */
-	QMenu *helpMenu = menuBar()->addMenu(QObject::tr("&Hilfe"));
+	MdMenu *helpMenu = qobject_cast<MdMenu *>(menuBar()->addMenu(QObject::tr("&Hilfe")));
 	helpMenu->addAction(tr("About"), this, SLOT(about()));
 	helpMenu->addAction(tr("About Qt"), qApp, SLOT(aboutQt()));
 
 	/* ======================================================================== */
 	/*                                setupMenu                                 */
 	/* ======================================================================== */
-	QMenu *setupMenu = menuBar()->addMenu(QObject::tr("Se&tup"));
+	MdMenu *setupMenu = qobject_cast<MdMenu *>(menuBar()->addMenu(QObject::tr("Se&tup")));
 	setupMenu->addActions(QList<QAction *>()
 								 << actSelFont << actSetAlterRowCol << actCyclicObjInfo
 								 << actResizerDlg << actShowSqlQuery << actCfgInpFrmTabOrd);
 
-	QMenu *filterForm = setupMenu->addMenu(tr("Filter Fenster"));
+	MdMenu *filterForm = qobject_cast<MdMenu *>(setupMenu->addMenu(tr("Filter Fenster")));
 	filterForm->addActions(QList<QAction *>()
 								  << actFiltSelectedTbl << actFiltWorktimeTbl);
 
@@ -576,14 +576,14 @@ void MainWindow::makeMenuBar() {
 	/* ======================================================================== */
 	/*                                 viewMenu                                 */
 	/* ======================================================================== */
-	QMenu *viewMenu = menuBar()->addMenu(QObject::tr("&Anzeige"));
+	MdMenu *viewMenu = qobject_cast<MdMenu *>(menuBar()->addMenu(QObject::tr("&Anzeige")));
 	viewMenu->addActions(QList<QAction *>()
 								<< actAutoFitTables << actFilterForm);
 
 	/* ======================================================================== */
 	/*                        Inherited menu components                         */
 	/* ======================================================================== */
-	QMenu *browserMenu = Browser::instance()->menuBarElement();
+	MdMenu *browserMenu = Browser::instance()->menuBarElement();
 	menuBar()->addMenu( browserMenu );
 
 	//	browserMenu->addActions(Browser::instance()->menuBarElement());

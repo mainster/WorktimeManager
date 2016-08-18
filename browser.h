@@ -55,8 +55,10 @@
 #include "sortwindow.h"
 #include "tabview.h"
 #include "connectionwidget.h"
+#include "mdmenu.h"
 
 class TabView;
+class MdMenu;
 //class ConnectionWidget;
 
 /* ======================================================================== */
@@ -180,7 +182,7 @@ public slots:
 	}
 	void autofitRowCol();
 	void onActFilterForm(bool b);
-	QMenu *menuBarElement();
+	MdMenu *menuBarElement();
 	void onSourceTableChanged(SortWindow::SourceTable sourceTable);
 
 protected:
@@ -215,7 +217,7 @@ private:
 	QAction				*actSelByNone, *actSelByGrBx, *actSelByVPort, *actSelByBoth;
 
 public:
-	QMenu					*browsMenu;
+	MdMenu					*browsMenu;
 	static const QString  browserStyleSheet, browserStyleSheetv2;
 	ConnectionWidget *getConnectionWidget() const;
 };

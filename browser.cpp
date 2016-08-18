@@ -451,7 +451,7 @@ void Browser::customMenuRequested(QPoint pos) {
 	QModelIndex index = this->tvs()->first()->tv()->indexAt(pos);
 	Q_UNUSED(index);
 	
-	QMenu *menu = new QMenu(this);
+	MdMenu *menu = new MdMenu(this);
 	menu->addAction(new QAction("Action 1", this));
 	menu->addAction(new QAction("Action 2", this));
 	menu->addAction(new QAction("Action 3", this));
@@ -764,13 +764,15 @@ void Browser::createActions() {
 	//	QAction *muSep_2	= setTvCntMu->addSeparator();
 	//	muGrAct->addAction(PONAM(muSep_2));
 }
-QMenu *Browser::menuBarElement() {
-	browsMenu = new QMenu(tr("&Browser"));
+MdMenu *Browser::menuBarElement() {
+	browsMenu = new MdMenu(tr("&Browser"));
 
-	QMenu *tvSelectByMenu = browsMenu->addMenu(tr("Table selector config"));
+	MdMenu *tvSelectByMenu = qobject_cast<MdMenu *>(
+										 browsMenu->addMenu(tr("Table selector config")));
 	PONAM(tvSelectByMenu)->addActions(actGrTvSelectBy->actions());
 
-	QMenu *tvCountMenu = browsMenu->addMenu(tr("Table View count config"));
+	MdMenu *tvCountMenu = qobject_cast<MdMenu *>(
+									 browsMenu->addMenu(tr("Table View count config")));
 	PONAM(tvCountMenu)->addActions(actGrTvCount->actions());
 
 	return browsMenu;
