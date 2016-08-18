@@ -55,9 +55,7 @@ void DbController::onDriverMessage (const QString& name) {
 	WARN << name;
 }
 
-QSqlDatabase DbController::getDb() const {
-	return mDb;
-}
+
 bool DbController::addConnectionsByCmdline(QVariant args) {
 	QSqlError err;
 

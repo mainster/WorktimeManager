@@ -136,7 +136,7 @@ Browser::Browser(QWidget *parent)
 			  this,					&Browser::onConnectionWidgetTableActivated);
 	
 	connect(this, &Browser::tvSelectorChanged, this, &Browser::onTvSelectorChanged);
-	
+
 	if (QSqlDatabase::drivers().isEmpty()) {
 		QMessageBox::information
 				(this, tr("No database drivers found"),
@@ -157,7 +157,11 @@ Browser::Browser(QWidget *parent)
 	//	SqlRtm *cm = new SqlRtm();
 	//	cm->setCenterCols(QVector<int>(0, 1));
 	
-	filterForm = SortWindow::getInstance();
+	//	if (filterForm->sourceTable() == SortWindow::useWortime)
+	//		filterForm->setSourceModel( tvs()->indexOf() );
+
+
+	filterForm = SortWindow::instance();
 	filterForm->setWindowTitle(tr("The window title ") + filterForm->objectName());
 	filterForm->hide();
 	
@@ -266,7 +270,6 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	 * Get active database pointer
 	 */
 	QSqlDatabase pDb = connectionWidget->currentDatabase();
-	//	QTableView *tv = tvc->tv();
 	QSqlRelationalTableModel *rmod = new SqlRtm(tvc->tv(), pDb);
 	rmod->setEditStrategy(QSqlTableModel::OnFieldChange);
 	rmod->setTable(pDb.driver()->escapeIdentifier(tNam, QSqlDriver::TableName));
@@ -398,7 +401,12 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	 * Update TabViews group box title to match the prior activated sql
 	 * table name
 	 */
-	tvc->grBox()->setTitle( tNam );
+	tvc->grBox()->setTitle(tNam);
+
+	/*!
+	 * Set tvcs object name to grBox()->title.
+	 */
+//	tvc->setObjectName(tvc->grBox()->title());
 }
 void Browser::showMetaData(const QString &t) {
 	
@@ -450,7 +458,8 @@ void Browser::onActFilterForm(bool b) {
 	filterForm->setVisible(b);
 	
 	if (b) {
-		filterForm->setSourceModel( tvs()->last()->tv()->model() );
+		if (filterForm->sourceTableFlg() == SortWindow::useSelected)
+			filterForm->setSourceModel( tvs()->last()->tv()->model() );
 		filterForm->raise();
 		filterForm->activateWindow();
 	}
@@ -482,11 +491,6 @@ void Browser::onConnectionWidgetTableActivated(const QString &sqlTbl) {
 			 * 18-11-2015  Alles auf relational table model umgebaut
 			 */
 			showRelatTable( sqlTbl, tv );
-			/**
-				 * Update TabViews group box title to match the prior activated sql
-				 * table name
-				 */
-			//			tv->grBox()->setTitle( sqlTbl );
 			return;
 		}
 		else {
@@ -496,11 +500,6 @@ void Browser::onConnectionWidgetTableActivated(const QString &sqlTbl) {
 			 */
 			if (tv->tv()->model() == 0x00) {
 				showRelatTable(sqlTbl, tv);
-				/**
-				 * Update TabViews group box title to match the prior activated sql
-				 * table name
-				 */
-				tv->grBox()->setTitle( sqlTbl );
 				return;
 			}
 			INFO << tr("No model-less table view widget found!");
@@ -560,6 +559,15 @@ QFont Browser::selectFont() {
 	}
 	
 	return QFont();
+}
+void Browser::onSourceTableChanged(SortWindow::SourceTable sourceTable) {
+	if (sourceTable == SortWindow::useWorktime) {
+		foreach (TabView *tv, mTabs.tvsNoPtr()) {
+			INFO << tv->tv()->objectName() << tv->grBox()->title();
+			if (tv->objectName().contains(tr("worktime")))
+				SortWindow::instance()->setSourceModel(tv->tv()->model());
+		}
+	}
 }
 /* ======================================================================== */
 /*                              Event handler                               */

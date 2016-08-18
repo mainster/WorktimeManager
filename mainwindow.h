@@ -110,6 +110,7 @@ protected slots:
 	void onActionGroupTrigd(QAction *sender);
 	void onActNotesToggd(bool b);
 
+	void onActFilterWindowSource(bool);
 private slots:
 	void onOpenCloseInpFrm(bool onOff) {
 		inpFrm->setVisible(onOff);
@@ -155,13 +156,13 @@ private:
 	QWidget      *wid, *mCentralWidget;
 	QTimer		 *timCyc;
 
-	QActionGroup *actGrTbMain, *actGrTbMenu;
+	QActionGroup *actGrTbMain, *actGrTbMenu, *actGrFilterWidg;
 
 	QAction *actNew, *actOpen, *actSave, *actExport, *actBrowseSQL, *actInpForm,
 	*actShowTbl, *actDbModMaster, *actClose, *actUnderConstr, *actNotes, *actGbStyleShtA,
 	*actGbSShtInpFrm, *actSelFont, *actCyclicObjInfo, *actResizerDlg, *actShowSqlQuery,
 	*actSetAlterRowCol, *actAutoFitTables, *actFilterTable, *actFilterTableWindow,
-	*actFilterForm, *actCfgInpFrmTabOrd;
+	*actFilterForm, *actCfgInpFrmTabOrd, *actFiltWorktimeTbl, *actFiltSelectedTbl;
 
 };
 

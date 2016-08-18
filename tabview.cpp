@@ -36,18 +36,6 @@ TabView::~TabView() {
     delete ui;
 }
 
-void TabView::restoreView() {
-    /** Make column/row position movable by dragging */
-    m_tv->horizontalHeader()->setSectionsMovable(true);
-    m_tv->verticalHeader()->setSectionsMovable(true);
-
-    /** Restore alternating row color */
-    QSETTINGS;
-    bool altOnOff = config.value(objectName() + "/AlternateRowColEnable", "true").toBool();
-    QColor col = config.value(objectName() + "/AlternateRowColor", "").value<QColor>();
-    if (col.isValid())
-        setAlternateRowCol( col, altOnOff);
-}
 void TabView::refreshView() {
     this->update();
 }
@@ -64,7 +52,6 @@ QList<QAction *> TabView::getTblActs() const
 {
     return tblActs;
 }
-
 void TabView::insertRow() {
     QModelIndex insertIndex = m_tv->currentIndex();
     int row = insertIndex.row();
@@ -229,6 +216,21 @@ void TabView::setModel(QAbstractItemModel *model) {
 void TabView::setEditTriggers(QTableView::EditTriggers triggers) {
 	m_tv->setEditTriggers(triggers);
 }
+/* ======================================================================== */
+/*                              Init methodes                               */
+/* ======================================================================== */
+void TabView::restoreView() {
+	 /** Make column/row position movable by dragging */
+	 m_tv->horizontalHeader()->setSectionsMovable(true);
+	 m_tv->verticalHeader()->setSectionsMovable(true);
+
+	 /** Restore alternating row color */
+	 QSETTINGS;
+	 bool altOnOff = config.value(objectName() + "/AlternateRowColEnable", "true").toBool();
+	 QColor col = config.value(objectName() + "/AlternateRowColor", "").value<QColor>();
+	 if (col.isValid())
+		  setAlternateRowCol( col, altOnOff);
+}
 QList<QAction *> TabView::createActions() {
 	actInsertRow =		new QAction(tr("&Insert Row"), this);
 	actDeleteRow =		new QAction(tr("&Delete Row"), this);
@@ -248,10 +250,9 @@ QList<QAction *> TabView::createActions() {
 	tblActs = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
 	return tblActs;
 }
-
-/* ---------------------------------------------------------------- */
-/*                      Helper methodes                          */
-/* ---------------------------------------------------------------- */
+/* ======================================================================== */
+/*                             Helper methodes                              */
+/* ======================================================================== */
 void TabView::setAlternateRowCol(QColor &col, bool alternateEnabled) {
     m_tv->setAlternatingRowColors(alternateEnabled);
 

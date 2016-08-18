@@ -175,6 +175,7 @@ public slots:
 	void autofitRowCol();
 	void onActFilterForm(bool b);
 	QMenu *menuBarElement();
+	void onSourceTableChanged(SortWindow::SourceTable sourceTable);
 
 protected:
 	void createUi(QWidget *passParent = 0);

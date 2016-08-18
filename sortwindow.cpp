@@ -1,24 +1,9 @@
-#include "mysortfilterproxymodel.h"
 #include "sortwindow.h"
 #include "ui_sortwindow.h"
-#include "globals.h"
-
-#include <QtGui>
-#include <QTreeView>
-#include <QHBoxLayout>
-#include <QGroupBox>
-#include <QCheckBox>
-#include <QLineEdit>
-#include <QLabel>
-#include <QDate>
-#include <QDateEdit>
-#include <QtCore>
-#include <QComboBox>
-#include <QMainWindow>
 
 SortWindow *SortWindow::inst = 0;
 
-SortWindow::SortWindow(QWidget *parent) :
+SortWindow::SortWindow(QWidget *parent, TabView *srcTable) :
 	QWidget(parent), ui(new Ui::SortWindow) {
 
 	ui->setupUi(this);
@@ -71,18 +56,21 @@ SortWindow::SortWindow(QWidget *parent) :
 	setWindowTitle(tr("Custom Sort/Filter Model"));
 	resize(500, 900);
 
-	/* ======================================================================== */
-//	QSortFilterProxyModel *sfmodel = new QSortFilterProxyModel(this);
-//	QCompleter *completer = new QCompleter();
-//	sfmodel->setSourceModel();
-//	completer->setModel();
-//	completer->setCompletionColumn();
+	if (srcTable != 0)
+		setSourceModel(srcTable->tv()->model());
 
-//	filtPattCb = ui->cbFilterPattern;
-//	filtPattCb->setEditable(true);
-//	filtPattCb->setModel(proxyModel);
-//	filtPattCb->setModelColumn(2);
-//	ui->cbFilterPattern->setP
+	/* ======================================================================== */
+	//	QSortFilterProxyModel *sfmodel = new QSortFilterProxyModel(this);
+	//	QCompleter *completer = new QCompleter();
+	//	sfmodel->setSourceModel();
+	//	completer->setModel();
+	//	completer->setCompletionColumn();
+
+	//	filtPattCb = ui->cbFilterPattern;
+	//	filtPattCb->setEditable(true);
+	//	filtPattCb->setModel(proxyModel);
+	//	filtPattCb->setModelColumn(2);
+	//	ui->cbFilterPattern->setP
 
 	//    installEventFilter(this);
 }

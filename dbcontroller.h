@@ -10,7 +10,6 @@
 
 #include "connectionwidget.h"
 #include "locals.h"
-#
 
 class DbController : public QObject {
 
@@ -20,13 +19,11 @@ public:
 	explicit DbController(QObject *parent = 0);
 
 	QSqlDatabase db() const { return mDb; }
-
 	QList<bool> getConnectionState(bool beQuiet = false);
-	QSqlDatabase getDb() const;
 
-	signals:
+signals:
 
-	public slots:
+public slots:
 	QSqlError addConnection(const QString &driver = "", const QString &dbName = "",
 									const QString &host = "", const QString &user = "",
 									const QString &passwd = "", int port = -1);

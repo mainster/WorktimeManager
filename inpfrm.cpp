@@ -699,7 +699,8 @@ void InpFrm::onDockLocationChanged(Qt::DockWidgetArea area) {
 	config.setValue(objectName() + tr("/") + KEY_DOCKWIDGETAREA, (uint) area);
 }
 void InpFrm::onUndockEvent(bool isUndocked) {
-	WIN_RESTORE(this);
+	if (isUndocked)
+		WIN_RESTORE(this);
 }
 /* ======================================================================== */
 /*                             Event callbacks                              */

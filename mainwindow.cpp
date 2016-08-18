@@ -13,14 +13,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	createActions();
 	connectActions(connectThis);
 
-
 	stateBar		= new MDStateBar( this );
-	stateBar->setSlInfoAlign(Qt::AlignCenter);
-	stateBar->setClockAlign(Qt::AlignCenter);
-
 	browser		= new Browser(parent);
 	mDbc			= new DbController(this);
 	sortwindow  = new SortWindow(parent);
+	connect(sortwindow, &SortWindow::sourceTableChanged, browser, &Browser::onSourceTableChanged);
+
 	inpFrm		= new InpFrm(this);
 	notes.toDo	= new MDNotes(tr("toDo"), parent);
 
@@ -51,6 +49,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 								 KEY_DOCKWIDGETAREA, Qt::TopDockWidgetArea).toInt());
 	addDockWidget(dockArea, inpFrm);
 
+	/* ======================================================================== */
+	/*                             stateBar config                              */
+	/* ======================================================================== */
+	stateBar->setSlInfoAlign(Qt::AlignCenter);
+	stateBar->setClockAlign(Qt::AlignCenter);
 	stateBar->setClockVisible(true);
 	setStatusBar( stateBar );
 	makeMenuBar();
@@ -78,7 +81,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	//	installEventFilter(this);
 
 	setWindowTitle( MAINWINDOW_TITLE );
-	config.fileName();
 	connectActions(connectOthers);
 
 	timCyc = new QTimer(this);
@@ -207,11 +209,30 @@ void MainWindow::onActSaveTrig() {
 void MainWindow::onActOpenTrig() {
 
 }
+void MainWindow::onActionGroupTrigd(QAction *sender) {
+	QSETTINGS;
+
+	if (sender->isCheckable()) {
+		/*!
+		 * If action group is exclusive, clear all action config flags.
+		 */
+		if (sender->actionGroup()->isExclusive())
+			foreach(QAction *act, sender->actionGroup()->actions())
+				config.setValue(objectName() + tr("/") + act->objectName(), false);
+
+		config.setValue(objectName() + tr("/") + sender->objectName(), sender->isChecked());
+		config.sync();
+	}
+}
 void MainWindow::onBrowseSqlToggd(bool b) {
 	browser->setVisible(b);
 }
 void MainWindow::onActNotesToggd(bool b) {
 	notes.toDo->setVisible(b);
+}
+void MainWindow::onActFilterWindowSource(bool) {
+	QAction *act = qobject_cast<QAction *>(sender());
+	sortwindow->setSourceTableFlg(act->data().value<SortWindow::SourceTable>());
 }
 /* ======================================================================== */
 /*                              Event handler                               */
@@ -273,10 +294,12 @@ bool MainWindow::restoreActionObjects() {
 
 	actGrTbMain->blockSignals(true);
 	actGrTbMenu->blockSignals(true);
+	actGrFilterWidg->blockSignals(true);
 
 	foreach (QAction *a, QList<QAction *>()
 				<< actGrTbMain->actions()
-				<< actGrTbMenu->actions()) {
+				<< actGrTbMenu->actions()
+				<< actGrFilterWidg->actions()) {
 		if (! config.allKeys().join(',').contains(a->objectName()))
 			continue;
 		if (config.value(objectName() + tr("/") + a->objectName(), false).toBool()) {
@@ -287,8 +310,10 @@ bool MainWindow::restoreActionObjects() {
 
 	actGrTbMain->blockSignals(false);
 	actGrTbMenu->blockSignals(false);
-	return true;
+	actGrFilterWidg->blockSignals(false);
 
+	INFO << sortwindow->sourceTableFlg();
+	return true;
 
 	//	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
 
@@ -366,7 +391,7 @@ void MainWindow::createActions() {
 	actGbStyleShtA = new QAction("actGbStyleShtA", this);
 	actGbSShtInpFrm = new QAction("actGbSShtInpFrm", this);
 	actFilterTable = new QAction("actFilterTable", this);
-	actFilterTableWindow = new QAction("actFilterTableWindow", this);
+//	actFilterTableWindow = new QAction("actFilterTableWindow", this);
 
 	actSelFont = new QAction("Schriftfont", this);
 	actCyclicObjInfo = new QAction("Cyclic object info", this);
@@ -376,6 +401,8 @@ void MainWindow::createActions() {
 	actAutoFitTables = new QAction("Autofit Zeile/Spalte", this);
 	actFilterForm = new QAction("Suchfenster anzeigen", this);
 	actCfgInpFrmTabOrd = new QAction("Tabulator Reihenfolge", this);
+	actFiltSelectedTbl = new QAction("Auf ausgewählte Tabelle anwenden", this);
+	actFiltWorktimeTbl = new QAction("Auf Arbeitszeiten-Tabelle anwenden", this);
 
 	/* ======================================================================== */
 	/*                             Action grouping                              */
@@ -412,7 +439,7 @@ void MainWindow::createActions() {
 	acts << PONAM(actGbStyleShtA) << PONAM(actGbSShtInpFrm) << PONAM(actSelFont)
 		  << PONAM(actCyclicObjInfo) << PONAM(actResizerDlg) << PONAM(actShowSqlQuery)
 		  << PONAM(actSetAlterRowCol) << PONAM(actAutoFitTables) << PONAM(actFilterTable)
-		  << PONAM(actFilterTableWindow) << PONAM(actFilterForm) << PONAM(actCfgInpFrmTabOrd);
+		  /*<< PONAM(actFilterTableWindow)*/ << PONAM(actFilterForm) << PONAM(actCfgInpFrmTabOrd);
 
 	foreach (QAction *act, acts)
 		actGrTbMenu->addAction(act);
@@ -421,6 +448,28 @@ void MainWindow::createActions() {
 	 * Connect action group triggered signal to a save-action-state slot.
 	 */
 	connect(actGrTbMenu, &QActionGroup::triggered, this, &MainWindow::onActionGroupTrigd);
+
+	/* ======================================================================== */
+
+	/*!
+	 * Create action group for toolbar filter window submenu.
+	 */
+	actGrFilterWidg = new QActionGroup(this);
+	PONAM(actGrFilterWidg)->setExclusive(true);
+
+	acts.clear();
+	acts << PONAM(actFiltSelectedTbl) << PONAM(actFiltWorktimeTbl);
+
+	actFiltSelectedTbl->setData(QVariant::fromValue(SortWindow::useSelected));
+	actFiltWorktimeTbl->setData(QVariant::fromValue(SortWindow::useWorktime));
+
+	foreach (QAction *act, acts)
+		actGrFilterWidg->addAction(act);
+
+	/*!
+	 * Connect action group triggered signal to a save-action-state slot.
+	 */
+	connect(actGrFilterWidg, &QActionGroup::triggered, this, &MainWindow::onActionGroupTrigd);
 
 	/* ======================================================================== */
 	/*                       Action object configurations                       */
@@ -437,8 +486,10 @@ void MainWindow::createActions() {
 	actGbSShtInpFrm->setCheckable(true);
 	actCyclicObjInfo->setCheckable(true);
 	actShowSqlQuery->setCheckable(true);
-	actFilterTableWindow->setCheckable(true);
+//	actFilterTableWindow->setCheckable(true);
 	actFilterForm->setCheckable(true);
+	actFiltSelectedTbl->setCheckable(true);
+	actFiltWorktimeTbl->setCheckable(true);
 
 	actClose->setShortcut(QKeySequence("Ctrl+Q"));
 	actAutoFitTables->setShortcut(QKeySequence("Ctrl+Alt+A"));
@@ -448,47 +499,37 @@ void MainWindow::createActions() {
 	/*!
 	 * Set action object tooltips.
 	 */
-	actSelFont->setToolTip(tr("Schriftart ändern"));
+	actSelFont->setToolTip(tr("Schriftart der aktuell ausgewählten Tabelle ändern."));
 	actNew->setToolTip(tr("Create a new file"));
 	actOpen->setToolTip(tr("Open an existing file"));
 	actSave->setToolTip(tr("Save the document"));
 	actExport->setToolTip(tr("Export dataset to document"));
 	actBrowseSQL->setToolTip(tr("Öffnet alle Tabellen der SQL Datenbank mit "
-										 "<b>Lesezugriff</b>"));
+										 "<b>Lesezugriff</b>."));
 	actShowTbl->setToolTip(tr("Open work time database table"));
 	actDbModMaster->setToolTip(tr("<b>Bearbeiten</b> der Datenbank-<b>Stammdaten</b>.\n"
 											"Zum Anlegen/ändern von Projekten, Mitarbeitern oder "
-											"Kunden"));
-	actClose->setToolTip(tr("Schließen aller Fenster"));
+											"Kunden."));
+	actClose->setToolTip(tr("Alle Fenster schließen und Programm beenden."));
 	actNotes->setToolTip(tr("Öffnet den <b>Notiz</b> Block. Programmfehler, "
 									"änderungswünsche\noder sonstige Kommentare an den "
 									"Programmierer \nsollten hier notiert werden!"));
 	actResizerDlg->setToolTip(tr("Resize MainWindow to x"));
 	actShowSqlQuery->setToolTip(tr("Hide or show the input field to submit manuall "
 											 "SQL querys thru database driver backend"));
-	actSetAlterRowCol->setToolTip(tr("Farbe für alternierenden Zeilenhintergund"));
+	actSetAlterRowCol->setToolTip(tr("Farbe für alternierenden Zeilenhintergund auswählen."));
 	actInpForm->setToolTip(tr("Öffnet die <b>Eingabeform</b> um neue Einträge in die "
-									  "Arbeitszeitentabelle einzutragen"));
+									  "Arbeitszeitentabelle einzutragen."));
+	actFiltSelectedTbl->setToolTip(tr("Das Filter/Suchfenster wird auf die <b>aktuell "
+												 "ausgewählte</b> Tabelle angewendet."));
+	actFiltWorktimeTbl->setToolTip(tr("Das Filter/Suchfenster <b>immer</b> auf die "
+												 "<b>Arbeitszeit</b>-Tabelle angewendet."));
+
 
 	foreach (QAction *act, actGrTbMain->actions())
 		act->setToolTip(tr("<p style='white-space:pre'>") +
 							 //							 tr("<div style=\"width: 600px;\">") +
 							 act->toolTip() /*+ tr("</div>")*/);
-}
-void MainWindow::onActionGroupTrigd(QAction *sender) {
-	QSETTINGS;
-
-	if (sender->isCheckable()) {
-		/*!
-		 * If action group is exclusive, clear all action config flags.
-		 */
-		if (sender->actionGroup()->isExclusive())
-			foreach(QAction *act, sender->actionGroup()->actions())
-				config.setValue(objectName() + tr("/") + act->objectName(), false);
-
-		config.setValue(objectName() + tr("/") + sender->objectName(), sender->isChecked());
-		config.sync();
-	}
 }
 void MainWindow::makeMenuBar() {
 	/* ======================================================================== */
@@ -524,6 +565,11 @@ void MainWindow::makeMenuBar() {
 	setupMenu->addActions(QList<QAction *>()
 								 << actSelFont << actSetAlterRowCol << actCyclicObjInfo
 								 << actResizerDlg << actShowSqlQuery << actCfgInpFrmTabOrd);
+
+	QMenu *filterForm = setupMenu->addMenu(tr("Filter Fenster"));
+	filterForm->addActions(QList<QAction *>()
+								  << actFiltSelectedTbl << actFiltWorktimeTbl);
+
 	QAction *muSetStyleSh =
 			setupMenu->addAction("St&yleSheets", this, &MainWindow::onStyleSheetTrig);
 	Q_UNUSED(muSetStyleSh);
@@ -567,6 +613,8 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		connect(actCfgInpFrmTabOrd,  &QAction::triggered, this, &MainWindow::onActCfgInpFrmTabOrdTrig);
 		connect(actSave,  &QAction::triggered, this, &MainWindow::onActSaveTrig);
 		connect(actOpen,  &QAction::triggered, this, &MainWindow::onActOpenTrig);
+		connect(actFiltSelectedTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
+		connect(actFiltWorktimeTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
 	}
 
 	if ((receivers == connectOthers) ||
