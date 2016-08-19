@@ -177,7 +177,7 @@ public slots:
 	void showRelatTable(const QString &tNam, TabView *tvc);
 	QTableView *createView(QSqlQueryModel *model, const QString &title);
 	QSqlDatabase getCurrentDatabase() {
-		return connectionWidget->currentDatabase();
+		return connectionWidget->currentDb();
 	}
 	void autofitRowCol();
 	void onActFilterForm(bool b);

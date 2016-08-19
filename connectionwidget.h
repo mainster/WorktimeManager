@@ -19,8 +19,14 @@ class ConnectionWidget: public QWidget {
 
 public:
 	ConnectionWidget(QWidget *parent = 0);
+	ConnectionWidget *instance(QWidget *parent = 0) {
+		if (inst == 0)
+			inst = new ConnectionWidget(parent);
+
+		return inst;
+	}
 	virtual ~ConnectionWidget();
-	QSqlDatabase currentDatabase() const;
+	QSqlDatabase currentDb() const;
 
 signals:
 	void tableActivated(const QString &table);
@@ -44,6 +50,7 @@ private slots:
 	}
 
 private:
+	static ConnectionWidget *inst;
 	void setActive(QTreeWidgetItem *);
 	QTreeWidget *tree;
 	QAction *metaDataAction;

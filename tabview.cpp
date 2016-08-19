@@ -1,17 +1,19 @@
 #include "ui_tabview.h"
 #include "tabview.h"
-#include "globals.h"
-#include <QColor>
-
 
 class Browser;
 
 
+/* ======================================================================== */
+/*                             TabView::TabView                             */
+/* ======================================================================== */
 TabView::TabView(QWidget *parent) : QWidget(parent),
 	ui(new Ui::TabView) {
 	ui->setupUi(this);
 
 	addActions( createActions() );
+	connectActions();
+
 	connect(this, &TabView::objectNameChanged,	this, &TabView::onObjectNameChanged);
 
 	m_gb = ui->gb;
@@ -22,7 +24,7 @@ TabView::TabView(QWidget *parent) : QWidget(parent),
 
 	m_tv->setSortingEnabled( true );
 	clearSelected();
-//	setActiveSelected( false );
+	//	setActiveSelected( false );
 }
 TabView::~TabView() {
 	delete ui;
@@ -30,6 +32,9 @@ TabView::~TabView() {
 void TabView::refreshView() {
 	this->update();
 }
+/* ======================================================================== */
+/*                           SQL record strategy                            */
+/* ======================================================================== */
 QAction *TabView::fieldStrategyAction() const {
 	return tblActs[ tblActs.indexOf(actFieldStrategy) ];
 }
@@ -67,11 +72,6 @@ void TabView::deleteRow() {
 	}
 
 	onUpdateActions();
-}
-void TabView::onSectionMoved(int logicalIndex, int oldVisualIndex,
-									  int newVisualIndex) {
-	INFO << tr("logicalIndex: %1, oldVisualIndex: %2, newVisualIndex %3")
-			  .arg(logicalIndex).arg(oldVisualIndex).arg(newVisualIndex);
 }
 void TabView::onUpdateActions() {
 	/**
@@ -112,12 +112,9 @@ void TabView::onUpdateActions() {
 	}
 
 }
-void TabView::onActInsertRowtriggered() {
-	insertRow();
-}
-void TabView::onActDeleteRowtriggered() {
-	deleteRow();
-}
+
+void TabView::onActInsertRowtriggered() { insertRow(); }
+void TabView::onActDeleteRowtriggered() { deleteRow(); }
 void TabView::onActFieldStrategytriggered() {
 	QSqlTableModel *tm =
 			qobject_cast<QSqlTableModel *>(m_tv->model());
@@ -162,40 +159,38 @@ void TabView::onActSelect() {
 	if (tm)
 		tm->select();
 }
+
+void TabView::onActSectionMask(bool b) {
+	if (! b) {
+		delete findChild<SectionMask *>();
+	}
+	else {
+		QList<QString> colHead;
+		QAbstractItemModel *aim = m_tv->model();
+		for (int k = 0; k < aim->columnCount(); k++)
+			colHead << aim->headerData(k, Qt::Horizontal, Qt::DisplayRole).toString();
+
+		grBox()->layout()->removeWidget(m_tv);
+		mSectMsk = new SectionMask(colHead, this);
+
+		qobject_cast<QVBoxLayout *>(grBox()->layout())->addWidget(mSectMsk);
+		qobject_cast<QVBoxLayout *>(grBox()->layout())->addWidget(m_tv);
+		qobject_cast<QVBoxLayout *>(grBox()->layout())->setStretchFactor(m_tv, 15);
+	}
+}
 void TabView::onObjectNameChanged(const QString &objNam) {
 	m_gb->setTitle( objNam );
-//	m_gb->setAccessibleName(tr("gboxOf")+objNam);
-//	m_tv->setAccessibleName(objNam);
+	//	m_gb->setAccessibleName(tr("gboxOf")+objNam);
+	//	m_tv->setAccessibleName(objNam);
 }
-QTableView *TabView::tv() const {
-	return m_tv;
+void TabView::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx) {
+	INFO << tr("[ %1 ]:").arg(sqlTableName())
+		  << tr("logicalIdx: %1, oldVisualIdx: %2, newVisualIdx %3")
+			  .arg(logicalIdx).arg(oldVisualIdx).arg(newVisualIdx);
+
 }
-void TabView::setGrBoxTitle(QString s) {
-	m_gb->setTitle(s);
-	ui->gb = m_gb;
-}
-QGroupBox *TabView::grBox() const {
-	return m_gb;
-}
-void TabView::resizeRowsColsToContents() {
-	m_tv->setVisible( false );
-	m_tv->resizeColumnsToContents();
-	m_tv->resizeRowsToContents();
-	m_tv->setVisible( true );
-}
-void TabView::setColumnHidden(const int column, const bool hide) {
-	m_tv->setColumnHidden(column, hide);
-}
-void TabView::setSelectionMode(QAbstractItemView::SelectionMode mode) {
-	m_tv->setSelectionMode(mode);
-}
-QItemSelectionModel *TabView::selectionModel() {
-	return m_tv->selectionModel();
-}
-void TabView::setModel(QAbstractItemModel *model) {
-	tv()->setModel(model);
-	connect(tv()->horizontalHeader(), &QHeaderView::sectionMoved,
-			  this, &TabView::onSectionMoved);
+void TabView::onSqlTableNameChanged(const QString &name) {
+	WARN << name;
 }
 void TabView::setEditTriggers(QTableView::EditTriggers triggers) {
 	m_tv->setEditTriggers(triggers);
@@ -224,15 +219,25 @@ QList<QAction *> TabView::createActions() {
 	actSubmit =			new QAction(tr("&Submit All"), this);
 	actRevert =			new QAction(tr("Re&vert All"), this);
 	actSelect =			new QAction(tr("S&elect"), this);
+	actSectionMask =	new QAction(tr("Spaltenmaske"), this);
 
 	actFieldStrategy->setCheckable(true);
 	actRowStrategy->setCheckable(true);
 	actManualStrategy->setCheckable(true);
+	actSectionMask->setCheckable(true);
 	actInsertRow->setEnabled(false);
 	actDeleteRow->setEnabled(false);
 
 	tblActs = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
+
+	QAction *sep1 = new QAction(this);
+	sep1->setSeparator(true);
+
+	tblActs.insert(tblActs.length() - 1, sep1);
 	return tblActs;
+}
+void TabView::connectActions() {
+	connect(actSectionMask, &QAction::toggled, this, &TabView::onActSectionMask);
 }
 /* ======================================================================== */
 /*                             Helper methodes                              */
@@ -251,6 +256,20 @@ void TabView::setAlternateRowCol(QColor &col, bool alternateEnabled) {
 		config.setValue(objectName() + "/AlternateRowColEnable", alternateEnabled);
 		config.setValue(objectName() + "/AlternateRowColor", col);
 	}
+}
+void TabView::resizeRowsColsToContents() {
+	m_tv->setVisible( false );
+	m_tv->resizeColumnsToContents();
+	m_tv->resizeRowsToContents();
+	m_tv->setVisible( true );
+}
+void TabView::setColumnHidden(const int column, const bool hide) {
+	m_tv->setColumnHidden(column, hide);
+}
+void TabView::setModel(QAbstractItemModel *model) {
+	tv()->setModel(model);
+	connect(tv()->horizontalHeader(), &QHeaderView::sectionMoved, this, &TabView::onSectionMoved);
+	connect(this, &TabView::sqlTableNameChanged, this, &TabView::onSqlTableNameChanged);
 }
 
 

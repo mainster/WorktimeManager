@@ -37,6 +37,7 @@
 #include <QtWidgets>
 #include <QtSql>
 
+ConnectionWidget *ConnectionWidget::inst = 0;
 
 ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent) {
 	QVBoxLayout *layout = new QVBoxLayout(this);
@@ -116,7 +117,7 @@ void ConnectionWidget::refresh() {
 	tree->doItemsLayout();
 	tree->expandAll();
 }
-QSqlDatabase ConnectionWidget::currentDatabase() const {
+QSqlDatabase ConnectionWidget::currentDb() const {
 	return QSqlDatabase::database(activeDb);
 }
 

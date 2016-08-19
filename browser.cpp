@@ -177,7 +177,7 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	/*!
 	 * Get pointer to current active database connection.
 	 */
-	QSqlDatabase pdb = connectionWidget->currentDatabase();
+	QSqlDatabase pdb = connectionWidget->currentDb();
 	
 	/*!
 	 * Get list of all table views and requery all of them with gb name "worktime".
@@ -240,7 +240,7 @@ void Browser::exec() {
 	QSqlQueryModel *model = new QSqlQueryModel(mTabs.tvl1->tv());
 	
 	model->setQuery(QSqlQuery(inpFrm->getQueryText(),
-									  connectionWidget->currentDatabase()));
+									  connectionWidget->currentDb()));
 	mTabs.tvl1->tv()->setModel(model);
 	
 	if (model->lastError().type() != QSqlError::NoError)
@@ -269,7 +269,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	/**
 	 * Get active database pointer
 	 */
-	QSqlDatabase pDb = connectionWidget->currentDatabase();
+	QSqlDatabase pDb = connectionWidget->currentDb();
 	QSqlRelationalTableModel *rmod = new SqlRtm(tvc->tv(), pDb);
 	rmod->setEditStrategy(QSqlTableModel::OnFieldChange);
 	rmod->setTable(pDb.driver()->escapeIdentifier(tNam, QSqlDriver::TableName));
@@ -413,7 +413,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 }
 void Browser::showMetaData(const QString &t) {
 	
-	QSqlRecord rec = connectionWidget->currentDatabase().record(t);
+	QSqlRecord rec = connectionWidget->currentDb().record(t);
 	QStandardItemModel *model = new QStandardItemModel(tvs()->first()->tv());
 	
 	model->insertRows(0, rec.count());

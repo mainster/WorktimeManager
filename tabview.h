@@ -1,14 +1,18 @@
 #ifndef TABVIEW_H
 #define TABVIEW_H
 
-#include <QWidget>
-#include <QGroupBox>
-#include <QTableView>
-#include <QSqlTableModel>
-#include <QKeyEvent>
 #include <QColor>
+#include <QGroupBox>
+#include <QKeyEvent>
+#include <QSet>
+#include <QSqlTableModel>
+#include <QTableView>
+#include <QWidget>
 
+#include "globals.h"
+#include "connectionwidget.h"
 #include "models.h"
+#include "sectionmask.h"
 
 namespace Ui {
 class TabView;
@@ -22,18 +26,23 @@ class TabView : public QWidget {
 	Q_PROPERTY(QString sqlTableName READ sqlTableName WRITE setSqlTableName NOTIFY sqlTableNameChanged)
 
 public:
+	/*!
+	 * Data structure for QHeaderView::sectionPosition().
+	 */
+//	typedef struct visualIdx_t {
+//		int
+//	};
+
 	bool isSelected()		{ return m_select; };
 	void setSelect(bool select) {
 		m_select = select;
 		m_gb->setProperty("select", m_select);
 	};
-
 	QString &sqlTableName()		{ return m_sqlTableName; };
 	void setSqlTableName(const QString &name) {
 		m_sqlTableName = name;
 		emit sqlTableNameChanged(name);
 	};
-
 	static QString tvStyleSheet;
 
 public slots:
@@ -52,10 +61,18 @@ public:
 	explicit TabView(QWidget *parent = 0);
 	~TabView();
 
-	QGroupBox *grBox() const;
-	void setGrBox(QGroupBox *gb);
-	QTableView *tv() const;
-	void setTvTitle(QString &s);
+	/* ======================================================================== */
+	/*                            Getters / Setters                             */
+	/* ======================================================================== */
+	QGroupBox *grBox() const	{ return m_gb; }
+	QTableView *tv() const		{ return m_tv; }
+
+	void setSelectionMode(QAbstractItemView::SelectionMode mode) {
+		m_tv->setSelectionMode(mode);
+	}
+	QItemSelectionModel *selectionModel() {
+		return m_tv->selectionModel();
+	}
 
 	QList<QAction *> getTblActs() const;
 	QAction *fieldStrategyAction() const;
@@ -64,7 +81,6 @@ public:
 
 public slots:
 	void onObjectNameChanged(const QString &objNam);
-	void setGrBoxTitle(QString s);
 	void setAlternateRowCol(QColor &col, bool alternateEnabled = true);
 	void restoreView();
 
@@ -83,34 +99,35 @@ public slots:
 	void refreshView();
 	void resizeRowsColsToContents();
 	void setColumnHidden(const int column, const bool hide);
-	void setSelectionMode(QAbstractItemView::SelectionMode mode);
 	void setModel(QAbstractItemModel *model);
 	void setEditTriggers(QTableView::EditTriggers triggers);
-	QItemSelectionModel *selectionModel();
-	void onSectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex);
+	void onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx);
 
 signals:
 	void sqlTableNameChanged(const QString &name);
 	void selectChanged(bool isSelected);
 
-
 protected:
 	QList<QAction *> createActions();
 
+	void connectActions();
 protected slots:
 	void onClearSelection() {
 
 	}
+	void onSqlTableNameChanged(const QString &name);
+	void onActSectionMask(bool b = false);
 
 private:
 	Ui::TabView			*ui;
 	QTableView        *m_tv;
 	QGroupBox         *m_gb;
+	SectionMask			*mSectMsk;
 	QList<QAction *>  tblActs;
 	QString				m_sqlTableName;
 	bool					m_select;
 	QAction				*actInsertRow, *actDeleteRow, *actFieldStrategy,
-	*actRowStrategy, *actManualStrategy,*actSubmit, *actRevert, *actSelect;
+	*actRowStrategy, *actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask;
 };
 
 

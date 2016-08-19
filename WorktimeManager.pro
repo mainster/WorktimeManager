@@ -52,7 +52,6 @@ HEADERS += \
     connectionwidget.h \
     dbconndlg.h \
     dbcontroller.h \
-    initdb.h \
     inpfrm.h \
     mainwindow.h \
     sortwindow.h \
@@ -62,7 +61,8 @@ HEADERS += \
     mdbQtStd/mdeventfilters.h \
 	 mdcombobox.h \
     mdnotes.h \
-    mdmenu.h
+    mdmenu.h \
+    sectionmask.h
 
 SOURCES += \
     delegates/tabledelegate.cpp \
@@ -87,7 +87,8 @@ SOURCES += \
     mdbQtStd/mdeventfilters.cpp \
 	 mdcombobox.cpp \
     mdnotes.cpp \
-    mdmenu.cpp
+    mdmenu.cpp \
+    sectionmask.cpp
 
 FORMS += \
 	 uis/dbconndlg.ui \
