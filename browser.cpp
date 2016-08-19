@@ -261,6 +261,7 @@ void Browser::exec() {
 	mTabs.tvl1->resizeRowsColsToContents();
 	emit updateActions();
 }
+/* ======================================================================== */
 void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	/**
 	 * Relational table model - View relational WORKS 12-11-2015
@@ -329,7 +330,6 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 			rmod->setHeaderData(rmod->fieldIndex("workerID"), Qt::Horizontal, tr("ID"));
 			rmod->setHeaderData(rmod->fieldIndex("PersonalNr"), Qt::Horizontal, tr("PN"));
 			rmod->setHeaderData(rmod->fieldIndex("Stundensatz"), Qt::Horizontal, tr("€/h"));
-			
 			break;
 		}
 		/* --------------------------------------------------------- */
@@ -374,7 +374,9 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	rmod->select();
 	
 	// Set the model and hide the ID column
-	tvc->setColumnHidden(rmod->fieldIndex("ID"), false);
+	tvc->setColumnHidden(0, true);
+	tvc->setColumnHidden(2, true);
+	tvc->setColumnHidden(3, true);
 	tvc->setSelectionMode(QAbstractItemView::ContiguousSelection);
 	
 	tvc->setModel(rmod);
@@ -390,10 +392,6 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 								 this, SLOT(currentChanged(QModelIndex,QModelIndex)) ) )
 		emit stateMsg(tr("Slot connection returns false"));
 	
-	//	tv->setVisible( false );
-	//	tv->resizeColumnsToContents();
-	//	tv->resizeRowsToContents();
-	//	tv->setVisible( true );
 	tvc->resizeRowsColsToContents();
 	
 	//    emit updateActions();
@@ -410,7 +408,11 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	//	tvc->setObjectName(tvc->grBox()->title());
 
 	connect(this, &Browser::clearSelections, tvc, &TabView::clearSelected);
+	connect(tvc->tv()->horizontalHeader(), &QHeaderView::sectionMoved, tvc, &TabView::onSectionMoved);
+	connect(tvc, &TabView::sqlTableNameChanged, tvc, &TabView::onSqlTableNameChanged);
+
 }
+/* ======================================================================== */
 void Browser::showMetaData(const QString &t) {
 	
 	QSqlRecord rec = connectionWidget->currentDb().record(t);

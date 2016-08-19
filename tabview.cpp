@@ -2,6 +2,7 @@
 #include "tabview.h"
 
 class Browser;
+class SectionMask;
 
 
 /* ======================================================================== */
@@ -160,18 +161,20 @@ void TabView::onActSelect() {
 		tm->select();
 }
 
-void TabView::onActSectionMask(bool b) {
-	if (! b) {
-		delete findChild<SectionMask *>();
+void TabView::onActSectionMask(bool sectionMask) {
+	QAbstractItemModel *aim = m_tv->model();
+
+	if (! sectionMask) {
+		mSectMsk->storeColumnConfig(tv());
+		delete mSectMsk;
 	}
 	else {
 		QList<QString> colHead;
-		QAbstractItemModel *aim = m_tv->model();
 		for (int k = 0; k < aim->columnCount(); k++)
 			colHead << aim->headerData(k, Qt::Horizontal, Qt::DisplayRole).toString();
 
 		grBox()->layout()->removeWidget(m_tv);
-		mSectMsk = new SectionMask(colHead, this);
+		mSectMsk = new SectionMask(tv(), this);
 
 		qobject_cast<QVBoxLayout *>(grBox()->layout())->addWidget(mSectMsk);
 		qobject_cast<QVBoxLayout *>(grBox()->layout())->addWidget(m_tv);
@@ -268,8 +271,6 @@ void TabView::setColumnHidden(const int column, const bool hide) {
 }
 void TabView::setModel(QAbstractItemModel *model) {
 	tv()->setModel(model);
-	connect(tv()->horizontalHeader(), &QHeaderView::sectionMoved, this, &TabView::onSectionMoved);
-	connect(this, &TabView::sqlTableNameChanged, this, &TabView::onSqlTableNameChanged);
 }
 
 

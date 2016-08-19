@@ -102,6 +102,7 @@ public slots:
 	void setModel(QAbstractItemModel *model);
 	void setEditTriggers(QTableView::EditTriggers triggers);
 	void onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx);
+	void onSqlTableNameChanged(const QString &name);
 
 signals:
 	void sqlTableNameChanged(const QString &name);
@@ -115,8 +116,7 @@ protected slots:
 	void onClearSelection() {
 
 	}
-	void onSqlTableNameChanged(const QString &name);
-	void onActSectionMask(bool b = false);
+	void onActSectionMask(bool sectionMask = false);
 
 private:
 	Ui::TabView			*ui;

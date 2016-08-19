@@ -5,34 +5,96 @@
 #include <QCheckBox>
 #include <QObject>
 #include <QLayout>
+#include <QAbstractItemModel>
+#include <QDebug>
+#include <QTableView>
+#include "globals.h"
 
 class SectionMask : public QWidget {
 
 	Q_OBJECT
 
 public:
-	SectionMask(QWidget *parent) : QWidget(parent) { }
 	SectionMask(const QList<QString> headerTexts,
 					QWidget *parent) : QWidget(parent) {
+		Q_UNUSED(headerTexts);
+		inst = this;
+	}
+	SectionMask(QTableView *_tv, QWidget *parent) : QWidget(parent) {
+		inst = this;
+		tv = _tv;
+
+		if (! tv) {
+			qDebug().noquote() << tr("Cast parent to TabView failed!");
+			return;
+		}
+
+		QList<QPair<QString, bool> > columnHeads;
+		QAbstractItemModel *aim = tv->model();
+		sqlColumnCount = aim->columnCount();
+		sqlRowCount = aim->rowCount();
+
+		for (int k = 0; k < sqlColumnCount; k++)
+			columnHeads << QPair<QString, bool>(
+						aim->headerData(k, Qt::Horizontal, Qt::DisplayRole).toString(),
+						tv->isColumnHidden(k));
+
+		INFO << columnHeads;
 
 		QHBoxLayout *hbLay = new QHBoxLayout(this);
 
-		foreach (QString s, headerTexts) {
-			checkBoxs << new QCheckBox(s, this);
+		/*!
+		 * Since columnHeads is direct generated via aim->headerData(k
+		 * and the next for loop is indexed by [0, columnHeads.count()[
+		 * k will represent the logical index nummer from the SQL table templates.
+		 */
+		for (int logicIdx = 0; logicIdx < columnHeads.count(); logicIdx++) {
+			QPair<QString, bool> pair = columnHeads.at(logicIdx);
+			checkBoxs << new QCheckBox(pair.first, this);
+			checkBoxs.last()->setObjectName(tr("cb_") + pair.first);
+			checkBoxs.last()->setProperty("logicalIndex", QVariant::fromValue(logicIdx));
+			connect(checkBoxs.last(),	&QCheckBox::toggled,
+					  this,					&SectionMask::onCheckboxTogd);
+			checkBoxs.last()->setChecked(! pair.second);
 			hbLay->addWidget(checkBoxs.last());
 		}
-
-		setLayout(hbLay);
 		show();
 	}
 	SectionMask(const SectionMask &other)
 		: QWidget(new QWidget()) {
+		inst = this;
 		checkBoxs = other.checkBoxs;
+	}
+	static SectionMask *instance() {
+		if (! inst) {
+			qDebug().noquote() << tr("Instance pointer is empty!");
+			return NULL;
+		}
+		return inst;
 	}
 	~SectionMask() { }
 
+	bool storeColumnConfig(QTableView *tv) {
+		if (! tv)	return false;
+		/* ======================================================================== */
+		/*  Store column configuration at this point and close/delete SectionMask   */
+		/* ======================================================================== */
+
+		return true;
+	}
+
+protected slots:
+	void onCheckboxTogd(bool showColumn) {
+		QCheckBox *cb = qobject_cast<QCheckBox *>(sender());
+		INFO << cb->objectName();
+		tv->setColumnHidden(cb->property("logicalIndex").toInt(), !showColumn);
+	}
+
 private:
+	static SectionMask * inst;
 	QList<QCheckBox *> checkBoxs;
+	int sqlColumnCount, sqlRowCount;
+	QTableView *tv;
 };
 
 #endif // SECTIONMASK_H

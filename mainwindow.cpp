@@ -132,6 +132,11 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 	}
 }
 void MainWindow::onUnderConstrTrig() {
+
+	browser->mTabs.tva->setColumnHidden(0, true);
+	browser->mTabs.tva->setColumnHidden(2, false);
+	browser->mTabs.tva->setColumnHidden(3, true);
+	return;
 	INFO << actShowSqlQuery->isCheckable() << actShowSqlQuery->isChecked();
 	actShowSqlQuery->setCheckable(true);
 	actShowSqlQuery->setChecked(true);
