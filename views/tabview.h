@@ -9,6 +9,7 @@
 #include <QTableView>
 #include <QWidget>
 #include <QActionGroup>
+#include <QFont>
 
 #include "globals.h"
 #include "connectionwidget.h"
@@ -75,18 +76,14 @@ public:
 		return m_tv->selectionModel();
 	}
 
-//	QList<QAction *> getTblActs() const;
 
-//	bool hasObjReceivers(QObject *obj);
 public slots:
 	void onObjectNameChanged(const QString &objNam);
 	void setAlternateRowCol(QColor &col, bool alternateEnabled = true);
 	void restoreView();
-
 	void insertRow();
 	void deleteRow();
 	void onUpdateWriteActions();
-
 	void refreshView();
 	void resizeRowsColsToContents();
 	void setColumnHidden(const int column, const bool hide);
@@ -94,6 +91,10 @@ public slots:
 	void setEditTriggers(QTableView::EditTriggers triggers);
 	void onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx);
 	void onSqlTableNameChanged(const QString &name);
+	void storeRtm();
+	void restoreRtm();
+	QFont restoreFont();
+	void storeFont(QFont font);
 
 signals:
 	void sqlTableNameChanged(const QString &name);
@@ -105,6 +106,7 @@ protected:
 	virtual void showEvent(QShowEvent *) override;
 	virtual void mouseDoubleClickEvent(QMouseEvent *) override;
 	bool eventFilter(QObject *obj, QEvent *event);
+	void hideEvent(QHideEvent *ev);
 
 protected slots:
 	void onClearSelection() {
@@ -115,6 +117,7 @@ protected slots:
 	void onActGrContextTrigd(QAction *sender);
 	void storeActionState(QAction *sender);
 	bool restoreActionObjects();
+
 
 private:
 	Ui::TabView			*ui;

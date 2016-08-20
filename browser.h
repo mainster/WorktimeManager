@@ -110,10 +110,13 @@ public:
 		/*!
 		 * Get currently selected tv.
 		 */
-		TabView *currentSelected() {
+		TabView *currentSelected(bool nullIfNoSelect = false) {
 			foreach (TabView *tv, tvsNoPtr())
 				if (tv->isSelected())
 					return tv;
+
+			if (nullIfNoSelect)
+				return NULL;
 			/*!
 			 * If no table widget is selected actively, use the tvc from mTvs which has
 			 * currently no model loaded.
@@ -185,10 +188,7 @@ public slots:
 	void setTvSelector(TvSelectors tvSelector)	{ m_tvSelector = tvSelector; }
 	void currentChanged(QModelIndex,QModelIndex)	{ emit updateWriteActions(); }
 	void onConnectWdgMetaDataReq(const QString &table);
-
-	int setFontAcc(QFont &font);
 	MdMenu *menuBarElement();
-	QFont selectFont();
 	QStandardItemModel *tblToMetaDataMdl(const QString &table);
 	QTableView *createView(QSqlQueryModel *model, const QString &title);
 	void autofitRowCol();
@@ -203,9 +203,8 @@ public slots:
 
 protected:
 	void createUi(QWidget *passParent = 0);
-//	void ACTION_STORE(QObject *obj, QString);
-	void ACTION_RESTORE(QObject *obj);
 	void createActions();
+	bool restoreRtm(TabView *tv);
 
 protected slots:
 	bool restoreUi();
@@ -214,10 +213,10 @@ protected slots:
 	bool eventFilter(QObject *obj, QEvent *e);
 	void closeEvent(QCloseEvent *e);
 	void onTvSelectorChanged();
-
 	void onActGroupTrigd(QAction *action);
-	bool restoreActionObjects();
 	void storeActionState(QAction *sender);
+	bool restoreActionObjects();
+
 private:
 	static Browser		*inst;
 	ConnectionWidget	*mConnectionWidget;
@@ -237,6 +236,8 @@ public:
 	MdMenu					*browsMenu;
 	static const QString  browserStyleSheet, browserStyleSheetv2;
 	ConnectionWidget *connectionWidget() const { return mConnectionWidget; }
+	void setFont(const QFont f);
+	void selectAndSetFont();
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Browser::TvSelectors)

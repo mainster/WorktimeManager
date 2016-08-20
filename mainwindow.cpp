@@ -169,17 +169,6 @@ void MainWindow::onUnderConstrTrig() {
 	//
 #define QFOLDINGEND }
 }
-void MainWindow::onSetFont() {
-	bool ok;
-	QFont font = QFontDialog::getFont(
-						 &ok, QFont("Helvetica [Cronyx]", 10), this);
-
-	if (ok) {
-		browser->setFontAcc(font);
-	} else {
-		browser->setFontAcc(font);
-	}
-}
 void MainWindow::onCyclic() {
 	if (false) {
 		QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
@@ -229,7 +218,7 @@ void MainWindow::onActionGroupTrigd(QAction *sender) {
 		config.sync();
 	}
 }
-void MainWindow::onActRichTextToggd(bool b) {
+void MainWindow::onActRichTextToggd(bool) {
 	//	QCommandLineParser parser;
 	//	parser.setApplicationDescription(QCoreApplication::applicationName());
 	//	parser.addHelpOption();
@@ -538,7 +527,7 @@ void MainWindow::createActions() {
 	actClose->setToolTip(tr("Alle Fenster schließen und Programm beenden."));
 	actNotes->setToolTip(tr("Öffnet den <b>Notiz</b> Block. Programmfehler, "
 									"änderungswünsche\noder sonstige Kommentare an den "
-									"Programmierer \nsollten hier notiert werden!"));
+									"Programmierer, \nsollten hier notiert werden!"));
 	actResizerDlg->setToolTip(tr("Resize MainWindow to x"));
 	actShowSqlQuery->setToolTip(tr("Hide or show the input field to submit manuall "
 											 "SQL querys thru database driver backend"));
@@ -641,7 +630,6 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		connect(actGbSShtInpFrm, &QAction::triggered, this, &MainWindow::onMenuStyleShtInpFrmTrig);
 		connect(actExport, &QAction::triggered, this, &MainWindow::onActExportTrig);
 		connect(actUnderConstr, &QAction::triggered, this, &MainWindow::onUnderConstrTrig);
-		connect(actSelFont, &QAction::triggered, this, &MainWindow::onSetFont);
 		connect(actResizerDlg, &QAction::triggered, this, &MainWindow::onResizerDlgTrig);
 		//		connect(actShowSqlQuery, &QAction::toggled, this, &MainWindow::onShowSqlQueryTogd);
 		connect(actSetAlterRowCol, &QAction::triggered, this, &MainWindow::onSetAlterRowColTrig);
@@ -654,6 +642,7 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 
 	if ((receivers == connectOthers) ||
 		 (receivers == connectAll)) {
+		connect(actSelFont, &QAction::triggered, browser, &Browser::selectAndSetFont);
 		connect(actAutoFitTables,	&QAction::triggered, browser, &Browser::autofitRowCol);
 		connect(actFilterForm, &QAction::triggered, browser, &Browser::onActFilterForm);
 		connect(browser, &Browser::stateMsg, stateBar, &MDStateBar::showMessage);

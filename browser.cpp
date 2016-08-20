@@ -3,6 +3,8 @@
 #define T_CYCLIC 250e-3
 #define	COMMENT_OUT_UNUSED
 
+bool ok;
+
 struct Browser::mTabs_t Browser::mTabs = Browser::mTabs_t();
 Browser *Browser::inst = 0;
 #define QFOLDINGSTART {
@@ -165,7 +167,7 @@ Browser::Browser(QWidget *parent)
 	filterForm->setWindowTitle(tr("The window title ") + filterForm->objectName());
 	filterForm->hide();
 	
-	QTimer::singleShot(500, this, SLOT(restoreUi()));
+	QTimer::singleShot(50, this, SLOT(restoreUi()));
 }
 Browser::~Browser() {
 	INFO << tr("close browser!");
@@ -175,6 +177,7 @@ Browser::~Browser() {
 void Browser::onConnectWdgMetaDataReq(const QString &table)	{
 	mTabs.currentSelected()->tv()->setModel( tblToMetaDataMdl(table) );
 	mTabs.currentSelected()->tv()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	autofitRowCol();
 	emit updateWriteActions();
 }
 void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
@@ -272,7 +275,7 @@ TabView *Browser::createForeignTable(const QString &tNam, TabView *tvc) {
 	 * Get active database pointer
 	 */
 	QSqlDatabase pDb = connectionWidget()->currentDb();
-	QSqlRelationalTableModel *rmod = new SqlRtm(tvc->tv(), pDb);
+	QSqlRelationalTableModel *rmod = new SqlRtm(SqlRtm::srcNew, tvc->tv(), pDb);
 	rmod->setEditStrategy(QSqlTableModel::OnFieldChange);
 	rmod->setTable(pDb.driver()->escapeIdentifier(tNam, QSqlDriver::TableName));
 	/**
@@ -375,9 +378,6 @@ TabView *Browser::createForeignTable(const QString &tNam, TabView *tvc) {
 	rmod->select();
 	
 	// Set the model and hide the ID column
-	tvc->setColumnHidden(0, true);
-	tvc->setColumnHidden(2, true);
-	tvc->setColumnHidden(3, true);
 	tvc->setSelectionMode(QAbstractItemView::ContiguousSelection);
 	
 	tvc->setModel(rmod);
@@ -415,6 +415,8 @@ TabView *Browser::createForeignTable(const QString &tNam, TabView *tvc) {
 	connect(tvc->tv()->horizontalHeader(), &QHeaderView::sectionMoved,
 			  tvc,									&TabView::onSectionMoved);
 
+	tvc->restoreRtm();
+	tvc->tv()->setFont(tvc->restoreFont());
 	return tvc;
 }
 /* ======================================================================== */
@@ -432,7 +434,7 @@ QStandardItemModel *Browser::tblToMetaDataMdl(const QString &table) {
 	model->setHeaderData(4, Qt::Horizontal, "Required");
 	model->setHeaderData(5, Qt::Horizontal, "AutoValue");
 	model->setHeaderData(6, Qt::Horizontal, "DefaultValue");
-		
+
 	for (int i = 0; i < rec.count(); ++i) {
 		QSqlField fld = rec.field(i);
 		model->setData(model->index(i, 0), fld.name());
@@ -503,23 +505,6 @@ void Browser::onActGroupTrigd(QAction *sender) {
 
 	if (sender->actionGroup() == actGrTvSelectBy)
 		setTvSelector(sender->data().value<TvSelector>());
-}
-int  Browser::setFontAcc(QFont &font) {
-	mTabs.tva->tv()->setFont(font);
-	return 0;
-}
-QFont Browser::selectFont() {
-	bool ok;
-	QFont font = QFontDialog::getFont(
-						 &ok, QFont("Helvetica [Cronyx]", 10), this);
-	
-	if (ok) {
-		INFO << font;
-	} else {
-		INFO << font;
-	}
-	
-	return QFont();
 }
 void Browser::onSourceTableChanged(SortWindow::SourceTable sourceTable) {
 	if (sourceTable == SortWindow::useWorktime) {
@@ -669,7 +654,6 @@ bool Browser::restoreUi() {
 	
 	/**** Restore tabview <-> SQL table assignements, but only if valid keys are stored
 	 \*/
-	
 	foreach (TabView *tv, mTabs.tvsNoPtr()) {
 		if (! config.allKeys().join(',').contains( tv->objectName() ))
 			continue;
@@ -678,10 +662,15 @@ bool Browser::restoreUi() {
 		tv->restoreView();
 		createForeignTable( tabNam, tv );
 	}
+
 	/**** Restore all action states from Browser
 	\*/
-	//	ACTION_RESTORE(this);
 	restoreActionObjects();
+
+	/**** Restore table font configs
+	\*/
+	//	INFO << mTabs.tva->confTableFont();
+	//	INFO << mTabs.tva->confTableFont();
 	return ret;
 }
 void Browser::createActions() {
@@ -730,6 +719,10 @@ void Browser::createActions() {
 
 	//	QAction *muSep_2	= setTvCntMu->addSeparator();
 	//	muGrAct->addAction(PONAM(muSep_2));
+}
+bool Browser::restoreRtm(TabView *tv) {
+	Q_UNUSED(tv)
+	return true;
 }
 MdMenu *Browser::menuBarElement() {
 	browsMenu = new MdMenu(tr("&Browser"));
@@ -828,9 +821,9 @@ void Browser::createUi(QWidget *passParent) {
 		
 		//		if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &TabView::onTabViewSelChanged))
 		//			qReturn("Connection fail!");
-//		if (! (bool)  connect(this,	&Browser::updateWriteActions,
-//									 tv,		&TabView::onUpdateWriteActions))
-//			qReturn("Connection fail!");
+		//		if (! (bool)  connect(this,	&Browser::updateWriteActions,
+		//									 tv,		&TabView::onUpdateWriteActions))
+		//			qReturn("Connection fail!");
 	}
 }
 QTableView* Browser::createView(QSqlQueryModel *model, const QString &title) {
@@ -907,6 +900,19 @@ void Browser::storeActionState(QAction *sender) {
 
 		config.setValue(objectName() + tr("/") + sender->objectName(), sender->isChecked());
 		config.sync();
+	}
+}
+void Browser::selectAndSetFont() {
+	if (mTabs.currentSelected(true) != NULL)
+		mTabs.currentSelected()->storeFont(
+					QFontDialog::getFont(&ok, mTabs.currentSelected()->tv()->font(), this));
+	else {
+		/*!
+		 * If no tv is selected, configure all tvs.
+		 */
+		QFont f = QFontDialog::getFont(&ok, QFont("Helvetica [Cronyx]", 10), this);
+		foreach (TabView *_tv, mTabs.tvsNoPtr())
+			_tv->storeFont(f);
 	}
 }
 

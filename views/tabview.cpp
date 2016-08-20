@@ -31,6 +31,9 @@ TabView::TabView(QWidget *parent) : QWidget(parent),
 
 	m_tv->installEventFilter(this);
 	m_gb->installEventFilter(this);
+
+	restoreFont();
+
 	QTimer::singleShot(500, this, SLOT(restoreActionObjects()));
 	//	QTimer::singleShot(8000, this, SLOT(restoreActionObjects()));
 	//	setActiveSelected( false );
@@ -118,8 +121,8 @@ void TabView::onUpdateWriteActions() {
 	if (! rtm)	qReturn(tr("cast failed: SqlRtm *rtm = static_cast<SqlRtm *>( %1 );")
 							  .arg(m_tv->model()->metaObject()->className()));
 
-//	INFO << m_sqlTableName << tr("currentIndexIsValied:")
-//		  << m_tv->currentIndex().isValid();
+	//	INFO << m_sqlTableName << tr("currentIndexIsValied:")
+	//		  << m_tv->currentIndex().isValid();
 
 	actInsertRow->setEnabled(m_tv->currentIndex().isValid());
 	actDeleteRow->setEnabled(m_tv->currentIndex().isValid());
@@ -128,7 +131,7 @@ void TabView::onActSectionMask(bool sectionMask) {
 	QAbstractItemModel *aim = m_tv->model();
 
 	if (! sectionMask) {
-		mSectMsk->storeColumnConfig(/*tv()*/);
+		mSectMsk->storeVisibleCols(/*tv()*/);
 		delete mSectMsk;
 	}
 	else {
@@ -173,6 +176,20 @@ void TabView::restoreView() {
 	if (color.isValid())
 		setAlternateRowCol(
 					color, config.value(objectName() + Md::k.altRowColOn, "true").toBool());
+
+	/*!	Restore model sources	*/
+}
+void TabView::restoreRtm() {
+	if (qobject_cast<SqlRtm *>(tv()->model()))
+		qobject_cast<SqlRtm *>(tv()->model())->restoreModel(sqlTableName());
+
+	SectionMask *sm = new SectionMask(tv(), this);
+	sm->restoreVisibleCols();
+	delete sm;
+}
+void TabView::storeRtm() {
+	if (qobject_cast<SqlRtm *>(tv()->model()))
+		qobject_cast<SqlRtm *>(tv()->model())->storeModel(sqlTableName());
 }
 QList<QAction *> TabView::createActions() {
 	actInsertRow =		new QAction(tr("&Insert Row"), this);
@@ -269,6 +286,9 @@ bool TabView::eventFilter(QObject *obj, QEvent *event) {
 		}
 	return QObject::eventFilter(obj, event);
 }
+void TabView::hideEvent(QHideEvent *ev) {
+	storeRtm();
+}
 /* ======================================================================== */
 /*                             Helper methodes                              */
 /* ======================================================================== */
@@ -286,6 +306,17 @@ void TabView::setAlternateRowCol(QColor &col, bool alternateEnabled) {
 		config.setValue(objectName() + "/AlternateRowColEnable", alternateEnabled);
 		config.setValue(objectName() + "/AlternateRowColor", col);
 	}
+}
+void TabView::storeFont(QFont f) {
+	QSETTINGS;
+	config.setValue(objectName() + Md::k.tableFont, QVariant::fromValue(f));
+	tv()->setFont(f);
+}
+QFont TabView::restoreFont() {
+	QSETTINGS;
+	QFont f(config.value(objectName() + Md::k.tableFont).value<QFont>());
+	tv()->setFont(f);
+	return f;
 }
 void TabView::resizeRowsColsToContents() {
 	m_tv->setVisible( false );

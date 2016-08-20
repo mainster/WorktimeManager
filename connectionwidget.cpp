@@ -61,7 +61,6 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent) {
 	QTimer::singleShot(500, Qt::CoarseTimer, this, SLOT(refresh()));
 }
 ConnectionWidget::~ConnectionWidget() {}
-
 static QList<QString *> qDBCaption(const QSqlDatabase &db) {
 	QFileInfo fi(db.databaseName());
 	QList<QString *> str;
@@ -83,7 +82,6 @@ static QList<QString *> qDBCaption(const QSqlDatabase &db) {
 
 	return str;
 }
-
 void ConnectionWidget::refresh() {
 	tree->clear();
 	QStringList connectionNames = QSqlDatabase::connectionNames();
@@ -120,8 +118,6 @@ void ConnectionWidget::refresh() {
 QSqlDatabase ConnectionWidget::currentDb() const {
 	return QSqlDatabase::database(activeDb);
 }
-
-
 static void qSetBold(QTreeWidgetItem *item, bool bold) {
 	QFont font = item->font(0);
 	font.setBold(bold);
@@ -139,7 +135,6 @@ void ConnectionWidget::setActive(QTreeWidgetItem *item) {
 	activeDb =
 			QSqlDatabase::connectionNames().value(tree->indexOfTopLevelItem(item));
 }
-
 void ConnectionWidget::on_tree_itemActivated(QTreeWidgetItem *item,
 															int /* column */) {
 
@@ -163,7 +158,6 @@ void ConnectionWidget::on_tree_currentItemChanged(QTreeWidgetItem *current,
 																  QTreeWidgetItem *) {
 	metaDataAction->setEnabled(current && current->parent());
 }
-
 
 
 #define QFOLDINGSTART {

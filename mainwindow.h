@@ -104,7 +104,6 @@ protected slots:
 		INFO << "!";
 	}
 	void onUnderConstrTrig();
-	void onSetFont();
 	void onSetAlterRowColTrig();
 	void onCyclic();
 	void onResizerDlgTrig();
@@ -113,7 +112,7 @@ protected slots:
 	void createActions();
 	void onActionGroupTrigd(QAction *sender);
 	void onActNotesToggd(bool b) { notes.toDo->setVisible(b); }
-	void onActRichTextToggd(bool b);
+	void onActRichTextToggd(bool);
 	void onActFilterWindowSource(bool);
 
 private slots:

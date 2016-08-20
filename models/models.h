@@ -6,6 +6,7 @@
 #include <QSqlRelationalTableModel>
 
 #include "globals.h"
+#include "types.h"
 
 /*!
  \brief Class declaration of an relational custom table model used as delegate.
@@ -16,6 +17,13 @@ class SqlRtm: public QSqlRelationalTableModel {
 	Q_OBJECT
 
 public:
+	enum MdlSrc {
+		srcNew = 0x01,
+		srcRestoreIni = 0x02,
+	};
+	Q_DECLARE_FLAGS(MdlSrcs, MdlSrc)
+	Q_FLAG(MdlSrcs)
+
 	/*!
 	 * \brief SqlRtm Constructor of custom relational table model inherited from
 	 * QSqlRelationalTableModel. Subclass only a table model and override some basemethods
@@ -23,15 +31,30 @@ public:
 	 * \param parent
 	 * \param db
 	 */
-	explicit SqlRtm(QObject *parent = 0, QSqlDatabase db = QSqlDatabase())
-		: QSqlRelationalTableModel(parent, db) { }
+	explicit SqlRtm(MdlSrc modelSource = srcNew,
+						 QObject *parent = 0,
+						 QSqlDatabase db = QSqlDatabase())
+		: QSqlRelationalTableModel(parent, db) {
+
+		Q_UNUSED(modelSource);
+		//		if (modelSorce == srcRestoreIni) {
+		//			QSETTINGS;
+		//			QVector<int> ccs = config.value(objectName())
+		//			QList<bool> vcs;
+
+		//			mData = new mData_t();
+		//			INFO << mData.mCenterCols->
+		//			config.value()
+
+		//		}
+	}
 
 	/*!
 	 * \brief getCenterCols returns a list of columns which shold be center aligned
 	 * \return
 	 */
-	QVector<int> getCenterCols() const	{ return mCenterCols; }
-	void setCenterCols(const QVector<int> &value)  { mCenterCols = value; }
+	QList<int> centerCols() const	{ return mCenterCols; }
+	void setCenterCols(const QList<int> &value)  { mCenterCols = value; }
 
 	/*!
 	 * \brief data overrides the data() methode of the base class QSqlTableModel.
@@ -55,9 +78,28 @@ public:
 		return QSqlTableModel::data(idx, role);
 	}
 
+	QList<bool> visibleCols() const { return mVisibleCols; }
+	void setVisibleCols(const QList<bool> &visibleCols) { mVisibleCols = visibleCols; }
+
+	void storeModel(const QString &sqlTableName) {
+		QSETTINGS;
+		/*!	Store model sources	*/
+		config.setValue(sqlTableName + tr("/mCenterCols"),QVariant::fromValue(mCenterCols));
+		config.setValue(sqlTableName + tr("/mVisibleCols"),QVariant::fromValue(mVisibleCols));
+	}
+	void restoreModel(const QString &sqlTableName) {
+		QSETTINGS;
+		/*!	Store model sources	*/
+		mCenterCols = config.value(sqlTableName + tr("/mCenterCols")).value<QList<int> >();
+		mVisibleCols = config.value(sqlTableName + tr("/mVisibleCols")).value<QList<bool> >();
+	}
+
 private:
-	QVector<int>	mCenterCols;
+	QList<int>	mCenterCols;
+	QList<bool>		mVisibleCols;
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS(SqlRtm::MdlSrcs)
+Q_DECLARE_METATYPE(SqlRtm::MdlSrc)
 
 //< Deprecated
 //< Deprecated

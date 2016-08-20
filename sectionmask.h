@@ -9,8 +9,9 @@
 #include <QDebug>
 #include <QTableView>
 #include <QObject>
-
+#include "models.h"
 #include "globals.h"
+
 
 class SectionMask : public QWidget {
 
@@ -61,6 +62,7 @@ public:
 			hbLay->addWidget(checkBoxs.last());
 		}
 
+		restoreVisibleCols();
 		show();
 	}
 	SectionMask(const SectionMask &other)
@@ -77,11 +79,36 @@ public:
 	}
 	~SectionMask() { }
 
-	bool storeColumnConfig(/*QTableView *tv*/) {
-		if (! tv)	return false;
+	bool storeVisibleCols(/*QTableView *tv*/) {
+		if (! static_cast<SqlRtm *>(tv->model()))
+			return false;
 		/* ======================================================================== */
 		/*  Store column configuration at this point and close/delete SectionMask   */
 		/* ======================================================================== */
+		QList<bool> cols;
+		foreach (QCheckBox *cb, checkBoxs)
+			cols << cb->isChecked();
+
+		/*! Store to model sources */
+		static_cast<SqlRtm *>(tv->model())->setVisibleCols(cols);
+
+		/*! store to ini file */
+//		static_cast<SqlRtm *>(tv->model())->storeModel(tv->);
+
+		return true;
+	}
+	bool restoreVisibleCols(const QList<bool> visibleCols = QList<bool>()) {
+		if (! static_cast<SqlRtm *>(tv->model()))
+			return false;
+
+		QList<bool> vcs;
+
+		(! visibleCols.length())
+				? (vcs = static_cast<SqlRtm *>(tv->model())->visibleCols())
+				: (vcs = visibleCols);
+
+		for (int k = 0; k < vcs.count(); k++)
+			tv->setColumnHidden(k, !vcs.at(k));
 
 		return true;
 	}
@@ -99,7 +126,7 @@ protected slots:
 protected:
 	void mouseDoubleClickEvent(QMouseEvent *e) override {
 		e->accept();
-//		storeColumnConfig();
+//		storeVisibleCols();
 //		close();
 		emit dblClickChecked();
 	}

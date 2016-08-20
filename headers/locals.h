@@ -12,7 +12,8 @@ public:
 		QString
 		focusOrder,
 		altRowColOn,
-		alterRowColor;
+		alterRowColor,
+		tableFont;
 	} k;
 };
 
