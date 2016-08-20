@@ -24,6 +24,7 @@
 #include "dbcontroller.h"
 #include "mdnotes.h"
 #include "mdmenu.h"
+#include "textedit.h"
 
 namespace Ui {
 class MainWindow;
@@ -84,7 +85,9 @@ protected slots:
 	}
 	void onActSaveTrig();
 	void onActOpenTrig();
-	void onBrowseSqlToggd(bool b);
+	void onBrowseSqlToggd(bool b) {
+		browser->setVisible(b);
+	}
 	void onMenuStyleShtInpFrmTrig(bool b) {
 		if (!b) return;
 
@@ -109,9 +112,10 @@ protected slots:
 	bool restoreActionObjects();
 	void createActions();
 	void onActionGroupTrigd(QAction *sender);
-	void onActNotesToggd(bool b);
-
+	void onActNotesToggd(bool b) { notes.toDo->setVisible(b); }
+	void onActRichTextToggd(bool b);
 	void onActFilterWindowSource(bool);
+
 private slots:
 	void onOpenCloseInpFrm(bool onOff) {
 		inpFrm->setVisible(onOff);
@@ -141,6 +145,7 @@ private:
 	MDStateBar		*stateBar;
 	SortWindow		*sortwindow;
 	DbController	*mDbc;
+	TextEdit			*richEditor;
 
 	struct notes_t {
 		MDNotes *toDo, *comments;
@@ -153,7 +158,7 @@ private:
 	QActionGroup *actGrTbMain, *actGrTbMenu, *actGrFilterWidg;
 
 	QAction *actNew, *actOpen, *actSave, *actExport, *actBrowseSQL, *actInpForm,
-	*actShowTbl, *actDbModMaster, *actClose, *actUnderConstr, *actNotes, *actGbStyleShtA,
+	*actShowTbl, *actDbModMaster, *actClose, *actRichEdit, *actUnderConstr, *actNotes, *actGbStyleShtA,
 	*actGbSShtInpFrm, *actSelFont, *actCyclicObjInfo, *actResizerDlg, *actShowSqlQuery,
 	*actSetAlterRowCol, *actAutoFitTables, *actFilterTable, *actFilterTableWindow,
 	*actFilterForm, *actCfgInpFrmTabOrd, *actFiltWorktimeTbl, *actFiltSelectedTbl;

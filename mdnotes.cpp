@@ -4,6 +4,7 @@
 MDNotes::MDNotes(const QString settingsKey, QWidget *parent)
 	: QFrame(parent), ui(new Ui::MDNotes), mSettingsKey(settingsKey) {
 	ui->setupUi(this);
+	editor = ui->textEdit;
 
 	ui->groupBox->setTitle(objectName() + tr("/") + settingsKey);
 	ui->pbSave->setIcon(QIcon(":/images/save.png"));
@@ -41,7 +42,7 @@ void MDNotes::onAnyKeyClicked(bool clicked) {
 	if (pb == ui->pbSave) {
 		config.setValue(objectName() + tr("/") + mSettingsKey,
 							 ui->textEdit->document()->toHtml());
-		emit settingsSaved(objectName() + tr(": Note added"));
+		emit changed(objectName() + tr(": Note added"));
 	}
 	if (pb == ui->pbDeleteLast) {
 		deleteLastLines(1);
@@ -50,6 +51,12 @@ void MDNotes::onAnyKeyClicked(bool clicked) {
 	}
 	if (pb == ui->pbStrikeOut) {
 		toggleLineStrikeout();
+	}
+	if (pb == ui->pb1) {
+
+	}
+	if (pb == ui->pb2) {
+
 	}
 
 	config.sync();
@@ -60,7 +67,7 @@ void MDNotes::onOkClicked(bool clicked) {
 	config.setValue(objectName() + tr("/") + mSettingsKey,
 						 ui->textEdit->document()->toHtml());
 	config.sync();
-	emit settingsSaved(objectName() + tr(": Note added"));
+	emit changed(objectName() + tr(": Note added"));
 }
 void MDNotes::onDeleteLastClicked(bool clicked) {
 	QSETTINGS;
@@ -115,25 +122,27 @@ void MDNotes::deleteLastLines(const int lineCount) {
 		ui->textEdit->textCursor().deletePreviousChar();
 		ui->textEdit->setTextCursor(storeCursorPos);
 	}
-	emit settingsSaved(objectName() + tr(": %1 lines removed").arg(lineCount));
+	emit changed(objectName() + tr(": %1 lines removed").arg(lineCount));
 }
 void MDNotes::toggleLineStrikeout() {
 	ui->textEdit->setFocus();
 
-	QTextCursor storeCursorPos = ui->textEdit->textCursor();
-	QTextCursor cursor(ui->textEdit->textCursor());
+	//!< Get cursor instance and take a backup.
+	QTextCursor c = editor->textCursor(),
+			cOld  = c;
+	QRegularExpression re("^\\s+");
+	c.movePosition(QTextCursor::StartOfLine);
+	c.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+	int len = re.match(c.selectedText()).capturedLength();
+	c.movePosition(QTextCursor::StartOfLine);
+	c.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, len);
+	c.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
 
-	ui->textEdit->moveCursor(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
-	cursor.setPosition(ui->textEdit->textCursor().position(), QTextCursor::MoveAnchor);
-	ui->textEdit->moveCursor(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
-	cursor.setPosition(ui->textEdit->textCursor().position(), QTextCursor::KeepAnchor);
+	QTextCharFormat f = c.charFormat();
+	f.setFontStrikeOut(! f.fontStrikeOut());
+	c.mergeCharFormat(f);
 
-	QTextCharFormat format = cursor.charFormat();
-	format.setFontStrikeOut(! format.fontStrikeOut());
-	cursor.mergeCharFormat(format);
-
-	ui->textEdit->setTextCursor(storeCursorPos);
-
-	emit settingsSaved(objectName() + tr(": Line %1 striked out")
-							 .arg(ui->textEdit->textCursor().blockNumber() + 1));
+	editor->setTextCursor(cOld);
+	emit changed(objectName() + tr(": Line %1 striked out")
+							 .arg(editor->textCursor().blockNumber() + 1));
 }

@@ -25,7 +25,7 @@ public:
 	QString settingsKey() const;
 
 signals:
-	void settingsSaved(const QString &message);
+	void changed(const QString &message);
 
 protected:
 	void connectActions();
@@ -42,7 +42,7 @@ private:
 	Ui::MDNotes *ui;
 	QString mSettingsKey;
 	QAction *actKeyOk, *actKeyDeleteLast;
-
+	QTextEdit	*editor;
 };
 
 #endif // MDNOTES_H

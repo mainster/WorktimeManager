@@ -7,13 +7,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	ui(new Ui::MainWindow) {
 	ui->setupUi(this);
 
-	QSETTINGS_INIT; QSETTINGS;
+	QSETTINGS;
 	//	initDocks();
 
 	createActions();
 	connectActions(connectThis);
 
-	stateBar		= new MDStateBar( this );
+	stateBar		= new MDStateBar(this);
 	browser		= new Browser(parent);
 	mDbc			= new DbController(this);
 	sortwindow  = new SortWindow(parent);
@@ -21,10 +21,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 			  browser,		&Browser::onSourceTableChanged);
 	inpFrm		= new InpFrm(this);
 	notes.toDo	= new MDNotes(tr("toDo"), parent);
+	richEditor	= new TextEdit(this);
+	richEditor->hide();
 
 	connect(browser->getConnectionWidget(),	SIGNAL(detailesChanged(QString&)),
 			  stateBar,									SLOT(showInfo(QString&)));
-	connect(notes.toDo,								SIGNAL(settingsSaved(const QString&)),
+	connect(notes.toDo,								SIGNAL(changed(const QString&)),
 			  stateBar,									SLOT(showMessage2sec(const QString&)));
 
 
@@ -225,11 +227,24 @@ void MainWindow::onActionGroupTrigd(QAction *sender) {
 		config.sync();
 	}
 }
-void MainWindow::onBrowseSqlToggd(bool b) {
-	browser->setVisible(b);
-}
-void MainWindow::onActNotesToggd(bool b) {
-	notes.toDo->setVisible(b);
+
+void MainWindow::onActRichTextToggd(bool b) {
+//	QCommandLineParser parser;
+//	parser.setApplicationDescription(QCoreApplication::applicationName());
+//	parser.addHelpOption();
+//	parser.addVersionOption();
+//	parser.addPositionalArgument("file", "The file to open.");
+//	parser.process(a);
+
+	const QRect availableGeometry = QApplication::desktop()->availableGeometry(richEditor);
+	richEditor->resize(availableGeometry.width() / 2, (availableGeometry.height() * 2) / 3);
+	richEditor->move((availableGeometry.width() - richEditor->width()) / 2,
+			  (availableGeometry.height() - richEditor->height()) / 2);
+
+//	if (!richEditor->load(parser.positionalArguments().value(0, QLatin1String(":/example.html"))))
+	richEditor->fileNew();
+
+	richEditor->show();
 }
 void MainWindow::onActFilterWindowSource(bool) {
 	QAction *act = qobject_cast<QAction *>(sender());
@@ -389,6 +404,7 @@ void MainWindow::createActions() {
 	actDbModMaster = new QAction(QIcon(":/images/databaseConf.png"), tr("Stammdaten bearbeiten"), this);
 	actUnderConstr = new QAction(QIcon(":/images/underConstruct.svg"), tr("Under construction"), this);
 	actNotes = new QAction(QIcon(":/images/notes.png"), tr("Notizen"), this);
+	actRichEdit = new QAction(QIcon(":/images/editor.png"), tr("Rich Text Editor"), this);
 	actClose = new QAction(QIcon(":/icoDelete"), tr("Schließen"), this);
 
 	/*!
@@ -423,7 +439,7 @@ void MainWindow::createActions() {
 	acts << PONAM(actNew) << PONAM(actOpen) << PONAM(actSave) << PONAM(actExport)
 		  << PONAM(actBrowseSQL) << PONAM(actInpForm) << PONAM(actShowTbl)
 		  << PONAM(actDbModMaster) <<  PONAM(actUnderConstr) << PONAM(actNotes)
-		  << PONAM(actNotes) << PONAM(actClose);
+		  << PONAM(actNotes) << PONAM(actRichEdit) << PONAM(actClose);
 
 	foreach (QAction *act, acts)
 		actGrTbMain->addAction(act);
@@ -485,6 +501,7 @@ void MainWindow::createActions() {
 	 */
 	actBrowseSQL->setCheckable(true);
 	actNotes->setCheckable(true);
+	actRichEdit->setCheckable(true);
 	actInpForm->setCheckable(true);
 	actShowTbl->setCheckable(true);
 	actDbModMaster->setCheckable(true);
@@ -499,6 +516,7 @@ void MainWindow::createActions() {
 
 	actClose->setShortcut(QKeySequence("Ctrl+Q"));
 	actAutoFitTables->setShortcut(QKeySequence("Ctrl+Alt+A"));
+	actRichEdit->setShortcut(QKeySequence("Ctrl+Shift+R"));
 	actShowSqlQuery->setShortcuts(QList<QKeySequence>()
 											<< QKeySequence("Ctrl+Shifr+Q")
 											<< QKeySequence("Ctrl+H"));
@@ -530,6 +548,7 @@ void MainWindow::createActions() {
 												 "ausgewählte</b> Tabelle angewendet."));
 	actFiltWorktimeTbl->setToolTip(tr("Das Filter/Suchfenster <b>immer</b> auf die "
 												 "<b>Arbeitszeit</b>-Tabelle angewendet."));
+	actRichEdit->setToolTip(tr("Öffnet einen Rich Text Editor."));
 
 
 	foreach (QAction *act, QList<QAction *>()
@@ -613,6 +632,7 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		 (receivers == connectAll)) {
 		connect(actBrowseSQL, &QAction::toggled, this, &MainWindow::onBrowseSqlToggd);
 		connect(actNotes, &QAction::toggled, this, &MainWindow::onActNotesToggd);
+		connect(actRichEdit, &QAction::toggled, this, &MainWindow::onActRichTextToggd);
 		connect(actInpForm, &QAction::triggered, this, &MainWindow::onOpenCloseInpFrm);
 		connect(actShowTbl, &QAction::triggered, this, &MainWindow::onTblOpen);
 		connect(actClose, &QAction::triggered, this, &MainWindow::onActCloseTrig);

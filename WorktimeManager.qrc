@@ -22,5 +22,46 @@
         <file>images/down_arrow.png</file>
         <file>images/notes.png</file>
         <file>images/greenCheck.png</file>
+        <file>images/editor.png</file>
+    </qresource>
+    <qresource prefix="/textedit">
+        <file>images/textedit_res/win/zoomout.png</file>
+        <file>images/textedit_res/win/zoomin.png</file>
+        <file>images/textedit_res/win/textunder.png</file>
+        <file>images/textedit_res/win/textright.png</file>
+        <file>images/textedit_res/win/textleft.png</file>
+        <file>images/textedit_res/win/textjustify.png</file>
+        <file>images/textedit_res/win/textitalic.png</file>
+        <file>images/textedit_res/win/textcenter.png</file>
+        <file>images/textedit_res/win/textbold.png</file>
+        <file>images/textedit_res/win/filesave.png</file>
+        <file>images/textedit_res/win/fileprint.png</file>
+        <file>images/textedit_res/win/fileopen.png</file>
+        <file>images/textedit_res/win/filenew.png</file>
+        <file>images/textedit_res/win/exportpdf.png</file>
+        <file>images/textedit_res/win/editundo.png</file>
+        <file>images/textedit_res/win/editredo.png</file>
+        <file>images/textedit_res/win/editpaste.png</file>
+        <file>images/textedit_res/win/editcut.png</file>
+        <file>images/textedit_res/win/editcopy.png</file>
+        <file>images/textedit_res/mac/zoomout.png</file>
+        <file>images/textedit_res/mac/zoomin.png</file>
+        <file>images/textedit_res/mac/textunder.png</file>
+        <file>images/textedit_res/mac/textright.png</file>
+        <file>images/textedit_res/mac/textleft.png</file>
+        <file>images/textedit_res/mac/textjustify.png</file>
+        <file>images/textedit_res/mac/textitalic.png</file>
+        <file>images/textedit_res/mac/textcenter.png</file>
+        <file>images/textedit_res/mac/textbold.png</file>
+        <file>images/textedit_res/mac/filesave.png</file>
+        <file>images/textedit_res/mac/fileprint.png</file>
+        <file>images/textedit_res/mac/fileopen.png</file>
+        <file>images/textedit_res/mac/filenew.png</file>
+        <file>images/textedit_res/mac/exportpdf.png</file>
+        <file>images/textedit_res/mac/editundo.png</file>
+        <file>images/textedit_res/mac/editredo.png</file>
+        <file>images/textedit_res/mac/editpaste.png</file>
+        <file>images/textedit_res/mac/editcut.png</file>
+        <file>images/textedit_res/mac/editcopy.png</file>
     </qresource>
 </RCC>

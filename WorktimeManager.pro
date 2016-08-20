@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui sql
+qtHaveModule(printsupport): QT += printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -22,7 +23,10 @@ INCLUDEPATH += \
 		delegates \
 		headers \
 		mdbQtStd \
-		models ui
+		models \
+		views \
+		ui \
+		textedit \
 
 
 RESOURCES += \
@@ -40,55 +44,60 @@ wince*: {
 }
 
 HEADERS += \
-    delegates/tabledelegate.h \
-    headers/locals.h \
-    mdbQtStd/debug.h \
-    mdbQtStd/globals.h \
-    mdbQtStd/mdstatebar.h \
-    mdbQtStd/types.h \
-    models/editablesqlmdl.h \
-    models/mysortfilterproxymodel.h \
-    browser.h \
-    connectionwidget.h \
-    dbconndlg.h \
-    dbcontroller.h \
-    inpfrm.h \
-    mainwindow.h \
-    sortwindow.h \
-    tabview.h \
-    models/models.h \
+	 browser.h \
+	 connectionwidget.h \
+	 dbconndlg.h \
+	 dbcontroller.h \
 	 delegates/sqlreldel.h \
-    mdbQtStd/mdeventfilters.h \
+	 delegates/tabledelegate.h \
+	 headers/locals.h \
+	 initdb.h \
+	 inpfrm.h \
+	 mainwindow.h \
+	 mdbQtStd/debug.h \
+	 mdbQtStd/globals.h \
+	 mdbQtStd/mdeventfilters.h \
+	 mdbQtStd/mdstatebar.h \
+	 mdbQtStd/types.h \
 	 mdcombobox.h \
-    mdnotes.h \
-    mdmenu.h \
-    sectionmask.h
+	 mdmenu.h \
+	 mdnotes.h \
+	 models/editablesqlmdl.h \
+	 models/models.h \
+	 models/mysortfilterproxymodel.h \
+	 mpushbutton.h \
+	 sectionmask.h \
+	 sortwindow.h \
+	 textedit/textedit.h \
+	 views/tabview.h \
 
 SOURCES += \
-    delegates/tabledelegate.cpp \
-    headers/locals.cpp \
-    mdbQtStd/debug.cpp \
-    mdbQtStd/globals.cpp \
-    mdbQtStd/mdstatebar.cpp \
-    mdbQtStd/types.cpp \
-    models/editablesqlmdl.cpp \
-    models/mysortfilterproxymodel.cpp \
-    browser.cpp \
-    connectionwidget.cpp \
-    dbconndlg.cpp \
-    dbcontroller.cpp \
-    inpfrm.cpp \
-    main.cpp \
-    mainwindow.cpp \
-    sortwindow.cpp \
-    tabview.cpp \
-    models/models.cpp \
+	 browser.cpp \
+	 connectionwidget.cpp \
+	 dbconndlg.cpp \
+	 dbcontroller.cpp \
 	 delegates/sqlreldel.cpp \
-    mdbQtStd/mdeventfilters.cpp \
+	 delegates/tabledelegate.cpp \
+	 headers/locals.cpp \
+	 inpfrm.cpp \
+	 main.cpp \
+	 mainwindow.cpp \
+	 mdbQtStd/debug.cpp \
+	 mdbQtStd/globals.cpp \
+	 mdbQtStd/mdeventfilters.cpp \
+	 mdbQtStd/mdstatebar.cpp \
+	 mdbQtStd/types.cpp \
 	 mdcombobox.cpp \
-    mdnotes.cpp \
-    mdmenu.cpp \
-    sectionmask.cpp
+	 mdmenu.cpp \
+	 mdnotes.cpp \
+	 models/editablesqlmdl.cpp \
+	 models/models.cpp \
+	 models/mysortfilterproxymodel.cpp \
+	 mpushbutton.cpp \
+	 sectionmask.cpp \
+	 sortwindow.cpp \
+	 textedit/textedit.cpp \
+	 views/tabview.cpp \
 
 FORMS += \
 	 uis/dbconndlg.ui \
@@ -96,6 +105,7 @@ FORMS += \
 	 uis/mainwindow.ui \
 	 uis/sortwindow.ui \
 	 uis/tabview.ui \
-	 uis/mdnotes.ui
+	 uis/mdnotes.ui \
+    uis/inpfrmTRANS.ui
 
 
