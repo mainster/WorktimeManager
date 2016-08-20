@@ -2,9 +2,10 @@
 #include "locals.h"
 
 
-struct Md::confKeys_t Md::keys {
+struct Md::confKeys_t Md::k {
 	QString("/TabOrder"),
-	QString("/TabOrder"),
+	QString("/AlternateRowColEnabled"),
+	QString("/AlternateRowColor")
 };
 
 

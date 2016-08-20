@@ -227,21 +227,20 @@ void MainWindow::onActionGroupTrigd(QAction *sender) {
 		config.sync();
 	}
 }
-
 void MainWindow::onActRichTextToggd(bool b) {
-//	QCommandLineParser parser;
-//	parser.setApplicationDescription(QCoreApplication::applicationName());
-//	parser.addHelpOption();
-//	parser.addVersionOption();
-//	parser.addPositionalArgument("file", "The file to open.");
-//	parser.process(a);
+	//	QCommandLineParser parser;
+	//	parser.setApplicationDescription(QCoreApplication::applicationName());
+	//	parser.addHelpOption();
+	//	parser.addVersionOption();
+	//	parser.addPositionalArgument("file", "The file to open.");
+	//	parser.process(a);
 
 	const QRect availableGeometry = QApplication::desktop()->availableGeometry(richEditor);
 	richEditor->resize(availableGeometry.width() / 2, (availableGeometry.height() * 2) / 3);
 	richEditor->move((availableGeometry.width() - richEditor->width()) / 2,
-			  (availableGeometry.height() - richEditor->height()) / 2);
+						  (availableGeometry.height() - richEditor->height()) / 2);
 
-//	if (!richEditor->load(parser.positionalArguments().value(0, QLatin1String(":/example.html"))))
+	//	if (!richEditor->load(parser.positionalArguments().value(0, QLatin1String(":/example.html"))))
 	richEditor->fileNew();
 
 	richEditor->show();
@@ -589,7 +588,7 @@ void MainWindow::makeMenu() {
 	setupMenu->setTitle(tr("Se&tup"));
 
 	setupMenu->addActions(QList<QAction *>() << actSelFont << actSetAlterRowCol <<
-	actCyclicObjInfo << actResizerDlg << actShowSqlQuery << actCfgInpFrmTabOrd);
+								 actCyclicObjInfo << actResizerDlg << actShowSqlQuery << actCfgInpFrmTabOrd);
 
 	MdMenu *filterForm = new MdMenu(this);
 	filterForm->setTitle(tr("Filter Fenster"));

@@ -8,6 +8,8 @@
 #include <QAbstractItemModel>
 #include <QDebug>
 #include <QTableView>
+#include <QObject>
+
 #include "globals.h"
 
 class SectionMask : public QWidget {
@@ -39,7 +41,7 @@ public:
 						aim->headerData(k, Qt::Horizontal, Qt::DisplayRole).toString(),
 						tv->isColumnHidden(k));
 
-		INFO << columnHeads;
+//		INFO << columnHeads;
 
 		QHBoxLayout *hbLay = new QHBoxLayout(this);
 
@@ -58,6 +60,7 @@ public:
 			checkBoxs.last()->setChecked(! pair.second);
 			hbLay->addWidget(checkBoxs.last());
 		}
+
 		show();
 	}
 	SectionMask(const SectionMask &other)
@@ -74,7 +77,7 @@ public:
 	}
 	~SectionMask() { }
 
-	bool storeColumnConfig(QTableView *tv) {
+	bool storeColumnConfig(/*QTableView *tv*/) {
 		if (! tv)	return false;
 		/* ======================================================================== */
 		/*  Store column configuration at this point and close/delete SectionMask   */
@@ -83,11 +86,22 @@ public:
 		return true;
 	}
 
+signals:
+	void dblClickChecked(bool b = false);
+
 protected slots:
 	void onCheckboxTogd(bool showColumn) {
 		QCheckBox *cb = qobject_cast<QCheckBox *>(sender());
 		INFO << cb->objectName();
 		tv->setColumnHidden(cb->property("logicalIndex").toInt(), !showColumn);
+	}
+
+protected:
+	void mouseDoubleClickEvent(QMouseEvent *e) override {
+		e->accept();
+//		storeColumnConfig();
+//		close();
+		emit dblClickChecked();
 	}
 
 private:

@@ -296,7 +296,7 @@ QList<QWidget *> InpFrm::getTabableWidgets() {
 		if (w->objectName().contains("qt_"))
 			inpWids.removeOne(w);
 
-	INFO << (*listObjectNames<QWidget *>(inpWids)).join("\n");
+//	INFO << (*listObjectNames<QWidget *>(inpWids)).join("\n");
 
 	return inpWids;
 }
@@ -399,11 +399,11 @@ void InpFrm::restoreTabOrder() {
 	QStringList wNames;
 	QList<QWidget *> tabOrderList;
 
-	if (config.allKeys().join(',').contains(objectName() + Md::keys.focusOrder)) {
+	if (config.allKeys().join(',').contains(objectName() + Md::k.focusOrder)) {
 		emit stateMessage(tr("Valied tab order configuration found!"), 4000);
 
 		foreach (const QString s, config.value(
-						objectName() + Md::keys.focusOrder).toString().split(','))
+						objectName() + Md::k.focusOrder).toString().split(','))
 			tabOrderList << findChildren<QWidget *>(s);
 	}
 	else {
@@ -448,16 +448,16 @@ bool InpFrm::setFocusOrder(QList<QWidget *> targets) {
 	 */
 	for (int k = 0; k < (targets.length() - 1); k++) {
 		setTabOrder(targets.at(k), targets.at(k + 1));
-		INFO << tr("setTabOrder([%1]").arg(k) << targets.at(k)->objectName()
-			  << tr(",[%1]").arg(k+1) << targets.at(k+1)->objectName();
+//		INFO << tr("setTabOrder([%1]").arg(k) << targets.at(k)->objectName()
+//			  << tr(",[%1]").arg(k+1) << targets.at(k+1)->objectName();
 	}
 
 	/*!
 	 * Clear now tab function for all other input widgets.
 	 */
 	QList<QWidget *> noFocusWids = getTabableWidgets();
-	INFO << *listObjectNames<QWidget *>(noFocusWids);
-	INFO << *listObjectNames<QWidget *>(targets);
+//	INFO << *listObjectNames<QWidget *>(noFocusWids);
+//	INFO << *listObjectNames<QWidget *>(targets);
 
 	foreach (QWidget *w, targets)
 		noFocusWids.removeOne(w);
@@ -476,7 +476,7 @@ bool InpFrm::setFocusOrder(QList<QWidget *> targets) {
 	 * Write tab order to config file.
 	 */
 	QSETTINGS;
-	config.setValue(objectName() + Md::keys.focusOrder,
+	config.setValue(objectName() + Md::k.focusOrder,
 						 listObjectNames<QWidget *>(mTabOrder.current)->join(','));
 	config.sync();
 
@@ -597,7 +597,7 @@ void InpFrm::initComboboxes() {
 		list << tr("Table: %1").arg(field.tableModel->tableName());
 		for (int k = 0; k < field.tableModel->columnCount(QModelIndex()); k++)
 			list << field.tableModel->record().fieldName(k);
-		INFO << list;
+//		INFO << list;
 	}
 	/*!
 	  * Select the model columns which should be transformed into string list model and

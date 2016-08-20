@@ -11,8 +11,9 @@ public:
 	static struct confKeys_t {
 		QString
 		focusOrder,
-		test;
-	} keys;
+		altRowColOn,
+		alterRowColor;
+	} k;
 };
 
 class Locals {

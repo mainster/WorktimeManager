@@ -20,11 +20,19 @@ TabView::TabView(QWidget *parent) : QWidget(parent),
 	m_gb = ui->gb;
 	m_tv = ui->mtv;
 
+	m_gb->setParent(ui->gb->parentWidget());
+	m_tv->setParent(ui->mtv->parentWidget());
+
 	/*! HACK to force redrawing if dynamic property stylesheets are used! */
 	m_gb->setStyleSheet(this->m_gb->styleSheet());
 
 	m_tv->setSortingEnabled( true );
 	clearSelected();
+
+	m_tv->installEventFilter(this);
+	m_gb->installEventFilter(this);
+	QTimer::singleShot(500, this, SLOT(restoreActionObjects()));
+	//	QTimer::singleShot(8000, this, SLOT(restoreActionObjects()));
 	//	setActiveSelected( false );
 }
 TabView::~TabView() {
@@ -36,19 +44,6 @@ void TabView::refreshView() {
 /* ======================================================================== */
 /*                           SQL record strategy                            */
 /* ======================================================================== */
-QAction *TabView::fieldStrategyAction() const {
-	return tblActs[ tblActs.indexOf(actFieldStrategy) ];
-}
-QAction *TabView::rowStrategyAction() const {
-	return tblActs[ tblActs.indexOf(actRowStrategy) ];
-}
-QAction *TabView::manualStrategyAction() const {
-	return tblActs[ tblActs.indexOf(actManualStrategy) ];
-}
-QList<QAction *> TabView::getTblActs() const
-{
-	return tblActs;
-}
 void TabView::insertRow() {
 	QModelIndex insertIndex = m_tv->currentIndex();
 	int row = insertIndex.row();
@@ -72,100 +67,64 @@ void TabView::deleteRow() {
 		m_tv->model()->removeRow(currentSelection.at(i).row());
 	}
 
-	onUpdateActions();
+	onUpdateWriteActions();
 }
-void TabView::onUpdateActions() {
-	/**
-	  * DEPRECATED!!!
-	  * Loop thru all available TableViews
-	  *
-	  * Instead of loop all TableViews, this methode should be connected
-	  * to Browser::updateActions()
-	  */
+void TabView::setEditTriggers(QTableView::EditTriggers triggers) {
+	m_tv->setEditTriggers(triggers);
+}
+void TabView::onActGrStrategyTrigd(QAction *sender) {
+	if (! static_cast<SqlRtm *>(m_tv->model()))
+		return;
+
+	if ((sender != actFieldStrategy) &&
+		 (sender != actRowStrategy) &&
+		 (sender != actManualStrategy))
+		qReturn("Bad sender detected!");
 
 	SqlRtm *rtm = static_cast<SqlRtm *>(m_tv->model());
-	/*!
-	  * Check if cast of underlying table model is valid.
-	  */
-	if (! rtm)
-		tr("cast failed: SqlRtm *rtm = static_cast<SqlRtm *>( %1 );")
-				.arg(m_tv->model()->metaObject()->className());
 
-	bool enableIns = (bool) rtm,
-			enableDel = (bool) (enableIns && m_tv->currentIndex().isValid());
+	if (sender == actFieldStrategy)
+		rtm->setEditStrategy(QSqlTableModel::OnFieldChange);
 
-	int k = 0;
-	tblActs[k++]->setEnabled( enableIns );
-	tblActs[k++]->setEnabled( enableDel );
+	if (sender == actRowStrategy)
+		rtm->setEditStrategy(QSqlTableModel::OnRowChange);
 
-	for (;k < tblActs.length(); k++)
-		tblActs[k]->setEnabled( (bool) rtm );
-
-
-	if (rtm) {
-		QSqlRelationalTableModel::EditStrategy es = rtm->editStrategy();
-		fieldStrategyAction()->setChecked(
-					es == QSqlRelationalTableModel::OnFieldChange);
-		rowStrategyAction()->setChecked(
-					es == QSqlRelationalTableModel::OnRowChange);
-		manualStrategyAction()->setChecked(
-					es == QSqlRelationalTableModel::OnManualSubmit);
-	}
-
+	if (sender == actManualStrategy)
+		rtm->setEditStrategy(QSqlTableModel::OnManualSubmit);
 }
+void TabView::onActGrContextTrigd(QAction *sender) {
+	if (! static_cast<SqlRtm *>(m_tv->model()))
+		return;
 
-void TabView::onActInsertRowtriggered() { insertRow(); }
-void TabView::onActDeleteRowtriggered() { deleteRow(); }
-void TabView::onActFieldStrategytriggered() {
-	QSqlTableModel *tm =
-			qobject_cast<QSqlTableModel *>(m_tv->model());
+	if ((sender != actSubmit) && (sender != actRevert) &&
+		 (sender != actSelect) && (sender != actInsertRow) &&
+		 (sender != actDeleteRow))
+		qReturn("Bad sender detected!");
 
-	if (tm)
-		tm->setEditStrategy(QSqlTableModel::OnFieldChange);
-	onActSelect();
+	SqlRtm *rtm = static_cast<SqlRtm *>(m_tv->model());
+
+	if (sender == actSubmit)	rtm->submitAll();
+	if (sender == actRevert)	rtm->revertAll();
+	if (sender == actSelect)	rtm->select();
+	if (sender == actInsertRow) insertRow();
+	if (sender == actDeleteRow) deleteRow();
 }
-void TabView::onActRowStrategytriggered() {
-	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
+void TabView::onUpdateWriteActions() {
+	SqlRtm *rtm = static_cast<SqlRtm *>(m_tv->model());
+	if (! rtm)	qReturn(tr("cast failed: SqlRtm *rtm = static_cast<SqlRtm *>( %1 );")
+							  .arg(m_tv->model()->metaObject()->className()));
 
-	if (tm)
-		tm->setEditStrategy(QSqlTableModel::OnRowChange);
-	else
-		CRIT << tr("cast failed");
+	INFO << m_sqlTableName << tr("currentIndexIsValied:")
+		  << m_tv->currentIndex().isValid();
 
-	QWidget *wid = focusWidget();
-	INFO << wid->objectName();
+	actInsertRow->setEnabled(m_tv->currentIndex().isValid());
+	actDeleteRow->setEnabled(m_tv->currentIndex().isValid());
 }
-void TabView::onActManualStrategytriggered() {
-	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
-
-	if (tm)
-		tm->setEditStrategy(QSqlTableModel::OnManualSubmit);
-}
-void TabView::onActSubmittriggered() {
-	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
-
-	if (tm)
-		tm->submitAll();
-}
-void TabView::onActReverttriggered() {
-	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
-
-	if (tm)
-		tm->revertAll();
-}
-void TabView::onActSelect() {
-
-	QSqlTableModel *tm = qobject_cast<QSqlTableModel *>(m_tv->model());
-
-	if (tm)
-		tm->select();
-}
-
 void TabView::onActSectionMask(bool sectionMask) {
 	QAbstractItemModel *aim = m_tv->model();
 
 	if (! sectionMask) {
-		mSectMsk->storeColumnConfig(tv());
+		mSectMsk->storeColumnConfig(/*tv()*/);
 		delete mSectMsk;
 	}
 	else {
@@ -175,16 +134,11 @@ void TabView::onActSectionMask(bool sectionMask) {
 
 		grBox()->layout()->removeWidget(m_tv);
 		mSectMsk = new SectionMask(tv(), this);
-
+		connect(mSectMsk, &SectionMask::dblClickChecked, actSectionMask, &QAction::setChecked);
 		qobject_cast<QVBoxLayout *>(grBox()->layout())->addWidget(mSectMsk);
 		qobject_cast<QVBoxLayout *>(grBox()->layout())->addWidget(m_tv);
 		qobject_cast<QVBoxLayout *>(grBox()->layout())->setStretchFactor(m_tv, 15);
 	}
-}
-void TabView::onObjectNameChanged(const QString &objNam) {
-	m_gb->setTitle( objNam );
-	//	m_gb->setAccessibleName(tr("gboxOf")+objNam);
-	//	m_tv->setAccessibleName(objNam);
 }
 void TabView::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx) {
 	INFO << tr("[ %1 ]:").arg(sqlTableName())
@@ -195,8 +149,10 @@ void TabView::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx)
 void TabView::onSqlTableNameChanged(const QString &name) {
 	WARN << name;
 }
-void TabView::setEditTriggers(QTableView::EditTriggers triggers) {
-	m_tv->setEditTriggers(triggers);
+void TabView::onObjectNameChanged(const QString &objNam) {
+	m_gb->setTitle( objNam );
+	//	m_gb->setAccessibleName(tr("gboxOf")+objNam);
+	//	m_tv->setAccessibleName(objNam);
 }
 /* ======================================================================== */
 /*                              Init methodes                               */
@@ -208,40 +164,108 @@ void TabView::restoreView() {
 
 	/** Restore alternating row color */
 	QSETTINGS;
-	bool altOnOff = config.value(objectName() + "/AlternateRowColEnable", "true").toBool();
-	QColor col = config.value(objectName() + "/AlternateRowColor", "").value<QColor>();
-	if (col.isValid())
-		setAlternateRowCol( col, altOnOff);
+	QColor color = config.value(objectName() + Md::k.alterRowColor,
+										 QColor(Qt::white)).value<QColor>();
+	if (color.isValid())
+		setAlternateRowCol(
+					color, config.value(objectName() + Md::k.altRowColOn, "true").toBool());
 }
 QList<QAction *> TabView::createActions() {
 	actInsertRow =		new QAction(tr("&Insert Row"), this);
 	actDeleteRow =		new QAction(tr("&Delete Row"), this);
-	actFieldStrategy =	new QAction(tr("Submit on &Field Change"), this);
-	actRowStrategy =		new QAction(tr("Submit on &Row Change"), this);
-	actManualStrategy = new QAction(tr("Submit &Manually"), this);
 	actSubmit =			new QAction(tr("&Submit All"), this);
 	actRevert =			new QAction(tr("Re&vert All"), this);
 	actSelect =			new QAction(tr("S&elect"), this);
 	actSectionMask =	new QAction(tr("Spaltenmaske"), this);
+	actFieldStrategy =	new QAction(tr("Submit on &Field Change"), this);
+	actRowStrategy =		new QAction(tr("Submit on &Row Change"), this);
+	actManualStrategy =	new QAction(tr("Submit &Manually"), this);
 
-	actFieldStrategy->setCheckable(true);
-	actRowStrategy->setCheckable(true);
-	actManualStrategy->setCheckable(true);
+	/* ======================================================================== */
+	/*                             Action grouping                              */
+	/* ======================================================================== */
+	/*!
+	 * Create action group for strategy actions
+	 */
+	actGrStrategy = new QActionGroup(this);
+	PONAM(actGrStrategy)->setExclusive(true);
+
+	QList<QAction *> acts;
+	acts << PONAM(actFieldStrategy) << PONAM(actRowStrategy)
+		  << PONAM(actManualStrategy);
+
+	foreach (QAction *act, acts) {
+		actGrStrategy->addAction(act);
+		act->setCheckable(true);
+	}
+
+	/*!
+	 * Connect action group triggered signal to a common slot.
+	 */
+	connect(actGrStrategy, &QActionGroup::triggered, this, &TabView::storeActionState);
+	connect(actGrStrategy, &QActionGroup::triggered, this, &TabView::onActGrStrategyTrigd);
+
+	/* ======================================================================== */
+
+	/*!
+	 * Create action group for context menu actions.
+	 */
+	actGrContext = new QActionGroup(this);
+	PONAM(actGrContext)->setExclusive(false);
+
+	QList<QAction *> acts2;
+	acts2 << PONAM(actInsertRow) << PONAM(actDeleteRow) << PONAM(actSubmit)
+			<< PONAM(actRevert)  << PONAM(actSelect);
+
+	foreach (QAction *act, acts2)
+		actGrContext->addAction(act);
+
+	/*!
+	 * Connect action group triggered signal to a save-action-state slot.
+	 */
+	connect(actGrContext, &QActionGroup::triggered, this, &TabView::storeActionState);
+	connect(actGrContext, &QActionGroup::triggered, this, &TabView::onActGrContextTrigd);
+
+	/* ======================================================================== */
+	/*                       Action object configurations                       */
+	/* ======================================================================== */
 	actSectionMask->setCheckable(true);
-	actInsertRow->setEnabled(false);
-	actDeleteRow->setEnabled(false);
 
-	tblActs = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
+	//	tblActs = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
 
 	QAction *sep1 = new QAction(this);
 	sep1->setSeparator(true);
+	QAction *sep2 = new QAction(this);
+	sep2->setSeparator(true);
 
-	tblActs.insert(tblActs.length() - 1, sep1);
-	return tblActs;
+	acts2 << sep1 << acts << sep2 << actSectionMask;
+	return acts2;
 }
 void TabView::connectActions() {
 	connect(actSectionMask, &QAction::toggled, this, &TabView::onActSectionMask);
 }
+/* ======================================================================== */
+/*                              Event handler                               */
+/* ======================================================================== */
+void TabView::showEvent(QShowEvent *) {
+}
+void TabView::mouseDoubleClickEvent(QMouseEvent *) {
+	INFO << m_sqlTableName << tr("double");
+}
+bool TabView::eventFilter(QObject *obj, QEvent *event) {
+	QMouseEvent *mouseEv = static_cast<QMouseEvent *>(event);
+	if (! mouseEv)
+		return QObject::eventFilter(obj, event);
+
+	if (obj->objectName().contains(tr("mtv")))
+		if (mouseEv->type() == QEvent::MouseButtonDblClick) {
+			actSectionMask->trigger();
+			INFO << tr("Double click:") << obj;
+			return true;
+		}
+	return QObject::eventFilter(obj, event);
+}
+
 /* ======================================================================== */
 /*                             Helper methodes                              */
 /* ======================================================================== */
@@ -271,6 +295,45 @@ void TabView::setColumnHidden(const int column, const bool hide) {
 }
 void TabView::setModel(QAbstractItemModel *model) {
 	tv()->setModel(model);
+}
+void TabView::storeActionState(QAction *sender) {
+	QSETTINGS;
+
+	if (sender->isCheckable()) {
+		/*!
+		 * If action group is exclusive, clear all action config flags.
+		 */
+		if (sender->actionGroup()->isExclusive())
+			foreach(QAction *act, sender->actionGroup()->actions())
+				config.setValue(objectName() + tr("/") + act->objectName(), false);
+
+		config.setValue(objectName() + tr("/") + sender->objectName(), sender->isChecked());
+		config.sync();
+	}
+}
+bool TabView::restoreActionObjects() {
+	QSETTINGS;
+
+	//	actGrStrategy->blockSignals(true);
+	//	actGrContext->blockSignals(true);
+
+	foreach (QAction *a, QList<QAction *>()
+				<< actGrStrategy->actions()
+				<< actGrContext->actions()) {
+		if (! config.allKeys().join(',').contains(a->objectName()))
+			continue;
+		if (config.value(objectName() + tr("/") + a->objectName(), false).toBool()) {
+			if (! a->isChecked()) {
+				INFO << a->objectName();
+				a->trigger();
+			}
+		}
+	}
+
+	//	actGrStrategy->blockSignals(false);
+	//	actGrContext->blockSignals(false);
+
+	return true;
 }
 
 

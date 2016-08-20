@@ -231,7 +231,7 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	//	tvResp->resizeColumnsToContents();
 	//	tvResp->resizeRowsToContents();
 	//	tvResp->setVisible( true );
-	emit updateActions();
+	emit updateWriteActions();
 	
 }
 void Browser::exec() {
@@ -259,7 +259,7 @@ void Browser::exec() {
 	//	tvq->setVisible( true );
 	
 	mTabs.tvl1->resizeRowsColsToContents();
-	emit updateActions();
+	emit updateWriteActions();
 }
 /* ======================================================================== */
 void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
@@ -447,7 +447,7 @@ void Browser::showMetaData(const QString &t) {
 	mTabs.tvs()->first()->tv()->setModel(model);
 	mTabs.tvs()->first()->tv()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	
-	emit updateActions();
+	emit updateWriteActions();
 }
 void Browser::customMenuRequested(QPoint pos) {
 	QModelIndex index = this->tvs()->first()->tv()->indexAt(pos);
@@ -522,19 +522,7 @@ ConnectionWidget *Browser::getConnectionWidget() const
 	return connectionWidget;
 }
 void Browser::onActGroupTrigd(QAction *sender) {
-	QSETTINGS;
-
-	if (sender->isCheckable()) {
-		/*!
-		 * If action group is exclusive, clear all action config flags.
-		 */
-		if (sender->actionGroup()->isExclusive())
-			foreach(QAction *act, sender->actionGroup()->actions())
-				config.setValue(objectName() + tr("/") + act->objectName(), false);
-
-		config.setValue(objectName() + tr("/") + sender->objectName(), sender->isChecked());
-		config.sync();
-	}
+	storeActionState(sender);
 
 	if (sender->actionGroup() == actGrTvSelectBy)
 		setTvSelector(sender->data().value<TvSelector>());
@@ -861,12 +849,10 @@ void Browser::createUi(QWidget *passParent) {
 		tv->tv()->viewport()->installEventFilter( this );
 		tv->grBox()->setObjectName("gb");
 		
-		/*!
-		  * Connect TabView Signals/Slots
-		  */
 		//		if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &TabView::onTabViewSelChanged))
 		//			qReturn("Connection fail!");
-		if (! (bool)  connect(this, &Browser::updateActions, tv, &TabView::onUpdateActions))
+		if (! (bool)  connect(this,	&Browser::updateWriteActions,
+									 tv,		&TabView::onUpdateWriteActions))
 			qReturn("Connection fail!");
 	}
 }
@@ -927,6 +913,24 @@ bool Browser::restoreActionObjects () {
 			  << listObjectNames<QAction *>(ungroupedActs)->join("\n");
 
 	return true;
+}
+/* ======================================================================== */
+/*                             Helper methodes                              */
+/* ======================================================================== */
+void Browser::storeActionState(QAction *sender) {
+	QSETTINGS;
+
+	if (sender->isCheckable()) {
+		/*!
+		 * If action group is exclusive, clear all action config flags.
+		 */
+		if (sender->actionGroup()->isExclusive())
+			foreach(QAction *act, sender->actionGroup()->actions())
+				config.setValue(objectName() + tr("/") + act->objectName(), false);
+
+		config.setValue(objectName() + tr("/") + sender->objectName(), sender->isChecked());
+		config.sync();
+	}
 }
 
 #define QFOLDINGSTART {

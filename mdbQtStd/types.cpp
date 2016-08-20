@@ -11,3 +11,5 @@ void ItemStyle::debug(int verbosLevel) const
 		return;
 	}
 }
+
+

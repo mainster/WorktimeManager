@@ -133,7 +133,6 @@ public:
 		style()->polish(this);
 		update();
 	}
-
 	void resetStyleSheet(TabView *tv) {
 		tv->setStyleSheet(styleSheet());
 		style()->unpolish(tv);
@@ -149,7 +148,7 @@ public:
 signals:
 	void stateMsg(const QString &message, const int delay = 0);
 	void visibilityChanged(bool b);
-	void updateActions();
+	void updateWriteActions();
 	void tvSelectorChanged();
 	/*!
 	 * \brief clearSelection signal is emitted from Browser::eventFilter if a tabview
@@ -163,7 +162,7 @@ public slots:
 	TvSelectors tvSelector() const { return m_tvSelector; }
 	void setTvSelector(TvSelectors tvSelector) { m_tvSelector = tvSelector; }
 	void showMetaData(const QString &table);
-	void currentChanged(QModelIndex,QModelIndex) { emit updateActions(); }
+	void currentChanged(QModelIndex,QModelIndex) { emit updateWriteActions(); }
 	void onConWidgetTableActivated(const QString &sqlTab);
 	void on_connectionWidget_metaDataRequested(const QString &table) {
 		showMetaData(table);
@@ -200,6 +199,7 @@ protected slots:
 
 	void onActGroupTrigd(QAction *action);
 	bool restoreActionObjects();
+	void storeActionState(QAction *sender);
 private:
 	static Browser		*inst;
 	ConnectionWidget	*connectionWidget;

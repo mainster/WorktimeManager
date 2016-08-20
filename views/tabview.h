@@ -8,6 +8,7 @@
 #include <QSqlTableModel>
 #include <QTableView>
 #include <QWidget>
+#include <QActionGroup>
 
 #include "globals.h"
 #include "connectionwidget.h"
@@ -74,11 +75,9 @@ public:
 		return m_tv->selectionModel();
 	}
 
-	QList<QAction *> getTblActs() const;
-	QAction *fieldStrategyAction() const;
-	QAction *manualStrategyAction() const;
-	QAction *rowStrategyAction() const;
+//	QList<QAction *> getTblActs() const;
 
+//	bool hasObjReceivers(QObject *obj);
 public slots:
 	void onObjectNameChanged(const QString &objNam);
 	void setAlternateRowCol(QColor &col, bool alternateEnabled = true);
@@ -86,15 +85,7 @@ public slots:
 
 	void insertRow();
 	void deleteRow();
-	void onUpdateActions();
-	void onActSelect();
-	void onActReverttriggered();
-	void onActSubmittriggered();
-	void onActManualStrategytriggered();
-	void onActRowStrategytriggered();
-	void onActFieldStrategytriggered();
-	void onActDeleteRowtriggered();
-	void onActInsertRowtriggered();
+	void onUpdateWriteActions();
 
 	void refreshView();
 	void resizeRowsColsToContents();
@@ -110,24 +101,32 @@ signals:
 
 protected:
 	QList<QAction *> createActions();
-
 	void connectActions();
+	virtual void showEvent(QShowEvent *) override;
+	virtual void mouseDoubleClickEvent(QMouseEvent *) override;
+	bool eventFilter(QObject *obj, QEvent *event);
+
 protected slots:
 	void onClearSelection() {
 
 	}
 	void onActSectionMask(bool sectionMask = false);
+	void onActGrStrategyTrigd(QAction *sender);
+	void onActGrContextTrigd(QAction *sender);
+	void storeActionState(QAction *sender);
+	bool restoreActionObjects();
 
 private:
 	Ui::TabView			*ui;
 	QTableView        *m_tv;
 	QGroupBox         *m_gb;
 	SectionMask			*mSectMsk;
-	QList<QAction *>  tblActs;
 	QString				m_sqlTableName;
 	bool					m_select;
+	QActionGroup		*actGrStrategy, *actGrContext;
 	QAction				*actInsertRow, *actDeleteRow, *actFieldStrategy,
 	*actRowStrategy, *actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask;
+
 };
 
 
