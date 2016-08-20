@@ -107,6 +107,27 @@ public:
 											<< TVD << TVL1 << TVL2;
 		}
 
+		/*!
+		 * Get currently selected tv.
+		 */
+		TabView *currentSelected() {
+			foreach (TabView *tv, tvsNoPtr())
+				if (tv->isSelected())
+					return tv;
+			/*!
+			 * If no table widget is selected actively, use the tvc from mTvs which has
+			 * currently no model loaded.
+			 */
+			foreach (TabView *tv, tvsNoPtr())
+				if (tv->tv()->model() == 0)
+					return tv;
+
+			/*!
+			 * If all tv's had an active model, return TVA.
+			 */
+			return tva;
+		}
+
 		TabView *tva, *tvb, *tvc, *tvd, *tvl1, *tvl2;
 
 	private:
@@ -159,36 +180,33 @@ signals:
 	void clearSelections();
 
 public slots:
-	TvSelectors tvSelector() const { return m_tvSelector; }
-	void setTvSelector(TvSelectors tvSelector) { m_tvSelector = tvSelector; }
-	void showMetaData(const QString &table);
-	void currentChanged(QModelIndex,QModelIndex) { emit updateWriteActions(); }
-	void onConWidgetTableActivated(const QString &sqlTab);
-	void on_connectionWidget_metaDataRequested(const QString &table) {
-		showMetaData(table);
-	}
-	void onCyclic();
-	void customMenuRequested(QPoint pos);
-	QFont selectFont();
+	TvSelectors tvSelector() const	{ return m_tvSelector; }
+	QSqlDatabase getCurrentDatabase()	{ return connectionWidget()->currentDb(); }
+	void setTvSelector(TvSelectors tvSelector)	{ m_tvSelector = tvSelector; }
+	void currentChanged(QModelIndex,QModelIndex)	{ emit updateWriteActions(); }
+	void onConnectWdgMetaDataReq(const QString &table);
+
 	int setFontAcc(QFont &font);
-	void exec();
-	void requeryWorktimeTableView(QString nonDefaulQuery = "");
-	void showRelatTable(const QString &tNam, TabView *tvc);
-	QTableView *createView(QSqlQueryModel *model, const QString &title);
-	QSqlDatabase getCurrentDatabase() {
-		return connectionWidget->currentDb();
-	}
-	void autofitRowCol();
-	void onActFilterForm(bool b);
 	MdMenu *menuBarElement();
+	QFont selectFont();
+	QStandardItemModel *tblToMetaDataMdl(const QString &table);
+	QTableView *createView(QSqlQueryModel *model, const QString &title);
+	void autofitRowCol();
+	void customMenuRequested(QPoint pos);
+	void exec();
+	void onActFilterForm(bool b);
+	void onConWidgetTableActivated(const QString &sqlTab);
+	void onCyclic();
 	void onSourceTableChanged(SortWindow::SourceTable sourceTable);
+	void requeryWorktimeTableView(QString nonDefaulQuery = "");
+	TabView *createForeignTable(const QString &tNam, TabView *tvc);
 
 protected:
 	void createUi(QWidget *passParent = 0);
 //	void ACTION_STORE(QObject *obj, QString);
 	void ACTION_RESTORE(QObject *obj);
-
 	void createActions();
+
 protected slots:
 	bool restoreUi();
 	void showEvent(QShowEvent *e) override;
@@ -202,7 +220,7 @@ protected slots:
 	void storeActionState(QAction *sender);
 private:
 	static Browser		*inst;
-	ConnectionWidget	*connectionWidget;
+	ConnectionWidget	*mConnectionWidget;
 	QGridLayout			*grLay;
 	QTimer				*timCyc;
 	SfiltMdl				*proxyModel;
@@ -218,7 +236,7 @@ private:
 public:
 	MdMenu					*browsMenu;
 	static const QString  browserStyleSheet, browserStyleSheetv2;
-	ConnectionWidget *getConnectionWidget() const;
+	ConnectionWidget *connectionWidget() const { return mConnectionWidget; }
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Browser::TvSelectors)

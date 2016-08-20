@@ -24,10 +24,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	richEditor	= new TextEdit(this);
 	richEditor->hide();
 
-	connect(browser->getConnectionWidget(),	SIGNAL(detailesChanged(QString&)),
-			  stateBar,									SLOT(showInfo(QString&)));
-	connect(notes.toDo,								SIGNAL(changed(const QString&)),
-			  stateBar,									SLOT(showMessage2sec(const QString&)));
+	connect(browser->connectionWidget(),	SIGNAL(detailesChanged(QString&)),
+			  stateBar,								SLOT(showInfo(QString&)));
+	connect(notes.toDo,							SIGNAL(changed(const QString&)),
+			  stateBar,								SLOT(showMessage2sec(const QString&)));
+	connect(browser->connectionWidget(),	&ConnectionWidget::metaDataRequested,
+			  browser,								&Browser::onConnectWdgMetaDataReq);
 
 
 	QVBoxLayout *centralLayout = new QVBoxLayout(parent);

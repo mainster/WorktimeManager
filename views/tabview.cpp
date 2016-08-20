@@ -110,12 +110,16 @@ void TabView::onActGrContextTrigd(QAction *sender) {
 	if (sender == actDeleteRow) deleteRow();
 }
 void TabView::onUpdateWriteActions() {
+	/*!
+	 * Check if there is a valid model set before calling update procedure.
+	 */
+
 	SqlRtm *rtm = static_cast<SqlRtm *>(m_tv->model());
 	if (! rtm)	qReturn(tr("cast failed: SqlRtm *rtm = static_cast<SqlRtm *>( %1 );")
 							  .arg(m_tv->model()->metaObject()->className()));
 
-	INFO << m_sqlTableName << tr("currentIndexIsValied:")
-		  << m_tv->currentIndex().isValid();
+//	INFO << m_sqlTableName << tr("currentIndexIsValied:")
+//		  << m_tv->currentIndex().isValid();
 
 	actInsertRow->setEnabled(m_tv->currentIndex().isValid());
 	actDeleteRow->setEnabled(m_tv->currentIndex().isValid());
@@ -265,7 +269,6 @@ bool TabView::eventFilter(QObject *obj, QEvent *event) {
 		}
 	return QObject::eventFilter(obj, event);
 }
-
 /* ======================================================================== */
 /*                             Helper methodes                              */
 /* ======================================================================== */

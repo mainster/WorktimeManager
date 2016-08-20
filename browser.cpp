@@ -132,8 +132,8 @@ Browser::Browser(QWidget *parent)
 
 	createActions();
 	createUi(this);
-	connect(connectionWidget,	&ConnectionWidget::tableActivated,
-			  this,					&Browser::onConWidgetTableActivated);
+	connect(connectionWidget(),	&ConnectionWidget::tableActivated,
+			  this,						&Browser::onConWidgetTableActivated);
 	
 	connect(this, &Browser::tvSelectorChanged, this, &Browser::onTvSelectorChanged);
 
@@ -165,19 +165,24 @@ Browser::Browser(QWidget *parent)
 	filterForm->setWindowTitle(tr("The window title ") + filterForm->objectName());
 	filterForm->hide();
 	
-	QTimer::singleShot(50, this, SLOT(restoreUi()));
+	QTimer::singleShot(500, this, SLOT(restoreUi()));
 }
 Browser::~Browser() {
 	INFO << tr("close browser!");
 	//	delete ui;
 }
 
+void Browser::onConnectWdgMetaDataReq(const QString &table)	{
+	mTabs.currentSelected()->tv()->setModel( tblToMetaDataMdl(table) );
+	mTabs.currentSelected()->tv()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	emit updateWriteActions();
+}
 void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	QSETTINGS_QUERYS;
 	/*!
 	 * Get pointer to current active database connection.
 	 */
-	QSqlDatabase pdb = connectionWidget->currentDb();
+	QSqlDatabase pdb = connectionWidget()->currentDb();
 	
 	/*!
 	 * Get list of all table views and requery all of them with gb name "worktime".
@@ -240,7 +245,7 @@ void Browser::exec() {
 	QSqlQueryModel *model = new QSqlQueryModel(mTabs.tvl1->tv());
 	
 	model->setQuery(QSqlQuery(inpFrm->getQueryText(),
-									  connectionWidget->currentDb()));
+									  connectionWidget()->currentDb()));
 	mTabs.tvl1->tv()->setModel(model);
 	
 	if (model->lastError().type() != QSqlError::NoError)
@@ -262,15 +267,11 @@ void Browser::exec() {
 	emit updateWriteActions();
 }
 /* ======================================================================== */
-void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
-	/**
-	 * Relational table model - View relational WORKS 12-11-2015
-	 */
-	
+TabView *Browser::createForeignTable(const QString &tNam, TabView *tvc) {
 	/**
 	 * Get active database pointer
 	 */
-	QSqlDatabase pDb = connectionWidget->currentDb();
+	QSqlDatabase pDb = connectionWidget()->currentDb();
 	QSqlRelationalTableModel *rmod = new SqlRtm(tvc->tv(), pDb);
 	rmod->setEditStrategy(QSqlTableModel::OnFieldChange);
 	rmod->setTable(pDb.driver()->escapeIdentifier(tNam, QSqlDriver::TableName));
@@ -380,6 +381,7 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	tvc->setSelectionMode(QAbstractItemView::ContiguousSelection);
 	
 	tvc->setModel(rmod);
+
 	tvc->setEditTriggers( QAbstractItemView::DoubleClicked |
 								 QAbstractItemView::EditKeyPressed );
 	
@@ -407,16 +409,18 @@ void Browser::showRelatTable(const QString &tNam, TabView *tvc) {
 	tvc->setSqlTableName(tNam);
 	//	tvc->setObjectName(tvc->grBox()->title());
 
-	connect(this, &Browser::clearSelections, tvc, &TabView::clearSelected);
-	connect(tvc->tv()->horizontalHeader(), &QHeaderView::sectionMoved, tvc, &TabView::onSectionMoved);
-	connect(tvc, &TabView::sqlTableNameChanged, tvc, &TabView::onSqlTableNameChanged);
+	connect(this, &Browser::clearSelections,		tvc, &TabView::clearSelected);
+	connect(tvc, &TabView::sqlTableNameChanged,	tvc, &TabView::onSqlTableNameChanged);
+	connect(this, &Browser::updateWriteActions,	tvc, &TabView::onUpdateWriteActions);
+	connect(tvc->tv()->horizontalHeader(), &QHeaderView::sectionMoved,
+			  tvc,									&TabView::onSectionMoved);
 
+	return tvc;
 }
 /* ======================================================================== */
-void Browser::showMetaData(const QString &t) {
-	
-	QSqlRecord rec = connectionWidget->currentDb().record(t);
-	QStandardItemModel *model = new QStandardItemModel(tvs()->first()->tv());
+QStandardItemModel *Browser::tblToMetaDataMdl(const QString &table) {
+	QSqlRecord rec = connectionWidget()->currentDb().record(table);
+	QStandardItemModel *model = new QStandardItemModel(/*tvs()->first()->tv()*/);
 	
 	model->insertRows(0, rec.count());
 	model->insertColumns(0, 7);
@@ -428,8 +432,7 @@ void Browser::showMetaData(const QString &t) {
 	model->setHeaderData(4, Qt::Horizontal, "Required");
 	model->setHeaderData(5, Qt::Horizontal, "AutoValue");
 	model->setHeaderData(6, Qt::Horizontal, "DefaultValue");
-	
-	
+		
 	for (int i = 0; i < rec.count(); ++i) {
 		QSqlField fld = rec.field(i);
 		model->setData(model->index(i, 0), fld.name());
@@ -443,11 +446,8 @@ void Browser::showMetaData(const QString &t) {
 		model->setData(model->index(i, 5), fld.isAutoValue());
 		model->setData(model->index(i, 6), fld.defaultValue());
 	}
-	
-	mTabs.tvs()->first()->tv()->setModel(model);
-	mTabs.tvs()->first()->tv()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	
-	emit updateWriteActions();
+
+	return model;
 }
 void Browser::customMenuRequested(QPoint pos) {
 	QModelIndex index = this->tvs()->first()->tv()->indexAt(pos);
@@ -473,34 +473,15 @@ void Browser::onActFilterForm(bool b) {
 	}
 }
 void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
-	/*! Invoked after double clicking a table item in connection widget tree view. */
 	/*!
+	 * Invoked after double clicking a table item in connection widget tree view.
+	 *
 	 * Determine which TabView should be targeted by the activated tab model. Either select
 	 * an instance of TabView which hasn't a model loaded yet. To swap sql tables during
 	 * runtime, a double-mouse-click event is captured and the user-selected tv instance
 	 * becomes addressed by the event handler.
 	 */
-	foreach (TabView *tv, mTabs.tvsNoPtr()) {
-		/*!
-		 * Check for pending active select requests.
-		 */
-		if (tv->isSelected()) {
-			showRelatTable( sqlTbl, tv );
-			return;
-		}
-	}
-
-	foreach (TabView *tv, mTabs.tvsNoPtr()) {
-		/*!
-		 * If no table widget is selected actively, use the tvc from mTvs which has
-		 * currently no model loaded.
-		 */
-		if (tv->tv()->model() == 0x00) {
-			showRelatTable(sqlTbl, tv);
-			return;
-		}
-	}
-	INFO << tr("No model-less table view widget found!");
+	createForeignTable(sqlTbl, mTabs.currentSelected());
 }
 void Browser::autofitRowCol() {
 	foreach (TabView *tvc, mTabs.tvsNoPtr())
@@ -516,10 +497,6 @@ void Browser::onTvSelectorChanged() {
 	/**** Safe all action states from Browser
 	\*/
 	//	Globals::ACTION_STORE(this);
-}
-ConnectionWidget *Browser::getConnectionWidget() const
-{
-	return connectionWidget;
 }
 void Browser::onActGroupTrigd(QAction *sender) {
 	storeActionState(sender);
@@ -699,7 +676,7 @@ bool Browser::restoreUi() {
 		
 		QString tabNam = config.value(objectName() + tr("/") + tv->objectName()).toString();
 		tv->restoreView();
-		showRelatTable( tabNam, tv );
+		createForeignTable( tabNam, tv );
 	}
 	/**** Restore all action states from Browser
 	\*/
@@ -771,7 +748,7 @@ void Browser::createUi(QWidget *passParent) {
 	 */
 	
 	grLay = new QGridLayout(passParent);
-	connectionWidget = new ConnectionWidget(passParent);
+	mConnectionWidget = new ConnectionWidget(passParent);
 	
 	mTabs.tva = new TabView(passParent);
 	mTabs.tvb = new TabView(passParent);
@@ -821,7 +798,7 @@ void Browser::createUi(QWidget *passParent) {
 	
 	splitter->addWidget(mTabs.tva);
 	splitter->addWidget(mTabs.tvb);
-	splitter_2->addWidget(connectionWidget);
+	splitter_2->addWidget(mConnectionWidget);
 	splitter_2->addWidget(mTabs.tvd);
 	splitter_3->addWidget(splitter);
 	splitter_3->addWidget(splitter_2);
@@ -851,9 +828,9 @@ void Browser::createUi(QWidget *passParent) {
 		
 		//		if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &TabView::onTabViewSelChanged))
 		//			qReturn("Connection fail!");
-		if (! (bool)  connect(this,	&Browser::updateWriteActions,
-									 tv,		&TabView::onUpdateWriteActions))
-			qReturn("Connection fail!");
+//		if (! (bool)  connect(this,	&Browser::updateWriteActions,
+//									 tv,		&TabView::onUpdateWriteActions))
+//			qReturn("Connection fail!");
 	}
 }
 QTableView* Browser::createView(QSqlQueryModel *model, const QString &title) {
