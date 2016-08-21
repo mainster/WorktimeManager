@@ -10,6 +10,7 @@
 #include <QMenu>
 #include <QRegularExpression>
 #include <QActionGroup>
+#include <QHeaderView>
 
 #include "ui_dbconndlg.h"
 #include "browser.h"
@@ -110,7 +111,6 @@ protected slots:
 	void onActRichTextToggd(bool);
 	void onActFilterWindowSource(bool);
 
-	void resetColumnConfig();
 private slots:
 	void onOpenCloseInpFrm(bool onOff) {
 		inpFrm->setVisible(onOff);
@@ -133,7 +133,6 @@ protected:
 	void hideEvent(QHideEvent *) override;
 	void closeEvent(QCloseEvent *);
 
-	void resetColumnConfig2();
 private:
 	Ui::MainWindow *ui;
 	Browser			*browser;

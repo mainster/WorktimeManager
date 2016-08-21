@@ -201,6 +201,7 @@ public slots:
 	void requeryWorktimeTableView(QString nonDefaulQuery = "");
 	TabView *createForeignTable(const QString &tNam, TabView *tvc);
 
+	void resetColumnConfig();
 protected:
 	void createUi(QWidget *passParent = 0);
 	void createActions();

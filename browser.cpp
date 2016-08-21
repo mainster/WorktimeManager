@@ -943,6 +943,20 @@ void Browser::selectAndSetRowColor() {
 
 	}
 }
+void Browser::resetColumnConfig() {
+	if (mTabs.currentSelected(true) != NULL) {
+		mTabs.currentSelected()->resetColumnsDefaultPos(true);
+		mTabs.currentSelected()->removeColumnsConfig();
+		mTabs.currentSelected()->modelCast()->resetModelSrcs();
+	}
+	else {
+		foreach (TabView *tv, mTabs.tvsNoPtr()) {
+			tv->resetColumnsDefaultPos(true);
+			tv->removeColumnsConfig();
+			tv->modelCast()->resetModelSrcs();
+		}
+	}
+}
 
 #define QFOLDINGSTART {
 #ifndef COMMENT_OUT_UNUSED

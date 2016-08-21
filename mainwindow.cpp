@@ -631,7 +631,6 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		connect(actOpen,  &QAction::triggered, this, &MainWindow::onActOpenTrig);
 		connect(actFiltSelectedTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
 		connect(actFiltWorktimeTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
-		connect(actResetConfig, &QAction::triggered, this, &MainWindow::resetColumnConfig);
 	}
 
 	if ((receivers == connectOthers) ||
@@ -644,35 +643,9 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		connect(actShowSqlQuery, &QAction::toggled, inpFrm, &InpFrm::setQueryBoxVisible);
 		connect(actSelFont, &QAction::triggered, browser, &Browser::selectAndSetFont);
 		connect(actSetAlterRowCol, &QAction::triggered, browser, &Browser::selectAndSetRowColor);
+		connect(actResetConfig, &QAction::triggered, browser, &Browser::resetColumnConfig);
 	}
 }
 void MainWindow::initDocks() {
 
-}
-void MainWindow::resetColumnConfig() {
-
-	QSETTINGS;
-	foreach(QString s, browser->connectionWidget()->currentDb().tables()) {
-		config.remove(s + Md::k.centerCols);
-		config.remove(s + Md::k.visibleCols);
-		config.remove(s + Md::k.sectionIdxs);
-		browser->mTabs.currentSelected()->modelCast()->setCenterCols(QList<int>());
-		browser->mTabs.currentSelected()->modelCast()->setVisibleCols(QList<bool>());
-		browser->mTabs.currentSelected()->modelCast()->setSectionIdxs(QList<int>());
-	}
-	config.sync();
-}
-void MainWindow::resetColumnConfig2() {
-	QSETTINGS;
-	foreach(QString s, browser->connectionWidget()->currentDb().tables()) {
-		config.remove(s + Md::k.centerCols);
-		config.remove(s + Md::k.visibleCols);
-		config.remove(s + Md::k.sectionIdxs);
-	}
-
-	foreach (TabView *tv, browser->mTabs.tvsNoPtr()) {
-		tv->modelCast()->resetModelSrcs();
-		tv->restoreColumnOrderAndVisability();
-	}
-	config.sync();
 }

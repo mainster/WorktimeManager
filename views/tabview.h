@@ -97,6 +97,9 @@ public slots:
 	void storeFont(QFont font);
 
 	SqlRtm *modelCast();
+
+	void resetColumnsDefaultPos(bool allVisible);
+	void removeColumnsConfig();
 signals:
 	void sqlTableNameChanged(const QString &name);
 	void selectChanged(bool isSelected);

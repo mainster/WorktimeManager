@@ -192,7 +192,7 @@ void TabView::restoreView() {
 
 	/*!	Restore model sources	*/
 }
-void TabView::restoreColumnOrderAndVisability2() {
+void TabView::restoreColumnOrderAndVisability() {
 	//!< Restore the models source members
 	modelCast()->restoreModelSrcsFromIni(sqlTableName());
 
@@ -209,23 +209,6 @@ void TabView::restoreColumnOrderAndVisability2() {
 		tv()->horizontalHeader()->moveSection(k, sectIdxs.at(k));
 
 }
-void TabView::restoreColumnOrderAndVisability() {
-	if (qobject_cast<SqlRtm *>(tv()->model()))
-		qobject_cast<SqlRtm *>(tv()->model())->restoreModelSrcsFromIni(sqlTableName());
-
-	SectionMask *sm = new SectionMask(tv(), this);
-	sm->restoreVisibleCols();
-	delete sm;
-
-	QList<int> sectIdxs = qobject_cast<SqlRtm *>(tv()->model())->sectionIdxs();
-
-	for (int k = 0; k < sectIdxs.length(); k++)
-		tv()->horizontalHeader()->moveSection(k, sectIdxs.at(k));
-
-}
-//void TabView::storeRtm() {
-//	modelCast()->storeModel(sqlTableName());
-//}
 QList<QAction *> TabView::createActions() {
 	actInsertRow =		new QAction(tr("&Insert Row"), this);
 	actDeleteRow =		new QAction(tr("&Delete Row"), this);
@@ -316,7 +299,7 @@ bool TabView::eventFilter(QObject *obj, QEvent *event) {
 	if (obj->objectName().contains(tr("mtv")))
 		if (mouseEv->type() == QEvent::MouseButtonDblClick) {
 			actSectionMask->trigger();
-			INFO << tr("Double click:") << obj;
+//			INFO << tr("Double click:") << obj;
 			return true;
 		}
 	return QObject::eventFilter(obj, event);
@@ -407,4 +390,20 @@ bool TabView::restoreActionObjects() {
 SqlRtm *TabView::modelCast() {
 	return qobject_cast<SqlRtm *>(tv()->model());
 }
+void TabView::removeColumnsConfig() {
+	QSETTINGS;
+	config.remove(sqlTableName() + Md::k.centerCols);
+	config.remove(sqlTableName() + Md::k.visibleCols);
+	config.remove(sqlTableName() + Md::k.sectionIdxs);
 
+	config.sync();
+}
+void TabView::resetColumnsDefaultPos(bool allVisible) {
+	QHeaderView *h = tv()->horizontalHeader();
+	h->hide();
+	for (int k = 0; k < tv()->model()->columnCount(); k++) {
+		h->moveSection(h->visualIndex(k), k);
+		if (allVisible)	h->setSectionHidden(k, false);
+	}
+	h->show();
+}

@@ -65,12 +65,6 @@ public:
 		return QSqlTableModel::data(idx, role);
 	}
 
-	void onSrcChanged() {
-		setVisibleCols(mVisibleCols);
-		for (int k = 0; k< mSectionIdxs.length(); k++)
-			setSectionIdx(k, mSectionIdxs.at(k));
-	}
-
 	void storeModel(const QString &sqlTableName) {
 		QSETTINGS;
 		/*!	Store model sources	*/
@@ -105,8 +99,8 @@ public:
 
 	QList<int> /***/sectionIdxs()  { return /*&*/mSectionIdxs; }
 	void setSectionIdxs(const QList<int> &sectionIdxs) {
-		 mSectionIdxs = sectionIdxs;
-		 emit sectionIdxsChanged(mSectionIdxs);
+		mSectionIdxs = sectionIdxs;
+		emit sectionIdxsChanged(mSectionIdxs);
 	}
 	void setSectionIdx(const int logicalIdx, const int visualIdx) {
 		/*!
@@ -123,20 +117,24 @@ public:
 		emit sectionIdxsChanged(mSectionIdxs);
 	}
 
+	void onSrcChanged() {
+		setVisibleCols(mVisibleCols);
+		for (int k = 0; k< mSectionIdxs.length(); k++)
+			setSectionIdx(k, mSectionIdxs.at(k));
+	}
 	void resetModelSrcs() {
 		mCenterCols.clear();
-
-		for (int k = 0; k < mVisibleCols.length(); k++) {
-			mVisibleCols[k] = true;
-			mSectionIdxs[k] = k;
-		}
-//		emit modelSrcsResetted();
+		mVisibleCols.clear();
+		mSectionIdxs.clear();
 	}
+
 signals:
 	void srcChanged();
 	void centerColsChanged(QList<int> centerCols);
 	void visibleColsChanged(QList<bool> visibleCols);
 	void sectionIdxsChanged(QList<int> sectionIdxs);
+
+protected slots:
 
 private:
 	QList<int>	mCenterCols;
