@@ -238,6 +238,7 @@ public:
 	ConnectionWidget *connectionWidget() const { return mConnectionWidget; }
 	void setFont(const QFont f);
 	void selectAndSetFont();
+	void selectAndSetRowColor();
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Browser::TvSelectors)

@@ -617,6 +617,7 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 }
 void Browser::showEvent(QShowEvent *) {
 	SPLT_RESTORE(this);
+	autofitRowCol();
 	emit visibilityChanged( true );
 }
 void Browser::hideEvent(QHideEvent *) {
@@ -913,6 +914,33 @@ void Browser::selectAndSetFont() {
 		QFont f = QFontDialog::getFont(&ok, QFont("Helvetica [Cronyx]", 10), this);
 		foreach (TabView *_tv, mTabs.tvsNoPtr())
 			_tv->storeFont(f);
+	}
+}
+void Browser::selectAndSetRowColor() {
+	if (mTabs.currentSelected(true) != NULL) {
+		QPalette pal = mTabs.currentSelected()->tv()->palette();
+		QColor color = QColorDialog::getColor(
+								pal.background().color(), this,
+								tr("Farbe für alternierenden Zeilenhintergrund"),
+								QColorDialog::DontUseNativeDialog);
+
+		if (color.isValid())
+			mTabs.currentSelected()->setAlternateRowCol(color, true);
+	}
+	else {
+		/*!
+		 * If no tv is selected, configure all tvs.
+		 */
+		QPalette pal = mTabs.tva->tv()->palette();
+		QColor color = QColorDialog::getColor(
+								pal.background().color(), this,
+								tr("Farbe für alternierenden Zeilenhintergrund"),
+								QColorDialog::DontUseNativeDialog);
+
+		if (color.isValid())
+			foreach (TabView *tv, mTabs.tvsNoPtr())
+				tv->setAlternateRowCol(color, true);
+
 	}
 }
 

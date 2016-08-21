@@ -100,20 +100,6 @@ MainWindow::~MainWindow() {
 void MainWindow::onInpFrmButtonClick(bool ) {
 
 }
-void MainWindow::onSetAlterRowColTrig() {
-	QPalette pal = browser->tvs()->first()->tv()->palette();
-
-	QColor color = QColorDialog::getColor(
-							pal.background().color(), this,
-							"Farbe für alternierenden Zeilenhintergrund",
-							QColorDialog::DontUseNativeDialog);
-
-	if (color.isValid()) {
-		foreach (TabView *tv, *browser->tvs()) {
-			tv->setAlternateRowCol( color, true );
-		}
-	}
-}
 void MainWindow::onResizerDlgTrig() {
 	bool ok;
 	QString text =  QInputDialog::
@@ -632,7 +618,6 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		connect(actUnderConstr, &QAction::triggered, this, &MainWindow::onUnderConstrTrig);
 		connect(actResizerDlg, &QAction::triggered, this, &MainWindow::onResizerDlgTrig);
 		//		connect(actShowSqlQuery, &QAction::toggled, this, &MainWindow::onShowSqlQueryTogd);
-		connect(actSetAlterRowCol, &QAction::triggered, this, &MainWindow::onSetAlterRowColTrig);
 		connect(actCfgInpFrmTabOrd,  &QAction::triggered, this, &MainWindow::onActCfgInpFrmTabOrdTrig);
 		connect(actSave,  &QAction::triggered, this, &MainWindow::onActSaveTrig);
 		connect(actOpen,  &QAction::triggered, this, &MainWindow::onActOpenTrig);
@@ -642,13 +627,14 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 
 	if ((receivers == connectOthers) ||
 		 (receivers == connectAll)) {
-		connect(actSelFont, &QAction::triggered, browser, &Browser::selectAndSetFont);
 		connect(actAutoFitTables,	&QAction::triggered, browser, &Browser::autofitRowCol);
 		connect(actFilterForm, &QAction::triggered, browser, &Browser::onActFilterForm);
 		connect(browser, &Browser::stateMsg, stateBar, &MDStateBar::showMessage);
 		connect(inpFrm, &InpFrm::visibilityChanged, actInpForm, &QAction::setChecked);
 		connect(browser, &Browser::visibilityChanged, actBrowseSQL, &QAction::setChecked);
 		connect(actShowSqlQuery, &QAction::toggled, inpFrm, &InpFrm::setQueryBoxVisible);
+		connect(actSelFont, &QAction::triggered, browser, &Browser::selectAndSetFont);
+		connect(actSetAlterRowCol, &QAction::triggered, browser, &Browser::selectAndSetRowColor);
 	}
 }
 void MainWindow::initDocks() {

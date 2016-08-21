@@ -62,12 +62,8 @@ public:
 	~MainWindow();
 
 signals:
-	//	void cyclicObjInfoChanged();
-
 
 public slots:
-	//	bool cyclicObjInfo() const { return m_cyclicObjInfo; }
-	//	void setCyclicObjInfo(bool cyclicObjInfo) { m_cyclicObjInfo = cyclicObjInfo; }
 	void initDocks();
 	void about() {
 		QMessageBox::about
@@ -104,7 +100,6 @@ protected slots:
 		INFO << "!";
 	}
 	void onUnderConstrTrig();
-	void onSetAlterRowColTrig();
 	void onCyclic();
 	void onResizerDlgTrig();
 	void onInpFrmButtonClick(bool);
