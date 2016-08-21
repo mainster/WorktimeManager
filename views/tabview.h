@@ -77,6 +77,7 @@ public:
 	}
 
 
+	SqlRtm *clearMdlSrces();
 public slots:
 	void onObjectNameChanged(const QString &objNam);
 	void setAlternateRowCol(QColor &col, bool alternateEnabled = true);
@@ -96,6 +97,7 @@ public slots:
 	QFont restoreFont();
 	void storeFont(QFont font);
 
+	SqlRtm *modelCast();
 signals:
 	void sqlTableNameChanged(const QString &name);
 	void selectChanged(bool isSelected);

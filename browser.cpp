@@ -4,6 +4,7 @@
 #define	COMMENT_OUT_UNUSED
 
 bool ok;
+//QFont("Helvetica [Cronyx]", 10)
 
 struct Browser::mTabs_t Browser::mTabs = Browser::mTabs_t();
 Browser *Browser::inst = 0;
@@ -384,7 +385,7 @@ TabView *Browser::createForeignTable(const QString &tNam, TabView *tvc) {
 								 QAbstractItemView::EditKeyPressed );
 
 	for (int k = 0; k < rmod->columnCount(); k++)
-		rmod->sectionIdxs()->append( k );
+		rmod->sectionIdxs().append( k );
 
 	/** !!!!!!!!!!!!!!!!!!!! tvs()->first()->tv()->selectionModel() changed to
 	  * mTvs[3]->tv()->selectionModel()

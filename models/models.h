@@ -15,6 +15,9 @@
 class SqlRtm: public QSqlRelationalTableModel {
 
 	Q_OBJECT
+	Q_PROPERTY(QList<bool> visibleCols READ visibleCols WRITE setVisibleCols NOTIFY visibleColsChanged)
+	Q_PROPERTY(QList<int>* sectionIdxs READ sectionIdxs WRITE setSectionIdxs NOTIFY sectionIdxsChanged)
+	Q_PROPERTY(QList<int> centerCols READ centerCols WRITE setCenterCols NOTIFY centerColsChanged)
 
 public:
 	enum MdlSrc {
@@ -41,13 +44,6 @@ public:
 	}
 
 	/*!
-	 * \brief getCenterCols returns a list of columns which shold be center aligned
-	 * \return
-	 */
-	QList<int> centerCols() const	{ return mCenterCols; }
-	void setCenterCols(const QList<int> &value)  { mCenterCols = value; }
-
-	/*!
 	 * \brief data overrides the data() methode of the base class QSqlTableModel.
 	 * By implementing more data roles (e.g. Qt::TextAlignmentRole) which the model can
 	 * handle, this subclass becomes more flexible.
@@ -69,9 +65,6 @@ public:
 		return QSqlTableModel::data(idx, role);
 	}
 
-	QList<bool> visibleCols() const { return mVisibleCols; }
-	void setVisibleCols(const QList<bool> &visibleCols) { mVisibleCols = visibleCols; }
-
 	void onSrcChanged() {
 		setVisibleCols(mVisibleCols);
 		for (int k = 0; k< mSectionIdxs.length(); k++)
@@ -81,33 +74,60 @@ public:
 	void storeModel(const QString &sqlTableName) {
 		QSETTINGS;
 		/*!	Store model sources	*/
-		config.setValue(sqlTableName + tr("/mCenterCols"),QVariant::fromValue(mCenterCols));
-		config.setValue(sqlTableName + tr("/mVisibleCols"),QVariant::fromValue(mVisibleCols));
-		config.setValue(sqlTableName + tr("/mSectionIdxs"),QVariant::fromValue(mSectionIdxs));
+		config.setValue(sqlTableName + Md::k.centerCols, QVariant::fromValue(mCenterCols));
+		config.setValue(sqlTableName + Md::k.visibleCols,QVariant::fromValue(mVisibleCols));
+		config.setValue(sqlTableName + Md::k.sectionIdxs,QVariant::fromValue(mSectionIdxs));
 	}
 	void restoreModel(const QString &sqlTableName) {
 		QSETTINGS;
 		/*!	Store model sources	*/
-		mCenterCols = config.value(sqlTableName + tr("/mCenterCols")).value<QList<int> >();
-		mVisibleCols = config.value(sqlTableName + tr("/mVisibleCols")).value<QList<bool> >();
-		mSectionIdxs = config.value(sqlTableName + tr("/mSectionIdxs")).value<QList<int> >();
+		mCenterCols = config.value(sqlTableName + Md::k.centerCols).value<QList<int> >();
+		mVisibleCols = config.value(sqlTableName + Md::k.visibleCols).value<QList<bool> >();
+		mSectionIdxs = config.value(sqlTableName + Md::k.sectionIdxs).value<QList<int> >();
 		emit srcChanged();
 	}
 
-	QList<int> *sectionIdxs()  { return &mSectionIdxs; }
-	void setSectionIdxs(const QList<int> &sectionIdxs) { mSectionIdxs = sectionIdxs; }
+	/*!
+	 * \brief getCenterCols returns a list of columns which shold be center aligned
+	 * \return
+	 */
+	QList<int> centerCols() const	{ return mCenterCols; }
+	void setCenterCols(const QList<int> &value)  {
+		mCenterCols = value;
+		emit centerColsChanged(mCenterCols);
+	}
+
+	QList<bool> visibleCols() const { return mVisibleCols; }
+	void setVisibleCols(const QList<bool> &visibleCols) {
+		mVisibleCols = visibleCols;
+		emit visibleColsChanged(mVisibleCols);
+	}
+
+	QList<int> /***/sectionIdxs()  { return /*&*/mSectionIdxs; }
+	void setSectionIdxs(const QList<int> &sectionIdxs) {
+		 mSectionIdxs = sectionIdxs;
+		 emit sectionIdxsChanged(mSectionIdxs);
+	}
 	void setSectionIdx(const int logicalIdx, const int visualIdx) {
+		/*!
+		 * Init if sectionIdxs list is empty.
+		 */
 		if (mSectionIdxs.count() < columnCount()) {
 			mSectionIdxs.clear();
+
 			for (int k = 0; k < columnCount(); k++)
 				mSectionIdxs << k;
 		}
+
 		mSectionIdxs[logicalIdx] = visualIdx;
-		INFO << mSectionIdxs;
+		emit sectionIdxsChanged(mSectionIdxs);
 	}
 
 signals:
 	void srcChanged();
+	void centerColsChanged(QList<int> centerCols);
+	void visibleColsChanged(QList<bool> visibleCols);
+	void sectionIdxsChanged(QList<int> sectionIdxs);
 
 private:
 	QList<int>	mCenterCols;

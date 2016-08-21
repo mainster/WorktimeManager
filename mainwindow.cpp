@@ -401,6 +401,7 @@ void MainWindow::createActions() {
 	actCfgInpFrmTabOrd = new QAction("Tabulator Reihenfolge", this);
 	actFiltSelectedTbl = new QAction("Auf ausgewählte Tabelle anwenden", this);
 	actFiltWorktimeTbl = new QAction("Auf Arbeitszeiten-Tabelle anwenden", this);
+	actResetConfig = new QAction("Spalten Einstellungen zurücksetzen", this);
 
 	/* ======================================================================== */
 	/*                             Action grouping                              */
@@ -437,7 +438,8 @@ void MainWindow::createActions() {
 	acts << PONAM(actGbStyleShtA) << PONAM(actGbSShtInpFrm) << PONAM(actSelFont)
 		  << PONAM(actCyclicObjInfo) << PONAM(actResizerDlg) << PONAM(actShowSqlQuery)
 		  << PONAM(actSetAlterRowCol) << PONAM(actAutoFitTables) << PONAM(actFilterTable)
-			  /*<< PONAM(actFilterTableWindow)*/ << PONAM(actFilterForm) << PONAM(actCfgInpFrmTabOrd);
+			  /*<< PONAM(actFilterTableWindow)*/ << PONAM(actFilterForm) << PONAM(actCfgInpFrmTabOrd)
+		  << PONAM(actResetConfig);
 
 	foreach (QAction *act, acts)
 		actGrTbMenu->addAction(act);
@@ -564,8 +566,14 @@ void MainWindow::makeMenu() {
 	MdMenu *setupMenu = new MdMenu(this);
 	setupMenu->setTitle(tr("Se&tup"));
 
-	setupMenu->addActions(QList<QAction *>() << actSelFont << actSetAlterRowCol <<
-								 actCyclicObjInfo << actResizerDlg << actShowSqlQuery << actCfgInpFrmTabOrd);
+	QAction *sep3 = new QAction(this);
+	sep3->setSeparator(true);
+
+	setupMenu->addActions(QList<QAction *>() << actSelFont << actSetAlterRowCol
+								 << sep3 << actCyclicObjInfo << actResizerDlg << actShowSqlQuery
+								 << actCfgInpFrmTabOrd << actResetConfig);
+	setupMenu->addSeparator();
+
 
 	MdMenu *filterForm = new MdMenu(this);
 	filterForm->setTitle(tr("Filter Fenster"));
@@ -623,6 +631,7 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		connect(actOpen,  &QAction::triggered, this, &MainWindow::onActOpenTrig);
 		connect(actFiltSelectedTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
 		connect(actFiltWorktimeTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
+		connect(actResetConfig, &QAction::triggered, this, &MainWindow::resetColumnConfig);
 	}
 
 	if ((receivers == connectOthers) ||
@@ -639,4 +648,17 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 }
 void MainWindow::initDocks() {
 
+}
+void MainWindow::resetColumnConfig() {
+
+	QSETTINGS;
+	foreach(QString s, browser->connectionWidget()->currentDb().tables()) {
+		config.remove(s + Md::k.centerCols);
+		config.remove(s + Md::k.visibleCols);
+		config.remove(s + Md::k.sectionIdxs);
+		browser->mTabs.currentSelected()->modelCast()->setCenterCols(QList<int>());
+		browser->mTabs.currentSelected()->modelCast()->setCenterCols(QList<int>());
+		browser->mTabs.currentSelected()->modelCast()->setCenterCols(QList<int>());
+	}
+	config.sync();
 }

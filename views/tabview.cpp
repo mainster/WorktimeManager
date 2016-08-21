@@ -200,7 +200,7 @@ void TabView::restoreRtm() {
 	sm->restoreVisibleCols();
 	delete sm;
 
-	QList<int> sectIdxs = *qobject_cast<SqlRtm *>(tv()->model())->sectionIdxs();
+	QList<int> sectIdxs = qobject_cast<SqlRtm *>(tv()->model())->sectionIdxs();
 
 	for (int k = 0; k < sectIdxs.length(); k++)
 		tv()->horizontalHeader()->moveSection(k, sectIdxs.at(k));
@@ -388,5 +388,7 @@ bool TabView::restoreActionObjects() {
 
 	return true;
 }
-
+SqlRtm *TabView::modelCast() {
+	return qobject_cast<SqlRtm *>(tv()->model());
+}
 

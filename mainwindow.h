@@ -110,6 +110,7 @@ protected slots:
 	void onActRichTextToggd(bool);
 	void onActFilterWindowSource(bool);
 
+	void resetColumnConfig();
 private slots:
 	void onOpenCloseInpFrm(bool onOff) {
 		inpFrm->setVisible(onOff);
@@ -152,10 +153,12 @@ private:
 	QActionGroup *actGrTbMain, *actGrTbMenu, *actGrFilterWidg;
 
 	QAction *actNew, *actOpen, *actSave, *actExport, *actBrowseSQL, *actInpForm,
-	*actShowTbl, *actDbModMaster, *actClose, *actRichEdit, *actUnderConstr, *actNotes, *actGbStyleShtA,
-	*actGbSShtInpFrm, *actSelFont, *actCyclicObjInfo, *actResizerDlg, *actShowSqlQuery,
+	*actShowTbl, *actDbModMaster, *actClose, *actRichEdit, *actUnderConstr, *actNotes,
+	*actGbStyleShtA, *actGbSShtInpFrm, *actSelFont, *actCyclicObjInfo, *actResizerDlg,
+	*actShowSqlQuery,
 	*actSetAlterRowCol, *actAutoFitTables, *actFilterTable, *actFilterTableWindow,
-	*actFilterForm, *actCfgInpFrmTabOrd, *actFiltWorktimeTbl, *actFiltSelectedTbl;
+	*actFilterForm, *actCfgInpFrmTabOrd, *actFiltWorktimeTbl, *actFiltSelectedTbl,
+	*actResetConfig;
 
 	void keyPressEvent(QKeyEvent *e);
 };

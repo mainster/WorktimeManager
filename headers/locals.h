@@ -13,7 +13,10 @@ public:
 		focusOrder,
 		altRowColOn,
 		alterRowColor,
-		tableFont;
+		tableFont,
+		centerCols,
+		visibleCols,
+		sectionIdxs;
 	} k;
 };
 
