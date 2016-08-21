@@ -17,12 +17,13 @@
         <file alias="icoExit">images/application-exit.png</file>
         <file alias="icoDelete">images/deleteRed.png</file>
         <file>images/1downarrow16.png</file>
-        <file>images/1downarrow13.png</file>
+        <file alias="sortdown">images/1downarrow13.png</file>
         <file>images/up_arrow.png</file>
         <file>images/down_arrow.png</file>
         <file>images/notes.png</file>
         <file>images/greenCheck.png</file>
         <file>images/editor.png</file>
+        <file alias="sortup">images/uparrow.png</file>
     </qresource>
     <qresource prefix="/textedit">
         <file>images/textedit_res/win/zoomout.png</file>

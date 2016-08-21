@@ -64,7 +64,7 @@ QHeaderView::section {
      padding-top: 2px;
      padding-bottom: 2px;
      border: 1px solid #6c6c6c;
- }
+}
  QHeaderView::section:checked {
      background-color: rgb(31, 94, 233);
  }

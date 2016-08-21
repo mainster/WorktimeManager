@@ -11,6 +11,7 @@ MDNotes::MDNotes(const QString settingsKey, QWidget *parent)
 	ui->pbStrikeOut->setIcon(QIcon(":/images/greenCheck.png"));
 	ui->pbDeleteLast->setIcon(QIcon(":icoDelete"));
 
+	ui->pbSave->setShortcut(QKeySequence(tr("Ctrl+s")));
 	/*!
 	 * Restore text edit contents.
 	 */
@@ -28,9 +29,12 @@ MDNotes::MDNotes(const QString settingsKey, QWidget *parent)
 	//	createActions();
 	connectActions();
 }
-
 MDNotes::~MDNotes() {
 	delete ui;
+}
+void MDNotes::keyshortTrigger() {
+	INFO << tr("Shortcut");
+	ui->pbSave->click();
 }
 void MDNotes::onAnyKeyClicked(bool clicked) {
 	QSETTINGS;
@@ -82,9 +86,6 @@ QString MDNotes::settingsKey() const {
 	return mSettingsKey;
 }
 void MDNotes::createActions() {
-	actKeyOk = new QAction(ui->textEdit);
-	actKeyDeleteLast = new QAction(ui->textEdit);
-	//	pbStrikeOut
 
 	if (false) {
 		QList<QChar> ampersChars;
@@ -97,11 +98,6 @@ void MDNotes::createActions() {
 		QSet<QChar> charSet = QSet<QChar>::fromList(ampersChars);
 		if (charSet.count() < ampersChars.count())
 			WARN << tr("Duplicate ampersanded character found!");
-
-		actKeyOk->setShortcut(tr("Alt+%1").arg(ampersChars.at(0)));
-		actKeyDeleteLast->setShortcut(tr("Alt+%1").arg(ampersChars.at(1)));
-
-		INFO << actKeyOk->shortcut() << actKeyDeleteLast->shortcut();
 	}
 }
 void MDNotes::connectActions() {

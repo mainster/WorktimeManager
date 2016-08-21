@@ -69,7 +69,7 @@ HEADERS += \
 	 sectionmask.h \
 	 sortwindow.h \
 	 textedit/textedit.h \
-	 views/tabview.h \
+	 views/tabview.h
 
 SOURCES += \
 	 browser.cpp \
@@ -97,7 +97,7 @@ SOURCES += \
 	 sectionmask.cpp \
 	 sortwindow.cpp \
 	 textedit/textedit.cpp \
-	 views/tabview.cpp \
+	 views/tabview.cpp
 
 FORMS += \
 	 uis/dbconndlg.ui \

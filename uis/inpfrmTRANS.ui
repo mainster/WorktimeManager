@@ -67,7 +67,7 @@ QComboBox::drop-down {
 	border-bottom-right-radius: 3px;
 }
 QComboBox::down-arrow {
-	image: url(://images/1downarrow13.png);
+	image: url(:sortdown);
 }
 QComboBox::down-arrow:on { /* shift the arrow when popup is open */
 	top: 1px;
@@ -123,7 +123,7 @@ QDateEdit::drop-down {
 	border-bottom-right-radius: 3px;
 }
 QDateEdit::down-arrow {
-	image: url(://images/1downarrow13.png);
+	image: url(:sortdown);
 }
 /* shift the arrow when popup is open */
 QDateEdit::down-arrow:on { 

@@ -4,6 +4,13 @@
 class Browser;
 class SectionMask;
 
+QString TabView::tvStyleHeadView = QString("QHeaderView::down-arrow { "
+														 "padding-left: 25px; "
+														 "image: url(:sortdown); "
+														 "}  "
+														 "QHeaderView::up-arrow { "
+														 "image: url(:sortup); "
+														 "}");
 
 /* ======================================================================== */
 /*                             TabView::TabView                             */
@@ -15,7 +22,8 @@ TabView::TabView(QWidget *parent) : QWidget(parent),
 	addActions( createActions() );
 	connectActions();
 
-	connect(this, &TabView::objectNameChanged,	this, &TabView::onObjectNameChanged);
+	connect(this,			&TabView::objectNameChanged,
+			  this,			&TabView::onObjectNameChanged);
 
 	m_gb = ui->gb;
 	m_tv = ui->mtv;
@@ -31,6 +39,9 @@ TabView::TabView(QWidget *parent) : QWidget(parent),
 
 	m_tv->installEventFilter(this);
 	m_gb->installEventFilter(this);
+
+	connect(m_tv->horizontalHeader(),	&QHeaderView::sectionMoved,
+			  this,								&TabView::onSectionMoved);
 
 	restoreFont();
 
@@ -152,6 +163,8 @@ void TabView::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx)
 		  << tr("logicalIdx: %1, oldVisualIdx: %2, newVisualIdx %3")
 			  .arg(logicalIdx).arg(oldVisualIdx).arg(newVisualIdx);
 
+	qobject_cast<SqlRtm *>(tv()->model())->setSectionIdx(logicalIdx, newVisualIdx);
+	storeRtm();
 }
 void TabView::onSqlTableNameChanged(const QString &name) {
 	WARN << name;
@@ -186,6 +199,12 @@ void TabView::restoreRtm() {
 	SectionMask *sm = new SectionMask(tv(), this);
 	sm->restoreVisibleCols();
 	delete sm;
+
+	QList<int> sectIdxs = *qobject_cast<SqlRtm *>(tv()->model())->sectionIdxs();
+
+	for (int k = 0; k < sectIdxs.length(); k++)
+		tv()->horizontalHeader()->moveSection(k, sectIdxs.at(k));
+
 }
 void TabView::storeRtm() {
 	if (qobject_cast<SqlRtm *>(tv()->model()))

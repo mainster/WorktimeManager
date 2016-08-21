@@ -7,6 +7,8 @@
 #include <globals.h>
 #include <debug.h>
 #include <QAction>
+#include <QShortcut>
+
 
 namespace Ui {
 class MDNotes;
@@ -38,10 +40,10 @@ protected slots:
 	void createActions();
 	void onAnyKeyClicked(bool clicked);
 	void toggleLineStrikeout();
+	void keyshortTrigger();
 private:
 	Ui::MDNotes *ui;
 	QString mSettingsKey;
-	QAction *actKeyOk, *actKeyDeleteLast;
 	QTextEdit	*editor;
 };
 

@@ -275,7 +275,7 @@ TabView *Browser::createForeignTable(const QString &tNam, TabView *tvc) {
 	 * Get active database pointer
 	 */
 	QSqlDatabase pDb = connectionWidget()->currentDb();
-	QSqlRelationalTableModel *rmod = new SqlRtm(SqlRtm::srcNew, tvc->tv(), pDb);
+	SqlRtm *rmod = new SqlRtm(SqlRtm::srcNew, tvc->tv(), pDb);
 	rmod->setEditStrategy(QSqlTableModel::OnFieldChange);
 	rmod->setTable(pDb.driver()->escapeIdentifier(tNam, QSqlDriver::TableName));
 	/**
@@ -379,12 +379,13 @@ TabView *Browser::createForeignTable(const QString &tNam, TabView *tvc) {
 	
 	// Set the model and hide the ID column
 	tvc->setSelectionMode(QAbstractItemView::ContiguousSelection);
-	
 	tvc->setModel(rmod);
-
 	tvc->setEditTriggers( QAbstractItemView::DoubleClicked |
 								 QAbstractItemView::EditKeyPressed );
-	
+
+	for (int k = 0; k < rmod->columnCount(); k++)
+		rmod->sectionIdxs()->append( k );
+
 	/** !!!!!!!!!!!!!!!!!!!! tvs()->first()->tv()->selectionModel() changed to
 	  * mTvs[3]->tv()->selectionModel()
 	 */
@@ -395,7 +396,7 @@ TabView *Browser::createForeignTable(const QString &tNam, TabView *tvc) {
 		emit stateMsg(tr("Slot connection returns false"));
 	
 	tvc->resizeRowsColsToContents();
-	
+
 	//    emit updateActions();
 	/**
 	 * Update TabViews group box title to match the prior activated sql
@@ -412,8 +413,6 @@ TabView *Browser::createForeignTable(const QString &tNam, TabView *tvc) {
 	connect(this, &Browser::clearSelections,		tvc, &TabView::clearSelected);
 	connect(tvc, &TabView::sqlTableNameChanged,	tvc, &TabView::onSqlTableNameChanged);
 	connect(this, &Browser::updateWriteActions,	tvc, &TabView::onUpdateWriteActions);
-	connect(tvc->tv()->horizontalHeader(), &QHeaderView::sectionMoved,
-			  tvc,									&TabView::onSectionMoved);
 
 	tvc->restoreRtm();
 	tvc->tv()->setFont(tvc->restoreFont());

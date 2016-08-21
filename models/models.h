@@ -37,16 +37,7 @@ public:
 		: QSqlRelationalTableModel(parent, db) {
 
 		Q_UNUSED(modelSource);
-		//		if (modelSorce == srcRestoreIni) {
-		//			QSETTINGS;
-		//			QVector<int> ccs = config.value(objectName())
-		//			QList<bool> vcs;
-
-		//			mData = new mData_t();
-		//			INFO << mData.mCenterCols->
-		//			config.value()
-
-		//		}
+		connect (this, &SqlRtm::srcChanged, this, &SqlRtm::onSrcChanged);
 	}
 
 	/*!
@@ -81,22 +72,47 @@ public:
 	QList<bool> visibleCols() const { return mVisibleCols; }
 	void setVisibleCols(const QList<bool> &visibleCols) { mVisibleCols = visibleCols; }
 
+	void onSrcChanged() {
+		setVisibleCols(mVisibleCols);
+		for (int k = 0; k< mSectionIdxs.length(); k++)
+			setSectionIdx(k, mSectionIdxs.at(k));
+	}
+
 	void storeModel(const QString &sqlTableName) {
 		QSETTINGS;
 		/*!	Store model sources	*/
 		config.setValue(sqlTableName + tr("/mCenterCols"),QVariant::fromValue(mCenterCols));
 		config.setValue(sqlTableName + tr("/mVisibleCols"),QVariant::fromValue(mVisibleCols));
+		config.setValue(sqlTableName + tr("/mSectionIdxs"),QVariant::fromValue(mSectionIdxs));
 	}
 	void restoreModel(const QString &sqlTableName) {
 		QSETTINGS;
 		/*!	Store model sources	*/
 		mCenterCols = config.value(sqlTableName + tr("/mCenterCols")).value<QList<int> >();
 		mVisibleCols = config.value(sqlTableName + tr("/mVisibleCols")).value<QList<bool> >();
+		mSectionIdxs = config.value(sqlTableName + tr("/mSectionIdxs")).value<QList<int> >();
+		emit srcChanged();
 	}
+
+	QList<int> *sectionIdxs()  { return &mSectionIdxs; }
+	void setSectionIdxs(const QList<int> &sectionIdxs) { mSectionIdxs = sectionIdxs; }
+	void setSectionIdx(const int logicalIdx, const int visualIdx) {
+		if (mSectionIdxs.count() < columnCount()) {
+			mSectionIdxs.clear();
+			for (int k = 0; k < columnCount(); k++)
+				mSectionIdxs << k;
+		}
+		mSectionIdxs[logicalIdx] = visualIdx;
+		INFO << mSectionIdxs;
+	}
+
+signals:
+	void srcChanged();
 
 private:
 	QList<int>	mCenterCols;
-	QList<bool>		mVisibleCols;
+	QList<bool>	mVisibleCols;
+	QList<int>	mSectionIdxs;
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(SqlRtm::MdlSrcs)
 Q_DECLARE_METATYPE(SqlRtm::MdlSrc)

@@ -45,8 +45,8 @@ public:
 		m_sqlTableName = name;
 		emit sqlTableNameChanged(name);
 	};
-	static QString tvStyleSheet;
-
+//	static QString tvStyleSheet;
+	static QString tvStyleHeadView;
 public slots:
 	void setSelected() {
 		m_select = true;

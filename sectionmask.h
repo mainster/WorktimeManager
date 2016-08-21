@@ -119,7 +119,7 @@ signals:
 protected slots:
 	void onCheckboxTogd(bool showColumn) {
 		QCheckBox *cb = qobject_cast<QCheckBox *>(sender());
-		INFO << cb->objectName();
+//		INFO << cb->objectName();
 		tv->setColumnHidden(cb->property("logicalIndex").toInt(), !showColumn);
 	}
 
