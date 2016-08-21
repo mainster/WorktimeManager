@@ -204,7 +204,7 @@ public slots:
 protected:
 	void createUi(QWidget *passParent = 0);
 	void createActions();
-	bool restoreRtm(TabView *tv);
+	bool restoreColumnOrderAndVisability(TabView *tv);
 
 protected slots:
 	bool restoreUi();

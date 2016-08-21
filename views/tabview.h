@@ -92,8 +92,7 @@ public slots:
 	void setEditTriggers(QTableView::EditTriggers triggers);
 	void onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx);
 	void onSqlTableNameChanged(const QString &name);
-	void storeRtm();
-	void restoreRtm();
+	void restoreColumnOrderAndVisability();
 	QFont restoreFont();
 	void storeFont(QFont font);
 
@@ -110,6 +109,7 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 	void hideEvent(QHideEvent *ev);
 
+	void restoreColumnOrderAndVisability2();
 protected slots:
 	void onClearSelection() {
 

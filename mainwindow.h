@@ -133,6 +133,7 @@ protected:
 	void hideEvent(QHideEvent *) override;
 	void closeEvent(QCloseEvent *);
 
+	void resetColumnConfig2();
 private:
 	Ui::MainWindow *ui;
 	Browser			*browser;

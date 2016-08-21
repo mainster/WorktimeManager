@@ -164,7 +164,7 @@ void TabView::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx)
 			  .arg(logicalIdx).arg(oldVisualIdx).arg(newVisualIdx);
 
 	qobject_cast<SqlRtm *>(tv()->model())->setSectionIdx(logicalIdx, newVisualIdx);
-	storeRtm();
+	modelCast()->storeModel(sqlTableName());
 }
 void TabView::onSqlTableNameChanged(const QString &name) {
 	WARN << name;
@@ -192,9 +192,26 @@ void TabView::restoreView() {
 
 	/*!	Restore model sources	*/
 }
-void TabView::restoreRtm() {
+void TabView::restoreColumnOrderAndVisability2() {
+	//!< Restore the models source members
+	modelCast()->restoreModelSrcsFromIni(sqlTableName());
+
+	//!< restoreVisibleCols(); takes access into models column-show/hide source list
+	SectionMask *sm = new SectionMask(tv(), this);
+	sm->restoreVisibleCols();
+	delete sm;
+
+	//!< modelCast()->sectionIdxs(); takes the section order list from model source...
+	QList<int> sectIdxs = modelCast()->sectionIdxs();
+
+	//!< ... and iterates over all elements so the restore process is complete
+	for (int k = 0; k < sectIdxs.length(); k++)
+		tv()->horizontalHeader()->moveSection(k, sectIdxs.at(k));
+
+}
+void TabView::restoreColumnOrderAndVisability() {
 	if (qobject_cast<SqlRtm *>(tv()->model()))
-		qobject_cast<SqlRtm *>(tv()->model())->restoreModel(sqlTableName());
+		qobject_cast<SqlRtm *>(tv()->model())->restoreModelSrcsFromIni(sqlTableName());
 
 	SectionMask *sm = new SectionMask(tv(), this);
 	sm->restoreVisibleCols();
@@ -206,10 +223,9 @@ void TabView::restoreRtm() {
 		tv()->horizontalHeader()->moveSection(k, sectIdxs.at(k));
 
 }
-void TabView::storeRtm() {
-	if (qobject_cast<SqlRtm *>(tv()->model()))
-		qobject_cast<SqlRtm *>(tv()->model())->storeModel(sqlTableName());
-}
+//void TabView::storeRtm() {
+//	modelCast()->storeModel(sqlTableName());
+//}
 QList<QAction *> TabView::createActions() {
 	actInsertRow =		new QAction(tr("&Insert Row"), this);
 	actDeleteRow =		new QAction(tr("&Delete Row"), this);
@@ -306,7 +322,7 @@ bool TabView::eventFilter(QObject *obj, QEvent *event) {
 	return QObject::eventFilter(obj, event);
 }
 void TabView::hideEvent(QHideEvent *ev) {
-	storeRtm();
+	modelCast()->storeModel(sqlTableName());
 }
 /* ======================================================================== */
 /*                             Helper methodes                              */

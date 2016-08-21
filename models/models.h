@@ -16,7 +16,7 @@ class SqlRtm: public QSqlRelationalTableModel {
 
 	Q_OBJECT
 	Q_PROPERTY(QList<bool> visibleCols READ visibleCols WRITE setVisibleCols NOTIFY visibleColsChanged)
-	Q_PROPERTY(QList<int>* sectionIdxs READ sectionIdxs WRITE setSectionIdxs NOTIFY sectionIdxsChanged)
+	Q_PROPERTY(QList<int> sectionIdxs READ sectionIdxs WRITE setSectionIdxs NOTIFY sectionIdxsChanged)
 	Q_PROPERTY(QList<int> centerCols READ centerCols WRITE setCenterCols NOTIFY centerColsChanged)
 
 public:
@@ -78,7 +78,7 @@ public:
 		config.setValue(sqlTableName + Md::k.visibleCols,QVariant::fromValue(mVisibleCols));
 		config.setValue(sqlTableName + Md::k.sectionIdxs,QVariant::fromValue(mSectionIdxs));
 	}
-	void restoreModel(const QString &sqlTableName) {
+	void restoreModelSrcsFromIni(const QString &sqlTableName) {
 		QSETTINGS;
 		/*!	Store model sources	*/
 		mCenterCols = config.value(sqlTableName + Md::k.centerCols).value<QList<int> >();
@@ -123,6 +123,15 @@ public:
 		emit sectionIdxsChanged(mSectionIdxs);
 	}
 
+	void resetModelSrcs() {
+		mCenterCols.clear();
+
+		for (int k = 0; k < mVisibleCols.length(); k++) {
+			mVisibleCols[k] = true;
+			mSectionIdxs[k] = k;
+		}
+//		emit modelSrcsResetted();
+	}
 signals:
 	void srcChanged();
 	void centerColsChanged(QList<int> centerCols);

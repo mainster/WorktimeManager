@@ -415,7 +415,7 @@ TabView *Browser::createForeignTable(const QString &tNam, TabView *tvc) {
 	connect(tvc, &TabView::sqlTableNameChanged,	tvc, &TabView::onSqlTableNameChanged);
 	connect(this, &Browser::updateWriteActions,	tvc, &TabView::onUpdateWriteActions);
 
-	tvc->restoreRtm();
+	tvc->restoreColumnOrderAndVisability();
 	tvc->tv()->setFont(tvc->restoreFont());
 	return tvc;
 }
@@ -721,7 +721,7 @@ void Browser::createActions() {
 	//	QAction *muSep_2	= setTvCntMu->addSeparator();
 	//	muGrAct->addAction(PONAM(muSep_2));
 }
-bool Browser::restoreRtm(TabView *tv) {
+bool Browser::restoreColumnOrderAndVisability(TabView *tv) {
 	Q_UNUSED(tv)
 	return true;
 }

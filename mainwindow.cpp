@@ -657,8 +657,22 @@ void MainWindow::resetColumnConfig() {
 		config.remove(s + Md::k.visibleCols);
 		config.remove(s + Md::k.sectionIdxs);
 		browser->mTabs.currentSelected()->modelCast()->setCenterCols(QList<int>());
-		browser->mTabs.currentSelected()->modelCast()->setCenterCols(QList<int>());
-		browser->mTabs.currentSelected()->modelCast()->setCenterCols(QList<int>());
+		browser->mTabs.currentSelected()->modelCast()->setVisibleCols(QList<bool>());
+		browser->mTabs.currentSelected()->modelCast()->setSectionIdxs(QList<int>());
+	}
+	config.sync();
+}
+void MainWindow::resetColumnConfig2() {
+	QSETTINGS;
+	foreach(QString s, browser->connectionWidget()->currentDb().tables()) {
+		config.remove(s + Md::k.centerCols);
+		config.remove(s + Md::k.visibleCols);
+		config.remove(s + Md::k.sectionIdxs);
+	}
+
+	foreach (TabView *tv, browser->mTabs.tvsNoPtr()) {
+		tv->modelCast()->resetModelSrcs();
+		tv->restoreColumnOrderAndVisability();
 	}
 	config.sync();
 }
