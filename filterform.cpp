@@ -142,13 +142,28 @@ void FilterForm::closeEvent(QCloseEvent *e) {
 }
 
 void FilterForm::keyPressEvent(QKeyEvent *e) {
-	INFO << Qt::Key(e->key());
-	INFO << qApp->topLevelWindows();
+	/*!
+	 * This event implements a second action key (Esc) to close the filterForm.
+	 * The action MainWindow::actFilterForm is configured to show/hide the FilterForm::
+	 * instance without invocation of FilterForm::keyPressEvent(). This could simply be
+	 * reached by calling the FilterForms memberfunction filterForm::addAction(actFilterForm)
+	 * and add the action object to the widgets action list.
+	 * To manage propper QAction QShortcut:: operation for a shortcut that differs from
+	 * the actFilterForm configured one, it is necessary to trigger the mainwindows QAction
+	 * in the keyPressEvent instead of simply invoke this->close().
+	 */
+	if (e->key() == Qt::Key_Escape) {
+		if (! listObjectNames<QAction *>(actions())->join(',').contains("actFilterForm")) {
+			WARN << tr("this->actions() does not contain actFilterForm ");
+			return QWidget::keyPressEvent(e);
+		}
+		else
+			foreach (QAction *act, actions())
+				if (act->objectName().contains(tr("actFilterForm")))
+					act->setChecked(false);
 
-	QMainWindow *p;
-	foreach (QWindow *w, qApp->topLevelWindows()) {
-		if (w->objectName()==tr("MainWindow"))
-			p = qobject_cast<QMainWindow *>(w);
+		e->accept();
+		return;
 	}
 
 	QWidget::keyPressEvent(e);

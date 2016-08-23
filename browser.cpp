@@ -545,7 +545,7 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 
 		/*!
 		 * If the casted TabView instance is currently NOT selected, emit the clearSelect
-		 * signal and invoke tv->setSelect();
+		 * signal and invoke tv->setSelected();
 		 */
 		if (! tv->isSelected()) {
 			emit clearSelections();

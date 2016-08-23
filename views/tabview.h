@@ -24,7 +24,7 @@ class TabView;
 class TabView : public QWidget {
 
 	Q_OBJECT
-	Q_PROPERTY(bool isSelected READ isSelected WRITE setSelect NOTIFY selectChanged)
+	Q_PROPERTY(bool selected READ isSelected WRITE setSelected NOTIFY selectedChanged)
 	Q_PROPERTY(QString sqlTableName READ sqlTableName WRITE setSqlTableName NOTIFY sqlTableNameChanged)
 
 public:
@@ -43,25 +43,26 @@ public:
 	/* ======================================================================== */
 	QGroupBox *grBox() const	{ return m_gb; }
 	QTableView *tv() const		{ return m_tv; }
-	bool isSelected()				{ return m_select; };
+	bool isSelected()				{ return m_selected; };
+	void setSelected(bool selected = true) {
+		m_selected = selected;
+		m_gb->setProperty("select", m_selected);
+		setStyleSheet(styleSheet());
+	};
+	void clearSelected() {
+		m_selected = false;
+		m_gb->setProperty("select", m_selected);
+		setStyleSheet(styleSheet());
+	};
 	QString &sqlTableName()		{ return m_sqlTableName; };
 	void setSqlTableName(const QString &name) {
 		m_sqlTableName = name;
 		emit sqlTableNameChanged(name);
 	};
-	void setSelect(bool select) {
-		m_select = select;
-		m_gb->setProperty("select", m_select);
-	};
 
 	SqlRtm *clearMdlSrces();
 
 public slots:
-	void clearSelected() {
-		m_select = false;
-		m_gb->setProperty("select", m_select);
-		setStyleSheet(styleSheet());
-	};
 	QFont restoreFont();
 	SqlRtm *modelCast();
 	void deleteRow();
@@ -84,7 +85,7 @@ public slots:
 
 signals:
 	void sqlTableNameChanged(const QString &name);
-	void selectChanged(bool isSelected);
+	void selectedChanged(bool isSelected);
 
 protected:
 	QList<QAction *> createActions();
@@ -92,7 +93,7 @@ protected:
 	virtual void showEvent(QShowEvent *) override;
 	virtual void mouseDoubleClickEvent(QMouseEvent *) override;
 	bool eventFilter(QObject *obj, QEvent *event);
-	void hideEvent(QHideEvent *ev);
+	void hideEvent(QHideEvent *);
 	void restoreColumnOrderAndVisability2();
 
 protected slots:
@@ -111,7 +112,7 @@ private:
 	QGroupBox         *m_gb;
 	SectionMask			*mSectMsk;
 	QString				m_sqlTableName;
-	bool					m_select;
+	bool					m_selected;
 	QActionGroup		*actGrStrategy, *actGrContext;
 	QAction				*actInsertRow, *actDeleteRow, *actFieldStrategy,
 	*actRowStrategy, *actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask;

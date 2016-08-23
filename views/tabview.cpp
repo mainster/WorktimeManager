@@ -151,6 +151,7 @@ void TabView::onActSectionMask(bool sectionMask) {
 	}
 }
 void TabView::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx) {
+	Q_UNUSED(newVisualIdx);
 	qobject_cast<SqlRtm *>(tv()->model())->setSectionIdx(logicalIdx, newVisualIdx);
 	modelCast()->storeModel(sqlTableName());
 }
@@ -292,7 +293,7 @@ bool TabView::eventFilter(QObject *obj, QEvent *event) {
 		}
 	return QObject::eventFilter(obj, event);
 }
-void TabView::hideEvent(QHideEvent *ev) {
+void TabView::hideEvent(QHideEvent *) {
 	modelCast()->storeModel(sqlTableName());
 }
 /* ======================================================================== */
