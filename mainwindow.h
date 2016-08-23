@@ -130,6 +130,8 @@ protected:
 		style()->unpolish(this);
 		style()->polish(this);
 		update();
+#else
+		Q_UNUSED(styleSheet);
 #endif
 	}
 	bool eventFilter(QObject *obj, QEvent *event);

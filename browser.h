@@ -157,6 +157,8 @@ public:
 		style()->unpolish(this);
 		style()->polish(this);
 		update();
+#else
+		Q_UNUSED(styleSheet);
 #endif
 	}
 	void resetStyleSheet(MdTable *tv) {
@@ -229,6 +231,8 @@ private:
 	TvSelectors			m_tvSelector;
 	QSplitter	*splitter, *splitter_2, *splitter_3,
 	*splitter_4, *splitter_5, *splitter_6, *splitter_7;
+
+	MdTabView   *mdtv;
 
 	QActionGroup		*actGrTvSelectBy, *actGrTvCount;
 	QAction				*actSelByNone, *actSelByGrBx, *actSelByVPort, *actSelByBoth;

@@ -40,6 +40,7 @@
 ConnectionWidget *ConnectionWidget::inst = 0;
 
 ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent) {
+	inst = this;
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	tree = new QTreeWidget(this);
 	tree->setObjectName(QLatin1String("tree"));

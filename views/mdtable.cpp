@@ -4,6 +4,7 @@
 class Browser;
 class SectionMask;
 
+#define USE_TABLE_UI
 /* ======================================================================== */
 /*                             MdTable::MdTable                             */
 /* ======================================================================== */
@@ -16,9 +17,14 @@ MdTable::MdTable(QWidget *parent) : QWidget(parent),
 
 	connect(this,			&MdTable::objectNameChanged,
 			  this,			&MdTable::onObjectNameChanged);
-
+#ifdef USE_TABLE_UI
+	m_gb = ui->gb;
+	m_tv = ui->mtv;
+	m_gb->setParent(ui->gb->parentWidget());
+	m_tv->setParent(ui->mtv->parentWidget());
+#else
 	m_gb = new QGroupBox(this);
-	m_tv = new QTableView(this);
+	m_tv = new QTableView(m_gb);
 	m_gb->setObjectName(tr("gb"));
 	m_tv->setObjectName(tr("mtv"));
 
@@ -28,8 +34,7 @@ MdTable::MdTable(QWidget *parent) : QWidget(parent),
 	vbl->addWidget(m_tv);
 
 	m_gb->setLayout(vbl);
-//	m_gb->setParent(ui->gb->parentWidget());
-//	m_tv->setParent(ui->mtv->parentWidget());
+#endif
 
 	/*! HACK to force redrawing if dynamic property stylesheets are used! */
 #ifdef SET_STYLESHEETS
@@ -45,6 +50,9 @@ MdTable::MdTable(QWidget *parent) : QWidget(parent),
 			  this,								&MdTable::onSectionMoved);
 
 	restoreFont();
+
+	INFO << tr("m_gb->parent()") << m_gb->parent();
+	INFO << tr("m_tv->parent()") << m_tv->parent();
 
 	QTimer::singleShot(500, this, SLOT(restoreActionObjects()));
 	//	QTimer::singleShot(8000, this, SLOT(restoreActionObjects()));
@@ -331,6 +339,7 @@ void MdTable::storeFont(QFont f) {
 QFont MdTable::restoreFont() {
 	QSETTINGS;
 	QFont f(config.value(objectName() + Md::k.tableFont).value<QFont>());
+	//	INFO << tr("Restoring MdTable::Font:") << f;
 	tv()->setFont(f);
 	return f;
 }
@@ -345,7 +354,7 @@ void MdTable::setColumnHidden(const int column, const bool hide) {
 }
 void MdTable::setModel(QAbstractItemModel *model) {
 	tv()->setModel(model);
-//	QTableView::viewportEntered()
+	//	QTableView::viewportEntered()
 }
 void MdTable::storeActionState(QAction *sender) {
 	QSETTINGS;
@@ -406,3 +415,10 @@ void MdTable::resetColumnsDefaultPos(bool allVisible) {
 	}
 	h->show();
 }
+
+
+
+/* ======================================================================== */
+/*                        MdTabView:: class members                         */
+/* ======================================================================== */
+

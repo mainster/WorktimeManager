@@ -122,6 +122,8 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 	foreach (MdTable *tv, *browser->tvs()) {
 #ifdef SET_STYLESHEETS
 		tv->setStyleSheet( Globals::gbStyleShtCenterPROPERTYS);
+#else
+		Q_UNUSED(tv);
 #endif
 	}
 }

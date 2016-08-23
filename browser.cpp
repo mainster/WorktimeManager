@@ -158,6 +158,13 @@ void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
 	 * runtime, a double-mouse-click event is captured and the user-selected tv instance
 	 * becomes addressed by the event handler.
 	 */
+
+	if (sqlTbl.contains(tr("worktime"))) {
+		mdtv = new MdTabView(sqlTbl, 0);
+		mdtv->createForeignTableDERIVED(sqlTbl);
+		connect(this, &Browser::updateWriteActions,	mdtv, &MdTabView::onUpdateWriteActions);
+	}
+
 	createForeignTable(sqlTbl, mTabs.currentSelected());
 	if (FilterForm::instance()->isVisible())
 		FilterForm::instance()->setSourceTable(mTabs.currentSelected());
