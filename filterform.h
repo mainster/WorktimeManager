@@ -10,7 +10,7 @@
 
 #include "mysortfilterproxymodel.h"
 #include "globals.h"
-#include "tabview.h"
+#include "mdtable.h"
 #include "browser.h"
 
 namespace Ui {
@@ -33,18 +33,18 @@ public:
 	};
 	Q_ENUM(SourceTableType)
 
-	explicit FilterForm(SourceTableType srcType, QList<TabView *> allTvs,
+	explicit FilterForm(SourceTableType srcType, QList<MdTable *> allTvs,
 							  QWidget *parent = NULL);
 
 	~FilterForm();
-	static FilterForm *instance(SourceTableType newSrcType, QList<TabView *> allTvs) {
+	static FilterForm *instance(SourceTableType newSrcType, QList<MdTable *> allTvs) {
 		if(inst == 0)
 			inst = new FilterForm(newSrcType, allTvs);
 		return inst;
 	}
 	static FilterForm *instance() {
 		if(inst == 0)
-			inst = new FilterForm(useSelectedSource, QList<TabView *>());
+			inst = new FilterForm(useSelectedSource, QList<MdTable *>());
 		return inst;
 	}
 
@@ -55,7 +55,7 @@ public slots:
 		emit sourceTableTypeChanged(sourceTable);
 	}
 	void cbTextFilterChanged();
-	void setSourceTabView(TabView *tv);
+	void setSourceTabView(MdTable *tv);
 
 signals:
 	void visibilityChanged(bool visible);
@@ -84,7 +84,7 @@ private:
 	Ui::FilterForm *ui;
 	SfiltMdl *proxyModel;
 	SourceTableType	mSourceTableType;
-	TabView *mTv;
+	MdTable *mTv;
 	QGroupBox *sourceGB;
 	QGroupBox *proxyGB;
 	//	QTreeView *sourceView;

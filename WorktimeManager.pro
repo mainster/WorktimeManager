@@ -69,8 +69,8 @@ HEADERS += \
 	 mpushbutton.h \
 	 sectionmask.h \
 	 textedit/textedit.h \
-	 views/tabview.h \
-    filterform.h
+    filterform.h \
+    views/mdtable.h
 
 SOURCES += \
 	 browser.cpp \
@@ -97,16 +97,16 @@ SOURCES += \
 	 mpushbutton.cpp \
 	 sectionmask.cpp \
 	 textedit/textedit.cpp \
-	 views/tabview.cpp \
-    filterform.cpp
+    filterform.cpp \
+    views/mdtable.cpp
 
 FORMS += \
 	 uis/dbconndlg.ui \
 	 uis/inpfrm.ui \
 	 uis/mainwindow.ui \
 	 uis/filterform.ui \
-	 uis/tabview.ui \
 	 uis/mdnotes.ui \
     uis/inpfrmTRANS.ui \
+    uis/mdtable.ui
 
 

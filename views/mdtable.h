@@ -1,5 +1,5 @@
-#ifndef TABVIEW_H
-#define TABVIEW_H
+#ifndef MDTABLE_H
+#define MDTABLE_H
 
 #include <QColor>
 #include <QGroupBox>
@@ -17,19 +17,19 @@
 #include "sectionmask.h"
 
 namespace Ui {
-class TabView;
+class MdTable;
 //class Browser;
 }
 
-class TabView : public QWidget {
+class MdTable : public QWidget {
 
 	Q_OBJECT
 	Q_PROPERTY(bool selected READ isSelected WRITE setSelected NOTIFY selectedChanged)
 	Q_PROPERTY(QString sqlTableName READ sqlTableName WRITE setSqlTableName NOTIFY sqlTableNameChanged)
 
 public:
-	explicit TabView(QWidget *parent = 0);
-	~TabView();
+	explicit MdTable(QWidget *parent = 0);
+	~MdTable();
 
 	void setSelectionMode(QAbstractItemView::SelectionMode mode) {
 		m_tv->setSelectionMode(mode);
@@ -108,7 +108,7 @@ protected slots:
 	bool restoreActionObjects();
 
 private:
-	Ui::TabView			*ui;
+	Ui::MdTable			*ui;
 	QTableView        *m_tv;
 	QGroupBox         *m_gb;
 	SectionMask			*mSectMsk;
@@ -121,4 +121,4 @@ private:
 };
 
 
-#endif // TABVIEW_H
+#endif // MDTABLE_H

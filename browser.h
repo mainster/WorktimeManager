@@ -53,11 +53,11 @@
 #include "models.h"
 #include "mysortfilterproxymodel.h"
 #include "filterform.h"
-#include "tabview.h"
+#include "mdtable.h"
 #include "connectionwidget.h"
 #include "mdmenu.h"
 
-class TabView;
+class MdTable;
 //class ConnectionWidget;
 
 /* ======================================================================== */
@@ -90,13 +90,13 @@ public:
 			TVL1(QString("TableLong1")), TVL2(QString("TableLong2")) {	}
 
 	public:
-		QList<TabView *> tvsNoPtr() {
+		QList<MdTable *> tvsNoPtr() {
 			mTvs.clear();
 			mTvs << tva << tvb << tvc
 				  << tvd << tvl1 << tvl2;
 			return mTvs;
 		}
-		QList<TabView *> *tvs()					{
+		QList<MdTable *> *tvs()					{
 			mTvs.clear();
 			mTvs << tva << tvb << tvc
 				  << tvd << tvl1 << tvl2;
@@ -110,8 +110,8 @@ public:
 		/*!
 		 * Get currently selected tv.
 		 */
-		TabView *currentSelected(bool nullIfNoSelect = false) {
-			foreach (TabView *tv, tvsNoPtr())
+		MdTable *currentSelected(bool nullIfNoSelect = false) {
+			foreach (MdTable *tv, tvsNoPtr())
 				if (tv->isSelected())
 					return tv;
 
@@ -121,7 +121,7 @@ public:
 			 * If no table widget is selected actively, use the tvc from mTvs which has
 			 * currently no model loaded.
 			 */
-			foreach (TabView *tv, tvsNoPtr())
+			foreach (MdTable *tv, tvsNoPtr())
 				if (tv->tv()->model() == 0)
 					return tv;
 
@@ -131,11 +131,11 @@ public:
 			return tva;
 		}
 
-		TabView *tva, *tvb, *tvc, *tvd, *tvl1, *tvl2;
+		MdTable *tva, *tvb, *tvc, *tvd, *tvl1, *tvl2;
 
 	private:
 		QString TVA, TVB, TVC, TVD, TVL1, TVL2;
-		QList<TabView *>  mTvs;
+		QList<MdTable *>  mTvs;
 	};
 	static struct mTabs_t mTabs;
 	/* ======================================================================== */
@@ -157,15 +157,15 @@ public:
 		style()->polish(this);
 		update();
 	}
-	void resetStyleSheet(TabView *tv) {
+	void resetStyleSheet(MdTable *tv) {
 		tv->setStyleSheet(styleSheet());
 		style()->unpolish(tv);
 		style()->polish(tv);
 	}
-	void clearStyleSheet(TabView *tv) {
+	void clearStyleSheet(MdTable *tv) {
 		tv->style()->unpolish(tv);
 	}
-	QList<TabView *> *tvs() {
+	QList<MdTable *> *tvs() {
 		return mTabs.tvs();
 	}
 
@@ -176,9 +176,9 @@ signals:
 	void tvSelectorChanged();
 	/*!
 	 * \brief clearSelection signal is emitted from Browser::eventFilter if a tabview
-	 * selection was detected. Each TabView instance have to connect this signal to a
-	 * onClearSelection() slot. After unselecting all TabView instances, the new selected
-	 * TabView instance could be set by Browser::eventFilter.
+	 * selection was detected. Each MdTable instance have to connect this signal to a
+	 * onClearSelection() slot. After unselecting all MdTable instances, the new selected
+	 * MdTable instance could be set by Browser::eventFilter.
 	 */
 	void clearSelections();
 
@@ -198,13 +198,13 @@ public slots:
 	void onCyclic();
 //	void onSourceTableChanged(FilterForm::SourceTableType sourceTable);
 	void requeryWorktimeTableView(QString nonDefaulQuery = "");
-	TabView *createForeignTable(const QString &tNam, TabView *tvc);
+	MdTable *createForeignTable(const QString &tNam, MdTable *tvc);
 
 	void resetColumnConfig();
 protected:
 	void createUi(QWidget *passParent = 0);
 	void createActions();
-	bool restoreColumnOrderAndVisability(TabView *tv);
+	bool restoreColumnOrderAndVisability(MdTable *tv);
 
 protected slots:
 	bool restoreUi();

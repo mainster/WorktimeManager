@@ -7,7 +7,7 @@ const QString FilterForm::PROXY_GROUPBOX_TITLE_PREFIX = QString("Proxy model [%1
 const QString FilterForm::SOURCE_GROUPBOX_TITLE_PREFIX = QString("Source model [%1 rows]");
 
 
-FilterForm::FilterForm(SourceTableType srcType, QList<TabView *> allTvs, QWidget *parent)
+FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTvs, QWidget *parent)
 	: QWidget(parent), ui(new Ui::FilterForm), mSourceTableType(srcType) {
 	inst = this;
 	mTv = NULL;
@@ -64,8 +64,8 @@ FilterForm::FilterForm(SourceTableType srcType, QList<TabView *> allTvs, QWidget
 	setWindowTitle(WINDOW_TITLE_PREFIX);
 	resize(500, 900);
 
-	foreach (TabView *tv, allTvs)
-		connect (tv, &TabView::selectedChanged, this, &FilterForm::onSelectedTableChange);
+	foreach (MdTable *tv, allTvs)
+		connect (tv, &MdTable::selectedChanged, this, &FilterForm::onSelectedTableChange);
 
 	installEventFilter(this);
 }
@@ -73,7 +73,7 @@ FilterForm::FilterForm(SourceTableType srcType, QList<TabView *> allTvs, QWidget
 FilterForm::~FilterForm() {
 	delete ui;
 }
-void FilterForm::setSourceTabView(TabView *tv) {
+void FilterForm::setSourceTabView(MdTable *tv) {
 	if (sourceTableType() == SourceTableType::useWorktimeSource)
 		if (! tv->objectName().contains("worktime"))
 			qReturn(QString(tr("SourceTableType::useWorktime but want to set ")
@@ -133,7 +133,7 @@ void FilterForm::dateFilterChanged() {
 	onProxyRowCountChanged(0, proxyModel->rowCount());
 }
 void FilterForm::onSelectedTableChange(bool selected) {
-	TabView *newTable = qobject_cast<TabView *>(sender());
+	MdTable *newTable = qobject_cast<MdTable *>(sender());
 	if (! newTable)	qReturn("Cast failed");
 
 	(selected)

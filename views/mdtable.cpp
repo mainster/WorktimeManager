@@ -1,21 +1,21 @@
-#include "ui_tabview.h"
-#include "tabview.h"
+#include "ui_mdtable.h"
+#include "mdtable.h"
 
 class Browser;
 class SectionMask;
 
 /* ======================================================================== */
-/*                             TabView::TabView                             */
+/*                             MdTable::MdTable                             */
 /* ======================================================================== */
-TabView::TabView(QWidget *parent) : QWidget(parent),
-	ui(new Ui::TabView) {
+MdTable::MdTable(QWidget *parent) : QWidget(parent),
+	ui(new Ui::MdTable) {
 	ui->setupUi(this);
 
 	addActions( createActions() );
 	connectActions();
 
-	connect(this,			&TabView::objectNameChanged,
-			  this,			&TabView::onObjectNameChanged);
+	connect(this,			&MdTable::objectNameChanged,
+			  this,			&MdTable::onObjectNameChanged);
 
 	m_gb = ui->gb;
 	m_tv = ui->mtv;
@@ -33,7 +33,7 @@ TabView::TabView(QWidget *parent) : QWidget(parent),
 	m_gb->installEventFilter(this);
 
 	connect(m_tv->horizontalHeader(),	&QHeaderView::sectionMoved,
-			  this,								&TabView::onSectionMoved);
+			  this,								&MdTable::onSectionMoved);
 
 	restoreFont();
 
@@ -41,16 +41,16 @@ TabView::TabView(QWidget *parent) : QWidget(parent),
 	//	QTimer::singleShot(8000, this, SLOT(restoreActionObjects()));
 	//	setActiveSelected( false );
 }
-TabView::~TabView() {
+MdTable::~MdTable() {
 	delete ui;
 }
-void TabView::refreshView() {
+void MdTable::refreshView() {
 	this->update();
 }
 /* ======================================================================== */
 /*                           SQL record strategy                            */
 /* ======================================================================== */
-void TabView::insertRow() {
+void MdTable::insertRow() {
 	QModelIndex insertIndex = m_tv->currentIndex();
 	int row = insertIndex.row();
 	(row != -1)
@@ -62,7 +62,7 @@ void TabView::insertRow() {
 	m_tv->setCurrentIndex(insertIndex);
 	m_tv->edit(insertIndex);
 }
-void TabView::deleteRow() {
+void MdTable::deleteRow() {
 	QModelIndexList currentSelection =
 			m_tv->selectionModel()->selectedIndexes();
 
@@ -75,10 +75,10 @@ void TabView::deleteRow() {
 
 	onUpdateWriteActions();
 }
-void TabView::setEditTriggers(QTableView::EditTriggers triggers) {
+void MdTable::setEditTriggers(QTableView::EditTriggers triggers) {
 	m_tv->setEditTriggers(triggers);
 }
-void TabView::onActGrStrategyTrigd(QAction *sender) {
+void MdTable::onActGrStrategyTrigd(QAction *sender) {
 	if (! static_cast<SqlRtm *>(m_tv->model()))
 		return;
 
@@ -98,7 +98,7 @@ void TabView::onActGrStrategyTrigd(QAction *sender) {
 	if (sender == actManualStrategy)
 		rtm->setEditStrategy(QSqlTableModel::OnManualSubmit);
 }
-void TabView::onActGrContextTrigd(QAction *sender) {
+void MdTable::onActGrContextTrigd(QAction *sender) {
 	if (! static_cast<SqlRtm *>(m_tv->model()))
 		return;
 
@@ -115,7 +115,7 @@ void TabView::onActGrContextTrigd(QAction *sender) {
 	if (sender == actInsertRow) insertRow();
 	if (sender == actDeleteRow) deleteRow();
 }
-void TabView::onUpdateWriteActions() {
+void MdTable::onUpdateWriteActions() {
 	/*!
 	 * Check if there is a valid model set before calling update procedure.
 	 */
@@ -130,7 +130,7 @@ void TabView::onUpdateWriteActions() {
 	actInsertRow->setEnabled(m_tv->currentIndex().isValid());
 	actDeleteRow->setEnabled(m_tv->currentIndex().isValid());
 }
-void TabView::onActSectionMask(bool sectionMask) {
+void MdTable::onActSectionMask(bool sectionMask) {
 	QAbstractItemModel *aim = m_tv->model();
 
 	if (! sectionMask) {
@@ -150,15 +150,15 @@ void TabView::onActSectionMask(bool sectionMask) {
 		qobject_cast<QVBoxLayout *>(grBox()->layout())->setStretchFactor(m_tv, 15);
 	}
 }
-void TabView::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx) {
+void MdTable::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx) {
 	Q_UNUSED(newVisualIdx);
 	qobject_cast<SqlRtm *>(tv()->model())->setSectionIdx(logicalIdx, newVisualIdx);
 	modelCast()->storeModel(sqlTableName());
 }
-void TabView::onSqlTableNameChanged(const QString &name) {
+void MdTable::onSqlTableNameChanged(const QString &name) {
 	WARN << name;
 }
-void TabView::onObjectNameChanged(const QString &objNam) {
+void MdTable::onObjectNameChanged(const QString &objNam) {
 	m_gb->setTitle( objNam );
 	//	m_gb->setAccessibleName(tr("gboxOf")+objNam);
 	//	m_tv->setAccessibleName(objNam);
@@ -166,7 +166,7 @@ void TabView::onObjectNameChanged(const QString &objNam) {
 /* ======================================================================== */
 /*                              Init methodes                               */
 /* ======================================================================== */
-void TabView::restoreView() {
+void MdTable::restoreView() {
 	/** Make column/row position movable by dragging */
 	m_tv->horizontalHeader()->setSectionsMovable(true);
 	m_tv->verticalHeader()->setSectionsMovable(true);
@@ -181,7 +181,7 @@ void TabView::restoreView() {
 
 	/*!	Restore model sources	*/
 }
-void TabView::restoreColumnOrderAndVisability() {
+void MdTable::restoreColumnOrderAndVisability() {
 	//!< Restore the models source members
 	modelCast()->restoreModelSrcsFromIni(sqlTableName());
 
@@ -198,7 +198,7 @@ void TabView::restoreColumnOrderAndVisability() {
 		tv()->horizontalHeader()->moveSection(k, sectIdxs.at(k));
 
 }
-QList<QAction *> TabView::createActions() {
+QList<QAction *> MdTable::createActions() {
 	actInsertRow =		new QAction(tr("&Insert Row"), this);
 	actDeleteRow =		new QAction(tr("&Delete Row"), this);
 	actSubmit =			new QAction(tr("&Submit All"), this);
@@ -230,8 +230,8 @@ QList<QAction *> TabView::createActions() {
 	/*!
 	 * Connect action group triggered signal to a common slot.
 	 */
-	connect(actGrStrategy, &QActionGroup::triggered, this, &TabView::storeActionState);
-	connect(actGrStrategy, &QActionGroup::triggered, this, &TabView::onActGrStrategyTrigd);
+	connect(actGrStrategy, &QActionGroup::triggered, this, &MdTable::storeActionState);
+	connect(actGrStrategy, &QActionGroup::triggered, this, &MdTable::onActGrStrategyTrigd);
 
 	/* ======================================================================== */
 
@@ -251,8 +251,8 @@ QList<QAction *> TabView::createActions() {
 	/*!
 	 * Connect action group triggered signal to a save-action-state slot.
 	 */
-	connect(actGrContext, &QActionGroup::triggered, this, &TabView::storeActionState);
-	connect(actGrContext, &QActionGroup::triggered, this, &TabView::onActGrContextTrigd);
+	connect(actGrContext, &QActionGroup::triggered, this, &MdTable::storeActionState);
+	connect(actGrContext, &QActionGroup::triggered, this, &MdTable::onActGrContextTrigd);
 
 	/* ======================================================================== */
 	/*                       Action object configurations                       */
@@ -269,18 +269,18 @@ QList<QAction *> TabView::createActions() {
 	acts2 << sep1 << acts << sep2 << actSectionMask;
 	return acts2;
 }
-void TabView::connectActions() {
-	connect(actSectionMask, &QAction::toggled, this, &TabView::onActSectionMask);
+void MdTable::connectActions() {
+	connect(actSectionMask, &QAction::toggled, this, &MdTable::onActSectionMask);
 }
 /* ======================================================================== */
 /*                              Event handler                               */
 /* ======================================================================== */
-void TabView::showEvent(QShowEvent *) {
+void MdTable::showEvent(QShowEvent *) {
 }
-void TabView::mouseDoubleClickEvent(QMouseEvent *) {
+void MdTable::mouseDoubleClickEvent(QMouseEvent *) {
 	INFO << m_sqlTableName << tr("double");
 }
-bool TabView::eventFilter(QObject *obj, QEvent *event) {
+bool MdTable::eventFilter(QObject *obj, QEvent *event) {
 	QMouseEvent *mouseEv = static_cast<QMouseEvent *>(event);
 	if (! mouseEv)
 		return QObject::eventFilter(obj, event);
@@ -293,13 +293,13 @@ bool TabView::eventFilter(QObject *obj, QEvent *event) {
 		}
 	return QObject::eventFilter(obj, event);
 }
-void TabView::hideEvent(QHideEvent *) {
+void MdTable::hideEvent(QHideEvent *) {
 	modelCast()->storeModel(sqlTableName());
 }
 /* ======================================================================== */
 /*                             Helper methodes                              */
 /* ======================================================================== */
-void TabView::setAlternateRowCol(QColor &col, bool alternateEnabled) {
+void MdTable::setAlternateRowCol(QColor &col, bool alternateEnabled) {
 	m_tv->setAlternatingRowColors(alternateEnabled);
 
 	if (alternateEnabled && col.isValid()) {
@@ -314,31 +314,31 @@ void TabView::setAlternateRowCol(QColor &col, bool alternateEnabled) {
 		config.setValue(objectName() + "/AlternateRowColor", col);
 	}
 }
-void TabView::storeFont(QFont f) {
+void MdTable::storeFont(QFont f) {
 	QSETTINGS;
 	config.setValue(objectName() + Md::k.tableFont, QVariant::fromValue(f));
 	tv()->setFont(f);
 }
-QFont TabView::restoreFont() {
+QFont MdTable::restoreFont() {
 	QSETTINGS;
 	QFont f(config.value(objectName() + Md::k.tableFont).value<QFont>());
 	tv()->setFont(f);
 	return f;
 }
-void TabView::resizeRowsColsToContents() {
+void MdTable::resizeRowsColsToContents() {
 	m_tv->setVisible( false );
 	m_tv->resizeColumnsToContents();
 	m_tv->resizeRowsToContents();
 	m_tv->setVisible( true );
 }
-void TabView::setColumnHidden(const int column, const bool hide) {
+void MdTable::setColumnHidden(const int column, const bool hide) {
 	m_tv->setColumnHidden(column, hide);
 }
-void TabView::setModel(QAbstractItemModel *model) {
+void MdTable::setModel(QAbstractItemModel *model) {
 	tv()->setModel(model);
 //	QTableView::viewportEntered()
 }
-void TabView::storeActionState(QAction *sender) {
+void MdTable::storeActionState(QAction *sender) {
 	QSETTINGS;
 
 	if (sender->isCheckable()) {
@@ -353,7 +353,7 @@ void TabView::storeActionState(QAction *sender) {
 		config.sync();
 	}
 }
-bool TabView::restoreActionObjects() {
+bool MdTable::restoreActionObjects() {
 	QSETTINGS;
 
 	//	actGrStrategy->blockSignals(true);
@@ -377,10 +377,10 @@ bool TabView::restoreActionObjects() {
 
 	return true;
 }
-SqlRtm *TabView::modelCast() {
+SqlRtm *MdTable::modelCast() {
 	return qobject_cast<SqlRtm *>(tv()->model());
 }
-void TabView::removeColumnsConfig() {
+void MdTable::removeColumnsConfig() {
 	QSETTINGS;
 	config.remove(sqlTableName() + Md::k.centerCols);
 	config.remove(sqlTableName() + Md::k.visibleCols);
@@ -388,7 +388,7 @@ void TabView::removeColumnsConfig() {
 
 	config.sync();
 }
-void TabView::resetColumnsDefaultPos(bool allVisible) {
+void MdTable::resetColumnsDefaultPos(bool allVisible) {
 	QHeaderView *h = tv()->horizontalHeader();
 	h->hide();
 	for (int k = 0; k < tv()->model()->columnCount(); k++) {

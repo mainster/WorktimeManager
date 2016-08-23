@@ -180,8 +180,8 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	/*!
 	 * Get list of all table views and requery all of them with gb name "worktime".
 	 */
-	QList<TabView *> tvs = findChildren<TabView *>();
-	foreach (TabView *tv, tvs) {
+	QList<MdTable *> tvs = findChildren<MdTable *>();
+	foreach (MdTable *tv, tvs) {
 		if (! tv->grBox()->title().contains(tr("worktime")))
 			tvs.removeOne(tv);
 	}
@@ -264,8 +264,8 @@ void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
 	/*!
 	 * Invoked after double clicking a table item in connection widget tree view.
 	 *
-	 * Determine which TabView should be targeted by the activated tab model. Either select
-	 * an instance of TabView which hasn't a model loaded yet. To swap sql tables during
+	 * Determine which MdTable should be targeted by the activated tab model. Either select
+	 * an instance of MdTable which hasn't a model loaded yet. To swap sql tables during
 	 * runtime, a double-mouse-click event is captured and the user-selected tv instance
 	 * becomes addressed by the event handler.
 	 */
@@ -273,7 +273,7 @@ void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
 	if (FilterForm::instance()->isVisible())
 		FilterForm::instance()->setSourceTabView(mTabs.currentSelected());
 }
-TabView *Browser::createForeignTable(const QString &tNam, TabView *tvc) {
+MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 	/**
 	 * Get active database pointer
 	 */
@@ -414,9 +414,9 @@ TabView *Browser::createForeignTable(const QString &tNam, TabView *tvc) {
 	tvc->setSqlTableName(tNam);
 	//	tvc->setObjectName(tvc->grBox()->title());
 
-	connect(this, &Browser::clearSelections,		tvc, &TabView::clearSelected);
-	connect(tvc, &TabView::sqlTableNameChanged,	tvc, &TabView::onSqlTableNameChanged);
-	connect(this, &Browser::updateWriteActions,	tvc, &TabView::onUpdateWriteActions);
+	connect(this, &Browser::clearSelections,		tvc, &MdTable::clearSelected);
+	connect(tvc, &MdTable::sqlTableNameChanged,	tvc, &MdTable::onSqlTableNameChanged);
+	connect(this, &Browser::updateWriteActions,	tvc, &MdTable::onUpdateWriteActions);
 
 	tvc->restoreColumnOrderAndVisability();
 	tvc->tv()->setFont(tvc->restoreFont());
@@ -465,7 +465,7 @@ void Browser::customMenuRequested(QPoint pos) {
 	menu->popup(tvs()->first()->tv()->viewport()->mapToGlobal(pos));
 }
 void Browser::autofitRowCol() {
-	foreach (TabView *tvc, mTabs.tvsNoPtr())
+	foreach (MdTable *tvc, mTabs.tvsNoPtr())
 		tvc->resizeRowsColsToContents();
 }
 void Browser::onCyclic() {
@@ -487,7 +487,7 @@ void Browser::onActGroupTrigd(QAction *sender) {
 }
 /*void Browser::onSourceTableChanged(FilterForm::SourceTableType sourceTable) {
 	if (sourceTable == FilterForm::useWorktime) {
-		foreach (TabView *tv, mTabs.tvsNoPtr()) {
+		foreach (MdTable *tv, mTabs.tvsNoPtr()) {
 			//			INFO << tv->tv()->objectName() << tv->grBox()->title();
 			if (tv->objectName().contains(tr("worktime")))
 				FilterForm::instance()->setSourceTabView(tv);
@@ -502,13 +502,13 @@ void Browser::onActGroupTrigd(QAction *sender) {
 /*                              Event handler                               */
 /* ======================================================================== */
 bool Browser::eventFilter(QObject *obj, QEvent *e) {
-	TabView *tv = NULL;
+	MdTable *tv = NULL;
 	bool ok = true;
 	int k = 0;
 
 	/*!
 	 * Here we try determine a mouse button click within QGroupBox or QTableView::viewport()
-	 * area. If true, set current selected TabView as the "selected" tabView.
+	 * area. If true, set current selected MdTable as the "selected" tabView.
 	 */
 	if (e->type() == QEvent::MouseButtonPress) {
 
@@ -541,16 +541,16 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 			default:	qWarning();
 		}
 
-		while (! (qobject_cast<TabView *>(treeTravers<QObject>(obj, ++k, &ok))))
+		while (! (qobject_cast<MdTable *>(treeTravers<QObject>(obj, ++k, &ok))))
 			if (! ok)	break;
 
-		tv = qobject_cast<TabView *>(treeTravers<QObject>(obj, k, &ok));
+		tv = qobject_cast<MdTable *>(treeTravers<QObject>(obj, k, &ok));
 
 		if (tv == NULL)
 			bReturn("Cannot cast sender of mouse click event!");
 
 		/*!
-		 * If the casted TabView instance is currently NOT selected, emit the clearSelect
+		 * If the casted MdTable instance is currently NOT selected, emit the clearSelect
 		 * signal and invoke tv->setSelected();
 		 */
 		if (! tv->isSelected()) {
@@ -586,7 +586,7 @@ void Browser::closeEvent(QCloseEvent *) {
 
 	/**** Write tabView <-> SQL table relations
 	  \*/
-	foreach (TabView *tv, mTabs.tvsNoPtr())
+	foreach (MdTable *tv, mTabs.tvsNoPtr())
 		config.setValue(objectName() + "/" + tv->objectName(), tv->grBox()->title());
 
 	/**** Safe all action states from Browser
@@ -606,7 +606,7 @@ bool Browser::restoreUi() {
 
 	/**** Restore tabview <-> SQL table assignements, but only if valid keys are stored
 	 \*/
-	foreach (TabView *tv, mTabs.tvsNoPtr()) {
+	foreach (MdTable *tv, mTabs.tvsNoPtr()) {
 		if (! config.allKeys().join(',').contains( tv->objectName() ))
 			continue;
 
@@ -672,7 +672,7 @@ void Browser::createActions() {
 	//	QAction *muSep_2	= setTvCntMu->addSeparator();
 	//	muGrAct->addAction(PONAM(muSep_2));
 }
-bool Browser::restoreColumnOrderAndVisability(TabView *tv) {
+bool Browser::restoreColumnOrderAndVisability(MdTable *tv) {
 	Q_UNUSED(tv)
 	return true;
 }
@@ -695,12 +695,12 @@ void Browser::createUi(QWidget *passParent) {
 	grLay = new QGridLayout(passParent);
 	mConnectionWidget = new ConnectionWidget(passParent);
 
-	mTabs.tva = new TabView(passParent);
-	mTabs.tvb = new TabView(passParent);
-	mTabs.tvc = new TabView(passParent);
-	mTabs.tvd = new TabView(passParent);
-	mTabs.tvl1 = new TabView(passParent);
-	mTabs.tvl2 = new TabView(passParent);
+	mTabs.tva = new MdTable(passParent);
+	mTabs.tvb = new MdTable(passParent);
+	mTabs.tvc = new MdTable(passParent);
+	mTabs.tvd = new MdTable(passParent);
+	mTabs.tvl1 = new MdTable(passParent);
+	mTabs.tvl2 = new MdTable(passParent);
 
 	mTabs.tva->setObjectName(tr("tva"));
 	mTabs.tvb->setObjectName(tr("tvb"));
@@ -760,7 +760,7 @@ void Browser::createUi(QWidget *passParent) {
 
 	QList<QString> accName = mTabs.tvIds();
 
-	foreach (TabView *tv, mTabs.tvsNoPtr()) {
+	foreach (MdTable *tv, mTabs.tvsNoPtr()) {
 		QString currentName = accName.takeFirst();
 		tv->setAccessibleName( currentName );
 		tv->setObjectName( currentName );
@@ -771,10 +771,10 @@ void Browser::createUi(QWidget *passParent) {
 		tv->tv()->viewport()->installEventFilter( this );
 		tv->grBox()->setObjectName("gb");
 
-		//		if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &TabView::onTabViewSelChanged))
+		//		if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &MdTable::onTabViewSelChanged))
 		//			qReturn("Connection fail!");
 		//		if (! (bool)  connect(this,	&Browser::updateWriteActions,
-		//									 tv,		&TabView::onUpdateWriteActions))
+		//									 tv,		&MdTable::onUpdateWriteActions))
 		//			qReturn("Connection fail!");
 	}
 }
@@ -863,7 +863,7 @@ void Browser::selectAndSetFont() {
 		 * If no tv is selected, configure all tvs.
 		 */
 		QFont f = QFontDialog::getFont(&ok, QFont("Helvetica [Cronyx]", 10), this);
-		foreach (TabView *_tv, mTabs.tvsNoPtr())
+		foreach (MdTable *_tv, mTabs.tvsNoPtr())
 			_tv->storeFont(f);
 	}
 }
@@ -889,7 +889,7 @@ void Browser::selectAndSetRowColor() {
 								QColorDialog::DontUseNativeDialog);
 
 		if (color.isValid())
-			foreach (TabView *tv, mTabs.tvsNoPtr())
+			foreach (MdTable *tv, mTabs.tvsNoPtr())
 				tv->setAlternateRowCol(color, true);
 
 	}
@@ -901,7 +901,7 @@ void Browser::resetColumnConfig() {
 		mTabs.currentSelected()->modelCast()->resetModelSrcs();
 	}
 	else {
-		foreach (TabView *tv, mTabs.tvsNoPtr()) {
+		foreach (MdTable *tv, mTabs.tvsNoPtr()) {
 			tv->resetColumnsDefaultPos(true);
 			tv->removeColumnsConfig();
 			tv->modelCast()->resetModelSrcs();
@@ -964,18 +964,18 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 	//            this,          SLOT(onTestBtnClicked()));
 	QList<bool> bl;
 
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTabs.tvsNoPtr()[0],   SLOT(onTabViewSelChanged(TabView *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTabs.tvsNoPtr()[1],   SLOT(onTabViewSelChanged(TabView *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTabs.tvsNoPtr()[2],   SLOT(onTabViewSelChanged(TabView *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTabs.tvsNoPtr()[3],   SLOT(onTabViewSelChanged(TabView *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTabs.tvsNoPtr()[4],   SLOT(onTabViewSelChanged(TabView *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
-									  mTabs.tvsNoPtr()[5],   SLOT(onTabViewSelChanged(TabView *))));
+	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(MdTable *)),
+									  mTabs.tvsNoPtr()[0],   SLOT(onTabViewSelChanged(MdTable *))));
+	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(MdTable *)),
+									  mTabs.tvsNoPtr()[1],   SLOT(onTabViewSelChanged(MdTable *))));
+	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(MdTable *)),
+									  mTabs.tvsNoPtr()[2],   SLOT(onTabViewSelChanged(MdTable *))));
+	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(MdTable *)),
+									  mTabs.tvsNoPtr()[3],   SLOT(onTabViewSelChanged(MdTable *))));
+	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(MdTable *)),
+									  mTabs.tvsNoPtr()[4],   SLOT(onTabViewSelChanged(MdTable *))));
+	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(MdTable *)),
+									  mTabs.tvsNoPtr()[5],   SLOT(onTabViewSelChanged(MdTable *))));
 
 	if (bl.contains(false))
 		INFO << tr("connect.tabViewSelChanged[0...6]:") << bl;

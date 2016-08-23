@@ -28,7 +28,7 @@ public:
 		tv = _tv;
 
 		if (! tv) {
-			qDebug().noquote() << tr("Cast parent to TabView failed!");
+			qDebug().noquote() << tr("Cast parent to MdTable failed!");
 			return;
 		}
 

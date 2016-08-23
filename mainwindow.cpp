@@ -70,10 +70,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	connect(inpFrm, &InpFrm::stateMessage, stateBar, &MDStateBar::showMessage);
 
 	/*!
-	  * Connect InpFrm::newWorktimeRecord() to TabView::update()
+	  * Connect InpFrm::newWorktimeRecord() to MdTable::update()
 	  */
-	foreach (TabView *tv, browser->mTabs.tvsNoPtr())
-		connect(inpFrm, &InpFrm::newWorktimeRecord, tv, &TabView::refreshView);
+	foreach (MdTable *tv, browser->mTabs.tvsNoPtr())
+		connect(inpFrm, &InpFrm::newWorktimeRecord, tv, &MdTable::refreshView);
 
 	/**** Restore mainWindow geometry and window state
 	\*/
@@ -119,7 +119,7 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 	actGbSShtInpFrm->setChecked( !b );
 	actGbStyleShtA->setChecked( b );
 
-	foreach (TabView *tv, *browser->tvs()) {
+	foreach (MdTable *tv, *browser->tvs()) {
 		tv->setStyleSheet( Globals::gbStyleShtCenterPROPERTYS);
 	}
 }
