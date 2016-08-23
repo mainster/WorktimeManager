@@ -16,6 +16,28 @@
 #include "models.h"
 #include "sectionmask.h"
 
+/* ======================================================================== */
+/*                             class MdTabView                              */
+/* ======================================================================== */
+class MdTabView : public QTableView {
+
+	Q_OBJECT
+
+public:
+	explicit MdTabView(QWidget *parent = 0)
+		: QTableView(parent) { }
+	~MdTabView() { }
+
+protected:
+
+private:
+
+};
+
+/* ======================================================================== */
+/*                              class MdTable                               */
+/* ======================================================================== */
+
 namespace Ui {
 class MdTable;
 //class Browser;

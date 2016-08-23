@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql
+QT       += core gui sql widgets
 qtHaveModule(printsupport): QT += printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -51,6 +51,7 @@ HEADERS += \
 	 dbcontroller.h \
 	 delegates/sqlreldel.h \
 	 delegates/tabledelegate.h \
+	 filterform.h \
 	 headers/locals.h \
 	 initdb.h \
 	 inpfrm.h \
@@ -69,8 +70,8 @@ HEADERS += \
 	 mpushbutton.h \
 	 sectionmask.h \
 	 textedit/textedit.h \
-    filterform.h \
-    views/mdtable.h
+	 views/mdtable.h \
+
 
 SOURCES += \
 	 browser.cpp \
@@ -79,6 +80,7 @@ SOURCES += \
 	 dbcontroller.cpp \
 	 delegates/sqlreldel.cpp \
 	 delegates/tabledelegate.cpp \
+	 filterform.cpp \
 	 headers/locals.cpp \
 	 inpfrm.cpp \
 	 main.cpp \
@@ -97,8 +99,8 @@ SOURCES += \
 	 mpushbutton.cpp \
 	 sectionmask.cpp \
 	 textedit/textedit.cpp \
-    filterform.cpp \
-    views/mdtable.cpp
+	 views/mdtable.cpp \
+
 
 FORMS += \
 	 uis/dbconndlg.ui \

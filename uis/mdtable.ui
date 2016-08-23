@@ -24,11 +24,11 @@
 	color:  rgba(245,0,0,255);
 } 
 QGroupBox {
-   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
-   	border-radius: 5px;
 	margin-top: 1ex; /*margin-bottom: 2px; margin-left: 2px; margin-right: 2px;*/
    	font: italic 9pt &quot;Arial&quot;;
    	font-weight: bold;
+   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
+   	border-radius: 5px;
 	border: 2px solid;
 	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));
 	border-left-color: rgba(105,105,105,255);
@@ -46,11 +46,21 @@ QGroupBox::title:hover {
     color: rgba(235, 235, 235, 255);
 }
 QTableView {
-	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF);
+	margin-top: 1ex; /*margin-bottom: 2px; margin-left: 2px; margin-right: 2px;*/
+   	font: italic 9pt &quot;Arial&quot;;
+   	font-weight: bold;
+   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
+   	border-radius: 5px;
+	border: 2px solid;
+	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));
+	border-left-color: rgba(105,105,105,255);
+	border-right-color: rgba(105,105,105,205);
+	border-bottom-color: rgba(105,105,105,205);
+/*	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF);
 	border: 0px solid gray;
 	border-radius: 5px;
 	margin-top: 15px;	
-	gridline-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0.19 rgba(97, 97, 97, 255), stop:1 rgba(247, 247, 247, 255));
+	gridline-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0.19 rgba(97, 97, 97, 255), stop:1 rgba(247, 247, 247, 255));*/
  } [select=true] {
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); 
 }
@@ -87,49 +97,6 @@ QHeaderView::section {
    <property name="bottomMargin">
     <number>3</number>
    </property>
-   <item>
-    <widget class="QGroupBox" name="gb">
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-     <property name="title">
-      <string>GroupBox</string>
-     </property>
-     <property name="select" stdset="0">
-      <bool>false</bool>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QTableView" name="mtv">
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="sortingEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="cornerButtonEnabled">
-         <bool>false</bool>
-        </property>
-        <attribute name="horizontalHeaderMinimumSectionSize">
-         <number>10</number>
-        </attribute>
-        <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="verticalHeaderDefaultSectionSize">
-         <number>15</number>
-        </attribute>
-        <attribute name="verticalHeaderMinimumSectionSize">
-         <number>15</number>
-        </attribute>
-        <attribute name="verticalHeaderStretchLastSection">
-         <bool>false</bool>
-        </attribute>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
   </layout>
  </widget>
  <resources/>

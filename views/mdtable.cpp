@@ -17,11 +17,18 @@ MdTable::MdTable(QWidget *parent) : QWidget(parent),
 	connect(this,			&MdTable::objectNameChanged,
 			  this,			&MdTable::onObjectNameChanged);
 
-	m_gb = ui->gb;
-	m_tv = ui->mtv;
+	m_gb = new QGroupBox(this);
+	m_tv = new QTableView(m_gb);
+	m_gb =
 
-	m_gb->setParent(ui->gb->parentWidget());
-	m_tv->setParent(ui->mtv->parentWidget());
+	layout()->addWidget(m_gb);
+
+	QGridLayout *gl = new QGridLayout(m_gb);
+	gl->addWidget(m_tv);
+
+	m_gb->setLayout(gl);
+//	m_gb->setParent(ui->gb->parentWidget());
+//	m_tv->setParent(ui->mtv->parentWidget());
 
 	/*! HACK to force redrawing if dynamic property stylesheets are used! */
 	m_gb->setStyleSheet(this->m_gb->styleSheet());
