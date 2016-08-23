@@ -1,7 +1,6 @@
 #ifndef MDTABVIEW_H
 #define MDTABVIEW_H
 
-
 #include <QActionGroup>
 #include <QCloseEvent>
 #include <QColor>
@@ -40,7 +39,9 @@ class MdTabView : public QTableView {
 	Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged)
 
 public:
-	explicit MdTabView(QWidget *parent = 0);
+	explicit MdTabView(QWidget *parent = 0) : QTableView(parent) {
+		MdTabView(QString(), parent);
+	}
 	explicit MdTabView(const QString &tableName, QWidget *parent = 0);
 	~MdTabView() { }
 
@@ -70,11 +71,26 @@ protected slots:
 	void resizeRowsColsToContents();
 
 private:
+	void setStyleSheet(const QString& styleSheet) {
+		QWidget::setStyleSheet( styleSheet );
+		style()->unpolish(this);
+		style()->polish(this);
+		update();
+	}
+	void resetStyleSheet() {
+		setStyleSheet(styleSheet());
+		style()->unpolish(this);
+		style()->polish(this);
+	}
+	void clearStyleSheet() {
+		style()->unpolish(this);
+	}
 	void showEvent(QShowEvent *);
 	void mouseDoubleClickEvent(QMouseEvent *);
 	bool eventFilter(QObject *obj, QEvent *event);
 	void hideEvent(QHideEvent *);
 
+	static QString		m_stylesheet;
 	SectionMask			*m_sectMsk;
 	QLabel				*m_titleLabel;
 	bool					m_selected;

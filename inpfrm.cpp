@@ -110,7 +110,13 @@ InpFrm::~InpFrm() {
 QString InpFrm::getQueryText() const {
 	return ui->teSqlQuerys->toPlainText();
 }
-void InpFrm::onInpFormUserCommit() {
+//void InpFrm::onInpFormUserCommit() {
+//	ui->datePicker->date().toString("yyyy-MM-dd"));
+//	workerID);
+//	prjID);
+//	ui->leHrs->text().toInt());
+//}
+void InpFrm::onInpFormUserCommitAlt() {
 	QSqlQuery query;
 	QString q;
 	bool ok = true;
@@ -255,7 +261,7 @@ void InpFrm::aButtonClick(bool) {
 
 	}
 	if (pbSender == ui->btnOk) {
-		onInpFormUserCommit();
+		onInpFormUserCommitAlt();
 	}
 	if (pbSender == ui->btnUndo) {
 

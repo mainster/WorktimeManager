@@ -124,6 +124,7 @@ public slots:
 	void onInpFormChanges(int idx);
 	void onCbIndexChanged(const int index);
 
+	void onInpFormUserCommitAlt();
 protected:
 	virtual void keyPressEvent(QKeyEvent *) override;
 	virtual void resizeEvent(QResizeEvent *) override;

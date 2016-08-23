@@ -1,11 +1,6 @@
 #include "mdtabview.h"
 
 
-MdTabView::MdTabView(QWidget *parent)
-	: QTableView(parent) {
-	MdTabView(QString(), parent);
-}
-
 MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	: QTableView(parent) {
 
@@ -31,16 +26,14 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	adjustSize();
 
 	frame->show();
-	m_titleLabel->show();
 
 	//		restoreFont();
 	//		initHeaders();
 	//		setupContextMenu();
 
-	QTimer::singleShot(5000, m_titleLabel, SLOT(show()));
+	setStyleSheet(m_stylesheet);
 
 }
-
 void MdTabView::createForeignModel(const QString &tNam) {
 	/**
 		 * Get active database pointer
@@ -211,7 +204,7 @@ bool MdTabView::eventFilter(QObject *obj, QEvent *event) {
 	return QObject::eventFilter(obj, event);
 }
 void MdTabView::hideEvent(QHideEvent *) {
-//		modelCast()->storeModel(sqlTableName());
+	//		modelCast()->storeModel(sqlTableName());
 }
 void MdTabView::showEvent(QShowEvent *) {
 }
@@ -314,6 +307,7 @@ QList<QAction *> MdTabView::createActions() {
 	return acts2;
 }
 void MdTabView::connectActions() {
+
 	//		connect(actSectionMask, &QAction::toggled, this, &MdTabView::onActSectionMask);
 }
 void MdTabView::storeActionState(QAction *sender) {
@@ -343,3 +337,64 @@ QFont MdTabView::restoreFont() {
 	setFont(f);
 	return f;
 }
+
+#define QFOLDINGSTART {
+QString MdTabView::
+m_stylesheet
+= QString(
+	  "QGroupBox::title {"
+	  "   	subcontrol-origin: margin; /* margin boarder padding content */"
+	  "   	subcontrol-position: top center; /* position at the top center */"
+	  "   	top: 1.0ex;   "
+	  "  	padding: 0px 8px;"
+	  "	color:  rgba(50,50,50,255);"
+	  "} [select=false] {"
+	  "	color:  rgba(245,0,0,255);"
+	  "} "
+	  "QGroupBox {"
+	  "   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
+	  "   	border-radius: 5px;"
+	  "	margin-top: 1ex; /*margin-bottom: 2px; margin-left: 2px; margin-right: 2px;*/"
+	  "   	font: italic 9pt ""Arial"";"
+	  "   	font-weight: normal;"
+	  "	border: 2px solid;"
+	  "	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));"
+	  "	border-left-color: rgba(105,105,105,255);"
+	  "	border-right-color: rgba(105,105,105,205);"
+	  "	border-bottom-color: rgba(105,105,105,205);"
+	  "} [select=true] { "
+	  "	/* margin-top: 5px; margin-bottom: -2px; margin-left: -2px; margin-right: -2px; */"
+	  "	border: 2px solid; "
+	  "	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(255,0,0,255), stop:1 rgba(247, 247, 247, 250));"
+	  "	border-left-color: rgba(255,0,0,255);"
+	  "	border-right-color: rgba(255,0,0,255);"
+	  "	border-bottom-color: rgba(255,0,0,255);"
+	  "}"
+	  "QGroupBox::title:hover {"
+	  "    color: rgba(235, 235, 235, 255);"
+	  "}"
+	  "QTableView {"
+	  "	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF);"
+	  "	border: 0px solid gray;"
+	  "	border-radius: 5px;"
+	  "	margin-top: 15px;	"
+	  "	gridline-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0.19 rgba(97, 97, 97, 255), stop:1 rgba(247, 247, 247, 255));"
+	  " } [select=true] {"
+	  "	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); "
+	  "}"
+	  "QHeaderView::section {"
+	  "     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+	  "                                       stop:    0 #616161, stop: 0.5 #505050,"
+	  "                                       stop: 0.6 #434343, stop:    1 #656565);"
+	  "     color: white;"
+	  "     padding-left: 4px;"
+	  "     padding-right: 4px;"
+	  "     padding-top: 2px;"
+	  "     padding-bottom: 2px;"
+	  "     border: 1px solid #6c6c6c;"
+	  "}"
+	  " QHeaderView::section:checked {"
+	  "     background-color: rgb(31, 94, 233);"
+	  " }"
+	  );
+#define QFOLDINGEND }

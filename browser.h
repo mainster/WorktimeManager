@@ -188,6 +188,28 @@ signals:
 	void clearSelections();
 
 public slots:
+//	bool addWorktimeRecord(int prjID, int workerID, QString date,
+//								  double hours, int worktimID = -1, MdTabView worktime = NULL) {
+//		if (worktime == NULL)
+//			worktime = mTabs.tva;
+//		SqlRtm *rtm = dynamic_cast<SqlRtm *>(mdtv->model());
+//		rtm->setEditStrategy(QSqlTableModel::OnManualSubmit);
+
+//		QSqlRecord rec = SqlRtm.record();
+//		rec.setValue(tr("prjID"),		prjID);
+//		rec.setValue(tr("workerID"),	workerID);
+//		rec.setValue(tr("dat"),			date);
+//		rec.setValue(tr("hours"),		hours);
+
+//		rtm->insertRecord(-1, rec);
+//		 if(! rtm->submitAll()) {
+//			  INFO << tr("CategoriesEditor::CategoriesEditor:")
+//					 << ConnectionWidget::currentDb().lastError().text();
+//		 }
+
+
+//	}
+
 	TvSelectors tvSelector() const	{ return m_tvSelector; }
 	QSqlDatabase getCurrentDatabase()	{ return connectionWidget()->currentDb(); }
 	void setTvSelector(TvSelectors tvSelector)	{ m_tvSelector = tvSelector; }

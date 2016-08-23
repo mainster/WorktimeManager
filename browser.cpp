@@ -278,6 +278,12 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 	// Populate the model
 	rmod->select();
 	
+	QTime *time = new QTime();
+	time->start();
+	while (rmod->canFetchMore())
+		rmod->fetchMore();
+	INFO << tr("Model load delay: %1ms").arg(time->elapsed());
+
 	// Set the model and hide the ID column
 	tvc->setSelectionMode(QAbstractItemView::ContiguousSelection);
 	tvc->setModel(rmod);
