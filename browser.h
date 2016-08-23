@@ -54,6 +54,7 @@
 #include "mysortfilterproxymodel.h"
 #include "filterform.h"
 #include "mdtable.h"
+#include "mdtabview.h"
 #include "connectionwidget.h"
 #include "mdmenu.h"
 
@@ -237,6 +238,7 @@ private:
 	QActionGroup		*actGrTvSelectBy, *actGrTvCount;
 	QAction				*actSelByNone, *actSelByGrBx, *actSelByVPort, *actSelByBoth;
 
+	int m_stateCounter;
 public:
 	MdMenu					*browsMenu;
 	ConnectionWidget *connectionWidget() const { return mConnectionWidget; }

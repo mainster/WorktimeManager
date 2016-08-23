@@ -17,6 +17,8 @@ Browser::Browser(QWidget *parent)
 	inst = this;
 	setObjectName("Browser");
 	
+	m_stateCounter = 0;
+
 	setStyleSheet(Locals::browserStyleSheetv2);
 	style()->unpolish(this);
 	style()->polish(this);
@@ -160,9 +162,9 @@ void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
 	 */
 
 	if (sqlTbl.contains(tr("worktime"))) {
-		mdtv = new MdTabView(sqlTbl, 0);
-		mdtv->createForeignTableDERIVED(sqlTbl);
-		connect(this, &Browser::updateWriteActions,	mdtv, &MdTabView::onUpdateWriteActions);
+		mdtv = new MdTabView(sqlTbl);
+		connect(this, &Browser::updateWriteActions,
+				  mdtv, &MdTabView::onUpdateWriteActions);
 	}
 
 	createForeignTable(sqlTbl, mTabs.currentSelected());

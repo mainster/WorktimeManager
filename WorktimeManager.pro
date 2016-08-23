@@ -71,6 +71,7 @@ HEADERS += \
 	 sectionmask.h \
 	 textedit/textedit.h \
 	 views/mdtable.h \
+    views/mdtabview.h
 
 
 SOURCES += \
@@ -100,6 +101,7 @@ SOURCES += \
 	 sectionmask.cpp \
 	 textedit/textedit.cpp \
 	 views/mdtable.cpp \
+    views/mdtabview.cpp
 
 
 FORMS += \

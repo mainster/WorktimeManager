@@ -138,13 +138,13 @@ void ConnectionWidget::setActive(QTreeWidgetItem *item) {
 }
 void ConnectionWidget::on_tree_itemActivated(QTreeWidgetItem *item,
 															int /* column */) {
-
-	if (!item) return;
+	if (!item)	return;
 
 	INFO << item << item->text(0);
-	if (!item->parent()) {
+
+	if (!item->parent())
 		setActive(item);
-	} else {
+	else {
 		setActive(item->parent());
 		emit tableActivated(item->text(0));
 	}
