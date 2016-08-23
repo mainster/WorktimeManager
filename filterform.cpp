@@ -2,7 +2,9 @@
 #include "ui_filterform.h"
 
 FilterForm *FilterForm::inst = 0;
-const QString FilterForm::WINDOW_TITLE_PREFIX = QString("Filtern und Sortieren von");
+const QString FilterForm::WINDOW_TITLE_PREFIX = QString("Filter für Tabelle [%1]");
+const QString FilterForm::PROXY_GROUPBOX_TITLE_PREFIX = QString("Proxy model [%1 rows]");
+const QString FilterForm::SOURCE_GROUPBOX_TITLE_PREFIX = QString("Source model [%1 rows]");
 
 
 FilterForm::FilterForm(SourceTableType srcType, QList<TabView *> allTvs, QWidget *parent)
@@ -79,9 +81,13 @@ void FilterForm::setSourceTabView(TabView *tv) {
 
 	if (mTv != tv) {
 		mTv = tv;
-		proxyModel->setSourceModel(mTv->tv()->model());
 		sourceView->setModel(mTv->tv()->model());
-		setWindowTitle(WINDOW_TITLE_PREFIX + mTv->sqlTableName());
+		proxyModel->setSourceModel(mTv->tv()->model());
+
+		setWindowTitle(WINDOW_TITLE_PREFIX.arg(mTv->sqlTableName()));
+		onSourceRowCountChanged(0, sourceView->model()->rowCount());
+
+
 		INFO << tr("New source view [%1] activated!").arg(tv->objectName());
 	}
 }
@@ -96,9 +102,15 @@ void FilterForm::textFilterChanged() {
 
 	QRegExp regExp(filtPattLE->text(), caseSensitivity, syntax);
 	proxyModel->setFilterRegExp(regExp);
-
-	//    qDebug().noquote() << tr("from") << fromDateEdit->dateTime()
-	//                       << tr("to") << toDateEdit->dateTime();
+	onProxyRowCountChanged(0, proxyModel->rowCount());
+}
+void FilterForm::onSourceRowCountChanged(const uint oldCount, const uint newCount) {
+	Q_UNUSED(oldCount);
+	sourceGB->setTitle(SOURCE_GROUPBOX_TITLE_PREFIX.arg(newCount));
+}
+void FilterForm::onProxyRowCountChanged(const uint oldCount, const uint newCount) {
+	Q_UNUSED(oldCount);
+	proxyGB->setTitle(PROXY_GROUPBOX_TITLE_PREFIX.arg(newCount));
 }
 void FilterForm::cbTextFilterChanged() {
 	QRegExp::PatternSyntax syntax =
@@ -112,14 +124,13 @@ void FilterForm::cbTextFilterChanged() {
 	QRegExp regExp(filtPattLE->text(), caseSensitivity, syntax);
 	proxyModel->setFilterRegExp(regExp);
 
-	//    qDebug().noquote() << tr("from") << fromDateEdit->dateTime()
-	//                       << tr("to") << toDateEdit->dateTime();
+	onProxyRowCountChanged(0, proxyModel->rowCount());
 }
 void FilterForm::dateFilterChanged() {
 	//    qDebug().noquote() << fromDateEdit->date().toString("MM/dd/yy");
-
 	proxyModel->setFilterMinimumDate(fromDateEdit->date());
 	proxyModel->setFilterMaximumDate(toDateEdit->date());
+	onProxyRowCountChanged(0, proxyModel->rowCount());
 }
 void FilterForm::onSelectedTableChange(bool selected) {
 	TabView *newTable = qobject_cast<TabView *>(sender());

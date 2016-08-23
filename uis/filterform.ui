@@ -35,11 +35,31 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QTableView" name="proxyView"/>
-       </item>
-       <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
+          <widget class="QTableView" name="proxyView"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="filtCaseSensCB">
+           <property name="text">
+            <string>Case sensitive</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QComboBox" name="filtSyntaxCB"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QDateEdit" name="fromDateEdit"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QDateEdit" name="toDateEdit"/>
+         </item>
+         <item row="0" column="0">
           <widget class="QLineEdit" name="filtPattLE">
            <property name="text">
             <string/>
@@ -49,7 +69,7 @@
            </property>
           </widget>
          </item>
-         <item>
+         <item row="0" column="1">
           <widget class="QComboBox" name="cbFilterPattern">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -58,26 +78,6 @@
             </sizepolicy>
            </property>
           </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="0" column="0">
-          <widget class="QDateEdit" name="fromDateEdit"/>
-         </item>
-         <item row="1" column="0">
-          <widget class="QDateEdit" name="toDateEdit"/>
-         </item>
-         <item row="0" column="1">
-          <widget class="QCheckBox" name="filtCaseSensCB">
-           <property name="text">
-            <string>Case sensitive</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QComboBox" name="filtSyntaxCB"/>
          </item>
         </layout>
        </item>

@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QtCore>
 #include <QtEvents>
+#include <QTableView>
 
 #include "mysortfilterproxymodel.h"
 #include "globals.h"
@@ -64,8 +65,13 @@ protected:
 	void showEvent(QShowEvent *e);
 	void hideEvent(QHideEvent *e);
 	void closeEvent(QCloseEvent *e);
-
 	void keyPressEvent(QKeyEvent *e);
+
+protected slots:
+	void onSelectedTableChange(bool selected);
+	void onSourceRowCountChanged(const uint oldCount, const uint newCount);
+	void onProxyRowCountChanged(const uint oldCount, const uint newCount);
+
 private slots:
 	void textFilterChanged();
 	void dateFilterChanged();
@@ -73,6 +79,8 @@ private slots:
 private:
 	static FilterForm *inst;
 	static const QString WINDOW_TITLE_PREFIX;
+	static const QString PROXY_GROUPBOX_TITLE_PREFIX;
+	static const QString SOURCE_GROUPBOX_TITLE_PREFIX;
 	Ui::FilterForm *ui;
 	SfiltMdl *proxyModel;
 	SourceTableType	mSourceTableType;
@@ -92,13 +100,6 @@ private:
 	QDateEdit *fromDateEdit;
 	QDateEdit *toDateEdit;
 	QAction *deleteAct;
-
-	// QObject interface
-public:
-//	virtual bool eventFilter(QObject *, QEvent *) override;
-
-protected slots:
-	void onSelectedTableChange(bool selected);
 };
 
 //Q_DECLARE_OPERATORS_FOR_FLAGS(FilterForm::SourceTable)
