@@ -152,10 +152,12 @@ public:
 	//    void insertRow(QTableView *tv);
 	void deleteRow(QTableView *tv);
 	void setStyleSheet(const QString& styleSheet) {
+#ifdef SET_STYLESHEETS
 		QWidget::setStyleSheet( styleSheet );
 		style()->unpolish(this);
 		style()->polish(this);
 		update();
+#endif
 	}
 	void resetStyleSheet(MdTable *tv) {
 		tv->setStyleSheet(styleSheet());
@@ -233,7 +235,6 @@ private:
 
 public:
 	MdMenu					*browsMenu;
-	static const QString  browserStyleSheet, browserStyleSheetv2;
 	ConnectionWidget *connectionWidget() const { return mConnectionWidget; }
 	void setFont(const QFont f);
 	void selectAndSetFont();

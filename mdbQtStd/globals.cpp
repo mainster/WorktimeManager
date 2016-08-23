@@ -64,6 +64,7 @@ QString Globals::ddtvStyleShtA =
 		"  margin-top: 10px; /* leave space at the top for the title */"
 		"}";
 
+//"   font-weight: bold;"
 QString Globals::ddgbStyleShtCenterHead =
 		" QGroupBox {"
 		"      background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
@@ -71,7 +72,7 @@ QString Globals::ddgbStyleShtCenterHead =
 		"      border-radius: 5px;"
 		"   margin-top: 1ex; /* leave space at the top for the title */"
 		"      font: italic 9pt \"Arial\";"
-		"   font-weight: bold;"
+		"   font-weight: normal;"
 		"   color: black;"
 		" }"
 		""
@@ -82,6 +83,7 @@ QString Globals::ddgbStyleShtCenterHead =
 		"   padding: 0px 6px"
 		" }";
 
+//"   font-weight: bold;"
 QString Globals::gbStyleShtCenterPROPERTYS =
 		"QGroupBox#tva[selected=false] { border: 2px solid gray;  }"
 		"QGroupBox#tva[selected=true] { border: 1px dashed rgb(55, 55, 55);   }"
@@ -100,7 +102,7 @@ QString Globals::gbStyleShtCenterPROPERTYS =
 		"   border-radius: 5px;"
 		"   margin-top: 1ex; /* leave space at the top for the title */"
 		"   font: italic 9pt \"Arial\";"
-		"   font-weight: bold;"
+		"   font-weight: normal;"
 		"   color: black;"
 		"}"
 		""

@@ -81,10 +81,7 @@ QHeaderView::section {
 
 </string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="spacing">
-    <number>2</number>
-   </property>
+  <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
     <number>3</number>
    </property>
@@ -97,6 +94,18 @@ QHeaderView::section {
    <property name="bottomMargin">
     <number>3</number>
    </property>
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="gb2">
+     <property name="title">
+      <string>GroupBox</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QTableView" name="mtv2"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

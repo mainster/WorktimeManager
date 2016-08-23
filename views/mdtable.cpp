@@ -18,21 +18,23 @@ MdTable::MdTable(QWidget *parent) : QWidget(parent),
 			  this,			&MdTable::onObjectNameChanged);
 
 	m_gb = new QGroupBox(this);
-	m_tv = new QTableView(m_gb);
-	m_gb =
+	m_tv = new QTableView(this);
+	m_gb->setObjectName(tr("gb"));
+	m_tv->setObjectName(tr("mtv"));
 
 	layout()->addWidget(m_gb);
 
-	QGridLayout *gl = new QGridLayout(m_gb);
-	gl->addWidget(m_tv);
+	QVBoxLayout *vbl = new QVBoxLayout(m_gb);
+	vbl->addWidget(m_tv);
 
-	m_gb->setLayout(gl);
+	m_gb->setLayout(vbl);
 //	m_gb->setParent(ui->gb->parentWidget());
 //	m_tv->setParent(ui->mtv->parentWidget());
 
 	/*! HACK to force redrawing if dynamic property stylesheets are used! */
+#ifdef SET_STYLESHEETS
 	m_gb->setStyleSheet(this->m_gb->styleSheet());
-
+#endif
 	m_tv->setSortingEnabled( true );
 	clearSelected();
 
@@ -158,7 +160,7 @@ void MdTable::onActSectionMask(bool sectionMask) {
 	}
 }
 void MdTable::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx) {
-	Q_UNUSED(newVisualIdx);
+	Q_UNUSED(oldVisualIdx);
 	qobject_cast<SqlRtm *>(tv()->model())->setSectionIdx(logicalIdx, newVisualIdx);
 	modelCast()->storeModel(sqlTableName());
 }

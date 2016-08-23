@@ -120,7 +120,9 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 	actGbStyleShtA->setChecked( b );
 
 	foreach (MdTable *tv, *browser->tvs()) {
+#ifdef SET_STYLESHEETS
 		tv->setStyleSheet( Globals::gbStyleShtCenterPROPERTYS);
+#endif
 	}
 }
 void MainWindow::onUnderConstrTrig() {

@@ -125,10 +125,12 @@ private slots:
 
 protected:
 	void setStyleSheet(const QString& styleSheet) {
+#ifdef SET_STYLESHEETS
 		QWidget::setStyleSheet( styleSheet );
 		style()->unpolish(this);
 		style()->polish(this);
 		update();
+#endif
 	}
 	bool eventFilter(QObject *obj, QEvent *event);
 	void showEvent(QShowEvent *e);

@@ -26,6 +26,7 @@ class Locals {
 public:
 	static QFileInfo SQL_DATABASE;
 	static QString SQL_DRIVER;
+	static const QString  browserStyleSheet, browserStyleSheetv2, MdTableStyleSheet;
 	Locals();
 };
 
