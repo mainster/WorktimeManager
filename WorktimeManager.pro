@@ -17,7 +17,8 @@ INCLUDEPATH += mdbQtStd
 
 DISTFILES += \
 	 NOTES \
-    ../../../../.config/delBassoDEV/WorktimeManager.ini
+    ../../../../.config/delBassoDEV/WorktimeManager.ini \
+
 
 INCLUDEPATH += \
 		delegates \
@@ -67,9 +68,9 @@ HEADERS += \
 	 models/mysortfilterproxymodel.h \
 	 mpushbutton.h \
 	 sectionmask.h \
-	 sortwindow.h \
 	 textedit/textedit.h \
-	 views/tabview.h
+	 views/tabview.h \
+    filterform.h
 
 SOURCES += \
 	 browser.cpp \
@@ -95,17 +96,17 @@ SOURCES += \
 	 models/mysortfilterproxymodel.cpp \
 	 mpushbutton.cpp \
 	 sectionmask.cpp \
-	 sortwindow.cpp \
 	 textedit/textedit.cpp \
-	 views/tabview.cpp
+	 views/tabview.cpp \
+    filterform.cpp
 
 FORMS += \
 	 uis/dbconndlg.ui \
 	 uis/inpfrm.ui \
 	 uis/mainwindow.ui \
-	 uis/sortwindow.ui \
+	 uis/filterform.ui \
 	 uis/tabview.ui \
 	 uis/mdnotes.ui \
-    uis/inpfrmTRANS.ui
+    uis/inpfrmTRANS.ui \
 
 

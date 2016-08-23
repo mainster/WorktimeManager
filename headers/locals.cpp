@@ -9,7 +9,9 @@ struct Md::confKeys_t Md::k {
 	QString("/TableFont"),
 	QString("/mCenterCols"),
 	QString("/mVisibleCols"),
-	QString("/mSectionIdxs")
+	QString("/mSectionIdxs"),
+	QString("/WindowGeometry"),
+	QString("/WindowState")
 };
 
 

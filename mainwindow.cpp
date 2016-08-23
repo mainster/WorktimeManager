@@ -10,19 +10,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	QSETTINGS;
 	//	initDocks();
 
-	createActions();
-	connectActions(connectThis);
 
 	stateBar		= new MDStateBar(this);
 	browser		= new Browser(parent);
 	mDbc			= new DbController(this);
-	sortwindow  = new SortWindow(parent);
-	connect(sortwindow,	&SortWindow::sourceTableChanged,
-			  browser,		&Browser::onSourceTableChanged);
 	inpFrm		= new InpFrm(this);
 	notes.toDo	= new MDNotes(tr("toDo"), parent);
 	richEditor	= new TextEdit(this);
 	richEditor->hide();
+	filterForm	= new FilterForm();
+	filterForm->hide();
+
+	createActions();
+	connectActions(connectThis);
 
 	connect(browser->connectionWidget(),	SIGNAL(detailesChanged(QString&)),
 			  stateBar,								SLOT(showInfo(QString&)));
@@ -59,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	stateBar->setSlInfoAlign(Qt::AlignCenter);
 	stateBar->setClockAlign(Qt::AlignCenter);
 	stateBar->setClockVisible(true);
+
 	setStatusBar( stateBar );
 	makeMenu();
 
@@ -224,7 +225,23 @@ void MainWindow::onActRichTextToggd(bool) {
 }
 void MainWindow::onActFilterWindowSource(bool) {
 	QAction *act = qobject_cast<QAction *>(sender());
-	sortwindow->setSourceTableFlg(act->data().value<SortWindow::SourceTable>());
+	filterForm->setSourceTableFlg(act->data().value<FilterForm::SourceTable>());
+}
+void MainWindow::onActFilterForm(bool b) {
+	filterForm->setVisible(b);
+
+	return;
+	filterForm->show();
+
+//	if (filterForm->sourceTableFlg() == FilterForm::useSelected) {
+//		if (.currentSelected(true) == NULL)
+//			MDStateBar::instance()->showMessage2sec(tr("Keine Tabelle zum Filtern ausgewählt!"));
+//		else
+//			browser->mTabs.currentSelected(true)->modelCast();
+
+//		filterForm->raise();
+//		filterForm->activateWindow();
+//	}
 }
 /* ======================================================================== */
 /*                              Event handler                               */
@@ -261,7 +278,7 @@ void MainWindow::showEvent(QShowEvent *e) {
 void MainWindow::hideEvent(QHideEvent *e) {
 	QWidget::hideEvent( e );
 }
-void MainWindow::closeEvent(QCloseEvent *) {
+void MainWindow::closeEvent(QCloseEvent *e) {
 	QSETTINGS;
 
 	/**** Safe current docking area of dock widgets
@@ -277,11 +294,15 @@ void MainWindow::closeEvent(QCloseEvent *) {
 	\*/
 	WIN_STORE(this);
 	WIN_STATE_STORE(this);
+	QWidget::closeEvent(e);
 }
 void MainWindow::keyPressEvent(QKeyEvent *e) {
 	if (e->key() == Qt::Key_Escape) {
 		emit browser->clearSelections();
+		e->accept();
+		return;
 	}
+	QWidget::keyPressEvent(e);
 }
 /* ======================================================================== */
 /*									    Init methodes										    */
@@ -309,7 +330,7 @@ bool MainWindow::restoreActionObjects() {
 	actGrTbMenu->blockSignals(false);
 	actGrFilterWidg->blockSignals(false);
 
-	INFO << sortwindow->sourceTableFlg();
+	INFO << filterForm->sourceTableFlg();
 	return true;
 
 	//	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
@@ -382,6 +403,7 @@ void MainWindow::createActions() {
 	actNotes = new QAction(QIcon(":/images/notes.png"), tr("Notizen"), this);
 	actRichEdit = new QAction(QIcon(":/images/editor.png"), tr("Rich Text Editor"), this);
 	actClose = new QAction(QIcon(":/icoDelete"), tr("Schließen"), this);
+	actFilterForm = new QAction(QIcon(":/images/search.png"), tr("Suchfenster anzeigen"), this);
 
 	/*!
 	 * Create menu toolbar actions.
@@ -397,10 +419,9 @@ void MainWindow::createActions() {
 	actShowSqlQuery = new QAction("Eingabefeld SQL querys", this);
 	actSetAlterRowCol = new QAction("Zeilenhintergrund", this);
 	actAutoFitTables = new QAction("Autofit Zeile/Spalte", this);
-	actFilterForm = new QAction("Suchfenster anzeigen", this);
 	actCfgInpFrmTabOrd = new QAction("Tabulator Reihenfolge", this);
-	actFiltSelectedTbl = new QAction("Auf ausgewählte Tabelle anwenden", this);
-	actFiltWorktimeTbl = new QAction("Auf Arbeitszeiten-Tabelle anwenden", this);
+	actDoFiltSelectedTbl = new QAction("Auf ausgewählte Tabelle anwenden", this);
+	actDoFiltWorktimeTbl = new QAction("Auf Arbeitszeiten-Tabelle anwenden", this);
 	actResetConfig = new QAction("Spalten Einstellungen zurücksetzen", this);
 
 	/* ======================================================================== */
@@ -458,10 +479,10 @@ void MainWindow::createActions() {
 	PONAM(actGrFilterWidg)->setExclusive(true);
 
 	acts.clear();
-	acts << PONAM(actFiltSelectedTbl) << PONAM(actFiltWorktimeTbl);
+	acts << PONAM(actDoFiltSelectedTbl) << PONAM(actDoFiltWorktimeTbl);
 
-	actFiltSelectedTbl->setData(QVariant::fromValue(SortWindow::useSelected));
-	actFiltWorktimeTbl->setData(QVariant::fromValue(SortWindow::useWorktime));
+	actDoFiltSelectedTbl->setData(QVariant::fromValue(FilterForm::useSelected));
+	actDoFiltWorktimeTbl->setData(QVariant::fromValue(FilterForm::useWorktime));
 
 	foreach (QAction *act, acts)
 		actGrFilterWidg->addAction(act);
@@ -485,19 +506,37 @@ void MainWindow::createActions() {
 	actDbModMaster->setCheckable(true);
 	actGbStyleShtA->setCheckable(true);
 	actGbSShtInpFrm->setCheckable(true);
-	actCyclicObjInfo->setCheckable(true);
 	actShowSqlQuery->setCheckable(true);
-	//	actFilterTableWindow->setCheckable(true);
 	actFilterForm->setCheckable(true);
-	actFiltSelectedTbl->setCheckable(true);
-	actFiltWorktimeTbl->setCheckable(true);
+	actDoFiltSelectedTbl->setCheckable(true);
+	actDoFiltWorktimeTbl->setCheckable(true);
+	actCyclicObjInfo->setCheckable(true);
 
-	actClose->setShortcut(QKeySequence("Ctrl+Q"));
+	actCyclicObjInfo->setShortcut	(QKeySequence("F2"));
+	actFilterForm->setShortcut		(QKeySequence("F3"));
+	actInpForm->setShortcut			(QKeySequence("F4"));
+	actNotes->setShortcut			(QKeySequence("F5"));
+
+	actClose->setShortcut(			QKeySequence("Ctrl+Q"));
 	actAutoFitTables->setShortcut(QKeySequence("Ctrl+Alt+A"));
-	actRichEdit->setShortcut(QKeySequence("Ctrl+Shift+R"));
+
+	actRichEdit->setShortcuts(		QList<QKeySequence>()
+											<< QKeySequence("Ctrl+E")
+											<< QKeySequence("E"));
+
 	actShowSqlQuery->setShortcuts(QList<QKeySequence>()
-											<< QKeySequence("Ctrl+Shifr+Q")
-											<< QKeySequence("Ctrl+H"));
+											<< QKeySequence("Ctrl+E")
+											<< QKeySequence("H"));
+
+	actResetConfig->setShortcuts(	QList<QKeySequence>()
+											<< QKeySequence("Ctrl+E")
+											<< QKeySequence("R"));
+#ifdef MULTIKEY_SEQ
+	actNotes->setShortcuts(			QList<QKeySequence>()
+											<< QKeySequence("Ctrl+E")
+											<< QKeySequence("N"));
+#endif
+
 	/*!
 	 * Set action object tooltips.
 	 */
@@ -522,9 +561,9 @@ void MainWindow::createActions() {
 	actSetAlterRowCol->setToolTip(tr("Farbe für alternierenden Zeilenhintergund auswählen."));
 	actInpForm->setToolTip(tr("Öffnet die <b>Eingabeform</b> um neue Einträge in die "
 									  "Arbeitszeitentabelle einzutragen."));
-	actFiltSelectedTbl->setToolTip(tr("Das Filter/Suchfenster wird auf die <b>aktuell "
+	actDoFiltSelectedTbl->setToolTip(tr("Das Filter/Suchfenster wird auf die <b>aktuell "
 												 "ausgewählte</b> Tabelle angewendet."));
-	actFiltWorktimeTbl->setToolTip(tr("Das Filter/Suchfenster <b>immer</b> auf die "
+	actDoFiltWorktimeTbl->setToolTip(tr("Das Filter/Suchfenster wird <b>immer</b> auf die "
 												 "<b>Arbeitszeit</b>-Tabelle angewendet."));
 	actRichEdit->setToolTip(tr("Öffnet einen Rich Text Editor."));
 
@@ -535,11 +574,49 @@ void MainWindow::createActions() {
 				<< actGrFilterWidg->actions())
 		act->setToolTip(tr("<p style='white-space:pre'>") + act->toolTip());
 }
+void MainWindow::connectActions(ConnectReceiver receivers) {
+	if ((receivers == connectThis) ||
+		 (receivers == connectAll)) {
+		connect(actBrowseSQL, &QAction::toggled, this, &MainWindow::onBrowseSqlToggd);
+		connect(actFilterForm, &QAction::toggled, this, &MainWindow::onActFilterForm);
+		connect(actNotes, &QAction::toggled, this, &MainWindow::onActNotesToggd);
+		connect(actRichEdit, &QAction::toggled, this, &MainWindow::onActRichTextToggd);
+		connect(actInpForm, &QAction::triggered, this, &MainWindow::onOpenCloseInpFrm);
+		connect(actShowTbl, &QAction::triggered, this, &MainWindow::onTblOpen);
+		connect(actClose, &QAction::triggered, this, &MainWindow::onActCloseTrig);
+		connect(actGbStyleShtA, &QAction::triggered, this, &MainWindow::onMenuStyleShtATrig);
+		connect(actGbSShtInpFrm, &QAction::triggered, this, &MainWindow::onMenuStyleShtInpFrmTrig);
+		connect(actExport, &QAction::triggered, this, &MainWindow::onActExportTrig);
+		connect(actUnderConstr, &QAction::triggered, this, &MainWindow::onUnderConstrTrig);
+		connect(actResizerDlg, &QAction::triggered, this, &MainWindow::onResizerDlgTrig);
+		//		connect(actShowSqlQuery, &QAction::toggled, this, &MainWindow::onShowSqlQueryTogd);
+		connect(actCfgInpFrmTabOrd,  &QAction::triggered, this, &MainWindow::onActCfgInpFrmTabOrdTrig);
+		connect(actSave,  &QAction::triggered, this, &MainWindow::onActSaveTrig);
+		connect(actOpen,  &QAction::triggered, this, &MainWindow::onActOpenTrig);
+		connect(actDoFiltSelectedTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
+		connect(actDoFiltWorktimeTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
+
+		filterForm->addAction(actFilterForm);
+	}
+
+	if ((receivers == connectOthers) ||
+		 (receivers == connectAll)) {
+		connect(actAutoFitTables,	&QAction::triggered, browser, &Browser::autofitRowCol);
+		connect(browser, &Browser::stateMsg, stateBar, &MDStateBar::showMessage);
+		connect(inpFrm, &InpFrm::visibilityChanged, actInpForm, &QAction::setChecked);
+		connect(browser, &Browser::visibilityChanged, actBrowseSQL, &QAction::setChecked);
+		connect(actShowSqlQuery, &QAction::toggled, inpFrm, &InpFrm::setQueryBoxVisible);
+		connect(actSelFont, &QAction::triggered, browser, &Browser::selectAndSetFont);
+		connect(actSetAlterRowCol, &QAction::triggered, browser, &Browser::selectAndSetRowColor);
+		connect(actResetConfig, &QAction::triggered, browser, &Browser::resetColumnConfig);
+	}
+}
 void MainWindow::makeMenu() {
 	/* ======================================================================== */
 	/*                               Main Toolbar                               */
 	/* ======================================================================== */
 	ui->mainToolBar->addActions( actGrTbMain->actions() );
+	ui->mainToolBar->addAction( actFilterForm );
 
 	/* ======================================================================== */
 	/*                                 fileMenu                                 */
@@ -550,7 +627,7 @@ void MainWindow::makeMenu() {
 	fileMenu->actions().last()->
 			setToolTip(tr("Neue SQLITE Datenbank Verbindung aufbauen."));
 	fileMenu->addSeparator();
-	fileMenu->addActions(QList<QAction *>() << actClose);
+	fileMenu->addActions(actGrTbMain->actions());
 
 	/* ======================================================================== */
 	/*                                 helpMenu                                 */
@@ -574,10 +651,9 @@ void MainWindow::makeMenu() {
 								 << actCfgInpFrmTabOrd << actResetConfig);
 	setupMenu->addSeparator();
 
-
-	MdMenu *filterForm = new MdMenu(this);
-	filterForm->setTitle(tr("Filter Fenster"));
-	filterForm->addActions(QList<QAction *>() << actFiltSelectedTbl << actFiltWorktimeTbl);
+	MdMenu *muFilterForm = new MdMenu(this);
+	muFilterForm->setTitle(tr("Filter Fenster"));
+	muFilterForm->addActions(QList<QAction *>() << actDoFiltSelectedTbl << actDoFiltWorktimeTbl);
 
 	QAction *muSetStyleSh =
 			setupMenu->addAction("St&yleSheets", this, &MainWindow::onStyleSheetTrig);
@@ -611,40 +687,8 @@ void MainWindow::makeMenu() {
 void MainWindow::onStyleSheetTrig() {
 
 }
-void MainWindow::connectActions(ConnectReceiver receivers) {
-	if ((receivers == connectThis) ||
-		 (receivers == connectAll)) {
-		connect(actBrowseSQL, &QAction::toggled, this, &MainWindow::onBrowseSqlToggd);
-		connect(actNotes, &QAction::toggled, this, &MainWindow::onActNotesToggd);
-		connect(actRichEdit, &QAction::toggled, this, &MainWindow::onActRichTextToggd);
-		connect(actInpForm, &QAction::triggered, this, &MainWindow::onOpenCloseInpFrm);
-		connect(actShowTbl, &QAction::triggered, this, &MainWindow::onTblOpen);
-		connect(actClose, &QAction::triggered, this, &MainWindow::onActCloseTrig);
-		connect(actGbStyleShtA, &QAction::triggered, this, &MainWindow::onMenuStyleShtATrig);
-		connect(actGbSShtInpFrm, &QAction::triggered, this, &MainWindow::onMenuStyleShtInpFrmTrig);
-		connect(actExport, &QAction::triggered, this, &MainWindow::onActExportTrig);
-		connect(actUnderConstr, &QAction::triggered, this, &MainWindow::onUnderConstrTrig);
-		connect(actResizerDlg, &QAction::triggered, this, &MainWindow::onResizerDlgTrig);
-		//		connect(actShowSqlQuery, &QAction::toggled, this, &MainWindow::onShowSqlQueryTogd);
-		connect(actCfgInpFrmTabOrd,  &QAction::triggered, this, &MainWindow::onActCfgInpFrmTabOrdTrig);
-		connect(actSave,  &QAction::triggered, this, &MainWindow::onActSaveTrig);
-		connect(actOpen,  &QAction::triggered, this, &MainWindow::onActOpenTrig);
-		connect(actFiltSelectedTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
-		connect(actFiltWorktimeTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
-	}
-
-	if ((receivers == connectOthers) ||
-		 (receivers == connectAll)) {
-		connect(actAutoFitTables,	&QAction::triggered, browser, &Browser::autofitRowCol);
-		connect(actFilterForm, &QAction::triggered, browser, &Browser::onActFilterForm);
-		connect(browser, &Browser::stateMsg, stateBar, &MDStateBar::showMessage);
-		connect(inpFrm, &InpFrm::visibilityChanged, actInpForm, &QAction::setChecked);
-		connect(browser, &Browser::visibilityChanged, actBrowseSQL, &QAction::setChecked);
-		connect(actShowSqlQuery, &QAction::toggled, inpFrm, &InpFrm::setQueryBoxVisible);
-		connect(actSelFont, &QAction::triggered, browser, &Browser::selectAndSetFont);
-		connect(actSetAlterRowCol, &QAction::triggered, browser, &Browser::selectAndSetRowColor);
-		connect(actResetConfig, &QAction::triggered, browser, &Browser::resetColumnConfig);
-	}
+void MainWindow::setVisibleFake(QObject *) {
+	actFilterForm->trigger();
 }
 void MainWindow::initDocks() {
 

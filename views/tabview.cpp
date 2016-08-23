@@ -4,14 +4,6 @@
 class Browser;
 class SectionMask;
 
-QString TabView::tvStyleHeadView = QString("QHeaderView::down-arrow { "
-														 "padding-left: 25px; "
-														 "image: url(:sortdown); "
-														 "}  "
-														 "QHeaderView::up-arrow { "
-														 "image: url(:sortup); "
-														 "}");
-
 /* ======================================================================== */
 /*                             TabView::TabView                             */
 /* ======================================================================== */
@@ -159,10 +151,6 @@ void TabView::onActSectionMask(bool sectionMask) {
 	}
 }
 void TabView::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx) {
-	INFO << tr("[ %1 ]:").arg(sqlTableName())
-		  << tr("logicalIdx: %1, oldVisualIdx: %2, newVisualIdx %3")
-			  .arg(logicalIdx).arg(oldVisualIdx).arg(newVisualIdx);
-
 	qobject_cast<SqlRtm *>(tv()->model())->setSectionIdx(logicalIdx, newVisualIdx);
 	modelCast()->storeModel(sqlTableName());
 }
@@ -299,7 +287,7 @@ bool TabView::eventFilter(QObject *obj, QEvent *event) {
 	if (obj->objectName().contains(tr("mtv")))
 		if (mouseEv->type() == QEvent::MouseButtonDblClick) {
 			actSectionMask->trigger();
-//			INFO << tr("Double click:") << obj;
+			//			INFO << tr("Double click:") << obj;
 			return true;
 		}
 	return QObject::eventFilter(obj, event);
@@ -347,6 +335,7 @@ void TabView::setColumnHidden(const int column, const bool hide) {
 }
 void TabView::setModel(QAbstractItemModel *model) {
 	tv()->setModel(model);
+//	QTableView::viewportEntered()
 }
 void TabView::storeActionState(QAction *sender) {
 	QSETTINGS;
@@ -376,7 +365,7 @@ bool TabView::restoreActionObjects() {
 			continue;
 		if (config.value(objectName() + tr("/") + a->objectName(), false).toBool()) {
 			if (! a->isChecked()) {
-				INFO << a->objectName();
+				//				INFO << a->objectName();
 				a->trigger();
 			}
 		}

@@ -157,17 +157,6 @@ Browser::Browser(QWidget *parent)
 	
 	emit stateMsg(tr("Browser Ready."));
 	
-	//	SqlRtm *cm = new SqlRtm();
-	//	cm->setCenterCols(QVector<int>(0, 1));
-	
-	//	if (filterForm->sourceTable() == SortWindow::useWortime)
-	//		filterForm->setSourceModel( tvs()->indexOf() );
-
-
-	filterForm = SortWindow::instance();
-	filterForm->setWindowTitle(tr("The window title ") + filterForm->objectName());
-	filterForm->hide();
-	
 	QTimer::singleShot(50, this, SLOT(restoreUi()));
 }
 Browser::~Browser() {
@@ -393,9 +382,10 @@ TabView *Browser::createForeignTable(const QString &tNam, TabView *tvc) {
 	
 	if (! (bool) connect( tvc->selectionModel(),
 								 SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-								 this, SLOT(currentChanged(QModelIndex,QModelIndex)) ) )
+								 this, SLOT(currentChanged(QModelIndex,QModelIndex)) ) ) {
 		emit stateMsg(tr("Slot connection returns false"));
-	
+		INFO << tr("Slot connection returns false");
+	}
 	tvc->resizeRowsColsToContents();
 
 	//    emit updateActions();
@@ -461,19 +451,6 @@ void Browser::customMenuRequested(QPoint pos) {
 	menu->addAction(new QAction("Action 3", this));
 	menu->popup(tvs()->first()->tv()->viewport()->mapToGlobal(pos));
 }
-void Browser::onActFilterForm(bool b) {
-	filterForm->setVisible(b);
-	
-	if (b) {
-		if (filterForm->sourceTableFlg() == SortWindow::useSelected)
-			filterForm->setSourceModel( tvs()->last()->tv()->model() );
-		filterForm->raise();
-		filterForm->activateWindow();
-	}
-	else {
-		filterForm->hide();
-	}
-}
 void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
 	/*!
 	 * Invoked after double clicking a table item in connection widget tree view.
@@ -490,7 +467,7 @@ void Browser::autofitRowCol() {
 		tvc->resizeRowsColsToContents();
 }
 void Browser::onCyclic() {
-	
+
 
 }
 void Browser::onTvSelectorChanged() {
@@ -506,12 +483,12 @@ void Browser::onActGroupTrigd(QAction *sender) {
 	if (sender->actionGroup() == actGrTvSelectBy)
 		setTvSelector(sender->data().value<TvSelector>());
 }
-void Browser::onSourceTableChanged(SortWindow::SourceTable sourceTable) {
-	if (sourceTable == SortWindow::useWorktime) {
+void Browser::onSourceTableChanged(FilterForm::SourceTable sourceTable) {
+	if (sourceTable == FilterForm::useWorktime) {
 		foreach (TabView *tv, mTabs.tvsNoPtr()) {
-			INFO << tv->tv()->objectName() << tv->grBox()->title();
+			//			INFO << tv->tv()->objectName() << tv->grBox()->title();
 			if (tv->objectName().contains(tr("worktime")))
-				SortWindow::instance()->setSourceModel(tv->tv()->model());
+				FilterForm::instance()->setSourceModel(tv->tv()->model());
 		}
 	}
 }
@@ -557,7 +534,6 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 			case selectByBoth:	break;
 			default:	break;
 		}
-
 
 		while (! (qobject_cast<TabView *>(treeTravers<QObject>(obj, ++k, &ok))))
 			if (! ok)	break;
@@ -607,9 +583,9 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 			INFO << "obj child no." << i << objs[i]->objectName();
 			INFO << "obj child no." << i << objs[i]->isWidgetType();
 		}
-		
+
 	}
-	
+
 	/**
 	  * standard event processing
 	  */
@@ -626,18 +602,18 @@ void Browser::hideEvent(QHideEvent *) {
 }
 void Browser::closeEvent(QCloseEvent *) {
 	QSETTINGS;
-	
+
 	INFO << findChildren<QSplitter *>(QString(), Qt::FindDirectChildrenOnly);
-	
+
 	/**** Write splitter sizes to config
 	\*/
 	SPLT_STORE(this);
-	
+
 	/**** Write tabView <-> SQL table relations
 	  \*/
 	foreach (TabView *tv, mTabs.tvsNoPtr())
 		config.setValue(objectName() + "/" + tv->objectName(), tv->grBox()->title());
-	
+
 	/**** Safe all action states from Browser
 	\*/
 	//	ACTION_STORE(this, tr("act*"));
@@ -648,17 +624,17 @@ void Browser::closeEvent(QCloseEvent *) {
 bool Browser::restoreUi() {
 	bool ret = true;
 	QSETTINGS;
-	
+
 	/**** Restore splitter sizes to config
 	\*/
 	SPLT_RESTORE(this);
-	
+
 	/**** Restore tabview <-> SQL table assignements, but only if valid keys are stored
 	 \*/
 	foreach (TabView *tv, mTabs.tvsNoPtr()) {
 		if (! config.allKeys().join(',').contains( tv->objectName() ))
 			continue;
-		
+
 		QString tabNam = config.value(objectName() + tr("/") + tv->objectName()).toString();
 		tv->restoreView();
 		createForeignTable( tabNam, tv );
@@ -740,24 +716,24 @@ void Browser::createUi(QWidget *passParent) {
 	/*!
 	 * Build UI.
 	 */
-	
+
 	grLay = new QGridLayout(passParent);
 	mConnectionWidget = new ConnectionWidget(passParent);
-	
+
 	mTabs.tva = new TabView(passParent);
 	mTabs.tvb = new TabView(passParent);
 	mTabs.tvc = new TabView(passParent);
 	mTabs.tvd = new TabView(passParent);
 	mTabs.tvl1 = new TabView(passParent);
 	mTabs.tvl2 = new TabView(passParent);
-	
+
 	mTabs.tva->setObjectName(tr("tva"));
 	mTabs.tvb->setObjectName(tr("tvb"));
 	mTabs.tvc->setObjectName(tr("tvc"));
 	mTabs.tvd->setObjectName(tr("tvd"));
 	mTabs.tvl1->setObjectName(tr("tvl1"));
 	mTabs.tvl2->setObjectName(tr("tvl2"));
-	
+
 	splitter = new QSplitter(passParent);
 	splitter_2 = new QSplitter(passParent);
 	splitter_3 = new QSplitter(passParent);
@@ -765,7 +741,7 @@ void Browser::createUi(QWidget *passParent) {
 	splitter_5 = new QSplitter(passParent);
 	splitter_6 = new QSplitter(passParent);
 	splitter_7 = new QSplitter(passParent);
-	
+
 	PONAM(splitter);
 	PONAM(splitter_2);
 	PONAM(splitter_3);
@@ -773,7 +749,7 @@ void Browser::createUi(QWidget *passParent) {
 	PONAM(splitter_5);
 	PONAM(splitter_6);
 	PONAM(splitter_7);
-	
+
 	splitter_7->setOrientation(Qt::Horizontal);
 	splitter->setOrientation(Qt::Horizontal);
 	splitter_2->setOrientation(Qt::Horizontal);
@@ -781,7 +757,7 @@ void Browser::createUi(QWidget *passParent) {
 	splitter_3->setOrientation(Qt::Vertical);
 	splitter_4->setOrientation(Qt::Vertical);
 	splitter_6->setOrientation(Qt::Vertical);
-	
+
 	grLay->addWidget(splitter);
 	grLay->addWidget(splitter_2);
 	grLay->addWidget(splitter_3);
@@ -789,37 +765,37 @@ void Browser::createUi(QWidget *passParent) {
 	grLay->addWidget(splitter_5);
 	grLay->addWidget(splitter_6);
 	grLay->addWidget(splitter_7);
-	
+
 	splitter->addWidget(mTabs.tva);
 	splitter->addWidget(mTabs.tvb);
 	splitter_2->addWidget(mConnectionWidget);
 	splitter_2->addWidget(mTabs.tvd);
 	splitter_3->addWidget(splitter);
 	splitter_3->addWidget(splitter_2);
-	
+
 	splitter_4->addWidget(splitter_3);
-	
+
 	splitter_5->addWidget(mTabs.tvl1);
 	splitter_5->addWidget(mTabs.tvl2);
 	splitter_6->addWidget(splitter_5);
 	splitter_6->addWidget(mTabs.tvc);
 	splitter_7->addWidget(splitter_4);
 	splitter_7->addWidget(splitter_6);
-	
-	
+
+
 	QList<QString> accName = mTabs.tvIds();
-	
+
 	foreach (TabView *tv, mTabs.tvsNoPtr()) {
 		QString currentName = accName.takeFirst();
 		tv->setAccessibleName( currentName );
 		tv->setObjectName( currentName );
-		
+
 		tv->setToolTip( tr("Tooltip: ") + currentName);
 		tv->setContextMenuPolicy(Qt::ActionsContextMenu);
 		tv->grBox()->installEventFilter( this );
 		tv->tv()->viewport()->installEventFilter( this );
 		tv->grBox()->setObjectName("gb");
-		
+
 		//		if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &TabView::onTabViewSelChanged))
 		//			qReturn("Connection fail!");
 		//		if (! (bool)  connect(this,	&Browser::updateWriteActions,
@@ -831,12 +807,12 @@ QTableView* Browser::createView(QSqlQueryModel *model, const QString &title) {
 	QTableView *view = new QTableView(0);
 	view->setModel(model);
 	static int offset = 0;
-	
+
 	view->setWindowTitle(title);
 	view->move(100 + offset, 100 + offset);
 	offset += 20;
 	view->show();
-	
+
 	return view;
 }
 bool Browser::restoreActionObjects () {
@@ -962,13 +938,13 @@ void Browser::resetColumnConfig() {
 #ifndef COMMENT_OUT_UNUSED
 QAbstractItemModel *Browser::createMailModel(QObject *parent) {
 	QStandardItemModel *model = new QStandardItemModel(0, 3, parent);
-	
+
 	model->setHeaderData(0, Qt::Horizontal, QObject::tr("Subject"));
 	model->setHeaderData(1, Qt::Horizontal, QObject::tr("Sender"));
 	model->setHeaderData(2, Qt::Horizontal, QObject::tr("Date"));
-	
+
 	stateBar->showMessage(tr("createMailModel"));
-	
+
 	//    addMail(model, "Happy New Year!", "Grace K. <grace@software-inc.com>",
 	//            QDateTime(QDate(2006, 12, 31), QTime(17, 03)));
 	//    addMail(model, "Radically new concept", "Grace K. <grace@software-inc.com>",
@@ -989,7 +965,7 @@ QAbstractItemModel *Browser::createMailModel(QObject *parent) {
 	//            QDateTime(QDate(2007, 01, 05), QTime(12, 00)));
 	//    addMail(model, "RE: Sports", "Petra Schmidt <petras@nospam.com>",
 	//            QDateTime(QDate(2007, 01, 05), QTime(12, 01)));
-	
+
 	return model;
 }
 
@@ -1000,19 +976,19 @@ QAbstractItemModel *Browser::createMailModel(QObject *parent) {
 
 void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser) {
 	setupUi(this);
-	
+
 	inst = this;
-	
+
 	QStringList accNam;
 	accNam << TVA << TVB << TVC << TVD << TVL1 << TVL2;
 	initTableView( inst, accNam);
-	
+
 	//   connect (ui->btnA,      SIGNAL(clicked()),
 	//            this,          SLOT(onTestBtnClicked()));
 	//   connect (ui->btnB,      SIGNAL(clicked()),
 	//            this,          SLOT(onTestBtnClicked()));
 	QList<bool> bl;
-	
+
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
 									  mTabs.tvsNoPtr()[0],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
@@ -1025,13 +1001,13 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 									  mTabs.tvsNoPtr()[4],   SLOT(onTabViewSelChanged(TabView *))));
 	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(TabView *)),
 									  mTabs.tvsNoPtr()[5],   SLOT(onTabViewSelChanged(TabView *))));
-	
+
 	if (bl.contains(false))
 		INFO << tr("connect.tabViewSelChanged[0...6]:") << bl;
-	
+
 	INFO << QSqlDatabase::connectionNames()
 		  << QSqlDatabase::drivers();
-	
+
 	if (QSqlDatabase::drivers().isEmpty()) {
 		QMessageBox::information
 				(this, tr("No database drivers found"),
@@ -1045,18 +1021,11 @@ void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser)
 					this,      SLOT(onCyclic()));
 		timCyc->start();
 	}
-	
+
 	emit stateMsg(tr("Browser Ready."));
-	
+
 	SqlTm *cm = new SqlTm();
 	cm->setCCol(QVector<int>(0, 1));
-	
-	//    sortwindow.append( new SortWindow(0) );
-	//    sortwindow.append( new SortWindow(0) );
-	filterForm = SortWindow::getInstance();
-	
-	//    sortwindow.last()->setVisible(false);
-	filterForm->setVisible(false);
 }
 
 #endif

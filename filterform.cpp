@@ -1,10 +1,10 @@
-#include "sortwindow.h"
-#include "ui_sortwindow.h"
+#include "filterform.h"
+#include "ui_filterform.h"
 
-SortWindow *SortWindow::inst = 0;
+FilterForm *FilterForm::inst = 0;
 
-SortWindow::SortWindow(QWidget *parent, TabView *srcTable) :
-	QWidget(parent), ui(new Ui::SortWindow) {
+FilterForm::FilterForm(QWidget *parent, TabView *srcTable) :
+	QWidget(parent), ui(new Ui::FilterForm) {
 
 	ui->setupUi(this);
 	proxyModel = new SfiltMdl(this);
@@ -53,12 +53,13 @@ SortWindow::SortWindow(QWidget *parent, TabView *srcTable) :
 	proxyView->setSortingEnabled(true);
 	proxyView->sortByColumn(1, Qt::AscendingOrder);
 
-	setWindowTitle(tr("Custom Sort/Filter Model"));
+	setWindowTitle(tr("Filtern und Sortieren von <SQL-table-name>"));
 	resize(500, 900);
 
 	if (srcTable != 0)
 		setSourceModel(srcTable->tv()->model());
 
+	installEventFilter(this);
 	/* ======================================================================== */
 	//	QSortFilterProxyModel *sfmodel = new QSortFilterProxyModel(this);
 	//	QCompleter *completer = new QCompleter();
@@ -75,14 +76,14 @@ SortWindow::SortWindow(QWidget *parent, TabView *srcTable) :
 	//    installEventFilter(this);
 }
 
-SortWindow::~SortWindow() {
+FilterForm::~FilterForm() {
 	delete ui;
 }
-void SortWindow::setSourceModel(QAbstractItemModel *model) {
+void FilterForm::setSourceModel(QAbstractItemModel *model) {
 	proxyModel->setSourceModel(model);
 	sourceView->setModel(model);
 }
-void SortWindow::textFilterChanged() {
+void FilterForm::textFilterChanged() {
 	QRegExp::PatternSyntax syntax =
 			QRegExp::PatternSyntax(filtSyntaxCB->itemData(
 											  filtSyntaxCB->currentIndex()).toInt());
@@ -97,7 +98,7 @@ void SortWindow::textFilterChanged() {
 	//    qDebug().noquote() << tr("from") << fromDateEdit->dateTime()
 	//                       << tr("to") << toDateEdit->dateTime();
 }
-void SortWindow::cbTextFilterChanged() {
+void FilterForm::cbTextFilterChanged() {
 	QRegExp::PatternSyntax syntax =
 			QRegExp::PatternSyntax(filtSyntaxCB->itemData(
 											  filtSyntaxCB->currentIndex()).toInt());
@@ -112,34 +113,43 @@ void SortWindow::cbTextFilterChanged() {
 	//    qDebug().noquote() << tr("from") << fromDateEdit->dateTime()
 	//                       << tr("to") << toDateEdit->dateTime();
 }
-void SortWindow::dateFilterChanged() {
+void FilterForm::dateFilterChanged() {
 	//    qDebug().noquote() << fromDateEdit->date().toString("MM/dd/yy");
 
 	proxyModel->setFilterMinimumDate(fromDateEdit->date());
 	proxyModel->setFilterMaximumDate(toDateEdit->date());
 }
-void SortWindow::closeEvent(QCloseEvent *e) {
-	Q_UNUSED(e);
+/* ======================================================================== */
+/*                              Event handler                               */
+/* ======================================================================== */
+void FilterForm::showEvent(QShowEvent *e) {
 	QSETTINGS;
-	emit closesUncheck(false);
+	restoreGeometry(config.value(objectName() + Md::k.windowGeometry).toByteArray());
+	INFO << tr("Show");
+	QWidget::showEvent(e);
 }
-void SortWindow::keyPressEvent(QKeyEvent *e) {
-	switch (e->key()) {
-		case Qt::Key_Escape: this->close();	break;
-		default:
-			break;
-	}
+void FilterForm::hideEvent(QHideEvent *e) {
+	QSETTINGS;
+	config.setValue(objectName() + Md::k.windowGeometry, saveGeometry());
+	INFO << tr("hide");
+	QWidget::hideEvent(e);
 }
-#ifdef DEFAULT_EVENT_FILTER
-bool SortWindow::eventFilter(QObject *obj, QEvent *ev) {
-	if (ev->type() == QEvent::KeyPress) {
-		QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
-		INFO << tr("Ate key press %1").arg(keyEvent->key());
-		return QObject::eventFilter(obj, ev);
+void FilterForm::closeEvent(QCloseEvent *e) {
+	QSETTINGS;
+	config.setValue(objectName() + Md::k.windowGeometry, saveGeometry());
+	INFO << tr("close");
+	QWidget::closeEvent(e);
+}
+
+void FilterForm::keyPressEvent(QKeyEvent *e) {
+	INFO << Qt::Key(e->key());
+	INFO << qApp->topLevelWindows();
+
+	QMainWindow *p;
+	foreach (QWindow *w, qApp->topLevelWindows()) {
+		if (w->objectName()==tr("MainWindow"))
+			p = qobject_cast<QMainWindow *>(w);
 	}
 
-	// pass the event on to the parent class
-	return QObject::eventFilter(obj, ev);
+	QWidget::keyPressEvent(e);
 }
-#endif
-

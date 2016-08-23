@@ -1,5 +1,5 @@
-#ifndef SORTWINDOW_H
-#define SORTWINDOW_H
+#ifndef FILTERFORM_H
+#define FILTERFORM_H
 
 #include "mysortfilterproxymodel.h"
 #include "globals.h"
@@ -11,11 +11,12 @@
 #include <QtCore>
 #include <QtEvents>
 
+
 namespace Ui {
-class SortWindow;
+class FilterForm;
 }
 
-class SortWindow : public QWidget {
+class FilterForm : public QWidget {
 
 	Q_OBJECT
 	Q_PROPERTY(SourceTable sourceTableFlg READ sourceTableFlg WRITE setSourceTableFlg NOTIFY sourceTableChanged)
@@ -30,14 +31,16 @@ public:
 //	Q_DECLARE_FLAGS(SourceTable, SourceTable)
 //	Q_FLAG(SourceTable)
 
-	explicit SortWindow(QWidget *parent = 0, TabView *srcTable = 0);
-	~SortWindow();
-	static SortWindow *instance(QWidget *parent = 0x00) {
+	explicit FilterForm(QWidget *parent = 0, TabView *srcTable = 0);
+	~FilterForm();
+	static FilterForm *instance(QWidget *parent = 0x00) {
 		if(inst == 0)
-			inst = new SortWindow(parent);
+			inst = new FilterForm(parent);
 		return inst;
 	}
 	void setSourceModel(QAbstractItemModel *model);
+
+//		virtual bool eventFilter(QObject *o, QEvent *e) override;
 
 public slots:
 	SourceTable sourceTableFlg() const { return mSourceTable; }
@@ -45,29 +48,28 @@ public slots:
 		mSourceTable = sourceTable;
 		emit sourceTableChanged(sourceTable);
 	}
-	virtual void keyPressEvent(QKeyEvent *) override;
+//	virtual void keyPressEvent(QKeyEvent *) override;
 	void cbTextFilterChanged();
 
 signals:
-	void closesUncheck(bool b);
+	void visibilityChanged(bool visible);
 	void sourceTableChanged(SourceTable sourceTable);
 
-protected slots:
+protected:
+	void showEvent(QShowEvent *e);
+	void hideEvent(QHideEvent *e);
 	void closeEvent(QCloseEvent *e);
 
-
+	void keyPressEvent(QKeyEvent *e);
 private slots:
 	void textFilterChanged();
 	void dateFilterChanged();
 
 private:
-	static SortWindow *inst;
-
-	Ui::SortWindow *ui;
+	static FilterForm *inst;
+	Ui::FilterForm *ui;
 	SfiltMdl *proxyModel;
 	SourceTable	mSourceTable;
-
-
 	QGroupBox *sourceGB;
 	QGroupBox *proxyGB;
 	QTreeView *sourceView;
@@ -82,12 +84,13 @@ private:
 	QDateEdit *toDateEdit;
 	QAction *deleteAct;
 
+	// QObject interface
+public:
+//	virtual bool eventFilter(QObject *, QEvent *) override;
 
-	// QWidget interface
-protected:
 };
 
-//Q_DECLARE_OPERATORS_FOR_FLAGS(SortWindow::SourceTable)
-Q_DECLARE_METATYPE(SortWindow::SourceTable)
+//Q_DECLARE_OPERATORS_FOR_FLAGS(FilterForm::SourceTable)
+Q_DECLARE_METATYPE(FilterForm::SourceTable)
 
-#endif // SORTWINDOW_H
+#endif // FILTERFORM_H

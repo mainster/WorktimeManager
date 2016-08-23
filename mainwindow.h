@@ -74,6 +74,7 @@ public slots:
 					 "on a live database"));
 	}
 	void connectActions(ConnectReceiver receivers = connectThis);
+	void setVisibleFake(QObject *);
 
 protected slots:
 	void makeMenu();
@@ -110,6 +111,7 @@ protected slots:
 	void onActNotesToggd(bool b) { notes.toDo->setVisible(b); }
 	void onActRichTextToggd(bool);
 	void onActFilterWindowSource(bool);
+	void onActFilterForm(bool b);
 
 private slots:
 	void onOpenCloseInpFrm(bool onOff) {
@@ -131,39 +133,36 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 	void showEvent(QShowEvent *e);
 	void hideEvent(QHideEvent *) override;
-	void closeEvent(QCloseEvent *);
+	void closeEvent(QCloseEvent *e);
 
 private:
+	void keyPressEvent(QKeyEvent *e);
+
 	Ui::MainWindow *ui;
 	Browser			*browser;
 	InpFrm			*inpFrm;
 	MDStateBar		*stateBar;
-	SortWindow		*sortwindow;
+	FilterForm		*filterForm;
 	DbController	*mDbc;
 	TextEdit			*richEditor;
+	QMenu				*cfgMenu, *mBar;
+	QWidget			*wid, *mCentralWidget;
+	QTimer			*timCyc;
 
 	struct notes_t {
 		MDNotes *toDo, *comments;
 	} notes;
 
-	QMenu        *cfgMenu, *mBar;
-	QWidget      *wid, *mCentralWidget;
-	QTimer		 *timCyc;
-
 	QActionGroup *actGrTbMain, *actGrTbMenu, *actGrFilterWidg;
-
 	QAction *actNew, *actOpen, *actSave, *actExport, *actBrowseSQL, *actInpForm,
 	*actShowTbl, *actDbModMaster, *actClose, *actRichEdit, *actUnderConstr, *actNotes,
 	*actGbStyleShtA, *actGbSShtInpFrm, *actSelFont, *actCyclicObjInfo, *actResizerDlg,
 	*actShowSqlQuery,
 	*actSetAlterRowCol, *actAutoFitTables, *actFilterTable, *actFilterTableWindow,
-	*actFilterForm, *actCfgInpFrmTabOrd, *actFiltWorktimeTbl, *actFiltSelectedTbl,
+	*actFilterForm, *actCfgInpFrmTabOrd, *actDoFiltWorktimeTbl, *actDoFiltSelectedTbl,
 	*actResetConfig;
 
-	void keyPressEvent(QKeyEvent *e);
 };
-
-
 
 /* ======================================================================== */
 /*                            class StaticSignal                            */

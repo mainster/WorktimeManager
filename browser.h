@@ -52,7 +52,7 @@
 #include "mdstatebar.h"
 #include "models.h"
 #include "mysortfilterproxymodel.h"
-#include "sortwindow.h"
+#include "filterform.h"
 #include "tabview.h"
 #include "connectionwidget.h"
 #include "mdmenu.h"
@@ -194,10 +194,9 @@ public slots:
 	void autofitRowCol();
 	void customMenuRequested(QPoint pos);
 	void exec();
-	void onActFilterForm(bool b);
 	void onConWidgetTableActivated(const QString &sqlTab);
 	void onCyclic();
-	void onSourceTableChanged(SortWindow::SourceTable sourceTable);
+	void onSourceTableChanged(FilterForm::SourceTable sourceTable);
 	void requeryWorktimeTableView(QString nonDefaulQuery = "");
 	TabView *createForeignTable(const QString &tNam, TabView *tvc);
 
@@ -224,7 +223,6 @@ private:
 	QGridLayout			*grLay;
 	QTimer				*timCyc;
 	SfiltMdl				*proxyModel;
-	SortWindow			*filterForm;
 	MDStateBar			*stateBar;
 	TvSelectors			m_tvSelector;
 	QSplitter	*splitter, *splitter_2, *splitter_3,

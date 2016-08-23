@@ -16,7 +16,9 @@ public:
 		tableFont,
 		centerCols,
 		visibleCols,
-		sectionIdxs;
+		sectionIdxs,
+		windowGeometry,
+		WindowState;
 	} k;
 };
 

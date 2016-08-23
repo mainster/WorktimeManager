@@ -28,46 +28,8 @@ class TabView : public QWidget {
 	Q_PROPERTY(QString sqlTableName READ sqlTableName WRITE setSqlTableName NOTIFY sqlTableNameChanged)
 
 public:
-	/*!
-	 * Data structure for QHeaderView::sectionPosition().
-	 */
-//	typedef struct visualIdx_t {
-//		int
-//	};
-
-	bool isSelected()		{ return m_select; };
-	void setSelect(bool select) {
-		m_select = select;
-		m_gb->setProperty("select", m_select);
-	};
-	QString &sqlTableName()		{ return m_sqlTableName; };
-	void setSqlTableName(const QString &name) {
-		m_sqlTableName = name;
-		emit sqlTableNameChanged(name);
-	};
-//	static QString tvStyleSheet;
-	static QString tvStyleHeadView;
-public slots:
-	void setSelected() {
-		m_select = true;
-		m_gb->setProperty("select", m_select);
-		setStyleSheet(styleSheet());
-	};
-	void clearSelected() {
-		m_select = false;
-		m_gb->setProperty("select", m_select);
-		setStyleSheet(styleSheet());
-	};
-
-public:
 	explicit TabView(QWidget *parent = 0);
 	~TabView();
-
-	/* ======================================================================== */
-	/*                            Getters / Setters                             */
-	/* ======================================================================== */
-	QGroupBox *grBox() const	{ return m_gb; }
-	QTableView *tv() const		{ return m_tv; }
 
 	void setSelectionMode(QAbstractItemView::SelectionMode mode) {
 		m_tv->setSelectionMode(mode);
@@ -76,30 +38,50 @@ public:
 		return m_tv->selectionModel();
 	}
 
+	/* ======================================================================== */
+	/*                            Getters / Setters                             */
+	/* ======================================================================== */
+	QGroupBox *grBox() const	{ return m_gb; }
+	QTableView *tv() const		{ return m_tv; }
+	bool isSelected()				{ return m_select; };
+	QString &sqlTableName()		{ return m_sqlTableName; };
+	void setSqlTableName(const QString &name) {
+		m_sqlTableName = name;
+		emit sqlTableNameChanged(name);
+	};
+	void setSelect(bool select) {
+		m_select = select;
+		m_gb->setProperty("select", m_select);
+	};
 
 	SqlRtm *clearMdlSrces();
+
 public slots:
-	void onObjectNameChanged(const QString &objNam);
-	void setAlternateRowCol(QColor &col, bool alternateEnabled = true);
-	void restoreView();
-	void insertRow();
+	void clearSelected() {
+		m_select = false;
+		m_gb->setProperty("select", m_select);
+		setStyleSheet(styleSheet());
+	};
+	QFont restoreFont();
+	SqlRtm *modelCast();
 	void deleteRow();
-	void onUpdateWriteActions();
-	void refreshView();
-	void resizeRowsColsToContents();
-	void setColumnHidden(const int column, const bool hide);
-	void setModel(QAbstractItemModel *model);
-	void setEditTriggers(QTableView::EditTriggers triggers);
+	void insertRow();
+	void onObjectNameChanged(const QString &objNam);
 	void onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx);
 	void onSqlTableNameChanged(const QString &name);
+	void onUpdateWriteActions();
+	void refreshView();
+	void removeColumnsConfig();
+	void resetColumnsDefaultPos(bool allVisible);
+	void resizeRowsColsToContents();
 	void restoreColumnOrderAndVisability();
-	QFont restoreFont();
+	void restoreView();
+	void setAlternateRowCol(QColor &col, bool alternateEnabled = true);
+	void setColumnHidden(const int column, const bool hide);
+	void setEditTriggers(QTableView::EditTriggers triggers);
+	void setModel(QAbstractItemModel *model);
 	void storeFont(QFont font);
 
-	SqlRtm *modelCast();
-
-	void resetColumnsDefaultPos(bool allVisible);
-	void removeColumnsConfig();
 signals:
 	void sqlTableNameChanged(const QString &name);
 	void selectChanged(bool isSelected);
@@ -111,8 +93,8 @@ protected:
 	virtual void mouseDoubleClickEvent(QMouseEvent *) override;
 	bool eventFilter(QObject *obj, QEvent *event);
 	void hideEvent(QHideEvent *ev);
-
 	void restoreColumnOrderAndVisability2();
+
 protected slots:
 	void onClearSelection() {
 
@@ -122,7 +104,6 @@ protected slots:
 	void onActGrContextTrigd(QAction *sender);
 	void storeActionState(QAction *sender);
 	bool restoreActionObjects();
-
 
 private:
 	Ui::TabView			*ui;

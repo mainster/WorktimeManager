@@ -35,7 +35,7 @@ public:
 	Q_DECLARE_FLAGS(msgTypes, msgType)
 
 	explicit MDStateBar(QWidget *parent = 0);
-	static MDStateBar *getInstance(QWidget *parent = 0) {
+	static MDStateBar *instance(QWidget *parent = 0) {
 		if (inst == 0)
 			inst = new MDStateBar(parent);
 		return inst;
