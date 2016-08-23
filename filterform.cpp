@@ -5,9 +5,10 @@ FilterForm *FilterForm::inst = 0;
 const QString FilterForm::WINDOW_TITLE_PREFIX = QString("Filtern und Sortieren von");
 
 
-FilterForm::FilterForm(SourceTableType srcType, TabView *srcTable, QWidget *parent)
+FilterForm::FilterForm(SourceTableType srcType, QList<TabView *> allTvs, QWidget *parent)
 	: QWidget(parent), ui(new Ui::FilterForm), mSourceTableType(srcType) {
 	inst = this;
+	mTv = NULL;
 
 	ui->setupUi(this);
 	proxyModel = new SfiltMdl(this);
@@ -50,7 +51,9 @@ FilterForm::FilterForm(SourceTableType srcType, TabView *srcTable, QWidget *pare
 			  this,           SLOT(dateFilterChanged()));
 
 	proxyView = ui->proxyView;
+#ifdef VIEW_IS_TREE
 	proxyView->setRootIsDecorated(false);
+#endif
 	proxyView->setAlternatingRowColors(true);
 	proxyView->setModel(proxyModel);
 	proxyView->setSortingEnabled(true);
@@ -59,38 +62,21 @@ FilterForm::FilterForm(SourceTableType srcType, TabView *srcTable, QWidget *pare
 	setWindowTitle(WINDOW_TITLE_PREFIX);
 	resize(500, 900);
 
-	if (srcTable != 0)
-		setSourceTabView(srcTable);
+	foreach (TabView *tv, allTvs)
+		connect (tv, &TabView::selectedChanged, this, &FilterForm::onSelectedTableChange);
 
 	installEventFilter(this);
-	/* ======================================================================== */
-	//	QSortFilterProxyModel *sfmodel = new QSortFilterProxyModel(this);
-	//	QCompleter *completer = new QCompleter();
-	//	sfmodel->setSourceModel();
-	//	completer->setModel();
-	//	completer->setCompletionColumn();
-
-	//	filtPattCb = ui->cbFilterPattern;
-	//	filtPattCb->setEditable(true);
-	//	filtPattCb->setModel(proxyModel);
-	//	filtPattCb->setModelColumn(2);
-	//	ui->cbFilterPattern->setP
-
-	//    installEventFilter(this);
 }
 
 FilterForm::~FilterForm() {
 	delete ui;
 }
-//void FilterForm::setSourceModel(QAbstractItemModel *model) {
-//	proxyModel->setSourceModel(model);
-//	sourceView->setModel(model);
-//}
 void FilterForm::setSourceTabView(TabView *tv) {
 	if (sourceTableType() == SourceTableType::useWorktimeSource)
 		if (! tv->objectName().contains("worktime"))
 			qReturn(QString(tr("SourceTableType::useWorktime but want to set ")
 								 + tv->objectName()).toStdString().c_str());
+
 	if (mTv != tv) {
 		mTv = tv;
 		proxyModel->setSourceModel(mTv->tv()->model());
@@ -135,6 +121,15 @@ void FilterForm::dateFilterChanged() {
 	proxyModel->setFilterMinimumDate(fromDateEdit->date());
 	proxyModel->setFilterMaximumDate(toDateEdit->date());
 }
+void FilterForm::onSelectedTableChange(bool selected) {
+	TabView *newTable = qobject_cast<TabView *>(sender());
+	if (! newTable)	qReturn("Cast failed");
+
+	(selected)
+			? setSourceTabView(newTable)
+			: setSourceTabView(NULL);
+}
+
 /* ======================================================================== */
 /*                              Event handler                               */
 /* ======================================================================== */
@@ -142,8 +137,8 @@ void FilterForm::showEvent(QShowEvent *e) {
 	QSETTINGS;
 	restoreGeometry(config.value(objectName() + Md::k.windowGeometry).toByteArray());
 
-//	foreach (QWindow *w, qApp->topLevelWindows())
-//		listObjectNames<QWindow *>(qApp->topLevelWindows())
+	if (Browser::instance()->mTabs.currentSelected(true) != NULL)
+		setSourceTabView(Browser::instance()->mTabs.currentSelected());
 
 	QWidget::showEvent(e);
 }
@@ -158,7 +153,6 @@ void FilterForm::closeEvent(QCloseEvent *e) {
 	INFO << tr("close");
 	QWidget::closeEvent(e);
 }
-
 void FilterForm::keyPressEvent(QKeyEvent *e) {
 	/*!
 	 * This event implements a second action key (Esc) to close the filterForm.

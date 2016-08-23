@@ -48,6 +48,7 @@ public:
 		m_selected = selected;
 		m_gb->setProperty("select", m_selected);
 		setStyleSheet(styleSheet());
+		emit selectedChanged(selected);
 	};
 	void clearSelected() {
 		m_selected = false;

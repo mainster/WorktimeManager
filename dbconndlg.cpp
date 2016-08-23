@@ -18,7 +18,7 @@ DbConnDlg::DbConnDlg(QWidget *parent)
    drivers.removeAll("QPSQL7");
    drivers.removeAll("QTDS7");
 
-   if (!drivers.contains("QSQLITE"))
+	if (!drivers.contains(Locals::SQL_DRIVER))
       ui.dbCheckBox->setEnabled(false);
 
    ui.comboDriver->addItems(drivers);
