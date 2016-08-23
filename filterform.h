@@ -10,12 +10,13 @@
 #include "mysortfilterproxymodel.h"
 #include "globals.h"
 #include "tabview.h"
-//#include "browser.h"
+#include "browser.h"
 
 namespace Ui {
 class FilterForm;
 }
 
+class Browser;
 
 class FilterForm : public QWidget {
 
@@ -30,24 +31,21 @@ public:
 		useWorktimeSource = 0x04,
 	};
 	Q_ENUM(SourceTableType)
-//	Q_DECLARE_FLAGS(SourceTable, SourceTable)
-//	Q_FLAG(SourceTable)
 
-	explicit FilterForm(SourceTableType srcType, TabView *srcTable = 0, QWidget *parent = 0);
+	explicit FilterForm(SourceTableType srcType, QList<TabView *> allTvs,
+							  QWidget *parent = NULL);
 
 	~FilterForm();
-	static FilterForm *instance(SourceTableType newSrcType, TabView *newSrcTable) {
+	static FilterForm *instance(SourceTableType newSrcType, QList<TabView *> allTvs) {
 		if(inst == 0)
-			inst = new FilterForm(newSrcType, newSrcTable);
+			inst = new FilterForm(newSrcType, allTvs);
 		return inst;
 	}
 	static FilterForm *instance() {
 		if(inst == 0)
-			inst = new FilterForm(useSelectedSource);
+			inst = new FilterForm(useSelectedSource, QList<TabView *>());
 		return inst;
 	}
-//	void setSourceModel(QAbstractItemModel *model);
-//		virtual bool eventFilter(QObject *o, QEvent *e) override;
 
 public slots:
 	SourceTableType sourceTableType() const { return mSourceTableType; }
@@ -55,10 +53,9 @@ public slots:
 		mSourceTableType = sourceTable;
 		emit sourceTableTypeChanged(sourceTable);
 	}
-//	virtual void keyPressEvent(QKeyEvent *) override;
 	void cbTextFilterChanged();
-
 	void setSourceTabView(TabView *tv);
+
 signals:
 	void visibilityChanged(bool visible);
 	void sourceTableTypeChanged(SourceTableType sourceTable);
@@ -82,8 +79,10 @@ private:
 	TabView *mTv;
 	QGroupBox *sourceGB;
 	QGroupBox *proxyGB;
-	QTreeView *sourceView;
-	QTreeView *proxyView;
+	//	QTreeView *sourceView;
+	//	QTreeView *proxyView;
+	QTableView *sourceView;
+	QTableView *proxyView;
 	QCheckBox *filtCaseSensCB;
 	QLabel *filterPatternLabel;
 	QLabel *fromLabel;
@@ -98,6 +97,8 @@ private:
 public:
 //	virtual bool eventFilter(QObject *, QEvent *) override;
 
+protected slots:
+	void onSelectedTableChange(bool selected);
 };
 
 //Q_DECLARE_OPERATORS_FOR_FLAGS(FilterForm::SourceTable)

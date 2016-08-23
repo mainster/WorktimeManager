@@ -8,10 +8,10 @@ DbController::DbController(QObject *parent) : QObject(parent) {
 	 * Query platforms available SQL driver names.
 	 */
 	QStringList drivers = QSqlDatabase::drivers();
-	if (!drivers.contains("QSQLITE"))
+	if (!drivers.contains(Locals::SQL_DRIVER))
 		CRIT << tr("empty");
 
-	QSqlDatabase mDb = QSqlDatabase::addDatabase("QSQLITE");
+	QSqlDatabase mDb = QSqlDatabase::addDatabase(Locals::SQL_DRIVER);
 	mDb.setDatabaseName(Locals::SQL_DATABASE.filePath());
 
 	/*!
@@ -61,7 +61,7 @@ bool DbController::addConnectionsByCmdline(QVariant args) {
 
 	foreach (QString s, args.toStringList()) {
 		QUrl url(Locals::SQL_DATABASE.baseName(), QUrl::TolerantMode);
-		url.setScheme("QMYSQL");
+		url.setScheme(Locals::SQL_DRIVER);
 
 		if (!url.isValid()) {
 			qWarning("Invalid URL: %s", qPrintable(s));

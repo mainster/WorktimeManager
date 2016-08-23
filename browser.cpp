@@ -525,7 +525,7 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 				 */
 				if (qobject_cast<QTableView *>(
 						 obj->findChild<QTableView *>(QString(), Qt::FindDirectChildrenOnly)))
-					return false;
+					return QWidget::eventFilter(obj, e);
 			}; break;
 
 			case selectByGroupBox: {
@@ -533,12 +533,12 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 				 * If obj->parent() is a QTableView, obj must be a viewPort.
 				 */
 				if (qobject_cast<QTableView *>(obj->parent()))
-					return false;
+					return QWidget::eventFilter(obj, e);
 			}; break;
 
-			case selectByNone:	return false;	break;
+			case selectByNone:	return QWidget::eventFilter(obj, e);	break;
 			case selectByBoth:	break;
-			default:	break;
+			default:	qWarning();
 		}
 
 		while (! (qobject_cast<TabView *>(treeTravers<QObject>(obj, ++k, &ok))))
@@ -556,40 +556,9 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 		if (! tv->isSelected()) {
 			emit clearSelections();
 			tv->setSelected();
+			e->accept();
+			return true;
 		}
-
-#define QFOLDINGSTART {
-#ifdef DEBUG_EVENT_FILTER_OBJECTS
-		for (int k = 0; k<6; k++) {
-			QStringList s = QStringList()
-								 << tr("obj->parent(%1)->classname: ").arg(k)
-								 << treeTravers<QObject>(obj, k, &ok)->metaObject()->className();
-			s << QString::number((int) ok);
-			if (QString(treeTravers<QObject>(obj, k, &ok)->metaObject()->className())
-				 .contains(tr("TabView"))) {
-				tv = qobject_cast<TabView *>(treeTravers<QObject>(obj, k, &ok));
-				INFO << s << tv->sqlTableName();
-				break;
-			}
-			INFO << s;
-		}
-#endif
-#define QFOLDINGEND }
-	}
-
-	if ((e->type() == QEvent::KeyPress) && false) {
-		QKeyEvent *kev = static_cast<QKeyEvent *>(e);
-		INFO << "Keypress " << kev->key() << "by obj:" ;
-		INFO << "obj name:" << obj->objectName();
-		INFO << "obj parent name:" << obj->parent()->objectName();
-
-		QList<QObject *> objs = obj->children();
-
-		for (int i = 0; i < objs.length(); i++) {
-			INFO << "obj child no." << i << objs[i]->objectName();
-			INFO << "obj child no." << i << objs[i]->isWidgetType();
-		}
-
 	}
 
 	/**

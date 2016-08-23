@@ -68,7 +68,7 @@ QVariant addAuthor(QSqlQuery &q, const QString &name, const QDate &birthdate)
 }
 
 QSqlError initDb(QString dbAbs = "") {
-   QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+   QSqlDatabase db = QSqlDatabase::addDatabase(SQL_DRIVER);
 
    if (! dbAbs.isEmpty())
       db.setDatabaseName(dbAbs);

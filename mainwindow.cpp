@@ -18,7 +18,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	notes.toDo	= new MDNotes(tr("toDo"), parent);
 	richEditor	= new TextEdit(this);
 	richEditor->hide();
-	filterForm	= new FilterForm(FilterForm::useSelectedSource);
+	filterForm	= new FilterForm(FilterForm::useSelectedSource,
+										  browser->mTabs.tvsNoPtr());
 	filterForm->hide();
 
 	createActions();
