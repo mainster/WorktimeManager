@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	notes.toDo	= new MDNotes(tr("toDo"), parent);
 	richEditor	= new TextEdit(this);
 	richEditor->hide();
-	filterForm	= new FilterForm();
+	filterForm	= new FilterForm(FilterForm::useSelectedSource);
 	filterForm->hide();
 
 	createActions();
@@ -225,7 +225,7 @@ void MainWindow::onActRichTextToggd(bool) {
 }
 void MainWindow::onActFilterWindowSource(bool) {
 	QAction *act = qobject_cast<QAction *>(sender());
-	filterForm->setSourceTableFlg(act->data().value<FilterForm::SourceTable>());
+	filterForm->setSourceTableType(act->data().value<FilterForm::SourceTableType>());
 }
 void MainWindow::onActFilterForm(bool b) {
 	filterForm->setVisible(b);
@@ -233,7 +233,7 @@ void MainWindow::onActFilterForm(bool b) {
 	return;
 	filterForm->show();
 
-//	if (filterForm->sourceTableFlg() == FilterForm::useSelected) {
+//	if (filterForm->sourceTableFlg() == FilterForm::useSelectedSource) {
 //		if (.currentSelected(true) == NULL)
 //			MDStateBar::instance()->showMessage2sec(tr("Keine Tabelle zum Filtern ausgewählt!"));
 //		else
@@ -330,7 +330,7 @@ bool MainWindow::restoreActionObjects() {
 	actGrTbMenu->blockSignals(false);
 	actGrFilterWidg->blockSignals(false);
 
-	INFO << filterForm->sourceTableFlg();
+	INFO << filterForm->sourceTableType();
 	return true;
 
 	//	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
@@ -481,8 +481,8 @@ void MainWindow::createActions() {
 	acts.clear();
 	acts << PONAM(actDoFiltSelectedTbl) << PONAM(actDoFiltWorktimeTbl);
 
-	actDoFiltSelectedTbl->setData(QVariant::fromValue(FilterForm::useSelected));
-	actDoFiltWorktimeTbl->setData(QVariant::fromValue(FilterForm::useWorktime));
+	actDoFiltSelectedTbl->setData(QVariant::fromValue(FilterForm::useSelectedSource));
+	actDoFiltWorktimeTbl->setData(QVariant::fromValue(FilterForm::useWorktimeSource));
 
 	foreach (QAction *act, acts)
 		actGrFilterWidg->addAction(act);

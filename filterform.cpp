@@ -2,9 +2,12 @@
 #include "ui_filterform.h"
 
 FilterForm *FilterForm::inst = 0;
+const QString FilterForm::WINDOW_TITLE_PREFIX = QString("Filtern und Sortieren von");
 
-FilterForm::FilterForm(QWidget *parent, TabView *srcTable) :
-	QWidget(parent), ui(new Ui::FilterForm) {
+
+FilterForm::FilterForm(SourceTableType srcType, TabView *srcTable, QWidget *parent)
+	: QWidget(parent), ui(new Ui::FilterForm), mSourceTableType(srcType) {
+	inst = this;
 
 	ui->setupUi(this);
 	proxyModel = new SfiltMdl(this);
@@ -53,11 +56,11 @@ FilterForm::FilterForm(QWidget *parent, TabView *srcTable) :
 	proxyView->setSortingEnabled(true);
 	proxyView->sortByColumn(1, Qt::AscendingOrder);
 
-	setWindowTitle(tr("Filtern und Sortieren von <SQL-table-name>"));
+	setWindowTitle(WINDOW_TITLE_PREFIX);
 	resize(500, 900);
 
 	if (srcTable != 0)
-		setSourceModel(srcTable->tv()->model());
+		setSourceTabView(srcTable);
 
 	installEventFilter(this);
 	/* ======================================================================== */
@@ -79,9 +82,22 @@ FilterForm::FilterForm(QWidget *parent, TabView *srcTable) :
 FilterForm::~FilterForm() {
 	delete ui;
 }
-void FilterForm::setSourceModel(QAbstractItemModel *model) {
-	proxyModel->setSourceModel(model);
-	sourceView->setModel(model);
+//void FilterForm::setSourceModel(QAbstractItemModel *model) {
+//	proxyModel->setSourceModel(model);
+//	sourceView->setModel(model);
+//}
+void FilterForm::setSourceTabView(TabView *tv) {
+	if (sourceTableType() == SourceTableType::useWorktimeSource)
+		if (! tv->objectName().contains("worktime"))
+			qReturn(QString(tr("SourceTableType::useWorktime but want to set ")
+								 + tv->objectName()).toStdString().c_str());
+	if (mTv != tv) {
+		mTv = tv;
+		proxyModel->setSourceModel(mTv->tv()->model());
+		sourceView->setModel(mTv->tv()->model());
+		setWindowTitle(WINDOW_TITLE_PREFIX + mTv->sqlTableName());
+		INFO << tr("New source view [%1] activated!").arg(tv->objectName());
+	}
 }
 void FilterForm::textFilterChanged() {
 	QRegExp::PatternSyntax syntax =
@@ -125,13 +141,15 @@ void FilterForm::dateFilterChanged() {
 void FilterForm::showEvent(QShowEvent *e) {
 	QSETTINGS;
 	restoreGeometry(config.value(objectName() + Md::k.windowGeometry).toByteArray());
-	INFO << tr("Show");
+
+//	foreach (QWindow *w, qApp->topLevelWindows())
+//		listObjectNames<QWindow *>(qApp->topLevelWindows())
+
 	QWidget::showEvent(e);
 }
 void FilterForm::hideEvent(QHideEvent *e) {
 	QSETTINGS;
 	config.setValue(objectName() + Md::k.windowGeometry, saveGeometry());
-	INFO << tr("hide");
 	QWidget::hideEvent(e);
 }
 void FilterForm::closeEvent(QCloseEvent *e) {

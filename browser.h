@@ -196,7 +196,7 @@ public slots:
 	void exec();
 	void onConWidgetTableActivated(const QString &sqlTab);
 	void onCyclic();
-	void onSourceTableChanged(FilterForm::SourceTable sourceTable);
+//	void onSourceTableChanged(FilterForm::SourceTableType sourceTable);
 	void requeryWorktimeTableView(QString nonDefaulQuery = "");
 	TabView *createForeignTable(const QString &tNam, TabView *tvc);
 
@@ -222,7 +222,7 @@ private:
 	ConnectionWidget	*mConnectionWidget;
 	QGridLayout			*grLay;
 	QTimer				*timCyc;
-	SfiltMdl				*proxyModel;
+//	SfiltMdl				*proxyModel;
 	MDStateBar			*stateBar;
 	TvSelectors			m_tvSelector;
 	QSplitter	*splitter, *splitter_2, *splitter_3,

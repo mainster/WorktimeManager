@@ -1,59 +1,67 @@
 #ifndef FILTERFORM_H
 #define FILTERFORM_H
 
-#include "mysortfilterproxymodel.h"
-#include "globals.h"
-#include "tabview.h"
-
 #include <QWidget>
 #include <QCompleter>
 #include <QObject>
 #include <QtCore>
 #include <QtEvents>
 
+#include "mysortfilterproxymodel.h"
+#include "globals.h"
+#include "tabview.h"
+//#include "browser.h"
 
 namespace Ui {
 class FilterForm;
 }
 
+
 class FilterForm : public QWidget {
 
 	Q_OBJECT
-	Q_PROPERTY(SourceTable sourceTableFlg READ sourceTableFlg WRITE setSourceTableFlg NOTIFY sourceTableChanged)
+	Q_PROPERTY(SourceTableType sourceTableType READ sourceTableType WRITE setSourceTableType NOTIFY sourceTableTypeChanged)
 
 public:
-	enum SourceTable {
-		useNone = 0x01,
-		useSelected = 0x02,
-		useWorktime = 0x04,
+
+	enum SourceTableType {
+		useNoneSource = 0x01,
+		useSelectedSource = 0x02,
+		useWorktimeSource = 0x04,
 	};
-	Q_ENUM(SourceTable)
+	Q_ENUM(SourceTableType)
 //	Q_DECLARE_FLAGS(SourceTable, SourceTable)
 //	Q_FLAG(SourceTable)
 
-	explicit FilterForm(QWidget *parent = 0, TabView *srcTable = 0);
+	explicit FilterForm(SourceTableType srcType, TabView *srcTable = 0, QWidget *parent = 0);
+
 	~FilterForm();
-	static FilterForm *instance(QWidget *parent = 0x00) {
+	static FilterForm *instance(SourceTableType newSrcType, TabView *newSrcTable) {
 		if(inst == 0)
-			inst = new FilterForm(parent);
+			inst = new FilterForm(newSrcType, newSrcTable);
 		return inst;
 	}
-	void setSourceModel(QAbstractItemModel *model);
-
+	static FilterForm *instance() {
+		if(inst == 0)
+			inst = new FilterForm(useSelectedSource);
+		return inst;
+	}
+//	void setSourceModel(QAbstractItemModel *model);
 //		virtual bool eventFilter(QObject *o, QEvent *e) override;
 
 public slots:
-	SourceTable sourceTableFlg() const { return mSourceTable; }
-	void setSourceTableFlg(SourceTable sourceTable) {
-		mSourceTable = sourceTable;
-		emit sourceTableChanged(sourceTable);
+	SourceTableType sourceTableType() const { return mSourceTableType; }
+	void setSourceTableType(SourceTableType sourceTable) {
+		mSourceTableType = sourceTable;
+		emit sourceTableTypeChanged(sourceTable);
 	}
 //	virtual void keyPressEvent(QKeyEvent *) override;
 	void cbTextFilterChanged();
 
+	void setSourceTabView(TabView *tv);
 signals:
 	void visibilityChanged(bool visible);
-	void sourceTableChanged(SourceTable sourceTable);
+	void sourceTableTypeChanged(SourceTableType sourceTable);
 
 protected:
 	void showEvent(QShowEvent *e);
@@ -67,9 +75,11 @@ private slots:
 
 private:
 	static FilterForm *inst;
+	static const QString WINDOW_TITLE_PREFIX;
 	Ui::FilterForm *ui;
 	SfiltMdl *proxyModel;
-	SourceTable	mSourceTable;
+	SourceTableType	mSourceTableType;
+	TabView *mTv;
 	QGroupBox *sourceGB;
 	QGroupBox *proxyGB;
 	QTreeView *sourceView;
@@ -91,6 +101,6 @@ public:
 };
 
 //Q_DECLARE_OPERATORS_FOR_FLAGS(FilterForm::SourceTable)
-Q_DECLARE_METATYPE(FilterForm::SourceTable)
+Q_DECLARE_METATYPE(FilterForm::SourceTableType)
 
 #endif // FILTERFORM_H

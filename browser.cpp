@@ -260,6 +260,19 @@ void Browser::exec() {
 	emit updateWriteActions();
 }
 /* ======================================================================== */
+void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
+	/*!
+	 * Invoked after double clicking a table item in connection widget tree view.
+	 *
+	 * Determine which TabView should be targeted by the activated tab model. Either select
+	 * an instance of TabView which hasn't a model loaded yet. To swap sql tables during
+	 * runtime, a double-mouse-click event is captured and the user-selected tv instance
+	 * becomes addressed by the event handler.
+	 */
+	createForeignTable(sqlTbl, mTabs.currentSelected());
+	if (FilterForm::instance()->isVisible())
+		FilterForm::instance()->setSourceTabView(mTabs.currentSelected());
+}
 TabView *Browser::createForeignTable(const QString &tNam, TabView *tvc) {
 	/**
 	 * Get active database pointer
@@ -451,17 +464,6 @@ void Browser::customMenuRequested(QPoint pos) {
 	menu->addAction(new QAction("Action 3", this));
 	menu->popup(tvs()->first()->tv()->viewport()->mapToGlobal(pos));
 }
-void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
-	/*!
-	 * Invoked after double clicking a table item in connection widget tree view.
-	 *
-	 * Determine which TabView should be targeted by the activated tab model. Either select
-	 * an instance of TabView which hasn't a model loaded yet. To swap sql tables during
-	 * runtime, a double-mouse-click event is captured and the user-selected tv instance
-	 * becomes addressed by the event handler.
-	 */
-	createForeignTable(sqlTbl, mTabs.currentSelected());
-}
 void Browser::autofitRowCol() {
 	foreach (TabView *tvc, mTabs.tvsNoPtr())
 		tvc->resizeRowsColsToContents();
@@ -483,15 +485,19 @@ void Browser::onActGroupTrigd(QAction *sender) {
 	if (sender->actionGroup() == actGrTvSelectBy)
 		setTvSelector(sender->data().value<TvSelector>());
 }
-void Browser::onSourceTableChanged(FilterForm::SourceTable sourceTable) {
+/*void Browser::onSourceTableChanged(FilterForm::SourceTableType sourceTable) {
 	if (sourceTable == FilterForm::useWorktime) {
 		foreach (TabView *tv, mTabs.tvsNoPtr()) {
 			//			INFO << tv->tv()->objectName() << tv->grBox()->title();
 			if (tv->objectName().contains(tr("worktime")))
-				FilterForm::instance()->setSourceModel(tv->tv()->model());
+				FilterForm::instance()->setSourceTabView(tv);
 		}
 	}
-}
+	if (sourceTable == FilterForm::useSelectedSource) {
+		FilterForm::instance()->setSourceTabView(mTabs.currentSelected());
+	}
+
+}*/
 /* ======================================================================== */
 /*                              Event handler                               */
 /* ======================================================================== */
