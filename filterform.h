@@ -55,7 +55,7 @@ public slots:
 		emit sourceTableTypeChanged(sourceTable);
 	}
 	void cbTextFilterChanged();
-	void setSourceTabView(MdTable *tv);
+	void setSourceTable(MdTable *tv);
 
 signals:
 	void visibilityChanged(bool visible);

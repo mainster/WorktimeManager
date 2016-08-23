@@ -271,7 +271,7 @@ void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
 	 */
 	createForeignTable(sqlTbl, mTabs.currentSelected());
 	if (FilterForm::instance()->isVisible())
-		FilterForm::instance()->setSourceTabView(mTabs.currentSelected());
+		FilterForm::instance()->setSourceTable(mTabs.currentSelected());
 }
 MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 	/**
@@ -403,7 +403,7 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 
 	//    emit updateActions();
 	/**
-	 * Update TabViews group box title to match the prior activated sql
+	 * Update MdTables group box title to match the prior activated sql
 	 * table name
 	 */
 	tvc->grBox()->setTitle(tNam);
@@ -490,11 +490,11 @@ void Browser::onActGroupTrigd(QAction *sender) {
 		foreach (MdTable *tv, mTabs.tvsNoPtr()) {
 			//			INFO << tv->tv()->objectName() << tv->grBox()->title();
 			if (tv->objectName().contains(tr("worktime")))
-				FilterForm::instance()->setSourceTabView(tv);
+				FilterForm::instance()->setSourceTable(tv);
 		}
 	}
 	if (sourceTable == FilterForm::useSelectedSource) {
-		FilterForm::instance()->setSourceTabView(mTabs.currentSelected());
+		FilterForm::instance()->setSourceTable(mTabs.currentSelected());
 	}
 
 }*/
@@ -508,7 +508,7 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 
 	/*!
 	 * Here we try determine a mouse button click within QGroupBox or QTableView::viewport()
-	 * area. If true, set current selected MdTable as the "selected" tabView.
+	 * area. If true, set current selected MdTable as the "selected" mdTable.
 	 */
 	if (e->type() == QEvent::MouseButtonPress) {
 
@@ -584,7 +584,7 @@ void Browser::closeEvent(QCloseEvent *) {
 	\*/
 	SPLT_STORE(this);
 
-	/**** Write tabView <-> SQL table relations
+	/**** Write mdTable <-> SQL table relations
 	  \*/
 	foreach (MdTable *tv, mTabs.tvsNoPtr())
 		config.setValue(objectName() + "/" + tv->objectName(), tv->grBox()->title());
@@ -604,7 +604,7 @@ bool Browser::restoreUi() {
 	\*/
 	SPLT_RESTORE(this);
 
-	/**** Restore tabview <-> SQL table assignements, but only if valid keys are stored
+	/**** Restore mdTable <-> SQL table assignements, but only if valid keys are stored
 	 \*/
 	foreach (MdTable *tv, mTabs.tvsNoPtr()) {
 		if (! config.allKeys().join(',').contains( tv->objectName() ))
@@ -770,12 +770,6 @@ void Browser::createUi(QWidget *passParent) {
 		tv->grBox()->installEventFilter( this );
 		tv->tv()->viewport()->installEventFilter( this );
 		tv->grBox()->setObjectName("gb");
-
-		//		if (! (bool)  connect(this, &Browser::tabViewSelChanged, tv, &MdTable::onTabViewSelChanged))
-		//			qReturn("Connection fail!");
-		//		if (! (bool)  connect(this,	&Browser::updateWriteActions,
-		//									 tv,		&MdTable::onUpdateWriteActions))
-		//			qReturn("Connection fail!");
 	}
 }
 QTableView* Browser::createView(QSqlQueryModel *model, const QString &title) {
@@ -946,63 +940,3 @@ QAbstractItemModel *Browser::createMailModel(QObject *parent) {
 
 #endif
 #define QFOLDINGEND }
-#define QFOLDINGSTART {
-#ifndef COMMENT_OUT_UNUSED
-
-void Browser::BrowserOld(QWidget *parent) : QWidget(parent), ui(new Ui::Browser) {
-	setupUi(this);
-
-	inst = this;
-
-	QStringList accNam;
-	accNam << TVA << TVB << TVC << TVD << TVL1 << TVL2;
-	initTableView( inst, accNam);
-
-	//   connect (ui->btnA,      SIGNAL(clicked()),
-	//            this,          SLOT(onTestBtnClicked()));
-	//   connect (ui->btnB,      SIGNAL(clicked()),
-	//            this,          SLOT(onTestBtnClicked()));
-	QList<bool> bl;
-
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(MdTable *)),
-									  mTabs.tvsNoPtr()[0],   SLOT(onTabViewSelChanged(MdTable *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(MdTable *)),
-									  mTabs.tvsNoPtr()[1],   SLOT(onTabViewSelChanged(MdTable *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(MdTable *)),
-									  mTabs.tvsNoPtr()[2],   SLOT(onTabViewSelChanged(MdTable *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(MdTable *)),
-									  mTabs.tvsNoPtr()[3],   SLOT(onTabViewSelChanged(MdTable *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(MdTable *)),
-									  mTabs.tvsNoPtr()[4],   SLOT(onTabViewSelChanged(MdTable *))));
-	bl.append( (bool) connect(this,     SIGNAL(tabViewSelChanged(MdTable *)),
-									  mTabs.tvsNoPtr()[5],   SLOT(onTabViewSelChanged(MdTable *))));
-
-	if (bl.contains(false))
-		INFO << tr("connect.tabViewSelChanged[0...6]:") << bl;
-
-	INFO << QSqlDatabase::connectionNames()
-		  << QSqlDatabase::drivers();
-
-	if (QSqlDatabase::drivers().isEmpty()) {
-		QMessageBox::information
-				(this, tr("No database drivers found"),
-				 tr("This demo requires at least one Qt database driver..."));
-		qApp->quit();
-	}
-	else {
-		timCyc = new QTimer();
-		timCyc->setInterval(T_CYCLIC * 1e3);
-		connect( timCyc,    SIGNAL(timeout()),
-					this,      SLOT(onCyclic()));
-		timCyc->start();
-	}
-
-	emit stateMsg(tr("Browser Ready."));
-
-	SqlTm *cm = new SqlTm();
-	cm->setCCol(QVector<int>(0, 1));
-}
-
-#endif
-#define QFOLDINGEND }
-

@@ -175,7 +175,7 @@ signals:
 	void updateWriteActions();
 	void tvSelectorChanged();
 	/*!
-	 * \brief clearSelection signal is emitted from Browser::eventFilter if a tabview
+	 * \brief clearSelection signal is emitted from Browser::eventFilter if a mdtable
 	 * selection was detected. Each MdTable instance have to connect this signal to a
 	 * onClearSelection() slot. After unselecting all MdTable instances, the new selected
 	 * MdTable instance could be set by Browser::eventFilter.

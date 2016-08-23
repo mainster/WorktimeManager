@@ -73,7 +73,7 @@ FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTvs, QWidget
 FilterForm::~FilterForm() {
 	delete ui;
 }
-void FilterForm::setSourceTabView(MdTable *tv) {
+void FilterForm::setSourceTable(MdTable *tv) {
 	if (sourceTableType() == SourceTableType::useWorktimeSource)
 		if (! tv->objectName().contains("worktime"))
 			qReturn(QString(tr("SourceTableType::useWorktime but want to set ")
@@ -137,8 +137,8 @@ void FilterForm::onSelectedTableChange(bool selected) {
 	if (! newTable)	qReturn("Cast failed");
 
 	(selected)
-			? setSourceTabView(newTable)
-			: setSourceTabView(NULL);
+			? setSourceTable(newTable)
+			: setSourceTable(NULL);
 }
 
 /* ======================================================================== */
@@ -149,7 +149,7 @@ void FilterForm::showEvent(QShowEvent *e) {
 	restoreGeometry(config.value(objectName() + Md::k.windowGeometry).toByteArray());
 
 	if (Browser::instance()->mTabs.currentSelected(true) != NULL)
-		setSourceTabView(Browser::instance()->mTabs.currentSelected());
+		setSourceTable(Browser::instance()->mTabs.currentSelected());
 
 	QWidget::showEvent(e);
 }
