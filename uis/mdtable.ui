@@ -17,17 +17,19 @@
    <string notr="true">QGroupBox::title {
    	subcontrol-origin: margin; /* margin boarder padding content */
    	subcontrol-position: top center; /* position at the top center */
+   	font: italic 9pt &quot;Arial&quot;;
+   	font-weight: bold;
    	top: 1.0ex;   
   	padding: 0px 8px;
 	color:  rgba(50,50,50,255);
 } [select=false] {
 	color:  rgba(245,0,0,255);
 } 
-QGroupBox {
+QGroupBox, QGroupBox [select=false] {
 	margin-top: 1ex; /*margin-bottom: 2px; margin-left: 2px; margin-right: 2px;*/
-   	font: italic 9pt &quot;Arial&quot;;
-   	font-weight: bold;
    	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
+   	font: 9pt &quot;Arial&quot;;
+   	font-weight: normal;
    	border-radius: 5px;
 	border: 2px solid;
 	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));
@@ -47,8 +49,8 @@ QGroupBox::title:hover {
 }
 QTableView {
 	margin-top: 1ex; /*margin-bottom: 2px; margin-left: 2px; margin-right: 2px;*/
-   	font: italic 9pt &quot;Arial&quot;;
-   	font-weight: bold;
+   	font: 9pt &quot;Arial&quot;;
+   	font-weight: normal;
    	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
    	border-radius: 5px;
 	border: 2px solid;
