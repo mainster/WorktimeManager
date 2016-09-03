@@ -67,13 +67,14 @@ QComboBox::drop-down {
 	border-bottom-right-radius: 3px;
 }
 QComboBox::down-arrow {
-	image: url(://images/1downarrow13.png);
+/*	image: url(://images/1downarrow13.png);*/
+	image: url(&quot;://images/1downarrow13.png&quot;);
 }
 QComboBox::down-arrow:on { /* shift the arrow when popup is open */
 	top: 1px;
 	left: 1px;
 }
-/* ----------------------------------------------------------------------------------------------- 
+/* ----------------------------------------------------------------------------------------------- */
 QGroupBox, QTextEdit {
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
 	border: 2px solid rgb(140,140,140);
@@ -91,7 +92,7 @@ QGroupBox::title {
 	top: 1.2ex;
 	padding: 0 8px
 }
-*/
+
 /* ----------------------------------------------------------------------------------------------- */
 QLabel {
 	color: rgb(70, 70, 70);
@@ -204,7 +205,7 @@ QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
           <widget class="QSpinBox" name="sbID">
            <property name="minimumSize">
             <size>
-             <width>59</width>
+             <width>53</width>
              <height>30</height>
             </size>
            </property>
@@ -306,7 +307,7 @@ color: ;
           <widget class="QDateEdit" name="datePicker">
            <property name="minimumSize">
             <size>
-             <width>59</width>
+             <width>53</width>
              <height>30</height>
             </size>
            </property>
@@ -423,7 +424,7 @@ color: ;
           <widget class="MdComboBox" name="cbPrj">
            <property name="minimumSize">
             <size>
-             <width>59</width>
+             <width>53</width>
              <height>30</height>
             </size>
            </property>
@@ -539,7 +540,7 @@ color: ;
           <widget class="MdComboBox" name="cbClient">
            <property name="minimumSize">
             <size>
-             <width>59</width>
+             <width>53</width>
              <height>30</height>
             </size>
            </property>
@@ -624,7 +625,7 @@ color: ;
           <widget class="MdComboBox" name="cbWorker">
            <property name="minimumSize">
             <size>
-             <width>59</width>
+             <width>53</width>
              <height>30</height>
             </size>
            </property>
@@ -737,7 +738,7 @@ color: ;
            </property>
            <property name="minimumSize">
             <size>
-             <width>59</width>
+             <width>53</width>
              <height>30</height>
             </size>
            </property>
@@ -1113,7 +1114,7 @@ QGroupBox::indicator:unchecked {
            </property>
            <property name="minimumSize">
             <size>
-             <width>59</width>
+             <width>53</width>
              <height>30</height>
             </size>
            </property>

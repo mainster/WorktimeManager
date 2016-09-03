@@ -302,7 +302,8 @@ bool MdTable::eventFilter(QObject *obj, QEvent *event) {
 	if (! mouseEv)
 		return QObject::eventFilter(obj, event);
 
-	if (obj->objectName().contains(tr("mtv")))
+	if (obj->objectName().contains(tr("mtv")) ||
+		 obj->objectName().contains(tr("gb")))
 		if (mouseEv->type() == QEvent::MouseButtonDblClick) {
 			actSectionMask->trigger();
 			//			INFO << tr("Double click:") << obj;
@@ -334,6 +335,8 @@ void MdTable::setAlternateRowCol(QColor &col, bool alternateEnabled) {
 void MdTable::storeFont(QFont f) {
 	QSETTINGS;
 	config.setValue(objectName() + Md::k.tableFont, QVariant::fromValue(f));
+
+	INFO << objectName() + Md::k.tableFont << f;
 	tv()->setFont(f);
 }
 QFont MdTable::restoreFont() {

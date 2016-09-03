@@ -18,7 +18,7 @@
     <normaloff>:/images/database.png</normaloff>:/images/database.png</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">QGroupBox {
+   <string notr="true">/*QGroupBox {
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
 	border: 2px solid rgb(140,140,140);
 	border-radius: 5px;
@@ -34,7 +34,7 @@ QGroupBox::title {
 	subcontrol-position: top center; 
 	top: 1.2ex;
 	padding: 0 8px
-}</string>
+}*/</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
@@ -59,7 +59,7 @@ QGroupBox::title {
      <x>0</x>
      <y>0</y>
      <width>439</width>
-     <height>27</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

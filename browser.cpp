@@ -16,7 +16,7 @@ Browser::Browser(QWidget *parent)
 	: QWidget(parent) {
 	inst = this;
 	setObjectName("Browser");
-	
+
 	m_stateCounter = 0;
 
 	setStyleSheet(Locals::browserStyleSheetv2);
@@ -28,7 +28,7 @@ Browser::Browser(QWidget *parent)
 	createUi(this);
 	connect(connectionWidget(),	&ConnectionWidget::tableActivated,
 			  this,						&Browser::onConWidgetTableActivated);
-	
+
 	connect(this, &Browser::tvSelectorChanged, this, &Browser::onTvSelectorChanged);
 
 	if (QSqlDatabase::drivers().isEmpty()) {
@@ -45,9 +45,9 @@ Browser::Browser(QWidget *parent)
 		connect( timCyc, &QTimer::timeout, this, &Browser::onCyclic);
 		timCyc->start();
 	}
-	
+
 	emit stateMsg(tr("Browser Ready."));
-	
+
 	QTimer::singleShot(50, this, SLOT(restoreUi()));
 }
 Browser::~Browser() {
@@ -67,7 +67,7 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	 * Get pointer to current active database connection.
 	 */
 	QSqlDatabase pdb = connectionWidget()->currentDb();
-	
+
 	/*!
 	 * Get list of all table views and requery all of them with gb name "worktime".
 	 */
@@ -76,13 +76,13 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 		if (! tv->grBox()->title().contains(tr("worktime")))
 			tvs.removeOne(tv);
 	}
-	
-	
+
+
 	/** Select "tableMain" as target table view widget */
 	QTableView *tvResp = mTabs.tvl1->tv();
 	QSqlQueryModel *queryModel = new QSqlQueryModel(tvResp);
 	QSqlQuery query;
-	
+
 	if (! nonDefaulQuery.isEmpty())
 		query = QSqlQuery( nonDefaulQuery, pdb);
 	else {
@@ -92,7 +92,7 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 		 */
 		QTextEdit *te = new QTextEdit();
 		te->hide();
-		
+
 		foreach (QString str, configQ.allKeys()) {
 			if (str.contains("default_worktime_query")) {
 				QString s = configQ.value(str, "").toString();
@@ -103,10 +103,10 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 		INFO << te->toPlainText();
 		delete te;
 	}
-	
+
 	queryModel->setQuery( query );
 	tvResp->setModel( queryModel );
-	
+
 	if (queryModel->lastError().type() != QSqlError::NoError)
 		emit stateMsg(queryModel->lastError().text());
 	else if (queryModel->query().isSelect())
@@ -114,24 +114,24 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	else
 		emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
 							  queryModel->query().numRowsAffected()));
-	
+
 	mTabs.tvl1->resizeRowsColsToContents();
 	//	tvResp->setVisible( false );
 	//	tvResp->resizeColumnsToContents();
 	//	tvResp->resizeRowsToContents();
 	//	tvResp->setVisible( true );
 	emit updateWriteActions();
-	
+
 }
 void Browser::exec() {
 	InpFrm *inpFrm = InpFrm::instance();
-	
+
 	QSqlQueryModel *model = new QSqlQueryModel(mTabs.tvl1->tv());
-	
+
 	model->setQuery(QSqlQuery(inpFrm->getQueryText(),
 									  connectionWidget()->currentDb()));
 	mTabs.tvl1->tv()->setModel(model);
-	
+
 	if (model->lastError().type() != QSqlError::NoError)
 		emit stateMsg(model->lastError().text());
 	else if (model->query().isSelect())
@@ -139,14 +139,14 @@ void Browser::exec() {
 	else
 		emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
 							  model->query().numRowsAffected()));
-	
+
 	mTabs.tvl1->tv()->setSortingEnabled( true );
-	
+
 	//	tvq->setVisible( false );
 	//	tvq->resizeColumnsToContents();
 	//	tvq->resizeRowsToContents();
 	//	tvq->setVisible( true );
-	
+
 	mTabs.tvl1->resizeRowsColsToContents();
 	emit updateWriteActions();
 }
@@ -194,20 +194,20 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 			/** Remember the indexes of the columns */
 			int colEmp = rmod->fieldIndex("workerID");
 			int colPrj = rmod->fieldIndex("prjID");
-			
+
 			/** Set the relations to the other database tables */
 			rmod->setRelation(colEmp, QSqlRelation(
 										"worker", "workerID", "Nachname"));
 			rmod->setRelation(colPrj, QSqlRelation(
 										"prj", "prjID", "Beschreibung"));
-			
+
 			// Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("worktimID"), Qt::Horizontal, tr("ID"));
 			rmod->setHeaderData(rmod->fieldIndex("dat"), Qt::Horizontal, tr("Datum"));
 			rmod->setHeaderData(colEmp, Qt::Horizontal, tr("Mitarb"));
 			rmod->setHeaderData(colPrj, Qt::Horizontal, tr("Beschreibung"));
 			rmod->setHeaderData(rmod->fieldIndex("hours"), Qt::Horizontal, tr("Std"));
-			
+
 			break;
 		}
 		/* --------------------------------------------------------- */
@@ -216,15 +216,15 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 		if (tNam.contains("prj", Qt::CaseInsensitive)) {
 			/** Remember the indexes of the columns */
 			int colClient = rmod->fieldIndex("clientID");
-			
+
 			/** Set the relations to the other database tables */
 			rmod->setRelation(colClient, QSqlRelation(
 										"client", "clientID", "Name"));
-			
+
 			// Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("prjID"), Qt::Horizontal, tr("ID"));
 			rmod->setHeaderData(rmod->fieldIndex("clientID"), Qt::Horizontal, tr("Kunde, Name"));
-			
+
 			break;
 		}
 		/* --------------------------------------------------------- */
@@ -245,7 +245,7 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 			rmod->setHeaderData(rmod->fieldIndex("clientID"), Qt::Horizontal, tr("ID"));
 			rmod->setHeaderData(rmod->fieldIndex("Nummer"), Qt::Horizontal, tr("Knd. #"));
 			rmod->setHeaderData(rmod->fieldIndex("Stundensatz"), Qt::Horizontal, tr("€/h"));
-			
+
 			break;
 		}
 		/* --------------------------------------------------------- */
@@ -254,7 +254,7 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 		if (tNam.contains("fehlzeit", Qt::CaseInsensitive)) {
 			// Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("fehlID"), Qt::Horizontal, tr("ID"));
-			
+
 			break;
 		}
 		/* --------------------------------------------------------- */
@@ -263,7 +263,7 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 		if (tNam.contains("arch", Qt::CaseInsensitive)) {
 			// Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("archID"), Qt::Horizontal, tr("ID"));
-			
+
 			break;
 		}
 		/* --------------------------------------------------------- */
@@ -274,10 +274,10 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 									.arg(tNam), QMessageBox::Ok);
 		break;
 	}
-	
+
 	// Populate the model
 	rmod->select();
-	
+
 	QTime *time = new QTime();
 	time->start();
 	while (rmod->canFetchMore())
@@ -296,7 +296,7 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 	/** !!!!!!!!!!!!!!!!!!!! tvs()->first()->tv()->selectionModel() changed to
 	  * mTvs[3]->tv()->selectionModel()
 	 */
-	
+
 	if (! (bool) connect( tvc->selectionModel(),
 								 SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
 								 this, SLOT(currentChanged(QModelIndex,QModelIndex)) ) ) {
@@ -330,10 +330,10 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 QStandardItemModel *Browser::tblToMetaDataMdl(const QString &table) {
 	QSqlRecord rec = connectionWidget()->currentDb().record(table);
 	QStandardItemModel *model = new QStandardItemModel(/*tvs()->first()->tv()*/);
-	
+
 	model->insertRows(0, rec.count());
 	model->insertColumns(0, 7);
-	
+
 	model->setHeaderData(0, Qt::Horizontal, "Fieldname");
 	model->setHeaderData(1, Qt::Horizontal, "Type");
 	model->setHeaderData(2, Qt::Horizontal, "Length");
@@ -361,7 +361,7 @@ QStandardItemModel *Browser::tblToMetaDataMdl(const QString &table) {
 void Browser::customMenuRequested(QPoint pos) {
 	QModelIndex index = this->tvs()->first()->tv()->indexAt(pos);
 	Q_UNUSED(index);
-	
+
 	QMenu *menu = new QMenu(this);
 	menu->addAction(new QAction("Action 1", this));
 	menu->addAction(new QAction("Action 2", this));

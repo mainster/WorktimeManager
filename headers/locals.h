@@ -18,7 +18,8 @@ public:
 		visibleCols,
 		sectionIdxs,
 		windowGeometry,
-		WindowState;
+		WindowState,
+		allTabableWidgets;
 	} k;
 };
 
@@ -26,6 +27,7 @@ class Locals {
 public:
 	static QFileInfo SQL_DATABASE;
 	static QString SQL_DRIVER;
+	static QStringList PROJECT_PATHS;
 	static const QString  browserStyleSheet, browserStyleSheetv2, MdTableStyleSheet;
 	Locals();
 };

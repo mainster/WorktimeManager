@@ -34,6 +34,7 @@
 /* ======================================================================== */
 /*                              class MdTable                               */
 /* ======================================================================== */
+#define SET_STYLESHEETS
 
 namespace Ui {
 class MdTable;
@@ -62,21 +63,21 @@ public:
 	/* ======================================================================== */
 	QGroupBox *grBox() const	{ return m_gb; }
 	QTableView *tv() const		{ return m_tv; }
-	bool isSelected()				{ return m_selected; };
-	void setSelected(bool selected = true) {		
+	bool isSelected()				{ return m_selected; }
+	void setSelected(bool selected = true) {
 		m_selected = selected;
-		m_gb->setProperty("select", m_selected);
+		m_gb->setProperty("selected", m_selected);
 #ifdef SET_STYLESHEETS
 		setStyleSheet(styleSheet());
 #endif
 		emit selectedChanged(selected);
-	};
+	}
 	void clearSelected() {
 		m_selected = false;
-		m_gb->setProperty("select", m_selected);
+		m_gb->setProperty("selected", m_selected);
 		setStyleSheet(styleSheet());
 	};
-	QString &sqlTableName()		{ return m_sqlTableName; };
+	QString &sqlTableName()		{ return m_sqlTableName; }
 	void setSqlTableName(const QString &name) {
 		m_sqlTableName = name;
 		emit sqlTableNameChanged(name);

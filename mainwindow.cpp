@@ -105,9 +105,9 @@ void MainWindow::onInpFrmButtonClick(bool ) {
 void MainWindow::onResizerDlgTrig() {
 	bool ok;
 	QString text =  QInputDialog::
-						 getText(this, tr("QInputDialog::getText()"),
-									tr("Resizer value in %:"), QLineEdit::Normal,
-									tr("ss"), &ok);
+			getText(this, tr("QInputDialog::getText()"),
+					  tr("Resizer value in %:"), QLineEdit::Normal,
+					  tr("ss"), &ok);
 
 	if (ok && !text.isEmpty())
 		resize(QDesktopWidget().availableGeometry(this)
@@ -238,15 +238,15 @@ void MainWindow::onActFilterForm(bool b) {
 	return;
 	filterForm->show();
 
-//	if (filterForm->sourceTableFlg() == FilterForm::useSelectedSource) {
-//		if (.currentSelected(true) == NULL)
-//			MDStateBar::instance()->showMessage2sec(tr("Keine Tabelle zum Filtern ausgewählt!"));
-//		else
-//			browser->mTabs.currentSelected(true)->modelCast();
+	//	if (filterForm->sourceTableFlg() == FilterForm::useSelectedSource) {
+	//		if (.currentSelected(true) == NULL)
+	//			MDStateBar::instance()->showMessage2sec(tr("Keine Tabelle zum Filtern ausgewählt!"));
+	//		else
+	//			browser->mTabs.currentSelected(true)->modelCast();
 
-//		filterForm->raise();
-//		filterForm->activateWindow();
-//	}
+	//		filterForm->raise();
+	//		filterForm->activateWindow();
+	//	}
 }
 /* ======================================================================== */
 /*                              Event handler                               */
@@ -299,6 +299,24 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	\*/
 	WIN_STORE(this);
 	WIN_STATE_STORE(this);
+
+	/**** Copy QSettings ini to project dir
+	\*/
+	foreach (QString s, Locals::PROJECT_PATHS) {
+		QDir *dir = new QDir(s);
+		if (dir->exists()) {
+			QFileInfo fileInfo(config.fileName());
+			INFO << tr("copy") << config.fileName()
+				  << QDir(s).filePath(fileInfo.fileName());
+			QFile configInPrj(QDir(s).filePath(fileInfo.fileName()));
+			configInPrj.remove();
+
+			QFile::copy(config.fileName(),
+							QDir(s).filePath(fileInfo.fileName()));
+			break;
+		}
+	}
+
 	QWidget::closeEvent(e);
 }
 void MainWindow::keyPressEvent(QKeyEvent *e) {
@@ -567,9 +585,9 @@ void MainWindow::createActions() {
 	actInpForm->setToolTip(tr("Öffnet die <b>Eingabeform</b> um neue Einträge in die "
 									  "Arbeitszeitentabelle einzutragen."));
 	actDoFiltSelectedTbl->setToolTip(tr("Das Filter/Suchfenster wird auf die <b>aktuell "
-												 "ausgewählte</b> Tabelle angewendet."));
+													"ausgewählte</b> Tabelle angewendet."));
 	actDoFiltWorktimeTbl->setToolTip(tr("Das Filter/Suchfenster wird <b>immer</b> auf die "
-												 "<b>Arbeitszeit</b>-Tabelle angewendet."));
+													"<b>Arbeitszeit</b>-Tabelle angewendet."));
 	actRichEdit->setToolTip(tr("Öffnet einen Rich Text Editor."));
 
 

@@ -402,8 +402,17 @@ void InpFrm::restoreTabOrder() {
 	  * Check for valied tab order configuration data
 	  */
 	QSETTINGS;
-	QStringList wNames;
 	QList<QWidget *> tabOrderList;
+
+	/*!
+	 * Write all tab-able widget object names to config file.
+	 */
+	tabOrderList = findChildren<QWidget *>();
+	foreach (QWidget *w, tabOrderList)
+		if (! w->property("hasSqlMapper").isValid())
+			tabOrderList.removeOne(w);
+	config.setValue(objectName() + Md::k.allTabableWidgets,
+						 listObjectNames<QWidget *>(tabOrderList)->join(','));
 
 	if (config.allKeys().join(',').contains(objectName() + Md::k.focusOrder)) {
 		emit stateMessage(tr("Valied tab order configuration found!"), 4000);
@@ -414,13 +423,9 @@ void InpFrm::restoreTabOrder() {
 	}
 	else {
 		/*!
-			* Here a valid tab order list must be generated.
-			*/
+		 * Use the "all tab-able" list from methode entrance
+		 */
 		INFO << tr("NO valied tab order configuration found!");
-		tabOrderList = findChildren<QWidget *>();
-		foreach (QWidget *w, tabOrderList)
-			if (! w->property("hasSqlMapper").isValid())
-				tabOrderList.removeOne(w);
 	}
 	/* ======================================================================== */
 	setFocusOrder(tabOrderList/* << tabOrderList.first() */);
@@ -540,12 +545,14 @@ void InpFrm::keyPressEvent(QKeyEvent *e) {
 	  */
 	if (e->key() == Qt::Key_Escape) {
 		if (! mEscapeTrigger) {
-			mTabOrder.current.first()->setFocus(Qt::TabFocusReason);
-			INFO << tr("start singledshot");
+			if (mChangeFocusFlag == Qt::FocusChange_isRunning) {
+				mTabOrder.current.first()->setFocus(Qt::TabFocusReason);
+				INFO << tr("start singledshot");
+			}
 		}
 		else hide();
 	}
-	e->accept();
+	e->ignore();
 }
 void InpFrm::resizeEvent(QResizeEvent *) {
 //	if (isFloating())

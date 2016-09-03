@@ -11,6 +11,8 @@
 #include <QRegularExpression>
 #include <QActionGroup>
 #include <QHeaderView>
+#include <QFile>
+#include <QFileInfo>
 
 #include "ui_dbconndlg.h"
 #include "browser.h"
