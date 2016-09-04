@@ -221,6 +221,7 @@ public slots:
 	void autofitRowCol();
 	void customMenuRequested(QPoint pos);
 	void exec();
+	void execCustomQuery();
 	void onConWidgetTableActivated(const QString &sqlTab);
 	void onCyclic();
 //	void onSourceTableChanged(FilterForm::SourceTableType sourceTable);

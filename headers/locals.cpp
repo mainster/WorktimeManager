@@ -14,6 +14,13 @@ struct Md::confKeys_t Md::k {
 	QString("/WindowState"),
 	QString("/AllTabableWidgets")
 };
+QMap<QString, QString> Md::tableAlias {
+	{ "client",		"Kunden" },
+	{ "prj",			"Projekte" },
+	{ "fehlzeit",	"Fehlzeiten" },
+	{ "worker",		"Mitarbeiter" },
+	{ "worktime",	"Arbeitszeiten" }
+};
 
 
 QFileInfo Locals::SQL_DATABASE = QFileInfo("/var/lib/mysql/delbassoSQL.db");

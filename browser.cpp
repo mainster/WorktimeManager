@@ -150,6 +150,39 @@ void Browser::exec() {
 	mTabs.tvl1->resizeRowsColsToContents();
 	emit updateWriteActions();
 }
+void Browser::execCustomQuery() {
+	QString queryText = InpFrm::instance()->getQueryText();
+
+	QTableView *qtv;
+
+	if (mTabs.currentSelected(true) == NULL)
+		qtv = mTabs.tvl2->tv();
+	else
+		qtv = mTabs.currentSelected()->tv();
+
+	QSqlQueryModel *model = new QSqlQueryModel(qtv);
+
+	model->setQuery(QSqlQuery(queryText,
+									  connectionWidget()->currentDb()));
+
+	QSortFilterProxyModel *queryProxyMdl = new QSortFilterProxyModel(this);
+	queryProxyMdl->setSourceModel(model);
+
+	qtv->setModel(queryProxyMdl);
+
+	if (model->lastError().type() != QSqlError::NoError)
+		emit stateMsg(model->lastError().text());
+	else if (model->query().isSelect())
+		emit stateMsg(tr("Query OK."));
+	else
+		emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
+							  model->query().numRowsAffected()));
+
+	qtv->setSortingEnabled( true );
+
+//	qtv->parentWidget()->resizeRowsColsToContents();
+	emit updateWriteActions();
+}
 /* ======================================================================== */
 void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
 	/*!
@@ -310,7 +343,7 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 	 * Update MdTables group box title to match the prior activated sql
 	 * table name
 	 */
-	tvc->grBox()->setTitle(tNam);
+	tvc->grBox()->setTitle(Md::tableAlias[tNam]);
 
 	/*!
 	 * Set tvcs object name to grBox()->title.

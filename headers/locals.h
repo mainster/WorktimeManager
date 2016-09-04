@@ -21,6 +21,8 @@ public:
 		WindowState,
 		allTabableWidgets;
 	} k;
+
+	static QMap<QString, QString> tableAlias;
 };
 
 class Locals {

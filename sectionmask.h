@@ -26,6 +26,7 @@ public:
 	SectionMask(QTableView *_tv, QWidget *parent) : QWidget(parent) {
 		inst = this;
 		tv = _tv;
+//		INFO << tv->objectName();
 
 		if (! tv) {
 			qDebug().noquote() << tr("Cast parent to MdTable failed!");

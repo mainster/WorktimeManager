@@ -107,15 +107,6 @@ InpFrm::~InpFrm() {
 
 	delete ui;
 }
-QString InpFrm::getQueryText() const {
-	return ui->teSqlQuerys->toPlainText();
-}
-//void InpFrm::onInpFormUserCommit() {
-//	ui->datePicker->date().toString("yyyy-MM-dd"));
-//	workerID);
-//	prjID);
-//	ui->leHrs->text().toInt());
-//}
 void InpFrm::onInpFormUserCommitAlt() {
 	QSqlQuery query;
 	QString q;
@@ -251,7 +242,8 @@ void InpFrm::aButtonClick(bool) {
 	if (pbSender == ui->btnSaveQuery) { /*saveSqlQueryInputText();*/ return; }
 	if (pbSender == ui->btnRestoreQuery) { /*restoreSqlQueryInputText();*/ return; }
 	if (pbSender == ui->btnSubmitQuery) {
-		Browser::instance()->exec();
+//		Browser::instance()->exec();
+		Browser::instance()->execCustomQuery();
 	}
 	if (pbSender == ui->btnClear) {
 		//		foreach (MdComboBox *mcbx, QList<MdComboBox*>(listCast<MdComboBox*,QComboBox*>(mSqlCbs))) {
@@ -643,6 +635,10 @@ void InpFrm::initComboboxes() {
 	//	ui->cbClient->setModelColumns(QList<quint8>() << 1 << 3);
 	//	ui->cbWorker->setModelColumns(QList<quint8>() << 1 << 2);
 
+}
+
+QString InpFrm::getQueryText() const {
+	return ui->teSqlQuerys->toPlainText();
 }
 void InpFrm::connectActions() {
 

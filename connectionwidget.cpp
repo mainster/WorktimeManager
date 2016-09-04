@@ -104,7 +104,8 @@ void ConnectionWidget::refresh() {
 			QStringList tables = db.tables();
 			for (int t = 0; t < tables.count(); ++t) {
 				QTreeWidgetItem *table = new QTreeWidgetItem(root);
-				table->setText(0, tables.at(t));
+				table->setText(0, Md::tableAlias[tables.at(t)]
+						+ tr("  [%1]").arg(tables.at(t)));
 			}
 		}
 	}
@@ -140,13 +141,22 @@ void ConnectionWidget::on_tree_itemActivated(QTreeWidgetItem *item,
 															int /* column */) {
 	if (!item)	return;
 
-	INFO << item << item->text(0);
-
 	if (!item->parent())
 		setActive(item);
 	else {
 		setActive(item->parent());
-		emit tableActivated(item->text(0));
+
+		/*!
+		 * Check if table aliases has been used.
+		 */
+		QRegularExpression re("\\[\\w+\\]");
+		if (re.match(item->text(0)).hasMatch())
+			emit tableActivated(re.match(item->text(0))
+									  .captured(0)
+									  .remove(tr("["))
+									  .remove(tr("]")));
+		else
+			emit tableActivated(item->text(0));
 	}
 }
 void ConnectionWidget::showMetaData() {
