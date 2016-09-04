@@ -85,10 +85,10 @@ private:
 	void clearStyleSheet() {
 		style()->unpolish(this);
 	}
-	void showEvent(QShowEvent *);
-	void mouseDoubleClickEvent(QMouseEvent *);
-	bool eventFilter(QObject *obj, QEvent *event);
-	void hideEvent(QHideEvent *);
+//	void showEvent(QShowEvent *);
+//	void mouseDoubleClickEvent(QMouseEvent *);
+//	bool eventFilter(QObject *obj, QEvent *event);
+//	void hideEvent(QHideEvent *);
 
 	static QString		m_stylesheet;
 	SectionMask			*m_sectMsk;

@@ -314,6 +314,45 @@ bool MdTable::eventFilter(QObject *obj, QEvent *event) {
 void MdTable::hideEvent(QHideEvent *) {
 	modelCast()->storeModel(sqlTableName());
 }
+void MdTable::wheelEvent (QWheelEvent * event) {
+	/** query current keyboard modifiers
+	 */
+	Qt::KeyboardModifiers keyboardModifiers = QApplication::queryKeyboardModifiers();
+
+	int dsize = event->delta()/120;     /**< Delta size */
+	/** Add current step.
+	 * event->delta() can be negative or positive.
+	 */
+	mouseWheelCnt += dsize;
+
+	/** Ctrl modifier + mouse wheel changes font size
+	 * Do some range check of min/max pointsize
+	 */
+	if (keyboardModifiers == Qt::ControlModifier) {
+		if ( ((dsize < 0) && (fontInfo().pointSize() > 6)) ||
+			  ((dsize > 0) && (fontInfo().pointSize() < 20)) ) {
+			QFont cfont = QFont( this->font() );
+			cfont.setPointSize( cfont.pointSize() + dsize );
+			setFont( cfont );
+			storeFont( this->font() );
+		}
+		event->accept();
+		return;
+	}
+
+
+	if(keyboardModifiers == Qt::ShiftModifier) {
+		tv()->verticalScrollBar()->setValue(
+					tv()->verticalScrollBar()->value() - 4 * dsize );
+		event->accept();
+		return;
+	}
+
+	tv()->verticalScrollBar()->setValue(
+				tv()->verticalScrollBar()->value() - dsize );
+
+	event->accept();
+}
 /* ======================================================================== */
 /*                             Helper methodes                              */
 /* ======================================================================== */

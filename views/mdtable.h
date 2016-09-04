@@ -118,6 +118,9 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 	void hideEvent(QHideEvent *);
 	void restoreColumnOrderAndVisability2();
+	void wheelEvent(QWheelEvent *event);
+
+	int mouseWheelCnt;
 
 protected slots:
 	void onClearSelection() {

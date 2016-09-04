@@ -200,18 +200,18 @@ void MdTabView::onUpdateWriteActions() {
 /* ======================================================================== */
 /*                              Event handler                               */
 /* ======================================================================== */
-bool MdTabView::eventFilter(QObject *obj, QEvent *event) {
-	return QObject::eventFilter(obj, event);
-}
-void MdTabView::hideEvent(QHideEvent *) {
-	//		modelCast()->storeModel(sqlTableName());
-}
-void MdTabView::showEvent(QShowEvent *) {
-}
-void MdTabView::mouseDoubleClickEvent(QMouseEvent *) {
-	m_titleLabel->show();
-	m_titleLabel->setText(m_titleLabel->text() + tr(" Klar?"));
-}
+//bool MdTabView::eventFilter(QObject *obj, QEvent *event) {
+//	return QObject::eventFilter(obj, event);
+//}
+//void MdTabView::hideEvent(QHideEvent *) {
+//	//		modelCast()->storeModel(sqlTableName());
+//}
+//void MdTabView::showEvent(QShowEvent *) {
+//}
+//void MdTabView::mouseDoubleClickEvent(QMouseEvent *) {
+//	m_titleLabel->show();
+//	m_titleLabel->setText(m_titleLabel->text() + tr(" Klar?"));
+//}
 /* ======================================================================== */
 /*                             Helper methodes                              */
 /* ======================================================================== */
