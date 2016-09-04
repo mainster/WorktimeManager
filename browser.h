@@ -59,6 +59,7 @@
 #include "mdmenu.h"
 
 class MdTable;
+class MdTabView;
 //class ConnectionWidget;
 
 /* ======================================================================== */
@@ -217,7 +218,6 @@ public slots:
 	void onConnectWdgMetaDataReq(const QString &table);
 	MdMenu *menuBarElement();
 	QStandardItemModel *tblToMetaDataMdl(const QString &table);
-	QTableView *createView(QSqlQueryModel *model, const QString &title);
 	void autofitRowCol();
 	void customMenuRequested(QPoint pos);
 	void exec();
@@ -250,18 +250,15 @@ private:
 	ConnectionWidget	*mConnectionWidget;
 	QGridLayout			*grLay;
 	QTimer				*timCyc;
-//	SfiltMdl				*proxyModel;
 	MDStateBar			*stateBar;
 	TvSelectors			m_tvSelector;
 	QSplitter	*splitter, *splitter_2, *splitter_3,
 	*splitter_4, *splitter_5, *splitter_6, *splitter_7;
-
 	MdTabView   *mdtv;
-
 	QActionGroup		*actGrTvSelectBy, *actGrTvCount;
 	QAction				*actSelByNone, *actSelByGrBx, *actSelByVPort, *actSelByBoth;
-
 	int m_stateCounter;
+
 public:
 	MdMenu					*browsMenu;
 	ConnectionWidget *connectionWidget() const { return mConnectionWidget; }

@@ -195,16 +195,24 @@ void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
 	 */
 
 	if (sqlTbl.contains(tr("worktime"))) {
-		mdtv = new MdTabView(sqlTbl);
+		mdtv = new MdTabView(sqlTbl, mTabs.currentSelected()->tv());
 		connect(this, &Browser::updateWriteActions,
 				  mdtv, &MdTabView::onUpdateWriteActions);
 	}
+	else
+		createForeignTable(sqlTbl, mTabs.currentSelected());
 
-	createForeignTable(sqlTbl, mTabs.currentSelected());
 	if (FilterForm::instance()->isVisible())
 		FilterForm::instance()->setSourceTable(mTabs.currentSelected());
 }
 MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
+
+//	// @@@MDB
+//	MdTabView *pMdtv = new MdTabView(tNam, tvc);
+//	pMdtv->show();
+//	return NULL;
+
+
 	/**
 	 * Get active database pointer
 	 */
@@ -223,7 +231,8 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 		/* --------------------------------------------------------- */
 		/*                      Table worktimes                      */
 		/* --------------------------------------------------------- */
-		if (tNam.contains("worktime", Qt::CaseInsensitive)) {
+		if (tNam.contains("worktime", Qt::CaseInsensitive) ||
+			 tNam.contains(Md::tableAlias["worktime"])) {
 			/** Remember the indexes of the columns */
 			int colEmp = rmod->fieldIndex("workerID");
 			int colPrj = rmod->fieldIndex("prjID");
@@ -246,7 +255,8 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 		/* --------------------------------------------------------- */
 		/*                      Table projects                       */
 		/* --------------------------------------------------------- */
-		if (tNam.contains("prj", Qt::CaseInsensitive)) {
+		if (tNam.contains("prj", Qt::CaseInsensitive) ||
+			 tNam.contains(Md::tableAlias["prj"])) {
 			/** Remember the indexes of the columns */
 			int colClient = rmod->fieldIndex("clientID");
 
@@ -263,7 +273,8 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 		/* --------------------------------------------------------- */
 		/*                      Table worker                         */
 		/* --------------------------------------------------------- */
-		if (tNam.contains("worker", Qt::CaseInsensitive)) {
+		if (tNam.contains("worker", Qt::CaseInsensitive) ||
+			 tNam.contains(Md::tableAlias["worker"])) {
 			// Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("workerID"), Qt::Horizontal, tr("ID"));
 			rmod->setHeaderData(rmod->fieldIndex("PersonalNr"), Qt::Horizontal, tr("PN"));
@@ -273,7 +284,8 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 		/* --------------------------------------------------------- */
 		/*                      Table client                         */
 		/* --------------------------------------------------------- */
-		if (tNam.contains("client", Qt::CaseInsensitive)) {
+		if (tNam.contains("client", Qt::CaseInsensitive) ||
+			 tNam.contains(Md::tableAlias["client"])) {
 			// Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("clientID"), Qt::Horizontal, tr("ID"));
 			rmod->setHeaderData(rmod->fieldIndex("Nummer"), Qt::Horizontal, tr("Knd. #"));
@@ -284,7 +296,8 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 		/* --------------------------------------------------------- */
 		/*                      Table fehlzeit                       */
 		/* --------------------------------------------------------- */
-		if (tNam.contains("fehlzeit", Qt::CaseInsensitive)) {
+		if (tNam.contains("fehlzeit", Qt::CaseInsensitive) ||
+			 tNam.contains(Md::tableAlias["fehlzeit"])) {
 			// Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("fehlID"), Qt::Horizontal, tr("ID"));
 
@@ -293,7 +306,8 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 		/* --------------------------------------------------------- */
 		/*                      Table arch									 */
 		/* --------------------------------------------------------- */
-		if (tNam.contains("arch", Qt::CaseInsensitive)) {
+		if (tNam.contains("arch", Qt::CaseInsensitive) ||
+			 tNam.contains(Md::tableAlias["arch"])) {
 			// Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("archID"), Qt::Horizontal, tr("ID"));
 
@@ -305,6 +319,8 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 		QMessageBox::warning(this, tr("Warnung"),
 									tr("Unbekannter SQL Tabellenbezeichner: %1")
 									.arg(tNam), QMessageBox::Ok);
+		WARN << tr("Warnung")
+			  << tr("Unbekannter SQL Tabellenbezeichner: %1").arg(tNam);
 		break;
 	}
 
@@ -524,7 +540,8 @@ void Browser::closeEvent(QCloseEvent *) {
 	/**** Write mdTable <-> SQL table relations
 	  \*/
 	foreach (MdTable *tv, mTabs.tvsNoPtr())
-		config.setValue(objectName() + "/" + tv->objectName(), tv->grBox()->title());
+		config.setValue(objectName() + "/" + tv->objectName(),
+							 /*tv->grBox()->title()*/ tv->sqlTableName());
 
 	/**** Safe all action states from Browser
 	\*/
@@ -708,18 +725,6 @@ void Browser::createUi(QWidget *passParent) {
 		tv->tv()->viewport()->installEventFilter( this );
 		tv->grBox()->setObjectName("gb");
 	}
-}
-QTableView* Browser::createView(QSqlQueryModel *model, const QString &title) {
-	QTableView *view = new QTableView(0);
-	view->setModel(model);
-	static int offset = 0;
-
-	view->setWindowTitle(title);
-	view->move(100 + offset, 100 + offset);
-	offset += 20;
-	view->show();
-
-	return view;
 }
 bool Browser::restoreActionObjects () {
 	QSETTINGS;

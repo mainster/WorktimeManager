@@ -30,6 +30,12 @@ bool GlobalEventFilter::eventFilter(QObject *obj, QEvent *event) {
 			wdg->update();
 		}
 	}
+
+	if (event->type() == QEvent::KeyPress) {
+		if (static_cast<QKeyEvent *>(event)->key() == Qt::Key_At)
+			emit control_one_pressed();
+	}
+
 	/*!
 	 * Call superclass methode and pass the return value.
 	 */
