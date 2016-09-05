@@ -315,31 +315,15 @@ void MdTable::hideEvent(QHideEvent *) {
 	modelCast()->storeModel(sqlTableName());
 }
 void MdTable::wheelEvent (QWheelEvent * event) {
-	/** query current keyboard modifiers
+	/*!
+	 * Change font size has been moved to GlobalEventFilter::eventFilter
+	 */
+
+	/*!
+	 * query current keyboard modifiers
 	 */
 	Qt::KeyboardModifiers keyboardModifiers = QApplication::queryKeyboardModifiers();
-
-	int dsize = event->delta()/120;     /**< Delta size */
-	/** Add current step.
-	 * event->delta() can be negative or positive.
-	 */
-	mouseWheelCnt += dsize;
-
-	/** Ctrl modifier + mouse wheel changes font size
-	 * Do some range check of min/max pointsize
-	 */
-	if (keyboardModifiers == Qt::ControlModifier) {
-		if ( ((dsize < 0) && (fontInfo().pointSize() > 6)) ||
-			  ((dsize > 0) && (fontInfo().pointSize() < 20)) ) {
-			QFont cfont = QFont( this->font() );
-			cfont.setPointSize( cfont.pointSize() + dsize );
-			setFont( cfont );
-			storeFont( this->font() );
-		}
-		event->accept();
-		return;
-	}
-
+	int dsize = event->delta() / abs(event->delta());     /**< Delta size */
 
 	if(keyboardModifiers == Qt::ShiftModifier) {
 		tv()->verticalScrollBar()->setValue(
@@ -374,8 +358,6 @@ void MdTable::setAlternateRowCol(QColor &col, bool alternateEnabled) {
 void MdTable::storeFont(QFont f) {
 	QSETTINGS;
 	config.setValue(objectName() + Md::k.tableFont, QVariant::fromValue(f));
-
-	INFO << objectName() + Md::k.tableFont << f;
 	tv()->setFont(f);
 }
 QFont MdTable::restoreFont() {

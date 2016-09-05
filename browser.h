@@ -98,7 +98,7 @@ public:
 				  << tvd << tvl1 << tvl2;
 			return mTvs;
 		}
-		QList<MdTable *> *tvs()					{
+		QList<MdTable *> *tvs()	{
 			mTvs.clear();
 			mTvs << tva << tvb << tvc
 				  << tvd << tvl1 << tvl2;

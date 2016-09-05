@@ -37,6 +37,50 @@ bool GlobalEventFilter::eventFilter(QObject *obj, QEvent *event) {
 	}
 
 	/*!
+	 * This wheel event has been moved from MdTable::wheelEvent(...) to this global event
+	 * filter because wheel events are sent to the MdTables base classes scroll bars, if
+	 * they exist. This means, the font could only be changed if the scroll bar reaches
+	 * the upper or lower bound. By caching the wheel event globally by this event handler,
+	 * the problem could be fixed.
+	 */
+	if (event->type() == QEvent::Wheel) {
+		if (static_cast<QWheelEvent *>(event)) {
+			/** query current keyboard modifiers
+			 */
+
+			/** Ctrl modifier + mouse wheel changes font size
+			 * Do some range check of min/max pointsize
+			 */
+			if (qApp->queryKeyboardModifiers() == Qt::ControlModifier) {
+				Browser::mTabs_t browserTabs = Browser::instance()->mTabs;
+
+				if (browserTabs.tvIds().join(',').contains(obj->objectName()) &&
+					 browserTabs.currentSelected(true) != NULL) {
+
+					MdTable *mdTable = browserTabs.currentSelected();
+
+					int dsize = static_cast<QWheelEvent *>(event)->delta() /
+									abs(static_cast<QWheelEvent *>(event)->delta());     /**< Delta size */
+					/** Add current step.
+					 * event->delta() can be negative or positive.
+					 */
+					mdTable->mouseWheelCnt += dsize;
+
+					if ( ((dsize < 0) && (mdTable->fontInfo().pointSize() > 6)) ||
+						  ((dsize > 0) && (mdTable->fontInfo().pointSize() < 20)) ) {
+						QFont cfont = QFont( mdTable->font() );
+						cfont.setPointSize( cfont.pointSize() + dsize );
+						mdTable->setFont( cfont );
+						mdTable->storeFont( mdTable->font() );
+					}
+					mdTable->tv()->resizeColumnsToContents();
+				}
+				return QObject::eventFilter(obj, event);
+			}
+		}
+	}
+
+	/*!
 	 * Call superclass methode and pass the return value.
 	 */
 	return QObject::eventFilter(obj, event);

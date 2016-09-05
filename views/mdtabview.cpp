@@ -32,7 +32,6 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	//		setupContextMenu();
 
 	setStyleSheet(m_stylesheet);
-
 }
 void MdTabView::createForeignModel(const QString &tNam) {
 	/**
@@ -200,18 +199,6 @@ void MdTabView::onUpdateWriteActions() {
 /* ======================================================================== */
 /*                              Event handler                               */
 /* ======================================================================== */
-//bool MdTabView::eventFilter(QObject *obj, QEvent *event) {
-//	return QObject::eventFilter(obj, event);
-//}
-//void MdTabView::hideEvent(QHideEvent *) {
-//	//		modelCast()->storeModel(sqlTableName());
-//}
-//void MdTabView::showEvent(QShowEvent *) {
-//}
-//void MdTabView::mouseDoubleClickEvent(QMouseEvent *) {
-//	m_titleLabel->show();
-//	m_titleLabel->setText(m_titleLabel->text() + tr(" Klar?"));
-//}
 /* ======================================================================== */
 /*                             Helper methodes                              */
 /* ======================================================================== */

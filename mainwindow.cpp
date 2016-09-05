@@ -563,7 +563,7 @@ void MainWindow::createActions() {
 	/*!
 	 * Set action object tooltips.
 	 */
-	actSelFont->setToolTip(tr("Schriftart der aktuell ausgewählten Tabelle ändern."));
+	actSelFont->setToolTip(tr("Schriftart der aktuell ausgewählten Tabelle (roter Rahmen) ändern."));
 	actNew->setToolTip(tr("Create a new file"));
 	actOpen->setToolTip(tr("Open an existing file"));
 	actSave->setToolTip(tr("Save the document"));

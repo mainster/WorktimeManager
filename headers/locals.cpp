@@ -19,14 +19,16 @@ QMap<QString, QString> Md::tableAlias {
 	{ "prj",			"Projekte" },
 	{ "fehlzeit",	"Fehlzeiten" },
 	{ "worker",		"Mitarbeiter" },
-	{ "worktime",	"Arbeitszeiten" }
+	{ "arch",		"Architekt" },
+	{ "worktime",	"Arbeitszeit" },
+	{ "worker",		"Mitarbeiter" }
 };
 
 
 QFileInfo Locals::SQL_DATABASE = QFileInfo("/var/lib/mysql/delbassoSQL.db");
 QString Locals::SQL_DRIVER = QString("QSQLITE");
 QStringList Locals::PROJECT_PATHS = QStringList()
-		<< QString("/home/mainster/CODES_local/qt_creator/worktimeManagerSubDir/WorktimeManager")
+		<< QString("/home/mainster/CODES_local/qt_creator/worktimeManagerSubdirPrj/WorktimeManager")
 		<< QString("/home/mainster/CODES_local/qt_creator/WorktimeManager");
 #define QFOLDINGSTART {
 const QString Locals::browserStyleSheet = QString(

@@ -1,0 +1,123 @@
+i   cmake-qt-gui                    - Qt4 based user interface for CMake (cmake-
+i   gnuplot-qt                      - Command-line driven interactive plotting p
+i   libaccounts-qt5-1               - QT library for single sign on             
+i   libdbusmenu-qt2                 - Qt implementation of the DBusMenu protocol
+i   libpoppler-qt4-4                - PDF rendering library (Qt 4 based shared l
+i   libqt4-dbus                     - Qt 4 D-Bus module                         
+i   libqt4-dbus:i386                - Qt 4 D-Bus module                         
+i   libqt4-declarative              - Qt 4 Declarative module                   
+i   libqt4-declarative:i386         - Qt 4 Declarative module                   
+i   libqt4-designer                 - Qt 4 designer module                      
+i   libqt4-designer:i386            - Qt 4 designer module                      
+i   libqt4-help                     - Qt 4 help module                          
+i   libqt4-network                  - Qt 4 network module                       
+i   libqt4-network:i386             - Qt 4 network module                       
+i   libqt4-opengl                   - Qt 4 OpenGL module                        
+i   libqt4-opengl:i386              - Qt 4 OpenGL module                        
+i A libqt4-qt3support               - Qt 3 compatibility library for Qt 4       
+i   libqt4-qt3support:i386          - Qt 3 compatibility library for Qt 4       
+i   libqt4-script                   - Qt 4 script module                        
+i   libqt4-script:i386              - Qt 4 script module                        
+i   libqt4-scripttools              - Qt 4 script tools module                  
+i   libqt4-scripttools:i386         - Qt 4 script tools module                  
+i   libqt4-sql                      - Qt 4 SQL module                           
+i   libqt4-sql:i386                 - Qt 4 SQL module                           
+i A libqt4-sql-sqlite               - Qt 4 SQLite 3 database driver             
+i   libqt4-svg                      - Qt 4 SVG module                           
+i   libqt4-svg:i386                 - Qt 4 SVG module                           
+i   libqt4-test                     - Qt 4 test module                          
+i   libqt4-test:i386                - Qt 4 test module                          
+i   libqt4-xml                      - Qt 4 XML module                           
+i   libqt4-xml:i386                 - Qt 4 XML module                           
+i   libqt4-xmlpatterns              - Qt 4 XML patterns module                  
+i   libqt4-xmlpatterns:i386         - Qt 4 XML patterns module                  
+i   libqt5bluetooth5                - Qt Connectivity Bluetooth module          
+i A libqt5clucene5                  - Qt 5 CLucene module                       
+i A libqt5concurrent5               - Qt 5 concurrent module                    
+i   libqt5core5a                    - Qt 5 core module                          
+i   libqt5dbus5                     - Qt 5 D-Bus module                         
+i A libqt5declarative5              - Qt Quick 1 module for Qt 5                
+i A libqt5designer5                 - Qt 5 designer module                      
+i A libqt5designercomponents5       - Qt 5 Designer components module           
+i A libqt5feedback5                 - Qt Feedback module                        
+i   libqt5gui5                      - Qt 5 GUI module                           
+i A libqt5help5                     - Qt 5 help module                          
+i A libqt5multimedia5               - Qt 5 Multimedia module                    
+i   libqt5network5                  - Qt 5 network module                       
+i   libqt5opengl5                   - Qt 5 OpenGL module                        
+i   libqt5opengl5-dev               - Qt 5 OpenGL library development files     
+i   libqt5positioning5              - Qt Positioning module                     
+i   libqt5printsupport5             - Qt 5 print support module                 
+i   libqt5qml5                      - Qt 5 QML module                           
+i   libqt5quick5                    - Qt 5 Quick library                        
+i A libqt5script5                   - Qt 5 script module                        
+i   libqt5sensors5                  - Qt Sensors module                         
+i   libqt5sql5                      - Qt 5 SQL module                           
+i   libqt5sql5-sqlite               - Qt 5 SQLite 3 database driver             
+i A libqt5svg5                      - Qt 5 SVG module                           
+i   libqt5test5                     - Qt 5 test module                          
+i   libqt5webkit5                   - Web content engine library for Qt         
+i   libqt5widgets5                  - Qt 5 widgets module                       
+i   libqt5xml5                      - Qt 5 XML module                           
+i   libqtassistantclient4           - Qt Assistant client library (runtime)     
+i   libqtcore4                      - Qt 4 core module                          
+i   libqtcore4:i386                 - Qt 4 core module                          
+i   libqtdbus4                      - Qt 4 D-Bus module library                 
+i   libqtdbus4:i386                 - Qt 4 D-Bus module library                 
+i   libqtgui4                       - Qt 4 GUI module                           
+i   libqtgui4:i386                  - Qt 4 GUI module                           
+i   libqtwebkit4                    - Web content engine library for Qt         
+i   libqtwebkit4:i386               - Web content engine library for Qt         
+i   libsignon-qt5-1                 - Single Sign On framework                  
+i   python-qt4                      - Python bindings for Qt4                   
+i   python-qt4-dbus                 - D-Bus Support for PyQt4                   
+i   qt-at-spi                       - at-spi accessibility plugin for Qt        
+i   qt-faststart                    - Utility to rearrange a Quicktime file     
+i   qt4-designer                    - graphical designer for Qt 4 applications  
+i   qt4-qmlviewer                   - Qt 4 QML viewer                           
+i   qt4-qtconfig                    - Qt 4 configuration tool                   
+i   qt5-default                     - Qt 5 development defaults package         
+i   qt5-doc                         - Qt 5 API Documentation                    
+i   qt5-doc-html                    - Qt 5 API documentation (HTML format)      
+i A qt5-qmake                       - Qt 5 qmake Makefile generator tool        
+i A qtbase5-dev                     - Qt 5 base development files               
+i A qtbase5-dev-tools               - Qt 5 base development programs            
+i   qtbase5-doc                     - Qt 5 base documentation                   
+i   qtbase5-doc-html                - Qt 5 base HTML documentation              
+i   qtchooser                       - Wrapper to select between Qt development b
+i   qtcore4-l10n                    - Qt 4 core module translations             
+i A qtcreator                       - lightweight integrated development environ
+i   qtcreator-doc                   - documentation for Qt Creator IDE          
+i A qtcreator-plugin-remotelinux    - Remotelinux plugin for Qt Creator IDE     
+i   qtcreator-plugin-valgrind       - Valgrind plugin for Qt Creator IDE        
+i A qtdeclarative5-controls-plugin  - Qt 5 Quick Controls module plugin         
+i A qtdeclarative5-doc              - Qt 5 declarative documentation            
+i A qtdeclarative5-doc-html         - Qt 5 declarative HTML documentation       
+i A qtdeclarative5-quicklayouts-plu - Qt 5 Quick Layouts module plugin          
+i A qtgraphicaleffects5-doc         - Qt 5 graphical effects documentation      
+i A qtgraphicaleffects5-doc-html    - Qt 5 graphicaleffects HTML documentation  
+i A qtmultimedia5-doc               - Qt 5 multimedia documentation             
+i A qtmultimedia5-doc-html          - Qt 5 multimedia HTML documentation        
+i A qtscript5-doc                   - Qt 5 script documentation                 
+i A qtscript5-doc-html              - Qt 5 script HTML documentation            
+i A qtsensors5-doc                  - Qt 5 Sensors documentation                
+i A qtsensors5-doc-html             - Qt 5 Sensors HTML documentation           
+i A qtserialport5-doc               - Qt 5 serial port documentation            
+i A qtserialport5-doc-html          - Qt 5 serial port HTML documentation       
+i A qtsvg5-doc                      - Qt 5 SVG documentation                    
+i A qtsvg5-doc-html                 - Qt 5 SVG HTML documentation               
+i   qttools5-dev-tools              - Qt 5 development tools                    
+i A qttools5-doc                    - Qt 5 tools documentation                  
+i A qttools5-doc-html               - Qt 5 tools HTML documentation             
+i   qtubuntu-android                - Qt plugins for Ubuntu Platform API (mobile
+i A qtubuntu-sensors                - QtSensors plugins for Android sensors     
+i A qtwebkit5-doc                   - Qt 5 webkit documentation                 
+i A qtwebkit5-doc-html              - Qt 5 webkit HTML documentation            
+i A qtwebkit5-examples-doc          - Qt 5 webkit examples documentation        
+i A qtwebkit5-examples-doc-html     - Qt 5 webkit examples HTML documentation   
+i A qtx11extras5-doc                - Qt 5 X11 extras documentation             
+i A qtx11extras5-doc-html           - Qt 5 X11 extras HTML documentation        
+i A qtxmlpatterns5-doc              - Qt 5 XML patterns documentation           
+i A qtxmlpatterns5-doc-html         - Qt 5 XML patterns HTML documentation      
+i   sni-qt                          - indicator support for Qt                  
+x58a

@@ -84,6 +84,7 @@ public:
 	};
 
 	SqlRtm *clearMdlSrces();
+	int mouseWheelCnt;
 
 public slots:
 	QFont restoreFont();
@@ -119,8 +120,6 @@ protected:
 	void hideEvent(QHideEvent *);
 	void restoreColumnOrderAndVisability2();
 	void wheelEvent(QWheelEvent *event);
-
-	int mouseWheelCnt;
 
 protected slots:
 	void onClearSelection() {
