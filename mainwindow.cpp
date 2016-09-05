@@ -15,11 +15,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	browser		= new Browser(parent);
 	mDbc			= new DbController(this);
 	inpFrm		= new InpFrm(this);
-	notes.toDo	= new MDNotes(tr("toDo"), parent);
+	notes.toDo		= new MDNotes(tr("toDo"), parent);
+	notes.features	= new MDNotes(tr("feature list"), parent);
 	richEditor	= new TextEdit(this);
-	richEditor->hide();
 	filterForm	= new FilterForm(FilterForm::useSelectedSource,
 										  browser->mTabs.tvsNoPtr());
+	notes.toDo->hide();
+	notes.features->hide();
+	richEditor->hide();
 	filterForm->hide();
 
 	createActions();
@@ -33,15 +36,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 			  browser,								&Browser::onConnectWdgMetaDataReq);
 
 
-	QVBoxLayout *centralLayout = new QVBoxLayout(parent);
-	centralLayout->addWidget(browser);
-	centralLayout->addWidget(notes.toDo);
+	QVBoxLayout *vCentralLayout = new QVBoxLayout(parent);
+	QHBoxLayout *hCentralLayout = new QHBoxLayout(parent);
+	hCentralLayout->addWidget(notes.toDo);
+	hCentralLayout->addWidget(notes.features);
+	vCentralLayout->addWidget(browser);
+	vCentralLayout->addLayout(hCentralLayout);
 
 	mCentralWidget = new QWidget(parent);
-	mCentralWidget->setLayout(centralLayout);
+	mCentralWidget->setLayout(vCentralLayout);
 
 	browser->show();
-	notes.toDo->hide();
 	setCentralWidget(mCentralWidget);
 
 	/* ======================================================================== */
@@ -543,17 +548,17 @@ void MainWindow::createActions() {
 	actClose->setShortcut(			QKeySequence("Ctrl+Q"));
 	actAutoFitTables->setShortcut(QKeySequence("Ctrl+Alt+A"));
 
-	actRichEdit->setShortcuts(		QList<QKeySequence>()
-											<< QKeySequence("Ctrl+E")
-											<< QKeySequence("E"));
+//	actRichEdit->setShortcuts(		QList<QKeySequence>()
+//											<< QKeySequence("Ctrl+E")
+//											<< QKeySequence("E"));
 
-	actShowSqlQuery->setShortcuts(QList<QKeySequence>()
-											<< QKeySequence("Ctrl+E")
-											<< QKeySequence("H"));
+//	actShowSqlQuery->setShortcuts(QList<QKeySequence>()
+//											<< QKeySequence("Ctrl+E")
+//											<< QKeySequence("H"));
 
-	actResetConfig->setShortcuts(	QList<QKeySequence>()
-											<< QKeySequence("Ctrl+E")
-											<< QKeySequence("R"));
+//	actResetConfig->setShortcuts(	QList<QKeySequence>()
+//											<< QKeySequence("Ctrl+E")
+//											<< QKeySequence("R"));
 #ifdef MULTIKEY_SEQ
 	actNotes->setShortcuts(			QList<QKeySequence>()
 											<< QKeySequence("Ctrl+E")

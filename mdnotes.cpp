@@ -1,17 +1,25 @@
 #include "mdnotes.h"
 #include "ui_mdnotes.h"
 
+
 MDNotes::MDNotes(const QString settingsKey, QWidget *parent)
 	: QFrame(parent), ui(new Ui::MDNotes), mSettingsKey(settingsKey) {
 	ui->setupUi(this);
 	editor = ui->textEdit;
 
 	ui->groupBox->setTitle(objectName() + tr("/") + settingsKey);
-	ui->pbSave->setIcon(QIcon(":/images/save.png"));
-	ui->pbStrikeOut->setIcon(QIcon(":/images/greenCheck.png"));
-	ui->pbDeleteLast->setIcon(QIcon(":icoDelete"));
 
-	ui->pbSave->setShortcut(QKeySequence(tr("Ctrl+s")));
+	pbSave			= new Button_t("Speichern", "Ctrl+s", ui->pbSave, false);
+	pbDeleteLast	= new Button_t("Löschen",	"Ctrl+l", ui->pbDeleteLast, false);
+	pbStrikeOut		= new Button_t("Erledigt",	"Ctrl+e", ui->pbStrikeOut, false);
+
+	pbSave->obj->setIcon(QIcon(":/images/save.png"));
+	pbStrikeOut->obj->setIcon(QIcon(":/images/greenCheck.png"));
+	pbDeleteLast->obj->setIcon(QIcon(":icoDelete"));
+
+//	if (settingsKey.contains("toDo"))
+//		pbSave->obj->setShortcut(QKeySequence("Ctrl+s"));
+
 	/*!
 	 * Restore text edit contents.
 	 */
@@ -23,6 +31,7 @@ MDNotes::MDNotes(const QString settingsKey, QWidget *parent)
 	ui->textEdit->setTabStopWidth(20);
 	ui->textEdit->setHtml(config.value(objectName() + tr("/") + mSettingsKey).toString());
 
+	editor->installEventFilter(this);
 	/*!
 	 * Create and connect action objects.
 	 */
@@ -43,24 +52,18 @@ void MDNotes::onAnyKeyClicked(bool clicked) {
 	QPushButton *pb = qobject_cast<QPushButton *>(sender());
 	if (!pb)		return;
 
-	if (pb == ui->pbSave) {
+	if (pb == pbSave->obj) {
 		config.setValue(objectName() + tr("/") + mSettingsKey,
 							 ui->textEdit->document()->toHtml());
 		emit changed(objectName() + tr(": Note added"));
 	}
-	if (pb == ui->pbDeleteLast) {
+	if (pb == pbDeleteLast->obj) {
 		deleteLastLines(1);
 		config.setValue(objectName() + tr("/") + mSettingsKey,
 							 ui->textEdit->document()->toHtml());
 	}
-	if (pb == ui->pbStrikeOut) {
+	if (pb == pbStrikeOut->obj) {
 		toggleLineStrikeout();
-	}
-	if (pb == ui->pb1) {
-
-	}
-	if (pb == ui->pb2) {
-
 	}
 
 	config.sync();
@@ -142,3 +145,29 @@ void MDNotes::toggleLineStrikeout() {
 	emit changed(objectName() + tr(": Line %1 striked out")
 							 .arg(editor->textCursor().blockNumber() + 1));
 }
+/* ======================================================================== */
+/*                              Event handler                               */
+/* ======================================================================== */
+bool MDNotes::eventFilter(QObject *o, QEvent *e) {
+	if (e->type() == QEvent::FocusIn)
+		MDNotes::focusInEvent(static_cast<QFocusEvent *>(e));
+
+	if (e->type() == QEvent::FocusOut)
+		MDNotes::focusOutEvent(static_cast<QFocusEvent *>(e));
+
+	return QObject::eventFilter(o, e);
+}
+void MDNotes::focusOutEvent(QFocusEvent *e) {
+	pbSave->disableShortcut();
+	pbDeleteLast->disableShortcut();
+	pbStrikeOut->disableShortcut();
+	e->accept();
+}
+void MDNotes::focusInEvent(QFocusEvent *e) {
+	pbSave->enableShortcut();
+	INFO << tr("ui obj:") << ui->pbSave->shortcut().toString();
+	pbDeleteLast->enableShortcut();
+	pbStrikeOut->enableShortcut();
+	e->accept();
+}
+

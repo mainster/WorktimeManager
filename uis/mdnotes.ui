@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>503</width>
     <height>300</height>
    </rect>
   </property>
@@ -28,14 +28,7 @@
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="1" column="1">
-         <widget class="QPushButton" name="pbDeleteLast">
-          <property name="text">
-           <string>&amp;Löschen</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="5">
+        <item row="1" column="4">
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -48,36 +41,29 @@
           </property>
          </spacer>
         </item>
-        <item row="0" column="0" colspan="6">
-         <widget class="QTextEdit" name="textEdit"/>
-        </item>
-        <item row="1" column="0">
-         <widget class="QPushButton" name="pbSave">
-          <property name="text">
-           <string>&amp;Speichern</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="2">
-         <widget class="QPushButton" name="pbStrikeOut">
+         <widget class="QPushButton" name="pbDeleteLast">
           <property name="text">
-           <string>&amp;Erledigt</string>
+           <string>Löschen</string>
           </property>
          </widget>
         </item>
         <item row="1" column="3">
-         <widget class="QPushButton" name="pb1">
+         <widget class="QPushButton" name="pbStrikeOut">
           <property name="text">
-           <string>pb1</string>
+           <string>Erledigt</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="4">
-         <widget class="QPushButton" name="pb2">
+        <item row="1" column="1">
+         <widget class="QPushButton" name="pbSave">
           <property name="text">
-           <string>pb2</string>
+           <string>Speichern</string>
           </property>
          </widget>
+        </item>
+        <item row="0" column="1" colspan="4">
+         <widget class="QTextEdit" name="textEdit"/>
         </item>
        </layout>
       </item>

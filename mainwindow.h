@@ -110,7 +110,10 @@ protected slots:
 	bool restoreActionObjects();
 	void createActions();
 	void onActionGroupTrigd(QAction *sender);
-	void onActNotesToggd(bool b) { notes.toDo->setVisible(b); }
+	void onActNotesToggd(bool b) {
+		notes.toDo->setVisible(b);
+		notes.features->setVisible(b);
+	}
 	void onActRichTextToggd(bool);
 	void onActFilterWindowSource(bool);
 	void onActFilterForm(bool b);
@@ -156,7 +159,9 @@ private:
 	QTimer			*timCyc;
 
 	struct notes_t {
-		MDNotes *toDo, *comments;
+		MDNotes *toDo,
+		*comments,
+		*features;
 	} notes;
 
 	QActionGroup *actGrTbMain, *actGrTbMenu, *actGrFilterWidg;
