@@ -141,7 +141,8 @@ private:
 	QActionGroup		*actGrStrategy, *actGrContext;
 	QAction				*actInsertRow, *actDeleteRow, *actFieldStrategy,
 	*actRowStrategy, *actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask;
-
+	static const QString
+	StyleSheet_QGroupBox, StyleSheet_QTableView;
 };
 
 

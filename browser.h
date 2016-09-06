@@ -81,6 +81,13 @@ public:
 	Q_DECLARE_FLAGS(TvSelectors, TvSelector)
 	Q_FLAG(TvSelectors)
 
+	enum ColorSetTarget {
+		AlternatingRowsColor,
+		BackgroundColor,
+		GridLineColor,
+	};
+	Q_ENUMS(ColorSetTarget)
+
 	/* ======================================================================== */
 	/*                Public structure to deal with table data!                 */
 	/* ======================================================================== */
@@ -119,6 +126,7 @@ public:
 
 			if (nullIfNoSelect)
 				return NULL;
+
 			/*!
 			 * If no table widget is selected actively, use the tvc from mTvs which has
 			 * currently no model loaded.
@@ -133,6 +141,16 @@ public:
 			return tva;
 		}
 
+		/*!
+		 * Check if some table has been selected.
+		 */
+		bool hasSelected() {
+			foreach (MdTable *tv, tvsNoPtr())
+				if (tv->isSelected())
+					return true;
+			return false;
+		}
+
 		MdTable *tva, *tvb, *tvc, *tvd, *tvl1, *tvl2;
 
 	private:
@@ -142,6 +160,9 @@ public:
 	static struct mTabs_t mTabs;
 	/* ======================================================================== */
 	static QString tvStyleSheet;
+	MdMenu					*browsMenu;
+	ConnectionWidget *connectionWidget() const { return mConnectionWidget; }
+	void setFont(const QFont f);
 
 	explicit Browser(QWidget *parent = 0);
 	static Browser *instance(QWidget *parent = 0x00) {
@@ -174,6 +195,7 @@ public:
 	QList<MdTable *> *tvs() {
 		return mTabs.tvs();
 	}
+	bool selectAndSetColor(ColorSetTarget target);
 
 signals:
 	void stateMsg(const QString &message, const int delay = 0);
@@ -189,28 +211,6 @@ signals:
 	void clearSelections();
 
 public slots:
-//	bool addWorktimeRecord(int prjID, int workerID, QString date,
-//								  double hours, int worktimID = -1, MdTabView worktime = NULL) {
-//		if (worktime == NULL)
-//			worktime = mTabs.tva;
-//		SqlRtm *rtm = dynamic_cast<SqlRtm *>(mdtv->model());
-//		rtm->setEditStrategy(QSqlTableModel::OnManualSubmit);
-
-//		QSqlRecord rec = SqlRtm.record();
-//		rec.setValue(tr("prjID"),		prjID);
-//		rec.setValue(tr("workerID"),	workerID);
-//		rec.setValue(tr("dat"),			date);
-//		rec.setValue(tr("hours"),		hours);
-
-//		rtm->insertRecord(-1, rec);
-//		 if(! rtm->submitAll()) {
-//			  INFO << tr("CategoriesEditor::CategoriesEditor:")
-//					 << ConnectionWidget::currentDb().lastError().text();
-//		 }
-
-
-//	}
-
 	TvSelectors tvSelector() const	{ return m_tvSelector; }
 	QSqlDatabase getCurrentDatabase()	{ return connectionWidget()->currentDb(); }
 	void setTvSelector(TvSelectors tvSelector)	{ m_tvSelector = tvSelector; }
@@ -227,8 +227,10 @@ public slots:
 //	void onSourceTableChanged(FilterForm::SourceTableType sourceTable);
 	void requeryWorktimeTableView(QString nonDefaulQuery = "");
 	MdTable *createForeignTable(const QString &tNam, MdTable *tvc);
-
+	void selectAndSetFont();
+	void selectAndSetRowColor();
 	void resetColumnConfig();
+
 protected:
 	void createUi(QWidget *passParent = 0);
 	void createActions();
@@ -258,13 +260,6 @@ private:
 	QActionGroup		*actGrTvSelectBy, *actGrTvCount;
 	QAction				*actSelByNone, *actSelByGrBx, *actSelByVPort, *actSelByBoth;
 	int m_stateCounter;
-
-public:
-	MdMenu					*browsMenu;
-	ConnectionWidget *connectionWidget() const { return mConnectionWidget; }
-	void setFont(const QFont f);
-	void selectAndSetFont();
-	void selectAndSetRowColor();
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Browser::TvSelectors)

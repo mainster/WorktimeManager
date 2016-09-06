@@ -22,6 +22,9 @@ MdTable::MdTable(QWidget *parent) : QWidget(parent),
 	m_tv = ui->mtv;
 	m_gb->setParent(ui->gb->parentWidget());
 	m_tv->setParent(ui->mtv->parentWidget());
+
+	setStyleSheet(StyleSheet_QGroupBox +
+					  StyleSheet_QTableView);
 #else
 	m_gb = new QGroupBox(this);
 	m_tv = new QTableView(m_gb);
@@ -439,4 +442,72 @@ void MdTable::resetColumnsDefaultPos(bool allVisible) {
 	}
 	h->show();
 }
+
+#define QFOLDINGSTART {
+const QString MdTable::StyleSheet_QGroupBox = QString(
+			"QGroupBox::title {"
+			"    subcontrol-origin: margin; /* margin boarder padding content */"
+			"    subcontrol-position: top center; /* position at the top center */"
+			"    font: italic 9pt ""Arial"";"
+			"    font-weight: bold;"
+			"    top: 1.0ex;   "
+			"    padding: 0px 8px;"
+			"  padding-top: -2ex;"
+			"  color:  rgba(50,50,50,255);"
+			"} [selected=false] {"
+			"  color:  rgba(245,0,0,255);"
+			"} "
+			"QGroupBox, QGroupBox [selected=false] {"
+			"  margin-top: 1ex; /*margin-bottom: 2px; margin-left: 2px; margin-right: 2px;*/"
+			"    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
+			"    font: italic 9pt ""Arial"";"
+			"    font-weight: bold;"
+			"    border-radius: 5px;"
+			"  border: 2px solid;"
+			"  border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));"
+			"  border-left-color: rgba(105,105,105,255);"
+			"  border-right-color: rgba(105,105,105,205);"
+			"  border-bottom-color: rgba(105,105,105,205);"
+			"} [selected=true] { "
+			"  /* margin-top: 5px; margin-bottom: -2px; margin-left: -2px; margin-right: -2px; */"
+			"  border: 2px solid; "
+			"  border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(255,0,0,255), stop:1 rgba(247, 247, 247, 250));"
+			"  border-left-color: rgba(255,0,0,255);"
+			"  border-right-color: rgba(255,0,0,255);"
+			"  border-bottom-color: rgba(255,0,0,255);"
+			"}"
+			"QGroupBox::title:hover {"
+			"    color: rgba(235, 235, 235, 255);"
+			"}"
+			);
+
+const QString MdTable::StyleSheet_QTableView = QString(
+			"QTableView {"
+			"	margin-top: 1ex; "
+			"	background-color: white;"
+			" 	border-radius: 5px;"
+			"	border: 0px solid;"
+			"	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));"
+			"	border-left-color: rgba(105,105,105,255);"
+			"	border-right-color: rgba(105,105,105,205);"
+			"	border-bottom-color: rgba(105,105,105,205);"
+			" } [selected=true] {"
+			"	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); "
+			"}"
+			"QHeaderView::section {"
+			"     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+			"                                       stop:    0 #616161, stop: 0.5 #505050,"
+			"                                       stop: 0.6 #434343, stop:    1 #656565);"
+			"     color: white;"
+			"     padding-left: 4px;"
+			"     padding-right: 4px;"
+			"     padding-top: 2px;"
+			"     padding-bottom: 2px;"
+			"     border: 1px solid #6c6c6c;"
+			"}"
+			" QHeaderView::section:checked {"
+			"     background-color: rgb(31, 94, 233);"
+			"}"
+			);
+#define QFOLDINGEND }
 

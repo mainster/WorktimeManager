@@ -180,7 +180,7 @@ void Browser::execCustomQuery() {
 
 	qtv->setSortingEnabled( true );
 
-//	qtv->parentWidget()->resizeRowsColsToContents();
+	//	qtv->parentWidget()->resizeRowsColsToContents();
 	emit updateWriteActions();
 }
 /* ======================================================================== */
@@ -207,10 +207,10 @@ void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
 }
 MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 
-//	// @@@MDB
-//	MdTabView *pMdtv = new MdTabView(tNam, tvc);
-//	pMdtv->show();
-//	return NULL;
+	//	// @@@MDB
+	//	MdTabView *pMdtv = new MdTabView(tNam, tvc);
+	//	pMdtv->show();
+	//	return NULL;
 
 
 	/**
@@ -472,26 +472,26 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 		 * was a viewPort instance.
 		 */
 		switch (tvSelector()) {
-			case selectByViewPort: {
-				/*!
+		case selectByViewPort: {
+			/*!
 				 * If obj->findChild<QTableView *> could be found, obj must be a QGroupBox.
 				 */
-				if (qobject_cast<QTableView *>(
-						 obj->findChild<QTableView *>(QString(), Qt::FindDirectChildrenOnly)))
-					return QWidget::eventFilter(obj, e);
-			}; break;
+			if (qobject_cast<QTableView *>(
+					 obj->findChild<QTableView *>(QString(), Qt::FindDirectChildrenOnly)))
+				return QWidget::eventFilter(obj, e);
+		}; break;
 
-			case selectByGroupBox: {
-				/*!
+		case selectByGroupBox: {
+			/*!
 				 * If obj->parent() is a QTableView, obj must be a viewPort.
 				 */
-				if (qobject_cast<QTableView *>(obj->parent()))
-					return QWidget::eventFilter(obj, e);
-			}; break;
+			if (qobject_cast<QTableView *>(obj->parent()))
+				return QWidget::eventFilter(obj, e);
+		}; break;
 
-			case selectByNone:	return QWidget::eventFilter(obj, e);	break;
-			case selectByBoth:	break;
-			default:	qWarning();
+		case selectByNone:	return QWidget::eventFilter(obj, e);	break;
+		case selectByBoth:	break;
+		default:	qWarning();
 		}
 
 		while (! (qobject_cast<MdTable *>(treeTravers<QObject>(obj, ++k, &ok))))
@@ -804,31 +804,55 @@ void Browser::selectAndSetFont() {
 	}
 }
 void Browser::selectAndSetRowColor() {
-	if (mTabs.currentSelected(true) != NULL) {
+	selectAndSetColor(AlternatingRowsColor);
+}
+bool Browser::selectAndSetColor(ColorSetTarget target) {
+	switch (target) {
+
+	case AlternatingRowsColor: {
 		QPalette pal = mTabs.currentSelected()->tv()->palette();
-		QColor color = QColorDialog::getColor(
-								pal.background().color(), this,
-								tr("Farbe für alternierenden Zeilenhintergrund"),
-								QColorDialog::DontUseNativeDialog);
 
-		if (color.isValid())
+		QColor color = QColorDialog::getColor(
+					pal.background().color(), this,
+					tr("Farbe für alternierenden Zeilenhintergrund"),
+					QColorDialog::DontUseNativeDialog);
+
+		if (! color.isValid())
+			return false;
+
+		if (mTabs.hasSelected())
 			mTabs.currentSelected()->setAlternateRowCol(color, true);
-	}
-	else {
-		/*!
-		 * If no tv is selected, configure all tvs.
-		 */
-		QPalette pal = mTabs.tva->tv()->palette();
-		QColor color = QColorDialog::getColor(
-								pal.background().color(), this,
-								tr("Farbe für alternierenden Zeilenhintergrund"),
-								QColorDialog::DontUseNativeDialog);
-
-		if (color.isValid())
+		else
 			foreach (MdTable *tv, mTabs.tvsNoPtr())
 				tv->setAlternateRowCol(color, true);
 
+	}; break;
+
+	case GridLineColor: {
+		QPalette pal = mTabs.currentSelected()->tv()->palette();
+
+		QColor color = QColorDialog::getColor(
+					pal.background().color(), this,
+					tr("Farbe für alternierenden Zeilenhintergrund"),
+					QColorDialog::DontUseNativeDialog);
+
+		if (! color.isValid())
+			return false;
+
+		if (mTabs.hasSelected())
+			mTabs.currentSelected()->setAlternateRowCol(color, true);
+		else
+			foreach (MdTable *tv, mTabs.tvsNoPtr())
+				tv->setAlternateRowCol(color, true);
+	}; break;
+
+	case BackgroundColor: {
+
+	}; break;
+	default:		break;
 	}
+
+	return true;
 }
 void Browser::resetColumnConfig() {
 	if (mTabs.currentSelected(true) != NULL) {
