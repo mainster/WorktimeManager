@@ -99,17 +99,25 @@ public:
 			TVL1(QString("TableLong1")), TVL2(QString("TableLong2")) {	}
 
 	public:
-		QList<MdTable *> tvsNoPtr() {
-			mTvs.clear();
-			mTvs << tva << tvb << tvc
+		QList<MdTable *> tblsNoPtr() {
+			mTbls.clear();
+			mTbls << tva << tvb << tvc
 				  << tvd << tvl1 << tvl2;
+			return mTbls;
+		}
+		QList<MdTabView *> tvsNoPtr() {
+			mTvs.clear();
+			mTvs << tva->tv() << tvb->tv() << tvc->tv()
+				  << tvd->tv() << tvl1->tv() << tvl2->tv();
 			return mTvs;
 		}
-		QList<MdTable *> *tvs()	{
-			mTvs.clear();
-			mTvs << tva << tvb << tvc
-				  << tvd << tvl1 << tvl2;
+		QList<MdTabView *> *tvs()	{
+			tvsNoPtr();
 			return &mTvs;
+		}
+		QList<MdTable *> *tbls()	{
+			tblsNoPtr();
+			return &mTbls;
 		}
 		QList<QString> tvIds() {
 			return QList<QString>() << TVA << TVB << TVC
@@ -120,9 +128,9 @@ public:
 		 * Get currently selected tv.
 		 */
 		MdTable *currentSelected(bool nullIfNoSelect = false) {
-			foreach (MdTable *tv, tvsNoPtr())
-				if (tv->isSelected())
-					return tv;
+			foreach (MdTable *tbl, tblsNoPtr())
+				if (tbl->isSelected())
+					return tbl;
 
 			if (nullIfNoSelect)
 				return NULL;
@@ -131,9 +139,9 @@ public:
 			 * If no table widget is selected actively, use the tvc from mTvs which has
 			 * currently no model loaded.
 			 */
-			foreach (MdTable *tv, tvsNoPtr())
-				if (tv->tv()->model() == 0)
-					return tv;
+			foreach (MdTable *tbl, tblsNoPtr())
+				if (tbl->tv()->model() == 0)
+					return tbl;
 
 			/*!
 			 * If all tv's had an active model, return TVA.
@@ -145,8 +153,8 @@ public:
 		 * Check if some table has been selected.
 		 */
 		bool hasSelected() {
-			foreach (MdTable *tv, tvsNoPtr())
-				if (tv->isSelected())
+			foreach (MdTable *tbl, tblsNoPtr())
+				if (tbl->isSelected())
 					return true;
 			return false;
 		}
@@ -155,7 +163,8 @@ public:
 
 	private:
 		QString TVA, TVB, TVC, TVD, TVL1, TVL2;
-		QList<MdTable *>  mTvs;
+		QList<MdTable *>  mTbls;
+		QList<MdTabView *>  mTvs;
 	};
 	static struct mTabs_t mTabs;
 	/* ======================================================================== */
@@ -192,9 +201,9 @@ public:
 	void clearStyleSheet(MdTable *tv) {
 		tv->style()->unpolish(tv);
 	}
-	QList<MdTable *> *tvs() {
-		return mTabs.tvs();
-	}
+//	QList<MdTable *> *tvs() {
+//		return mTabs.tvs();
+//	}
 	bool selectAndSetColor(ColorSetTarget target);
 
 signals:
@@ -226,7 +235,7 @@ public slots:
 	void onCyclic();
 //	void onSourceTableChanged(FilterForm::SourceTableType sourceTable);
 	void requeryWorktimeTableView(QString nonDefaulQuery = "");
-	MdTable *createForeignTable(const QString &tNam, MdTable *tvc);
+	MdTable *createForeignTableOLD(const QString &tNam, MdTable *tbl);
 	void selectAndSetFont();
 	void selectAndSetRowColor();
 	void resetColumnConfig();
@@ -246,6 +255,8 @@ protected slots:
 	void onActGroupTrigd(QAction *action);
 	void storeActionState(QAction *sender);
 	bool restoreActionObjects();
+	void onTblGbMouseClicked(MdTable *sender);
+	void onTvViewPortMouseClicked(MdTabView *sender);
 
 private:
 	static Browser		*inst;

@@ -33,7 +33,7 @@ public:
 	};
 	Q_ENUM(SourceTableType)
 
-	explicit FilterForm(SourceTableType srcType, QList<MdTable *> allTvs,
+	explicit FilterForm(SourceTableType srcType, QList<MdTable *> allTbls,
 							  QWidget *parent = NULL);
 
 	~FilterForm();
@@ -55,7 +55,7 @@ public slots:
 		emit sourceTableTypeChanged(sourceTable);
 	}
 	void cbTextFilterChanged();
-	void setSourceTable(MdTable *tv);
+	void setSourceTable(MdTable *tbl);
 
 signals:
 	void visibilityChanged(bool visible);
@@ -84,7 +84,7 @@ private:
 	Ui::FilterForm *ui;
 	SfiltMdl *proxyModel;
 	SourceTableType	mSourceTableType;
-	MdTable *mTv;
+	MdTable *mTbl;
 	QGroupBox *sourceGB;
 	QGroupBox *proxyGB;
 	//	QTreeView *sourceView;

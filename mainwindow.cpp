@@ -10,7 +10,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	QSETTINGS;
 	//	initDocks();
 
-
 	stateBar		= new MDStateBar(this);
 	browser		= new Browser(parent);
 	mDbc			= new DbController(this);
@@ -19,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	notes.features	= new MDNotes(tr("feature list"), parent);
 	richEditor	= new TextEdit(this);
 	filterForm	= new FilterForm(FilterForm::useSelectedSource,
-										  browser->mTabs.tvsNoPtr());
+										  browser->mTabs.tblsNoPtr());
 	notes.toDo->hide();
 	notes.features->hide();
 	richEditor->hide();
@@ -77,8 +76,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	/*!
 	  * Connect InpFrm::newWorktimeRecord() to MdTable::update()
 	  */
-	foreach (MdTable *tv, browser->mTabs.tvsNoPtr())
-		connect(inpFrm, &InpFrm::newWorktimeRecord, tv, &MdTable::refreshView);
+	foreach (MdTable *tbl, browser->mTabs.tblsNoPtr())
+		connect(inpFrm, &InpFrm::newWorktimeRecord, tbl->tv(), &MdTabView::refreshView);
 
 	/**** Restore mainWindow geometry and window state
 	\*/
@@ -124,7 +123,7 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 	actGbSShtInpFrm->setChecked( !b );
 	actGbStyleShtA->setChecked( b );
 
-	foreach (MdTable *tv, *browser->tvs()) {
+	foreach (MdTabView *tv, browser->mTabs.tvsNoPtr()) {
 #ifdef SET_STYLESHEETS
 		tv->setStyleSheet( Globals::gbStyleShtCenterPROPERTYS);
 #else
@@ -134,9 +133,9 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 }
 void MainWindow::onUnderConstrTrig() {
 
-	browser->mTabs.tva->setColumnHidden(0, true);
-	browser->mTabs.tva->setColumnHidden(2, false);
-	browser->mTabs.tva->setColumnHidden(3, true);
+	browser->mTabs.tva->tv()->setColumnHidden(0, true);
+	browser->mTabs.tva->tv()->setColumnHidden(2, false);
+	browser->mTabs.tva->tv()->setColumnHidden(3, true);
 	return;
 	INFO << actShowSqlQuery->isCheckable() << actShowSqlQuery->isChecked();
 	actShowSqlQuery->setCheckable(true);

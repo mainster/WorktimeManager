@@ -1,17 +1,14 @@
 #include "mdtabview.h"
 
+class Browser;
+class SectionMask;
 
+#define USE_TABLE_UI
+/* ======================================================================== */
+/*                             MdTabView::MdTabView                         */
+/* ======================================================================== */
 MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	: QTableView(parent) {
-
-	//!< Create ui
-	QFrame *frame = new QFrame();
-	QGridLayout *gl = new QGridLayout(frame);
-	m_titleLabel = new QLabel(frame);
-
-	gl->addWidget(m_titleLabel);
-	gl->addWidget(this);
-	frame->setLayout(gl);
 
 	addActions( createActions() );
 
@@ -19,19 +16,27 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 		createForeignModel(tableName);
 
 	setSortingEnabled( true );
-	clearSelected();
-	installEventFilter(this);
 
 	setSizeAdjustPolicy(QTableView::AdjustToContents);
 	adjustSize();
 
-	frame->show();
+	setStyleSheet(StyleSheet_QTableView);
 
-	//		restoreFont();
-	//		initHeaders();
-	//		setupContextMenu();
+	//	/*! HACK to force redrawing if dynamic property stylesheets are used! */
+	//	#ifdef SET_STYLESHEETS
+	//		m_gb->setStyleSheet(this->m_gb->styleSheet());
+	//	#endif
 
-	setStyleSheet(m_stylesheet);
+	connect(horizontalHeader(),	&QHeaderView::sectionMoved,
+			  this,						&MdTabView::onSectionMoved);
+	connect(this,		&MdTabView::sqlTableNameChanged,
+			  this,		&MdTabView::setObjectName);
+
+	restoreFont();
+
+	QTimer::singleShot(500, this, SLOT(restoreActionObjects()));
+	//	QTimer::singleShot(8000, this, SLOT(restoreActionObjects()));
+	//	setActiveSelected( false );
 }
 void MdTabView::createForeignModel(const QString &tNam) {
 	/**
@@ -140,6 +145,12 @@ void MdTabView::createForeignModel(const QString &tNam) {
 	// Populate the model
 	rmod->select();
 
+	QTime *time = new QTime();
+	time->start();
+	while (rmod->canFetchMore())
+		rmod->fetchMore();
+	INFO << tr("Model load delay: %1ms").arg(time->elapsed());
+
 	// Set the model and hide the ID column
 	setSelectionMode(QAbstractItemView::ContiguousSelection);
 	setModel(rmod);
@@ -157,34 +168,85 @@ void MdTabView::createForeignModel(const QString &tNam) {
 	}
 	resizeRowsColsToContents();
 	//    emit updateActions();
-	setTitle(tNam);
-	//	restoreColumnOrderAndVisability();
+	setSqlTableName(tNam);
+	restoreColumnOrderAndVisability();
 	setFont(restoreFont());
 }
+void MdTabView::refreshView() {
+	this->update();
+}
 /* ======================================================================== */
-/*                            Getters / Setters                             */
+/*                           SQL record strategy                            */
 /* ======================================================================== */
-void MdTabView::setSelected(bool selected) {
-	m_selected = selected;
-#ifdef SET_STYLESHEETS
-	setStyleSheet(styleSheet());
-#endif
-	emit selectedChanged(selected);
+void MdTabView::insertRow() {
+	QModelIndex insertIndex = currentIndex();
+	int row = insertIndex.row();
+	(row != -1)
+			? insertIndex.row()
+			: 0;
+
+	model()->insertRow(row);
+	insertIndex = model()->index(row, 0);
+	setCurrentIndex(insertIndex);
+	edit(insertIndex);
 }
-void MdTabView::clearSelected() {
-	m_selected = false;
-	setStyleSheet(styleSheet());
+void MdTabView::deleteRow() {
+	QModelIndexList currentSelection =
+			selectionModel()->selectedIndexes();
+
+	for (int i = 0; i < currentSelection.count(); ++i) {
+		if (currentSelection.at(i).column() != 0)
+			continue;
+
+		model()->removeRow(currentSelection.at(i).row());
+	}
+
+	onUpdateWriteActions();
 }
-bool MdTabView::isSelected()				{ return m_selected; }
-void MdTabView::setTitle(const QString &title)  {
-	m_titleLabel->setText(title);
-	emit titleChanged(title);
+void MdTabView::setEditTriggers(QTableView::EditTriggers triggers) {
+	QTableView::setEditTriggers(triggers);
 }
-QString MdTabView::title()					{ return m_titleLabel->text(); }
+void MdTabView::onActGrStrategyTrigd(QAction *sender) {
+	if (! static_cast<SqlRtm *>(model()))
+		return;
+
+	if ((sender != actFieldStrategy) &&
+		 (sender != actRowStrategy) &&
+		 (sender != actManualStrategy))
+		qReturn("Bad sender detected!");
+
+	SqlRtm *rtm = static_cast<SqlRtm *>(model());
+
+	if (sender == actFieldStrategy)
+		rtm->setEditStrategy(QSqlTableModel::OnFieldChange);
+
+	if (sender == actRowStrategy)
+		rtm->setEditStrategy(QSqlTableModel::OnRowChange);
+
+	if (sender == actManualStrategy)
+		rtm->setEditStrategy(QSqlTableModel::OnManualSubmit);
+}
+void MdTabView::onActGrContextTrigd(QAction *sender) {
+	if (! static_cast<SqlRtm *>(model()))
+		return;
+
+	if ((sender != actSubmit) && (sender != actRevert) &&
+		 (sender != actSelect) && (sender != actInsertRow) &&
+		 (sender != actDeleteRow))
+		qReturn("Bad sender detected!");
+
+	SqlRtm *rtm = static_cast<SqlRtm *>(model());
+
+	if (sender == actSubmit)	rtm->submitAll();
+	if (sender == actRevert)	rtm->revertAll();
+	if (sender == actSelect)	rtm->select();
+	if (sender == actInsertRow) insertRow();
+	if (sender == actDeleteRow) deleteRow();
+}
 void MdTabView::onUpdateWriteActions() {
 	/*!
-		 * Check if there is a valid model set before calling update procedure.
-		 */
+	 * Check if there is a valid model set before calling update procedure.
+	 */
 
 	SqlRtm *rtm = static_cast<SqlRtm *>(model());
 	if (! rtm)	qReturn(tr("cast failed: SqlRtm *rtm = static_cast<SqlRtm *>( %1 );")
@@ -196,31 +258,48 @@ void MdTabView::onUpdateWriteActions() {
 	actInsertRow->setEnabled(currentIndex().isValid());
 	actDeleteRow->setEnabled(currentIndex().isValid());
 }
-/* ======================================================================== */
-/*                              Event handler                               */
-/* ======================================================================== */
-/* ======================================================================== */
-/*                             Helper methodes                              */
-/* ======================================================================== */
-void MdTabView::setAlternateRowCol(QColor &col, bool alternateEnabled) {
-	//		m_tv->setAlternatingRowColors(alternateEnabled);
-	if (alternateEnabled && col.isValid()) {
-		/*m_tv->*/setStyleSheet(
-					QString("alternate-background-color: rgba(%1,%2,%3,%4);")
-					.arg( col.red())
-					.arg( col.green())
-					.arg( col.blue())
-					.arg( col.alpha()) );
-		QSETTINGS;
-		config.setValue(objectName() + "/AlternateRowColEnable", alternateEnabled);
-		config.setValue(objectName() + "/AlternateRowColor", col);
-	}
+void MdTabView::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx) {
+	Q_UNUSED(oldVisualIdx);
+	qobject_cast<SqlRtm *>(model())->setSectionIdx(logicalIdx, newVisualIdx);
+	modelCast()->storeModel(sqlTableName());
 }
-void MdTabView::resizeRowsColsToContents() {
-	setVisible( false );
-	resizeColumnsToContents();
-	resizeRowsToContents();
-	setVisible( true );
+void MdTabView::onSqlTableNameChanged(const QString &name) {
+	WARN << name;
+}
+/* ======================================================================== */
+/*                              Init methodes                               */
+/* ======================================================================== */
+void MdTabView::restoreView() {
+	/** Make column/row position movable by dragging */
+	horizontalHeader()->setSectionsMovable(true);
+	verticalHeader()->setSectionsMovable(true);
+
+	/** Restore alternating row color */
+	QSETTINGS;
+	QColor color = config.value(objectName() + Md::k.alterRowColor,
+										 QColor(Qt::white)).value<QColor>();
+	if (color.isValid())
+		setAlternateRowCol(
+					color, config.value(objectName() + Md::k.altRowColOn, "true").toBool());
+
+	/*!	Restore model sources	*/
+}
+void MdTabView::restoreColumnOrderAndVisability() {
+	//!< Restore the models source members
+	modelCast()->restoreModelSrcsFromIni(sqlTableName());
+
+	//!< restoreVisibleCols(); takes access into models column-show/hide source list
+	SectionMask *sm = new SectionMask(this, this);
+	sm->restoreVisibleCols();
+	delete sm;
+
+	//!< modelCast()->sectionIdxs(); takes the section order list from model source...
+	QList<int> sectIdxs = modelCast()->sectionIdxs();
+
+	//!< ... and iterates over all elements so the restore process is complete
+	for (int k = 0; k < sectIdxs.length(); k++)
+		horizontalHeader()->moveSection(k, sectIdxs.at(k));
+
 }
 QList<QAction *> MdTabView::createActions() {
 	actInsertRow =		new QAction(tr("&Insert Row"), this);
@@ -237,8 +316,8 @@ QList<QAction *> MdTabView::createActions() {
 	/*                             Action grouping                              */
 	/* ======================================================================== */
 	/*!
-		 * Create action group for strategy actions
-		 */
+	 * Create action group for strategy actions
+	 */
 	actGrStrategy = new QActionGroup(this);
 	PONAM(actGrStrategy)->setExclusive(true);
 
@@ -252,16 +331,16 @@ QList<QAction *> MdTabView::createActions() {
 	}
 
 	/*!
-		 * Connect action group triggered signal to a common slot.
-		 */
+	 * Connect action group triggered signal to a common slot.
+	 */
 	connect(actGrStrategy, &QActionGroup::triggered, this, &MdTabView::storeActionState);
-	//		connect(actGrStrategy, &QActionGroup::triggered, this, &MdTabView::onActGrStrategyTrigd);
+	connect(actGrStrategy, &QActionGroup::triggered, this, &MdTabView::onActGrStrategyTrigd);
 
 	/* ======================================================================== */
 
 	/*!
-		 * Create action group for context menu actions.
-		 */
+	 * Create action group for context menu actions.
+	 */
 	actGrContext = new QActionGroup(this);
 	PONAM(actGrContext)->setExclusive(false);
 
@@ -273,10 +352,10 @@ QList<QAction *> MdTabView::createActions() {
 		actGrContext->addAction(act);
 
 	/*!
-		 * Connect action group triggered signal to a save-action-state slot.
-		 */
+	 * Connect action group triggered signal to a save-action-state slot.
+	 */
 	connect(actGrContext, &QActionGroup::triggered, this, &MdTabView::storeActionState);
-	//		connect(actGrContext, &QActionGroup::triggered, this, &MdTabView::onActGrContextTrigd);
+	connect(actGrContext, &QActionGroup::triggered, this, &MdTabView::onActGrContextTrigd);
 
 	/* ======================================================================== */
 	/*                       Action object configurations                       */
@@ -293,23 +372,65 @@ QList<QAction *> MdTabView::createActions() {
 	acts2 << sep1 << acts << sep2 << actSectionMask;
 	return acts2;
 }
-void MdTabView::connectActions() {
-
-	//		connect(actSectionMask, &QAction::toggled, this, &MdTabView::onActSectionMask);
+/* ======================================================================== */
+/*                              Event handler                               */
+/* ======================================================================== */
+void MdTabView::showEvent(QShowEvent *) {
 }
-void MdTabView::storeActionState(QAction *sender) {
-	QSETTINGS;
+void MdTabView::mouseDoubleClickEvent(QMouseEvent *e) {
+	actSectionMask->trigger();
+	e->accept();
+}
+void MdTabView::mousePressEvent(QMouseEvent *e) {
+	/*!
+	 * Event handler for single mouse button press events inside QTableView
+	 * viewport area.
+	 */
+	emit viewportMouseButtonPress(this);
+}
+void MdTabView::hideEvent(QHideEvent *) {
+	return; //@@@MDB
+	modelCast()->storeModel(sqlTableName());
+}
+void MdTabView::wheelEvent (QWheelEvent * event) {
+	/*!
+	 * Change font size has been moved to GlobalEventFilter::eventFilter
+	 */
 
-	if (sender->isCheckable()) {
-		/*!
-				 * If action group is exclusive, clear all action config flags.
-				 */
-		if (sender->actionGroup()->isExclusive())
-			foreach(QAction *act, sender->actionGroup()->actions())
-				config.setValue(objectName() + tr("/") + act->objectName(), false);
+	/*!
+	 * query current keyboard modifiers
+	 */
+	Qt::KeyboardModifiers keyboardModifiers = QApplication::queryKeyboardModifiers();
+	int dsize = event->delta() / abs(event->delta());     /**< Delta size */
 
-		config.setValue(objectName() + tr("/") + sender->objectName(), sender->isChecked());
-		config.sync();
+	if(keyboardModifiers == Qt::ShiftModifier) {
+		verticalScrollBar()->setValue(
+					verticalScrollBar()->value() - 4 * dsize );
+		event->accept();
+		return;
+	}
+
+	verticalScrollBar()->setValue(
+				verticalScrollBar()->value() - dsize );
+
+	event->accept();
+}
+/* ======================================================================== */
+/*                             Helper methodes                              */
+/* ======================================================================== */
+void MdTabView::setAlternateRowCol(QColor &col, bool alternateEnabled) {
+	setAlternatingRowColors(alternateEnabled);
+
+	if (alternateEnabled && col.isValid()) {
+		QTableView::setStyleSheet(
+					QString("alternate-background-color: rgba(%1,%2,%3,%4);")
+					.arg( col.red())
+					.arg( col.green())
+					.arg( col.blue())
+					.arg( col.alpha()) );
+		QSETTINGS;
+		config.setValue(objectName() + "/AlternateRowColEnable", alternateEnabled);
+		config.setValue(objectName() + "/AlternateRowColor", col);
 	}
 }
 void MdTabView::storeFont(QFont f) {
@@ -320,68 +441,109 @@ void MdTabView::storeFont(QFont f) {
 QFont MdTabView::restoreFont() {
 	QSETTINGS;
 	QFont f(config.value(objectName() + Md::k.tableFont).value<QFont>());
-	INFO << tr("Restoring MdTable::Font:") << f;
+	//	INFO << tr("Restoring MdTabView::Font:") << f;
 	setFont(f);
 	return f;
 }
+void MdTabView::resizeRowsColsToContents() {
+	setVisible( false );
+	resizeColumnsToContents();
+	resizeRowsToContents();
+	setVisible( true );
+}
+void MdTabView::setColumnHidden(const int column, const bool hide) {
+	setColumnHidden(column, hide);
+}
+void MdTabView::storeActionState(QAction *sender) {
+	QSETTINGS;
+
+	if (sender->isCheckable()) {
+		/*!
+		 * If action group is exclusive, clear all action config flags.
+		 */
+		if (sender->actionGroup()->isExclusive())
+			foreach(QAction *act, sender->actionGroup()->actions())
+				config.setValue(objectName() + tr("/") + act->objectName(), false);
+
+		config.setValue(objectName() + tr("/") + sender->objectName(), sender->isChecked());
+		config.sync();
+	}
+}
+bool MdTabView::restoreActionObjects() {
+	QSETTINGS;
+
+	//	actGrStrategy->blockSignals(true);
+	//	actGrContext->blockSignals(true);
+
+	foreach (QAction *a, QList<QAction *>()
+				<< actGrStrategy->actions()
+				<< actGrContext->actions()) {
+		if (! config.allKeys().join(',').contains(a->objectName()))
+			continue;
+		if (config.value(objectName() + tr("/") + a->objectName(), false).toBool()) {
+			if (! a->isChecked()) {
+				//				INFO << a->objectName();
+				a->trigger();
+			}
+		}
+	}
+
+	//	actGrStrategy->blockSignals(false);
+	//	actGrContext->blockSignals(false);
+
+	return true;
+}
+SqlRtm *MdTabView::modelCast() {
+	if (! qobject_cast<SqlRtm *>(model()))
+		CRIT << tr("dynamic cast failed");
+	return qobject_cast<SqlRtm *>(model());
+}
+void MdTabView::removeColumnsConfig() {
+	QSETTINGS;
+	config.remove(sqlTableName() + Md::k.centerCols);
+	config.remove(sqlTableName() + Md::k.visibleCols);
+	config.remove(sqlTableName() + Md::k.sectionIdxs);
+
+	config.sync();
+}
+void MdTabView::resetColumnsDefaultPos(bool allVisible) {
+	QHeaderView *h = horizontalHeader();
+	h->hide();
+	for (int k = 0; k < model()->columnCount(); k++) {
+		h->moveSection(h->visualIndex(k), k);
+		if (allVisible)	h->setSectionHidden(k, false);
+	}
+	h->show();
+}
 
 #define QFOLDINGSTART {
-QString MdTabView::
-m_stylesheet
-= QString(
-	  "QGroupBox::title {"
-	  "   	subcontrol-origin: margin; /* margin boarder padding content */"
-	  "   	subcontrol-position: top center; /* position at the top center */"
-	  "   	top: 1.0ex;   "
-	  "  	padding: 0px 8px;"
-	  "	color:  rgba(50,50,50,255);"
-	  "} [select=false] {"
-	  "	color:  rgba(245,0,0,255);"
-	  "} "
-	  "QGroupBox {"
-	  "   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
-	  "   	border-radius: 5px;"
-	  "	margin-top: 1ex; /*margin-bottom: 2px; margin-left: 2px; margin-right: 2px;*/"
-	  "   	font: italic 9pt ""Arial"";"
-	  "   	font-weight: normal;"
-	  "	border: 2px solid;"
-	  "	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));"
-	  "	border-left-color: rgba(105,105,105,255);"
-	  "	border-right-color: rgba(105,105,105,205);"
-	  "	border-bottom-color: rgba(105,105,105,205);"
-	  "} [select=true] { "
-	  "	/* margin-top: 5px; margin-bottom: -2px; margin-left: -2px; margin-right: -2px; */"
-	  "	border: 2px solid; "
-	  "	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(255,0,0,255), stop:1 rgba(247, 247, 247, 250));"
-	  "	border-left-color: rgba(255,0,0,255);"
-	  "	border-right-color: rgba(255,0,0,255);"
-	  "	border-bottom-color: rgba(255,0,0,255);"
-	  "}"
-	  "QGroupBox::title:hover {"
-	  "    color: rgba(235, 235, 235, 255);"
-	  "}"
-	  "QTableView {"
-	  "	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF);"
-	  "	border: 0px solid gray;"
-	  "	border-radius: 5px;"
-	  "	margin-top: 15px;	"
-	  "	gridline-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0.19 rgba(97, 97, 97, 255), stop:1 rgba(247, 247, 247, 255));"
-	  " } [select=true] {"
-	  "	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); "
-	  "}"
-	  "QHeaderView::section {"
-	  "     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
-	  "                                       stop:    0 #616161, stop: 0.5 #505050,"
-	  "                                       stop: 0.6 #434343, stop:    1 #656565);"
-	  "     color: white;"
-	  "     padding-left: 4px;"
-	  "     padding-right: 4px;"
-	  "     padding-top: 2px;"
-	  "     padding-bottom: 2px;"
-	  "     border: 1px solid #6c6c6c;"
-	  "}"
-	  " QHeaderView::section:checked {"
-	  "     background-color: rgb(31, 94, 233);"
-	  " }"
-	  );
+const QString MdTabView::StyleSheet_QTableView = QString(
+			"QTableView {"
+			"	margin-top: 1ex; "
+			"	background-color: white;"
+			" 	border-radius: 5px;"
+			"	border: 0px solid;"
+			"	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));"
+			"	border-left-color: rgba(105,105,105,255);"
+			"	border-right-color: rgba(105,105,105,205);"
+			"	border-bottom-color: rgba(105,105,105,205);"
+			" } [selected=true] {"
+			"	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); "
+			"}"
+			"QHeaderView::section {"
+			"     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+			"                                       stop:    0 #616161, stop: 0.5 #505050,"
+			"                                       stop: 0.6 #434343, stop:    1 #656565);"
+			"     color: white;"
+			"     padding-left: 4px;"
+			"     padding-right: 4px;"
+			"     padding-top: 2px;"
+			"     padding-bottom: 2px;"
+			"     border: 1px solid #6c6c6c;"
+			"}"
+			" QHeaderView::section:checked {"
+			"     background-color: rgb(31, 94, 233);"
+			"}"
+			);
 #define QFOLDINGEND }
+

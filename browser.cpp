@@ -48,13 +48,17 @@ Browser::Browser(QWidget *parent)
 
 	emit stateMsg(tr("Browser Ready."));
 
+	mTabs.tva->tv()->createForeignModel(tr("worker"));
+
 	QTimer::singleShot(50, this, SLOT(restoreUi()));
 }
 Browser::~Browser() {
 	INFO << tr("close browser!");
 	//	delete ui;
 }
-
+/* ======================================================================== */
+/*                            Callback handler                              */
+/* ======================================================================== */
 void Browser::onConnectWdgMetaDataReq(const QString &table)	{
 	mTabs.currentSelected()->tv()->setModel( tblToMetaDataMdl(table) );
 	mTabs.currentSelected()->tv()->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -71,10 +75,10 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 	/*!
 	 * Get list of all table views and requery all of them with gb name "worktime".
 	 */
-	QList<MdTable *> tvs = findChildren<MdTable *>();
-	foreach (MdTable *tv, tvs) {
-		if (! tv->grBox()->title().contains(tr("worktime")))
-			tvs.removeOne(tv);
+	QList<MdTable *> tbls = findChildren<MdTable *>();
+	foreach (MdTable *tbl, tbls) {
+		if (! tbl->tv()->sqlTableName().contains(tr("worktime")))
+			tbls.removeOne(tbl);
 	}
 
 
@@ -115,7 +119,7 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 		emit stateMsg(tr("Query OK, number of affected rows: %1").arg(
 							  queryModel->query().numRowsAffected()));
 
-	mTabs.tvl1->resizeRowsColsToContents();
+	mTabs.tvl1->tv()->resizeRowsColsToContents();
 	//	tvResp->setVisible( false );
 	//	tvResp->resizeColumnsToContents();
 	//	tvResp->resizeRowsToContents();
@@ -147,7 +151,7 @@ void Browser::exec() {
 	//	tvq->resizeRowsToContents();
 	//	tvq->setVisible( true );
 
-	mTabs.tvl1->resizeRowsColsToContents();
+	mTabs.tvl1->tv()->resizeRowsColsToContents();
 	emit updateWriteActions();
 }
 void Browser::execCustomQuery() {
@@ -200,24 +204,23 @@ void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
 				  mdtv, &MdTabView::onUpdateWriteActions);
 	}
 	else
-		createForeignTable(sqlTbl, mTabs.currentSelected());
+		mTabs.currentSelected()->tv()->createForeignModel(sqlTbl);
 
 	if (FilterForm::instance()->isVisible())
 		FilterForm::instance()->setSourceTable(mTabs.currentSelected());
 }
-MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
+MdTable *Browser::createForeignTableOLD(const QString &tNam, MdTable *tbl) {
 
-	//	// @@@MDB
 	//	MdTabView *pMdtv = new MdTabView(tNam, tvc);
 	//	pMdtv->show();
 	//	return NULL;
-
+	MdTabView *tvc = tbl->tv();
 
 	/**
 	 * Get active database pointer
 	 */
 	QSqlDatabase pDb = connectionWidget()->currentDb();
-	SqlRtm *rmod = new SqlRtm(SqlRtm::srcNew, tvc->tv(), pDb);
+	SqlRtm *rmod = new SqlRtm(SqlRtm::srcNew, tvc, pDb);
 	rmod->setEditStrategy(QSqlTableModel::OnFieldChange);
 	rmod->setTable(pDb.driver()->escapeIdentifier(tNam, QSqlDriver::TableName));
 	/**
@@ -359,7 +362,7 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 	 * Update MdTables group box title to match the prior activated sql
 	 * table name
 	 */
-	tvc->grBox()->setTitle(Md::tableAlias[tNam]);
+	tbl->gb()->setTitle(Md::tableAlias[tNam]);
 
 	/*!
 	 * Set tvcs object name to grBox()->title.
@@ -367,13 +370,13 @@ MdTable *Browser::createForeignTable(const QString &tNam, MdTable *tvc) {
 	tvc->setSqlTableName(tNam);
 	//	tvc->setObjectName(tvc->grBox()->title());
 
-	connect(this, &Browser::clearSelections,		tvc, &MdTable::clearSelected);
-	connect(tvc, &MdTable::sqlTableNameChanged,	tvc, &MdTable::onSqlTableNameChanged);
-	connect(this, &Browser::updateWriteActions,	tvc, &MdTable::onUpdateWriteActions);
+	connect(this, &Browser::clearSelections, tbl, &MdTable::clearSelected);
+	connect(tvc, &MdTabView::sqlTableNameChanged,	tvc, &MdTabView::onSqlTableNameChanged);
+	connect(this, &Browser::updateWriteActions,	tvc, &MdTabView::onUpdateWriteActions);
 
 	tvc->restoreColumnOrderAndVisability();
-	tvc->tv()->setFont(tvc->restoreFont());
-	return tvc;
+	tvc->setFont(tvc->restoreFont());
+	return tbl;
 }
 /* ======================================================================== */
 QStandardItemModel *Browser::tblToMetaDataMdl(const QString &table) {
@@ -408,17 +411,17 @@ QStandardItemModel *Browser::tblToMetaDataMdl(const QString &table) {
 	return model;
 }
 void Browser::customMenuRequested(QPoint pos) {
-	QModelIndex index = this->tvs()->first()->tv()->indexAt(pos);
+	QModelIndex index = mTabs.tblsNoPtr().first()->tv()->indexAt(pos);
 	Q_UNUSED(index);
 
 	QMenu *menu = new QMenu(this);
 	menu->addAction(new QAction("Action 1", this));
 	menu->addAction(new QAction("Action 2", this));
 	menu->addAction(new QAction("Action 3", this));
-	menu->popup(tvs()->first()->tv()->viewport()->mapToGlobal(pos));
+	menu->popup(mTabs.tblsNoPtr().first()->tv()->viewport()->mapToGlobal(pos));
 }
 void Browser::autofitRowCol() {
-	foreach (MdTable *tvc, mTabs.tvsNoPtr())
+	foreach (MdTabView *tvc, mTabs.tvsNoPtr())
 		tvc->resizeRowsColsToContents();
 }
 void Browser::onCyclic() {
@@ -438,6 +441,56 @@ void Browser::onActGroupTrigd(QAction *sender) {
 	if (sender->actionGroup() == actGrTvSelectBy)
 		setTvSelector(sender->data().value<TvSelector>());
 }
+void Browser::onTvViewPortMouseClicked(MdTabView *sender) {
+	/*!
+	 * tvSelector() returns the property which determines the valid sender objects.
+	 * This could be none, QTableView::viewport(), QGroupBox or both.
+	 * If obj->parent() obj could be casted to a QTableView, then the sender object obj
+	 * was a viewPort instance.
+	 */
+	if ((tvSelector() != selectByViewPort) &&
+		 (tvSelector() != selectByBoth))	return;
+
+	INFO << tr("Viewport mouse click:") << sender
+		  << tr("parent():") << sender->parent()
+		  << tr("parentWidget():") << sender->parentWidget()
+		  << tr("parent()->parent():") << sender->parent()->parent();
+
+	MdTable *senderTbl = dynamic_cast<MdTable *>(sender->parent()->parent());
+
+	if (! senderTbl)
+		qReturn("qobject_cast<MdTable *>(sender->parentWidget()) failed");
+
+	/*!
+	 * If the casted MdTable instance is currently NOT selected, emit the clearSelect
+	 * signal and invoke tv->setSelected();
+	 */
+	if (! senderTbl->isSelected()) {
+		emit clearSelections();
+		senderTbl->setSelected();
+	}
+}
+void Browser::onTblGbMouseClicked(MdTable *sender) {
+	/*!
+	 * tvSelector() returns the property which determines the valid sender objects.
+	 * This could be none, QTableView::viewport(), QGroupBox or both.
+	 * If obj->parent() obj could be casted to a QTableView, then the sender object obj
+	 * was a viewPort instance.
+	 */
+	if ((tvSelector() != selectByGroupBox) &&
+		 (tvSelector() != selectByBoth))	return;
+
+	INFO << tr("Groupbox mouse click:") << sender;
+	/*!
+	 * If the casted MdTable instance is currently NOT selected, emit the clearSelect
+	 * signal and invoke tv->setSelected();
+	 */
+	if (! sender->isSelected()) {
+		emit clearSelections();
+		sender->setSelected();
+		return;
+	}
+}
 /*void Browser::onSourceTableChanged(FilterForm::SourceTableType sourceTable) {
 	if (sourceTable == FilterForm::useWorktime) {
 		foreach (MdTable *tv, mTabs.tvsNoPtr()) {
@@ -455,65 +508,6 @@ void Browser::onActGroupTrigd(QAction *sender) {
 /*                              Event handler                               */
 /* ======================================================================== */
 bool Browser::eventFilter(QObject *obj, QEvent *e) {
-	MdTable *tv = NULL;
-	bool ok = true;
-	int k = 0;
-
-	/*!
-	 * Here we try determine a mouse button click within QGroupBox or QTableView::viewport()
-	 * area. If true, set current selected MdTable as the "selected" mdTable.
-	 */
-	if (e->type() == QEvent::MouseButtonPress) {
-
-		/*!
-		 * tvSelector() returns the property which determines the valid sender objects.
-		 * This could be none, QTableView::viewport(), QGroupBox or both.
-		 * If obj->parent() obj could be casted to a QTableView, then the sender object obj
-		 * was a viewPort instance.
-		 */
-		switch (tvSelector()) {
-		case selectByViewPort: {
-			/*!
-				 * If obj->findChild<QTableView *> could be found, obj must be a QGroupBox.
-				 */
-			if (qobject_cast<QTableView *>(
-					 obj->findChild<QTableView *>(QString(), Qt::FindDirectChildrenOnly)))
-				return QWidget::eventFilter(obj, e);
-		}; break;
-
-		case selectByGroupBox: {
-			/*!
-				 * If obj->parent() is a QTableView, obj must be a viewPort.
-				 */
-			if (qobject_cast<QTableView *>(obj->parent()))
-				return QWidget::eventFilter(obj, e);
-		}; break;
-
-		case selectByNone:	return QWidget::eventFilter(obj, e);	break;
-		case selectByBoth:	break;
-		default:	qWarning();
-		}
-
-		while (! (qobject_cast<MdTable *>(treeTravers<QObject>(obj, ++k, &ok))))
-			if (! ok)	break;
-
-		tv = qobject_cast<MdTable *>(treeTravers<QObject>(obj, k, &ok));
-
-		if (tv == NULL)
-			bReturn("Cannot cast sender of mouse click event!");
-
-		/*!
-		 * If the casted MdTable instance is currently NOT selected, emit the clearSelect
-		 * signal and invoke tv->setSelected();
-		 */
-		if (! tv->isSelected()) {
-			emit clearSelections();
-			tv->setSelected();
-			e->accept();
-			return true;
-		}
-	}
-
 	/**
 	  * standard event processing
 	  */
@@ -539,9 +533,9 @@ void Browser::closeEvent(QCloseEvent *) {
 
 	/**** Write mdTable <-> SQL table relations
 	  \*/
-	foreach (MdTable *tv, mTabs.tvsNoPtr())
-		config.setValue(objectName() + "/" + tv->objectName(),
-							 /*tv->grBox()->title()*/ tv->sqlTableName());
+	foreach (MdTable *tbl, mTabs.tblsNoPtr())
+		config.setValue(objectName() + "/" + tbl->objectName(),
+							 /*tv->grBox()->title()*/ tbl->tv()->sqlTableName());
 
 	/**** Safe all action states from Browser
 	\*/
@@ -560,13 +554,13 @@ bool Browser::restoreUi() {
 
 	/**** Restore mdTable <-> SQL table assignements, but only if valid keys are stored
 	 \*/
-	foreach (MdTable *tv, mTabs.tvsNoPtr()) {
+	foreach (MdTabView *tv, mTabs.tvsNoPtr()) {
 		if (! config.allKeys().join(',').contains( tv->objectName() ))
 			continue;
 
 		QString tabNam = config.value(objectName() + tr("/") + tv->objectName()).toString();
 		tv->restoreView();
-		createForeignTable( tabNam, tv );
+		tv->createForeignModel(tabNam);
 	}
 
 	/**** Restore all action states from Browser
@@ -575,8 +569,8 @@ bool Browser::restoreUi() {
 
 	/**** Restore table font configs
 	\*/
-	//	INFO << mTabs.tva->confTableFont();
-	//	INFO << mTabs.tva->confTableFont();
+	//	INFO << mTabs.tva->tv()->confTableFont();
+	//	INFO << mTabs.tva->tv()->confTableFont();
 	return ret;
 }
 void Browser::createActions() {
@@ -649,19 +643,12 @@ void Browser::createUi(QWidget *passParent) {
 	grLay = new QGridLayout(passParent);
 	mConnectionWidget = new ConnectionWidget(passParent);
 
-	mTabs.tva = new MdTable(passParent);
-	mTabs.tvb = new MdTable(passParent);
-	mTabs.tvc = new MdTable(passParent);
-	mTabs.tvd = new MdTable(passParent);
-	mTabs.tvl1 = new MdTable(passParent);
-	mTabs.tvl2 = new MdTable(passParent);
-
-	mTabs.tva->setObjectName(tr("tva"));
-	mTabs.tvb->setObjectName(tr("tvb"));
-	mTabs.tvc->setObjectName(tr("tvc"));
-	mTabs.tvd->setObjectName(tr("tvd"));
-	mTabs.tvl1->setObjectName(tr("tvl1"));
-	mTabs.tvl2->setObjectName(tr("tvl2"));
+	mTabs.tva = new MdTable(tr("tva"), QString(), passParent);
+	mTabs.tvb = new MdTable(tr("tvb"), QString(), passParent);
+	mTabs.tvc = new MdTable(tr("tvc"), QString(), passParent);
+	mTabs.tvd = new MdTable(tr("tvd"), QString(), passParent);
+	mTabs.tvl1 = new MdTable(tr("tvl1"), QString(), passParent);
+	mTabs.tvl2 = new MdTable(tr("tvl2"), QString(), passParent);
 
 	splitter = new QSplitter(passParent);
 	splitter_2 = new QSplitter(passParent);
@@ -714,16 +701,26 @@ void Browser::createUi(QWidget *passParent) {
 
 	QList<QString> accName = mTabs.tvIds();
 
-	foreach (MdTable *tv, mTabs.tvsNoPtr()) {
+	foreach (MdTable *tbl, mTabs.tblsNoPtr()) {
 		QString currentName = accName.takeFirst();
-		tv->setAccessibleName( currentName );
-		tv->setObjectName( currentName );
+		tbl->tv()->setAccessibleName( currentName );
+		tbl->tv()->setObjectName( currentName );
 
-		tv->setToolTip( tr("Tooltip: ") + currentName);
-		tv->setContextMenuPolicy(Qt::ActionsContextMenu);
-		tv->grBox()->installEventFilter( this );
-		tv->tv()->viewport()->installEventFilter( this );
-		tv->grBox()->setObjectName("gb");
+		tbl->tv()->setToolTip( tr("Tooltip: ") + currentName);
+		tbl->tv()->setContextMenuPolicy(Qt::ActionsContextMenu);
+		connect(this,	&Browser::clearSelections,
+				  tbl,	&MdTable::clearSelected);
+		connect(this,			&Browser::updateWriteActions,
+				  tbl->tv(),	&MdTabView::onUpdateWriteActions);
+
+		connect(tbl->tv(),	&MdTabView::viewportMouseButtonPress,
+				  this,			&Browser::onTvViewPortMouseClicked);
+		connect(tbl,			&MdTable::groupBoxMouseButtonPress,
+				  this,			&Browser::onTblGbMouseClicked);
+
+		//		tbl->gb()->installEventFilter( this );
+		//		tbl->tv()->viewport()->installEventFilter( this );
+		//		tbl->gb()->setObjectName("gb");
 	}
 }
 bool Browser::restoreActionObjects () {
@@ -792,15 +789,15 @@ void Browser::storeActionState(QAction *sender) {
 }
 void Browser::selectAndSetFont() {
 	if (mTabs.currentSelected(true) != NULL)
-		mTabs.currentSelected()->storeFont(
+		mTabs.currentSelected()->tv()->storeFont(
 					QFontDialog::getFont(&ok, mTabs.currentSelected()->tv()->font(), this));
 	else {
 		/*!
 		 * If no tv is selected, configure all tvs.
 		 */
 		QFont f = QFontDialog::getFont(&ok, QFont("Helvetica [Cronyx]", 10), this);
-		foreach (MdTable *_tv, mTabs.tvsNoPtr())
-			_tv->storeFont(f);
+		foreach (MdTabView *tv, mTabs.tvsNoPtr())
+			tv->storeFont(f);
 	}
 }
 void Browser::selectAndSetRowColor() {
@@ -821,9 +818,9 @@ bool Browser::selectAndSetColor(ColorSetTarget target) {
 			return false;
 
 		if (mTabs.hasSelected())
-			mTabs.currentSelected()->setAlternateRowCol(color, true);
+			mTabs.currentSelected()->tv()->setAlternateRowCol(color, true);
 		else
-			foreach (MdTable *tv, mTabs.tvsNoPtr())
+			foreach (MdTabView *tv, mTabs.tvsNoPtr())
 				tv->setAlternateRowCol(color, true);
 
 	}; break;
@@ -840,9 +837,9 @@ bool Browser::selectAndSetColor(ColorSetTarget target) {
 			return false;
 
 		if (mTabs.hasSelected())
-			mTabs.currentSelected()->setAlternateRowCol(color, true);
+			mTabs.currentSelected()->tv()->setAlternateRowCol(color, true);
 		else
-			foreach (MdTable *tv, mTabs.tvsNoPtr())
+			foreach (MdTabView *tv, mTabs.tvsNoPtr())
 				tv->setAlternateRowCol(color, true);
 	}; break;
 
@@ -855,13 +852,13 @@ bool Browser::selectAndSetColor(ColorSetTarget target) {
 	return true;
 }
 void Browser::resetColumnConfig() {
-	if (mTabs.currentSelected(true) != NULL) {
-		mTabs.currentSelected()->resetColumnsDefaultPos(true);
-		mTabs.currentSelected()->removeColumnsConfig();
-		mTabs.currentSelected()->modelCast()->resetModelSrcs();
+	if (mTabs.hasSelected()) {
+		mTabs.currentSelected()->tv()->resetColumnsDefaultPos(true);
+		mTabs.currentSelected()->tv()->removeColumnsConfig();
+		mTabs.currentSelected()->tv()->modelCast()->resetModelSrcs();
 	}
 	else {
-		foreach (MdTable *tv, mTabs.tvsNoPtr()) {
+		foreach (MdTabView *tv, mTabs.tvsNoPtr()) {
 			tv->resetColumnsDefaultPos(true);
 			tv->removeColumnsConfig();
 			tv->modelCast()->resetModelSrcs();

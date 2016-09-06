@@ -7,10 +7,10 @@ const QString FilterForm::PROXY_GROUPBOX_TITLE_PREFIX = QString("Proxy model [%1
 const QString FilterForm::SOURCE_GROUPBOX_TITLE_PREFIX = QString("Source model [%1 rows]");
 
 
-FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTvs, QWidget *parent)
+FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTbls, QWidget *parent)
 	: QWidget(parent), ui(new Ui::FilterForm), mSourceTableType(srcType) {
 	inst = this;
-	mTv = NULL;
+	mTbl = NULL;
 
 	ui->setupUi(this);
 	proxyModel = new SfiltMdl(this);
@@ -64,8 +64,8 @@ FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTvs, QWidget
 	setWindowTitle(WINDOW_TITLE_PREFIX);
 	resize(500, 900);
 
-	foreach (MdTable *tv, allTvs)
-		connect (tv, &MdTable::selectedChanged, this, &FilterForm::onSelectedTableChange);
+	foreach (MdTable *tbl, allTbls)
+		connect (tbl, &MdTable::selectedChanged, this, &FilterForm::onSelectedTableChange);
 
 	installEventFilter(this);
 }
@@ -73,22 +73,22 @@ FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTvs, QWidget
 FilterForm::~FilterForm() {
 	delete ui;
 }
-void FilterForm::setSourceTable(MdTable *tv) {
+void FilterForm::setSourceTable(MdTable *tbl) {
 	if (sourceTableType() == SourceTableType::useWorktimeSource)
-		if (! tv->objectName().contains("worktime"))
+		if (! tbl->objectName().contains("worktime"))
 			qReturn(QString(tr("SourceTableType::useWorktime but want to set ")
-								 + tv->objectName()).toStdString().c_str());
+								 + tbl->objectName()).toStdString().c_str());
 
-	if (mTv != tv) {
-		mTv = tv;
-		sourceView->setModel(mTv->tv()->model());
-		proxyModel->setSourceModel(mTv->tv()->model());
+	if (mTbl != tbl) {
+		mTbl = tbl;
+		sourceView->setModel(mTbl->tv()->model());
+		proxyModel->setSourceModel(mTbl->tv()->model());
 
-		setWindowTitle(WINDOW_TITLE_PREFIX.arg(mTv->sqlTableName()));
+		setWindowTitle(WINDOW_TITLE_PREFIX.arg(mTbl->tv()->sqlTableName()));
 		onSourceRowCountChanged(0, sourceView->model()->rowCount());
 
 
-		INFO << tr("New source view [%1] activated!").arg(tv->objectName());
+		INFO << tr("New source view [%1] activated!").arg(tbl->objectName());
 	}
 }
 void FilterForm::textFilterChanged() {

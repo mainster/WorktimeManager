@@ -70,8 +70,8 @@ bool GlobalEventFilter::eventFilter(QObject *obj, QEvent *event) {
 						  ((dsize > 0) && (mdTable->fontInfo().pointSize() < 20)) ) {
 						QFont cfont = QFont( mdTable->font() );
 						cfont.setPointSize( cfont.pointSize() + dsize );
-						mdTable->setFont( cfont );
-						mdTable->storeFont( mdTable->font() );
+						mdTable->tv()->setFont( cfont );
+						mdTable->tv()->storeFont( mdTable->tv()->font() );
 					}
 					mdTable->tv()->resizeColumnsToContents();
 				}

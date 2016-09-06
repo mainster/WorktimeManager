@@ -29,75 +29,100 @@
 #include "models.h"
 #include "sectionmask.h"
 
+
 /* ======================================================================== */
-/*                             class MdTabView                              */
+/*                              class MdTabView                               */
 /* ======================================================================== */
+#define SET_STYLESHEETS
+
 class MdTabView : public QTableView {
 
 	Q_OBJECT
-	Q_PROPERTY(bool selected READ isSelected WRITE setSelected NOTIFY selectedChanged)
-	Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged)
+//	Q_PROPERTY(bool selected READ isSelected WRITE setSelected NOTIFY selectedChanged)
+	Q_PROPERTY(QString sqlTableName READ sqlTableName WRITE setSqlTableName NOTIFY sqlTableNameChanged)
 
 public:
-	explicit MdTabView(QWidget *parent = 0) : QTableView(parent) {
-		MdTabView(QString(), parent);
+	explicit MdTabView(const QString &tableName = QString(), QWidget *parent = 0);
+	~MdTabView() {}
+
+	void setSelectionMode(QAbstractItemView::SelectionMode mode) {
+		QTableView::setSelectionMode(mode);
 	}
-	explicit MdTabView(const QString &tableName, QWidget *parent = 0);
-	~MdTabView() { }
+	QItemSelectionModel *selectionModel() {
+		return QTableView::selectionModel();
+	}
 
+	/* ======================================================================== */
+	/*                            Getters / Setters                             */
+	/* ======================================================================== */
+//	QGroupBox *grBox() const	{ return m_gb; }
+	MdTabView *tv() const;
+	QString &sqlTableName()		{ return m_sqlTableName; }
+	void setSqlTableName(const QString &name) {
+		m_sqlTableName = name;
+		emit sqlTableNameChanged(m_sqlTableName);
+	}
+	SqlRtm *clearMdlSrces();
 	void createForeignModel(const QString &tNam);
-	void onUpdateWriteActions();
-	bool isSelected();
-	QString title();
+	QAction *getActSectionMask() const { return actSectionMask; }
+	void setActSectionMask(QAction *value) { actSectionMask = value; }
 
+
+
+//	int mouseWheelCnt;
 public slots:
-	void setSelected(bool selected = true);
-	void clearSelected();
-	void setTitle(const QString &title);
+	QFont restoreFont();
+	SqlRtm *modelCast();
+	void deleteRow();
+	void insertRow();
+	void onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx);
+	void onSqlTableNameChanged(const QString &name);
+	void onUpdateWriteActions();
+	void refreshView();
+	void removeColumnsConfig();
+	void resetColumnsDefaultPos(bool allVisible);
+	void resizeRowsColsToContents();
+	void restoreColumnOrderAndVisability();
+	void restoreView();
+	void setAlternateRowCol(QColor &col, bool alternateEnabled = true);
+	void setColumnHidden(const int column, const bool hide);
+	void setEditTriggers(QTableView::EditTriggers triggers);
+	void storeFont(QFont font);
 
 signals:
-	void titleChanged(const QString &name);
-	void selectedChanged(bool isSelected);
+	void sqlTableNameChanged(const QString &name);
+	void viewportMouseButtonPress(MdTabView *sender);
 
 protected:
-	void setAlternateRowCol(QColor &col, bool alternateEnabled);
-	void storeFont(QFont f);
-	void storeActionState(QAction *sender);
 	QList<QAction *> createActions();
-	void connectActions();
+	virtual void showEvent(QShowEvent *) override;
+	virtual void mouseDoubleClickEvent(QMouseEvent *e) override;
+//	bool eventFilter(QObject *obj, QEvent *event);
+	void hideEvent(QHideEvent *);
+	void restoreColumnOrderAndVisability2();
+	void wheelEvent(QWheelEvent *event);
 
+	void mousePressEvent(QMouseEvent *e);
 protected slots:
-	QFont restoreFont();
-	void resizeRowsColsToContents();
+	void onClearSelection() {
+
+	}
+//	void onActSectionMask(bool sectionMask = false);
+	void onActGrStrategyTrigd(QAction *sender);
+	void onActGrContextTrigd(QAction *sender);
+	void storeActionState(QAction *sender);
+	bool restoreActionObjects();
 
 private:
-	void setStyleSheet(const QString& styleSheet) {
-		QWidget::setStyleSheet( styleSheet );
-		style()->unpolish(this);
-		style()->polish(this);
-		update();
-	}
-	void resetStyleSheet() {
-		setStyleSheet(styleSheet());
-		style()->unpolish(this);
-		style()->polish(this);
-	}
-	void clearStyleSheet() {
-		style()->unpolish(this);
-	}
-//	void showEvent(QShowEvent *);
-//	void mouseDoubleClickEvent(QMouseEvent *);
-//	bool eventFilter(QObject *obj, QEvent *event);
-//	void hideEvent(QHideEvent *);
-
-	static QString		m_stylesheet;
-	SectionMask			*m_sectMsk;
-	QLabel				*m_titleLabel;
-	bool					m_selected;
-
+//	QGroupBox         *m_gb;
+	QString				m_sqlTableName;
 	QActionGroup		*actGrStrategy, *actGrContext;
 	QAction				*actInsertRow, *actDeleteRow, *actFieldStrategy,
 	*actRowStrategy, *actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask;
+	static const QString
+	StyleSheet_QGroupBox, StyleSheet_QTableView;
 };
 
-#endif // MDTABVIEW_H
+
+
+#endif // MDTABLE_H
