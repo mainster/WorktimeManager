@@ -36,7 +36,7 @@ class MdTabView : public QTableView {
 
 	Q_OBJECT
 	Q_PROPERTY(bool selected READ isSelected WRITE setSelected NOTIFY selectedChanged)
-	Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged)
+	Q_PROPERTY(QString sqlTableName READ sqlTableName WRITE setSqlTableName NOTIFY sqlTableNameChanged)
 
 public:
 	explicit MdTabView(QWidget *parent = 0) : QTableView(parent) {
@@ -48,15 +48,18 @@ public:
 	void createForeignModel(const QString &tNam);
 	void onUpdateWriteActions();
 	bool isSelected();
-	QString title();
+	QString &sqlTableName()		{ return m_sqlTableName; }
+	void setSqlTableName(const QString &name) {
+		m_sqlTableName = name;
+		emit sqlTableNameChanged(name);
+	}
 
 public slots:
 	void setSelected(bool selected = true);
 	void clearSelected();
-	void setTitle(const QString &title);
 
 signals:
-	void titleChanged(const QString &name);
+	void sqlTableNameChanged(const QString &name);
 	void selectedChanged(bool isSelected);
 
 protected:
@@ -92,12 +95,16 @@ private:
 
 	static QString		m_stylesheet;
 	SectionMask			*m_sectMsk;
-	QLabel				*m_titleLabel;
 	bool					m_selected;
+	QString				m_sqlTableName;
+	QGroupBox			*m_gb;
 
 	QActionGroup		*actGrStrategy, *actGrContext;
 	QAction				*actInsertRow, *actDeleteRow, *actFieldStrategy,
 	*actRowStrategy, *actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask;
+	static const QString
+	StyleSheet_QGroupBox, StyleSheet_QTableView;
+
 };
 
 #endif // MDTABVIEW_H

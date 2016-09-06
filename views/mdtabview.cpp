@@ -2,16 +2,14 @@
 
 
 MdTabView::MdTabView(const QString &tableName, QWidget *parent)
-	: QTableView(parent) {
+	/*: QTableView(parent)*/ {
 
 	//!< Create ui
-	QFrame *frame = new QFrame(parent);
-	QGridLayout *gl = new QGridLayout(frame);
-	m_titleLabel = new QLabel(frame);
+	m_gb = new QGroupBox(parent);
+	QGridLayout *gl = new QGridLayout();
 
-	gl->addWidget(m_titleLabel);
 	gl->addWidget(this);
-	frame->setLayout(gl);
+	m_gb->setLayout(gl);
 
 	addActions( createActions() );
 
@@ -25,13 +23,12 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	setSizeAdjustPolicy(QTableView::AdjustToContents);
 	adjustSize();
 
-	frame->show();
-
-	//		restoreFont();
+	m_gb->show();
+//		restoreFont();
 	//		initHeaders();
 	//		setupContextMenu();
 
-	setStyleSheet(m_stylesheet);
+	setStyleSheet(StyleSheet_QGroupBox + tr("\n") + StyleSheet_QTableView);
 }
 void MdTabView::createForeignModel(const QString &tNam) {
 	/**
@@ -157,7 +154,7 @@ void MdTabView::createForeignModel(const QString &tNam) {
 	}
 	resizeRowsColsToContents();
 	//    emit updateActions();
-	setTitle(tNam);
+	m_gb->setTitle(tNam);
 	//	restoreColumnOrderAndVisability();
 	setFont(restoreFont());
 }
@@ -176,11 +173,6 @@ void MdTabView::clearSelected() {
 	setStyleSheet(styleSheet());
 }
 bool MdTabView::isSelected()				{ return m_selected; }
-void MdTabView::setTitle(const QString &title)  {
-	m_titleLabel->setText(title);
-	emit titleChanged(title);
-}
-QString MdTabView::title()					{ return m_titleLabel->text(); }
 void MdTabView::onUpdateWriteActions() {
 	/*!
 		 * Check if there is a valid model set before calling update procedure.
@@ -326,62 +318,70 @@ QFont MdTabView::restoreFont() {
 }
 
 #define QFOLDINGSTART {
-QString MdTabView::
-m_stylesheet
-= QString(
-	  "QGroupBox::title {"
-	  "   	subcontrol-origin: margin; /* margin boarder padding content */"
-	  "   	subcontrol-position: top center; /* position at the top center */"
-	  "   	top: 1.0ex;   "
-	  "  	padding: 0px 8px;"
-	  "	color:  rgba(50,50,50,255);"
-	  "} [select=false] {"
-	  "	color:  rgba(245,0,0,255);"
-	  "} "
-	  "QGroupBox {"
-	  "   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
-	  "   	border-radius: 5px;"
-	  "	margin-top: 1ex; /*margin-bottom: 2px; margin-left: 2px; margin-right: 2px;*/"
-	  "   	font: italic 9pt ""Arial"";"
-	  "   	font-weight: normal;"
-	  "	border: 2px solid;"
-	  "	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));"
-	  "	border-left-color: rgba(105,105,105,255);"
-	  "	border-right-color: rgba(105,105,105,205);"
-	  "	border-bottom-color: rgba(105,105,105,205);"
-	  "} [select=true] { "
-	  "	/* margin-top: 5px; margin-bottom: -2px; margin-left: -2px; margin-right: -2px; */"
-	  "	border: 2px solid; "
-	  "	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(255,0,0,255), stop:1 rgba(247, 247, 247, 250));"
-	  "	border-left-color: rgba(255,0,0,255);"
-	  "	border-right-color: rgba(255,0,0,255);"
-	  "	border-bottom-color: rgba(255,0,0,255);"
-	  "}"
-	  "QGroupBox::title:hover {"
-	  "    color: rgba(235, 235, 235, 255);"
-	  "}"
-	  "QTableView {"
-	  "	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0F0, stop: 1 #FFFFFF);"
-	  "	border: 0px solid gray;"
-	  "	border-radius: 5px;"
-	  "	margin-top: 15px;	"
-	  "	gridline-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0.19 rgba(97, 97, 97, 255), stop:1 rgba(247, 247, 247, 255));"
-	  " } [select=true] {"
-	  "	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); "
-	  "}"
-	  "QHeaderView::section {"
-	  "     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
-	  "                                       stop:    0 #616161, stop: 0.5 #505050,"
-	  "                                       stop: 0.6 #434343, stop:    1 #656565);"
-	  "     color: white;"
-	  "     padding-left: 4px;"
-	  "     padding-right: 4px;"
-	  "     padding-top: 2px;"
-	  "     padding-bottom: 2px;"
-	  "     border: 1px solid #6c6c6c;"
-	  "}"
-	  " QHeaderView::section:checked {"
-	  "     background-color: rgb(31, 94, 233);"
-	  " }"
-	  );
+const QString MdTabView::StyleSheet_QGroupBox = QString(
+			"QGroupBox::title {"
+			"    subcontrol-origin: margin; /* margin boarder padding content */"
+			"    subcontrol-position: top center; /* position at the top center */"
+			"    font: italic 9pt ""Arial"";"
+			"    font-weight: bold;"
+			"    top: 1.0ex;   "
+			"    padding: 0px 8px;"
+			"  padding-top: -2ex;"
+			"  color:  rgba(50,50,50,255);"
+			"} [selected=false] {"
+			"  color:  rgba(245,0,0,255);"
+			"} "
+			"QGroupBox, QGroupBox [selected=false] {"
+			"  margin-top: 1ex; /*margin-bottom: 2px; margin-left: 2px; margin-right: 2px;*/"
+			"    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
+			"    font: italic 9pt ""Arial"";"
+			"    font-weight: bold;"
+			"    border-radius: 5px;"
+			"  border: 2px solid;"
+			"  border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));"
+			"  border-left-color: rgba(105,105,105,255);"
+			"  border-right-color: rgba(105,105,105,205);"
+			"  border-bottom-color: rgba(105,105,105,205);"
+			"} [selected=true] { "
+			"  /* margin-top: 5px; margin-bottom: -2px; margin-left: -2px; margin-right: -2px; */"
+			"  border: 2px solid; "
+			"  border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(255,0,0,255), stop:1 rgba(247, 247, 247, 250));"
+			"  border-left-color: rgba(255,0,0,255);"
+			"  border-right-color: rgba(255,0,0,255);"
+			"  border-bottom-color: rgba(255,0,0,255);"
+			"}"
+			"QGroupBox::title:hover {"
+			"    color: rgba(235, 235, 235, 255);"
+			"}"
+			);
+
+const QString MdTabView::StyleSheet_QTableView = QString(
+			"QTableView {"
+			"	margin-top: 1ex; "
+			"	background-color: white;"
+			" 	border-radius: 5px;"
+			"	border: 0px solid;"
+			"	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));"
+			"	border-left-color: rgba(105,105,105,255);"
+			"	border-right-color: rgba(105,105,105,205);"
+			"	border-bottom-color: rgba(105,105,105,205);"
+			" } [selected=true] {"
+			"	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); "
+			"}"
+			"QHeaderView::section {"
+			"     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+			"                                       stop:    0 #616161, stop: 0.5 #505050,"
+			"                                       stop: 0.6 #434343, stop:    1 #656565);"
+			"     color: white;"
+			"     padding-left: 4px;"
+			"     padding-right: 4px;"
+			"     padding-top: 2px;"
+			"     padding-bottom: 2px;"
+			"     border: 1px solid #6c6c6c;"
+			"}"
+			" QHeaderView::section:checked {"
+			"     background-color: rgb(31, 94, 233);"
+			"}"
+			);
 #define QFOLDINGEND }
+
