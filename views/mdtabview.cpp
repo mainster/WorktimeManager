@@ -158,6 +158,11 @@ void MdTabView::createForeignModel(const QString &tNam) {
 	//	restoreColumnOrderAndVisability();
 	setFont(restoreFont());
 }
+void MdTabView::setSqlTable(const QString &tableName) {
+	if (!tableName.isEmpty())
+		createForeignModel(tableName);
+}
+
 /* ======================================================================== */
 /*                            Getters / Setters                             */
 /* ======================================================================== */

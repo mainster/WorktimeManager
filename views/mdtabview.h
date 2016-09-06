@@ -49,10 +49,7 @@ public:
 	void onUpdateWriteActions();
 	bool isSelected();
 	QString &sqlTableName()		{ return m_sqlTableName; }
-	void setSqlTableName(const QString &name) {
-		m_sqlTableName = name;
-		emit sqlTableNameChanged(name);
-	}
+	void setSqlTable(const QString &tableName);
 
 public slots:
 	void setSelected(bool selected = true);
@@ -68,6 +65,10 @@ protected:
 	void storeActionState(QAction *sender);
 	QList<QAction *> createActions();
 	void connectActions();
+	void setSqlTableName(const QString &name) {
+		m_sqlTableName = name;
+		emit sqlTableNameChanged(name);
+	}
 
 protected slots:
 	QFont restoreFont();
