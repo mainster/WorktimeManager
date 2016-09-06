@@ -5,7 +5,7 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	: QTableView(parent) {
 
 	//!< Create ui
-	QFrame *frame = new QFrame();
+	QFrame *frame = new QFrame(parent);
 	QGridLayout *gl = new QGridLayout(frame);
 	m_titleLabel = new QLabel(frame);
 
