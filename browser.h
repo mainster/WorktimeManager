@@ -235,7 +235,6 @@ public slots:
 	void onCyclic();
 //	void onSourceTableChanged(FilterForm::SourceTableType sourceTable);
 	void requeryWorktimeTableView(QString nonDefaulQuery = "");
-	MdTable *createForeignTableOLD(const QString &tNam, MdTable *tbl);
 	void selectAndSetFont();
 	void selectAndSetRowColor();
 	void resetColumnConfig();

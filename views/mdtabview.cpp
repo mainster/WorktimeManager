@@ -260,7 +260,9 @@ void MdTabView::onUpdateWriteActions() {
 }
 void MdTabView::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx) {
 	Q_UNUSED(oldVisualIdx);
-	qobject_cast<SqlRtm *>(model())->setSectionIdx(logicalIdx, newVisualIdx);
+	if (! modelCast())
+		CRIT << tr("ModelCast failed");
+	modelCast()->setSectionIdx(logicalIdx, newVisualIdx);
 	modelCast()->storeModel(sqlTableName());
 }
 void MdTabView::onSqlTableNameChanged(const QString &name) {
@@ -286,6 +288,8 @@ void MdTabView::restoreView() {
 }
 void MdTabView::restoreColumnOrderAndVisability() {
 	//!< Restore the models source members
+	if (! modelCast())
+		CRIT << tr("ModelCast failed");
 	modelCast()->restoreModelSrcsFromIni(sqlTableName());
 
 	//!< restoreVisibleCols(); takes access into models column-show/hide source list
@@ -389,7 +393,9 @@ void MdTabView::mousePressEvent(QMouseEvent *e) {
 	emit viewportMouseButtonPress(this);
 }
 void MdTabView::hideEvent(QHideEvent *) {
-	return; //@@@MDB
+//	return; //@@@MDB
+	if (! modelCast())
+		qReturn("ModelCast failed");
 	modelCast()->storeModel(sqlTableName());
 }
 void MdTabView::wheelEvent (QWheelEvent * event) {

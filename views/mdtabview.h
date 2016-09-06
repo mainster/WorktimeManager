@@ -55,7 +55,6 @@ public:
 	/* ======================================================================== */
 	/*                            Getters / Setters                             */
 	/* ======================================================================== */
-//	QGroupBox *grBox() const	{ return m_gb; }
 	MdTabView *tv() const;
 	QString &sqlTableName()		{ return m_sqlTableName; }
 	void setSqlTableName(const QString &name) {
@@ -67,9 +66,6 @@ public:
 	QAction *getActSectionMask() const { return actSectionMask; }
 	void setActSectionMask(QAction *value) { actSectionMask = value; }
 
-
-
-//	int mouseWheelCnt;
 public slots:
 	QFont restoreFont();
 	SqlRtm *modelCast();
@@ -97,7 +93,6 @@ protected:
 	QList<QAction *> createActions();
 	virtual void showEvent(QShowEvent *) override;
 	virtual void mouseDoubleClickEvent(QMouseEvent *e) override;
-//	bool eventFilter(QObject *obj, QEvent *event);
 	void hideEvent(QHideEvent *);
 	void restoreColumnOrderAndVisability2();
 	void wheelEvent(QWheelEvent *event);
@@ -107,20 +102,17 @@ protected slots:
 	void onClearSelection() {
 
 	}
-//	void onActSectionMask(bool sectionMask = false);
 	void onActGrStrategyTrigd(QAction *sender);
 	void onActGrContextTrigd(QAction *sender);
 	void storeActionState(QAction *sender);
 	bool restoreActionObjects();
 
 private:
-//	QGroupBox         *m_gb;
 	QString				m_sqlTableName;
 	QActionGroup		*actGrStrategy, *actGrContext;
 	QAction				*actInsertRow, *actDeleteRow, *actFieldStrategy,
 	*actRowStrategy, *actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask;
-	static const QString
-	StyleSheet_QGroupBox, StyleSheet_QTableView;
+	static const QString	StyleSheet_QTableView;
 };
 
 
