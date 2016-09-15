@@ -142,16 +142,16 @@ void MdTabView::createForeignModel(const QString &tNam) {
 		break;
 	}
 
-	// Populate the model
+	//!<  Populate the model
 	rmod->select();
 
 	QTime *time = new QTime();
 	time->start();
 	while (rmod->canFetchMore())
 		rmod->fetchMore();
-	INFO << tr("Model load delay: %1ms").arg(time->elapsed());
+//	INFO << tr("Model load delay: %1ms").arg(time->elapsed());
 
-	// Set the model and hide the ID column
+	//!<  Set the model and hide the ID column
 	setSelectionMode(QAbstractItemView::ContiguousSelection);
 	setModel(rmod);
 	setEditTriggers( QAbstractItemView::DoubleClicked |
@@ -167,7 +167,7 @@ void MdTabView::createForeignModel(const QString &tNam) {
 		INFO << tr("Slot connection returns false");
 	}
 	resizeRowsColsToContents();
-	//    emit updateActions();
+	//!< emit updateActions();
 	setSqlTableName(tNam);
 	restoreColumnOrderAndVisability();
 	setFont(restoreFont());

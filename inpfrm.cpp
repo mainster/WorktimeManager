@@ -588,12 +588,12 @@ void InpFrm::initComboboxes() {
 			* QSqlRelationalTableModel::Select and set proxy models source model.
 			*/
 		field.tableModel->select();
-		field.proxyModel->setSourceModel(field.tableModel);
-		field.proxyModel->invalidate();
+		field.pProxyModel->setSourceModel(field.tableModel);
+		field.pProxyModel->invalidate();
 		/*!
-			* Set the combobox model to proxyModel.
+			* Set the combobox model to pProxyModel.
 			*/
-		field.comboBox->setModel(field.proxyModel);
+		field.comboBox->setModel(field.pProxyModel);
 	}
 
 	QList<QString> list;

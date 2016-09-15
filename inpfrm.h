@@ -58,14 +58,14 @@ public:
 
 		fieldGroup_t(const QString &tableName, MdComboBox *comboBox, QObject *parent = 0)
 			: tableModel( new QSqlRelationalTableModel(parent) ),
-			  proxyModel( new QSortFilterProxyModel(parent) ),
+			  pProxyModel( new QSortFilterProxyModel(parent) ),
 			  listModel( new QStringListModel(parent) ),
 			  comboBox( comboBox ) {
 			tableModel->setTable(tableName);
 		}
 
 		QSqlRelationalTableModel *tableModel;
-		QSortFilterProxyModel *proxyModel;
+		QSortFilterProxyModel *pProxyModel;
 		QStringListModel *listModel;
 		QDataWidgetMapper *widgetMapper;
 		MdComboBox *comboBox;

@@ -38,6 +38,8 @@ public:
 	MdTabView *tv() const { return m_tv; }
 	QGroupBox *gb() const { return m_gb; }
 
+	QString &sqlTableName() { return m_tv->sqlTableName(); }
+
 signals:
 	void selectedChanged(bool isSelected);
 	void groupBoxMouseButtonPress(MdTable *sender);

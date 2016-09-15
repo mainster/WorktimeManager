@@ -14,15 +14,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	browser		= new Browser(parent);
 	mDbc			= new DbController(this);
 	inpFrm		= new InpFrm(this);
+	richEditor	= new TextEdit(this);
 	notes.toDo		= new MDNotes(tr("toDo"), parent);
 	notes.features	= new MDNotes(tr("feature list"), parent);
-	richEditor	= new TextEdit(this);
-	filterForm	= new FilterForm(FilterForm::useSelectedSource,
-										  browser->mTabs.tblsNoPtr());
+//	filterForm		= new FilterForm(FilterForm::useSelectedSource,
+//											  browser->mTabs.tblsNoPtr());
+	filterFormWkt	= new FilterForm(FilterForm::useWorktimeSource,
+											  browser->mTabs.tblsNoPtr());
+//	PONAM(filterForm);
+	PONAM(filterFormWkt);
+
 	notes.toDo->hide();
 	notes.features->hide();
 	richEditor->hide();
-	filterForm->hide();
+//	filterForm->show();
+	filterFormWkt->show();
 
 	createActions();
 	connectActions(connectThis);
@@ -109,9 +115,9 @@ void MainWindow::onInpFrmButtonClick(bool ) {
 void MainWindow::onResizerDlgTrig() {
 	bool ok;
 	QString text =  QInputDialog::
-			getText(this, tr("QInputDialog::getText()"),
-					  tr("Resizer value in %:"), QLineEdit::Normal,
-					  tr("ss"), &ok);
+						 getText(this, tr("QInputDialog::getText()"),
+									tr("Resizer value in %:"), QLineEdit::Normal,
+									tr("ss"), &ok);
 
 	if (ok && !text.isEmpty())
 		resize(QDesktopWidget().availableGeometry(this)
@@ -234,23 +240,21 @@ void MainWindow::onActRichTextToggd(bool) {
 }
 void MainWindow::onActFilterWindowSource(bool) {
 	QAction *act = qobject_cast<QAction *>(sender());
-	filterForm->setSourceTableType(act->data().value<FilterForm::SourceTableType>());
+	if (! act)	qReturn("QAction object cast failed");
+
+	INFO << act->data();
+//	filterForm->setSourceTableType(act->data().value<FilterForm::SourceTableType>());
+	filterFormWkt->setSourceTableType(act->data().value<FilterForm::SourceTableType>());
 }
 void MainWindow::onActFilterForm(bool b) {
-	filterForm->setVisible(b);
-
-	return;
-	filterForm->show();
-
-	//	if (filterForm->sourceTableFlg() == FilterForm::useSelectedSource) {
-	//		if (.currentSelected(true) == NULL)
-	//			MDStateBar::instance()->showMessage2sec(tr("Keine Tabelle zum Filtern ausgewählt!"));
-	//		else
-	//			browser->mTabs.currentSelected(true)->modelCast();
-
-	//		filterForm->raise();
-	//		filterForm->activateWindow();
-	//	}
+	if (browser->mTabs.hasSelected()) {
+		if (browser->mTabs.currentSelected()->sqlTableName().contains("worktime"))
+			filterFormWkt->setVisible(b);
+//		else
+//			filterForm->setVisible(b);
+	}
+	else
+		actFilterForm->setChecked(false);
 }
 /* ======================================================================== */
 /*                              Event handler                               */
@@ -357,7 +361,7 @@ bool MainWindow::restoreActionObjects() {
 	actGrTbMenu->blockSignals(false);
 	actGrFilterWidg->blockSignals(false);
 
-	INFO << filterForm->sourceTableType();
+//	INFO << filterForm->sourceTableType();
 	return true;
 
 	//	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
@@ -547,17 +551,17 @@ void MainWindow::createActions() {
 	actClose->setShortcut(			QKeySequence("Ctrl+Q"));
 	actAutoFitTables->setShortcut(QKeySequence("Ctrl+Alt+A"));
 
-//	actRichEdit->setShortcuts(		QList<QKeySequence>()
-//											<< QKeySequence("Ctrl+E")
-//											<< QKeySequence("E"));
+	//	actRichEdit->setShortcuts(		QList<QKeySequence>()
+	//											<< QKeySequence("Ctrl+E")
+	//											<< QKeySequence("E"));
 
-//	actShowSqlQuery->setShortcuts(QList<QKeySequence>()
-//											<< QKeySequence("Ctrl+E")
-//											<< QKeySequence("H"));
+	//	actShowSqlQuery->setShortcuts(QList<QKeySequence>()
+	//											<< QKeySequence("Ctrl+E")
+	//											<< QKeySequence("H"));
 
-//	actResetConfig->setShortcuts(	QList<QKeySequence>()
-//											<< QKeySequence("Ctrl+E")
-//											<< QKeySequence("R"));
+	//	actResetConfig->setShortcuts(	QList<QKeySequence>()
+	//											<< QKeySequence("Ctrl+E")
+	//											<< QKeySequence("R"));
 #ifdef MULTIKEY_SEQ
 	actNotes->setShortcuts(			QList<QKeySequence>()
 											<< QKeySequence("Ctrl+E")
@@ -623,7 +627,8 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		connect(actDoFiltSelectedTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
 		connect(actDoFiltWorktimeTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
 
-		filterForm->addAction(actFilterForm);
+//		filterForm->addAction(actFilterForm);
+		filterFormWkt->addAction(actFilterForm);
 	}
 
 	if ((receivers == connectOthers) ||

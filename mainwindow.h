@@ -151,7 +151,7 @@ private:
 	Browser			*browser;
 	InpFrm			*inpFrm;
 	MDStateBar		*stateBar;
-	FilterForm		*filterForm;
+	FilterForm		*filterForm, *filterFormWkt;
 	DbController	*mDbc;
 	TextEdit			*richEditor;
 	QMenu				*cfgMenu, *mBar;

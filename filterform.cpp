@@ -1,7 +1,7 @@
 #include "filterform.h"
 #include "ui_filterform.h"
 
-FilterForm *FilterForm::inst = 0;
+//FilterForm *FilterForm::inst = 0;
 const QString FilterForm::WINDOW_TITLE_PREFIX = QString("Filter für Tabelle [%1]");
 const QString FilterForm::PROXY_GROUPBOX_TITLE_PREFIX = QString("Proxy model [%1 rows]");
 const QString FilterForm::SOURCE_GROUPBOX_TITLE_PREFIX = QString("Source model [%1 rows]");
@@ -9,10 +9,11 @@ const QString FilterForm::SOURCE_GROUPBOX_TITLE_PREFIX = QString("Source model [
 
 FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTbls, QWidget *parent)
 	: QWidget(parent), ui(new Ui::FilterForm), mSourceTableType(srcType) {
-	inst = this;
+//	inst = this;
 	mTbl = NULL;
 
 	ui->setupUi(this);
+
 	proxyModel = new SfiltMdl(this);
 	proxyModel->setDynamicSortFilter(true);
 
@@ -40,6 +41,19 @@ FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTbls, QWidge
 	toLabel = new QLabel(tr("&To:"));
 	toLabel->setBuddy(toDateEdit);
 	proxyGB = ui->proxyGB;
+
+	/*!
+	 * To bypass resource costly setModel() methode when large  "worktime" table was
+	 * selected, create and init a separate filter window instance.
+	 */
+	if (srcType == FilterForm::useWorktimeSource)
+		foreach (MdTable *table, allTbls)
+			if (table->sqlTableName().contains("worktime")) {
+				sourceView->setModel(table->tv()->model());
+				proxyModel->setSourceModel(table->tv()->model());
+				break;
+			}
+
 
 	connect(filtPattLE,     SIGNAL(textChanged(QString)),
 			  this,           SLOT(textFilterChanged()));
@@ -69,29 +83,26 @@ FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTbls, QWidge
 
 	installEventFilter(this);
 }
-
 FilterForm::~FilterForm() {
 	delete ui;
 }
 void FilterForm::setSourceTable(MdTable *tbl) {
 	if (sourceTableType() == SourceTableType::useWorktimeSource)
-		if (! tbl->objectName().contains("worktime"))
+		if (! tbl->sqlTableName().contains("worktime"))
 			qReturn(QString(tr("SourceTableType::useWorktime but want to set ")
-								 + tbl->objectName()).toStdString().c_str());
+								 + tbl->sqlTableName()).toStdString().c_str());
 
 	if (mTbl != tbl) {
 		mTbl = tbl;
+
+		if ((mSourceTableType != FilterForm::useWorktimeSource) &&
+			 (! tbl->sqlTableName().contains("worktime"))) {
+			proxyModel->setSourceModel(mTbl->tv()->model());
+		}
+
 		sourceView->setModel(mTbl->tv()->model());
-
-		TicToc::tic("setSourceModel()");
-		proxyModel->setSourceModel(mTbl->tv()->model());
-		TicToc::toc();
-
-		setWindowTitle(WINDOW_TITLE_PREFIX.arg(mTbl->tv()->sqlTableName()));
+		setWindowTitle(WINDOW_TITLE_PREFIX.arg(mTbl->sqlTableName()));
 		onSourceRowCountChanged(0, sourceView->model()->rowCount());
-
-
-		INFO << tr("New source view [%1] activated!").arg(tbl->objectName());
 	}
 }
 void FilterForm::textFilterChanged() {
@@ -137,11 +148,17 @@ void FilterForm::dateFilterChanged() {
 }
 void FilterForm::onSelectedTableChange(bool selected) {
 	MdTable *newTable = qobject_cast<MdTable *>(sender());
-	if (! newTable)	qReturn("Cast failed");
+	if (! newTable)
+		qReturn("Cast failed");
+
+//	if (newTable->sqlTableName().contains("worktime"))
+//		qReturn("Worktime Table, don't invoke setSourceTable(newTable)!");
 
 	(selected)
 			? setSourceTable(newTable)
 			: setSourceTable(NULL);
+
+	INFO << objectName() << newTable->sqlTableName();
 }
 /* ======================================================================== */
 /*                              Event handler                               */

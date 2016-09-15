@@ -12,8 +12,7 @@ Browser *Browser::inst = 0;
 /* ======================================================================== */
 /*                             Browser::Browser                             */
 /* ======================================================================== */
-Browser::Browser(QWidget *parent)
-	: QWidget(parent) {
+Browser::Browser(QWidget *parent) : QWidget(parent) {
 	inst = this;
 	setObjectName("Browser");
 
@@ -186,7 +185,7 @@ void Browser::execCustomQuery() {
 	emit updateWriteActions();
 }
 /* ======================================================================== */
-void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
+void Browser::onConWidgetTableActivated(const QString &sqlTableName) {
 	/*!
 	 * Invoked after double clicking a table item in connection widget tree view.
 	 *
@@ -196,16 +195,17 @@ void Browser::onConWidgetTableActivated(const QString &sqlTbl) {
 	 * becomes addressed by the event handler.
 	 */
 
-	if (sqlTbl.contains(tr("worktime"))) {
-		mdtv = new MdTabView(sqlTbl, mTabs.currentSelected()->tv());
-		connect(this, &Browser::updateWriteActions,
-				  mdtv, &MdTabView::onUpdateWriteActions);
-	}
-	else
-		mTabs.currentSelected()->tv()->createForeignModel(sqlTbl);
+//	if (sqlTableName.contains(tr("worktime"))) {
+//		mdtv = new MdTabView(sqlTableName, mTabs.currentSelected()->tv());
+//		connect(this, &Browser::updateWriteActions,
+//				  mdtv, &MdTabView::onUpdateWriteActions);
+//	}
+//	else
+		mTabs.currentSelected()->tv()->createForeignModel(sqlTableName);
 
-	if (FilterForm::instance()->isVisible())
-		FilterForm::instance()->setSourceTable(mTabs.currentSelected());
+	// @@@MDB
+//	if (FilterForm::instance()->isVisible())
+//		FilterForm::instance()->setSourceTable(mTabs.currentSelected());
 }
 /* ======================================================================== */
 QStandardItemModel *Browser::tblToMetaDataMdl(const QString &table) {
