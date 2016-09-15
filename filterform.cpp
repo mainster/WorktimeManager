@@ -82,7 +82,10 @@ void FilterForm::setSourceTable(MdTable *tbl) {
 	if (mTbl != tbl) {
 		mTbl = tbl;
 		sourceView->setModel(mTbl->tv()->model());
+
+		TicToc::tic("setSourceModel()");
 		proxyModel->setSourceModel(mTbl->tv()->model());
+		TicToc::toc();
 
 		setWindowTitle(WINDOW_TITLE_PREFIX.arg(mTbl->tv()->sqlTableName()));
 		onSourceRowCountChanged(0, sourceView->model()->rowCount());
@@ -140,7 +143,6 @@ void FilterForm::onSelectedTableChange(bool selected) {
 			? setSourceTable(newTable)
 			: setSourceTable(NULL);
 }
-
 /* ======================================================================== */
 /*                              Event handler                               */
 /* ======================================================================== */
