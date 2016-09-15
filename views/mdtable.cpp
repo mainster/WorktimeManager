@@ -54,13 +54,17 @@ void MdTable::onActSectionMask(bool sectionMask) {
 		for (int k = 0; k < aim->columnCount(); k++)
 			colHead << aim->headerData(k, Qt::Horizontal, Qt::DisplayRole).toString();
 
-		m_gb->layout()->removeWidget(this);
+//		m_gb->layout()->removeWidget(this);
+
 		mSectMsk = new SectionMask(m_tv, this);
 		connect(mSectMsk,	&SectionMask::dblClickChecked,
 				  m_tv->getActSectionMask(), &QAction::setChecked);
-		qobject_cast<QVBoxLayout *>(m_gb->layout())->addWidget(mSectMsk);
-		qobject_cast<QVBoxLayout *>(m_gb->layout())->addWidget(this);
-		qobject_cast<QVBoxLayout *>(m_gb->layout())->setStretchFactor(this, 15);
+
+		m_gb->layout()->addWidget(mSectMsk);
+
+		//		qobject_cast<QVBoxLayout *>(m_gb->layout())->addWidget(mSectMsk);
+//		qobject_cast<QVBoxLayout *>(m_gb->layout())->addWidget(this);
+//		qobject_cast<QVBoxLayout *>(m_gb->layout())->setStretchFactor(this, 15);
 	}
 }
 void MdTable::onTabViewObjectNameChanged(const QString &objNam) {

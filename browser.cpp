@@ -48,8 +48,6 @@ Browser::Browser(QWidget *parent)
 
 	emit stateMsg(tr("Browser Ready."));
 
-	mTabs.tva->tv()->createForeignModel(tr("worker"));
-
 	QTimer::singleShot(50, this, SLOT(restoreUi()));
 }
 Browser::~Browser() {
@@ -282,12 +280,8 @@ void Browser::onTvViewPortMouseClicked(MdTabView *sender) {
 	if ((tvSelector() != selectByViewPort) &&
 		 (tvSelector() != selectByBoth))	return;
 
-	INFO << tr("Viewport mouse click:") << sender
-		  << tr("parent():") << sender->parent()
-		  << tr("parentWidget():") << sender->parentWidget()
-		  << tr("parent()->parent():") << sender->parent()->parent();
-
-	MdTable *senderTbl = dynamic_cast<MdTable *>(sender->parent()->parent());
+	MdTable *senderTbl =
+			dynamic_cast<MdTable *>(sender->parent()->parent());
 
 	if (! senderTbl)
 		qReturn("qobject_cast<MdTable *>(sender->parentWidget()) failed");
@@ -311,7 +305,6 @@ void Browser::onTblGbMouseClicked(MdTable *sender) {
 	if ((tvSelector() != selectByGroupBox) &&
 		 (tvSelector() != selectByBoth))	return;
 
-	INFO << tr("Groupbox mouse click:") << sender;
 	/*!
 	 * If the casted MdTable instance is currently NOT selected, emit the clearSelect
 	 * signal and invoke tv->setSelected();
