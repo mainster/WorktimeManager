@@ -636,7 +636,6 @@ void InpFrm::initComboboxes() {
 	//	ui->cbWorker->setModelColumns(QList<quint8>() << 1 << 2);
 
 }
-
 QString InpFrm::getQueryText() const {
 	return ui->teSqlQuerys->toPlainText();
 }

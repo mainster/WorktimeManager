@@ -15,10 +15,10 @@ bool GlobalEventFilter::eventFilter(QObject *obj, QEvent *event) {
 				  << tr("property ""hasFocus"":") << obj->property("hasFocus").toBool();
 		}
 
-		if (! qobject_cast<QWidget *>(obj))
-			return QObject::eventFilter(obj, event);
-
 		QWidget *wdg = qobject_cast<QWidget *>(obj);
+
+		if (! wdg)
+			return QObject::eventFilter(obj, event);
 
 		/*!
 		 * Validate obj if custom property "hasFocus" exists and set/clear the value
@@ -29,6 +29,9 @@ bool GlobalEventFilter::eventFilter(QObject *obj, QEvent *event) {
 			wdg->style()->polish(wdg);
 			wdg->update();
 		}
+
+		event->ignore();
+		return QObject::eventFilter(obj, event);
 	}
 
 	if (event->type() == QEvent::KeyPress) {

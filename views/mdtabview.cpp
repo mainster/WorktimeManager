@@ -383,15 +383,31 @@ QList<QAction *> MdTabView::createActions() {
 void MdTabView::showEvent(QShowEvent *) {
 }
 void MdTabView::mouseDoubleClickEvent(QMouseEvent *e) {
-	actSectionMask->trigger();
-	e->accept();
+	Qt::KeyboardModifiers keyboardModifiers = QApplication::queryKeyboardModifiers();
+
+	if (keyboardModifiers == Qt::ControlModifier) {
+		actSectionMask->trigger();
+		e->accept();
+	}
+	else
+		e->ignore();
+
+	QTableView::mouseDoubleClickEvent(e);
 }
 void MdTabView::mousePressEvent(QMouseEvent *e) {
 	/*!
 	 * Event handler for single mouse button press events inside QTableView
 	 * viewport area.
 	 */
-	emit viewportMouseButtonPress(this);
+	Qt::KeyboardModifiers keyboardModifiers = QApplication::queryKeyboardModifiers();
+
+	if (keyboardModifiers != Qt::ControlModifier) {
+		emit viewportMouseButtonPress(this);
+		e->ignore();
+		QTableView::mousePressEvent(e);
+	}
+	else
+		e->accept();
 }
 void MdTabView::hideEvent(QHideEvent *) {
 //	return; //@@@MDB
@@ -501,6 +517,8 @@ bool MdTabView::restoreActionObjects() {
 	return true;
 }
 SqlRtm *MdTabView::modelCast() {
+	QAbstractItemModel *itm = model();
+
 	if (! qobject_cast<SqlRtm *>(model()))
 		CRIT << tr("dynamic cast failed");
 	return qobject_cast<SqlRtm *>(model());

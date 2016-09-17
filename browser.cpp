@@ -340,7 +340,7 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 }
 void Browser::showEvent(QShowEvent *) {
 	SPLT_RESTORE(this);
-	autofitRowCol();
+//	autofitRowCol();
 	emit visibilityChanged( true );
 }
 void Browser::hideEvent(QHideEvent *) {
@@ -358,9 +358,11 @@ void Browser::closeEvent(QCloseEvent *) {
 
 	/**** Write mdTable <-> SQL table relations
 	  \*/
-	foreach (MdTable *tbl, mTabs.tblsNoPtr())
-		config.setValue(objectName() + "/" + tbl->objectName(),
-							 /*tv->grBox()->title()*/ tbl->tv()->sqlTableName());
+	foreach (MdTable *tbl, mTabs.tblsNoPtr()) {
+		config.setValue(objectName() + "/" + tbl->tv()->objectName(),
+							 /*tv->grBox()->title()*/ tbl->sqlTableName());
+		INFO << objectName() + "/" + tbl->tv()->objectName() << tbl->sqlTableName();
+	}
 
 	/**** Safe all action states from Browser
 	\*/

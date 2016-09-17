@@ -77,14 +77,14 @@ bool MdTable::eventFilter(QObject *obj, QEvent *event) {
 		return QObject::eventFilter(obj, event);
 
 	if (obj == m_gb) {
-		if (mouseEv->type() == QEvent::MouseButtonDblClick) {
-			INFO << tr("Double click:") << obj;
-			return true;
-		}
 		if (mouseEv->type() == QEvent::MouseButtonPress) {
 			emit groupBoxMouseButtonPress(this);
 			return true;
 		}
+//		if (mouseEv->type() == QEvent::MouseButtonDblClick) {
+//			INFO << tr("Double click:") << obj;
+//			return true;
+//		}
 	}
 	return QObject::eventFilter(obj, event);
 }
