@@ -32,6 +32,7 @@
 #include "globals.h"
 #include "debug.h"
 #include "inpfrm.h"
+#include "types.h"
 
 class InpFrm;
 

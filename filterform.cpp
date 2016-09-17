@@ -1,7 +1,7 @@
 #include "filterform.h"
 #include "ui_filterform.h"
 
-FilterForm *FilterForm::inst = 0;
+//FilterForm *FilterForm::inst = 0;
 const QString FilterForm::WINDOW_TITLE_PREFIX = QString("Filter für Tabelle [%1]");
 const QString FilterForm::PROXY_GROUPBOX_TITLE_PREFIX = QString("Proxy model [%1 rows]");
 const QString FilterForm::SOURCE_GROUPBOX_TITLE_PREFIX = QString("Source model [%1 rows]");
@@ -9,12 +9,9 @@ const QString FilterForm::SOURCE_GROUPBOX_TITLE_PREFIX = QString("Source model [
 
 FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTbls, QWidget *parent)
 	: QWidget(parent), ui(new Ui::FilterForm), mSourceTableType(srcType) {
-	inst = this;
+	//	inst = this;
 	mTbl = NULL;
-
 	ui->setupUi(this);
-	proxyModel = new SfiltMdl(this);
-	proxyModel->setDynamicSortFilter(true);
 
 	sourceView = ui->sourceView;
 	sourceGB = ui->sourceGB;
@@ -41,6 +38,20 @@ FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTbls, QWidge
 	toLabel->setBuddy(toDateEdit);
 	proxyGB = ui->proxyGB;
 
+	proxyView = ui->proxyView;
+
+	//!< Model instances
+	//!
+	proxyModel = new SfiltMdl(this);
+	proxyModel->setDynamicSortFilter(true);
+
+	if (srcType == FilterForm::useWorktimeSource) {
+		foreach (MdTable *tbl, allTbls)
+			if (tbl->sqlTableName().contains("worktime")) {
+				setSourceTable(tbl);
+			}
+	}
+
 	connect(filtPattLE,     SIGNAL(textChanged(QString)),
 			  this,           SLOT(textFilterChanged()));
 	connect(filtSyntaxCB,   SIGNAL(currentIndexChanged(int)),
@@ -52,7 +63,6 @@ FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTbls, QWidge
 	connect(toDateEdit,     SIGNAL(dateChanged(QDate)),
 			  this,           SLOT(dateFilterChanged()));
 
-	proxyView = ui->proxyView;
 #ifdef VIEW_IS_TREE
 	proxyView->setRootIsDecorated(false);
 #endif
@@ -75,23 +85,19 @@ FilterForm::~FilterForm() {
 }
 void FilterForm::setSourceTable(MdTable *tbl) {
 	if (sourceTableType() == SourceTableType::useWorktimeSource)
-		if (! tbl->objectName().contains("worktime"))
+		if (! tbl->sqlTableName().contains("worktime"))
 			qReturn(QString(tr("SourceTableType::useWorktime but want to set ")
-								 + tbl->objectName()).toStdString().c_str());
+								 + tbl->sqlTableName()).toStdString().c_str());
 
 	if (mTbl != tbl) {
 		mTbl = tbl;
 		sourceView->setModel(mTbl->tv()->model());
-
-		TicToc::tic("setSourceModel()");
 		proxyModel->setSourceModel(mTbl->tv()->model());
-		TicToc::toc();
 
 		setWindowTitle(WINDOW_TITLE_PREFIX.arg(mTbl->tv()->sqlTableName()));
 		onSourceRowCountChanged(0, sourceView->model()->rowCount());
 
-
-		INFO << tr("New source view [%1] activated!").arg(tbl->objectName());
+		INFO << tr("New source view [%1] activated!").arg(tbl->sqlTableName());
 	}
 }
 void FilterForm::textFilterChanged() {
@@ -136,12 +142,17 @@ void FilterForm::dateFilterChanged() {
 	onProxyRowCountChanged(0, proxyModel->rowCount());
 }
 void FilterForm::onSelectedTableChange(bool selected) {
-	MdTable *newTable = qobject_cast<MdTable *>(sender());
-	if (! newTable)	qReturn("Cast failed");
+	MdTable *changedTable = qobject_cast<MdTable *>(sender());
+	if (! changedTable)
+		qReturn("Cast failed");
 
-	(selected)
-			? setSourceTable(newTable)
-			: setSourceTable(NULL);
+	if ((mSourceTableType != FilterForm::useWorktimeSource) &&
+		 (! changedTable->sqlTableName().contains("worktime"))) {
+		if (selected)
+			setSourceTable(changedTable);
+		else
+			setSourceTable(NULL);
+	}
 }
 /* ======================================================================== */
 /*                              Event handler                               */
@@ -158,12 +169,12 @@ void FilterForm::showEvent(QShowEvent *e) {
 void FilterForm::hideEvent(QHideEvent *e) {
 	QSETTINGS;
 	config.setValue(objectName() + Md::k.windowGeometry, saveGeometry());
+	INFO << objectName() + Md::k.windowGeometry << tr("close");
 	QWidget::hideEvent(e);
 }
 void FilterForm::closeEvent(QCloseEvent *e) {
 	QSETTINGS;
 	config.setValue(objectName() + Md::k.windowGeometry, saveGeometry());
-	INFO << tr("close");
 	QWidget::closeEvent(e);
 }
 void FilterForm::keyPressEvent(QKeyEvent *e) {

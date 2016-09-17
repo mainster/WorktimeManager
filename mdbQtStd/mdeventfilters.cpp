@@ -52,28 +52,31 @@ bool GlobalEventFilter::eventFilter(QObject *obj, QEvent *event) {
 			 * Do some range check of min/max pointsize
 			 */
 			if (qApp->queryKeyboardModifiers() == Qt::ControlModifier) {
-				Browser::mTabs_t browserTabs = Browser::instance()->mTabs;
+				Browser::mTabs_t browserTables = Browser::instance()->mTabs;
 
-				if (browserTabs.tvIds().join(',').contains(obj->objectName()) &&
-					 browserTabs.currentSelected(true) != NULL) {
+				MdTable *mdTable = qobject_cast<MdTable *>(qApp->widgetAt(QCursor::pos())
+																		 ->parent()->parent()->parent());
+				if (! mdTable)
+					return QObject::eventFilter(obj, event);
 
-					MdTable *mdTable = browserTabs.currentSelected();
-
+				if (browserTables.tvIds().join(',').contains(mdTable->tv()->objectName())) {
+					/**< Delta size */
 					int dsize = static_cast<QWheelEvent *>(event)->delta() /
-									abs(static_cast<QWheelEvent *>(event)->delta());     /**< Delta size */
+									abs(static_cast<QWheelEvent *>(event)->delta());
 					/** Add current step.
 					 * event->delta() can be negative or positive.
 					 */
 					mdTable->mouseWheelCnt += dsize;
 
-					if ( ((dsize < 0) && (mdTable->fontInfo().pointSize() > 6)) ||
-						  ((dsize > 0) && (mdTable->fontInfo().pointSize() < 20)) ) {
-						QFont cfont = QFont( mdTable->font() );
+					if ( ((dsize < 0) && (mdTable->tv()->fontInfo().pointSize() > 6)) ||
+						  ((dsize > 0) && (mdTable->tv()->fontInfo().pointSize() < 20)) ) {
+						QFont cfont = QFont( mdTable->tv()->font() );
 						cfont.setPointSize( cfont.pointSize() + dsize );
 						mdTable->tv()->setFont( cfont );
 						mdTable->tv()->storeFont( mdTable->tv()->font() );
 					}
 					mdTable->tv()->resizeColumnsToContents();
+					mdTable->tv()->resizeRowsToContents();
 				}
 				return QObject::eventFilter(obj, event);
 			}

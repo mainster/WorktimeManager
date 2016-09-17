@@ -231,7 +231,7 @@ public slots:
 	void customMenuRequested(QPoint pos);
 	void exec();
 	void execCustomQuery();
-	void onConWidgetTableActivated(const QString &sqlTab);
+	void onConWidgetTableActivated(const QString &sqlTableName);
 	void onCyclic();
 //	void onSourceTableChanged(FilterForm::SourceTableType sourceTable);
 	void requeryWorktimeTableView(QString nonDefaulQuery = "");

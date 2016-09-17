@@ -16,13 +16,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	inpFrm		= new InpFrm(this);
 	notes.toDo		= new MDNotes(tr("toDo"), parent);
 	notes.features	= new MDNotes(tr("feature list"), parent);
-	richEditor	= new TextEdit(this);
-	filterForm	= new FilterForm(FilterForm::useSelectedSource,
+	richEditor		= new TextEdit(this);
+	filterForm		= new FilterForm(FilterForm::useSelectedSource,
+										  browser->mTabs.tblsNoPtr());
+	filterFormWkt	= new FilterForm(FilterForm::useWorktimeSource,
 										  browser->mTabs.tblsNoPtr());
 	notes.toDo->hide();
 	notes.features->hide();
 	richEditor->hide();
-	filterForm->hide();
+
+	PONAM(filterForm)->hide();
+	PONAM(filterFormWkt)->hide();
 
 	createActions();
 	connectActions(connectThis);
@@ -234,10 +238,15 @@ void MainWindow::onActRichTextToggd(bool) {
 }
 void MainWindow::onActFilterWindowSource(bool) {
 	QAction *act = qobject_cast<QAction *>(sender());
-	filterForm->setSourceTableType(act->data().value<FilterForm::SourceTableType>());
+
+	if (act == actDoFiltSelectedTbl)
+		filterForm->setSourceTableType(act->data().value<FilterForm::SourceTableType>());
+	if (act == actDoFiltWorktimeTbl)
+		filterFormWkt->setSourceTableType(act->data().value<FilterForm::SourceTableType>());
 }
 void MainWindow::onActFilterForm(bool b) {
 	filterForm->setVisible(b);
+	filterFormWkt->setVisible(b);
 
 	return;
 	filterForm->show();
@@ -357,7 +366,6 @@ bool MainWindow::restoreActionObjects() {
 	actGrTbMenu->blockSignals(false);
 	actGrFilterWidg->blockSignals(false);
 
-	INFO << filterForm->sourceTableType();
 	return true;
 
 	//	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
@@ -616,14 +624,14 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		connect(actExport, &QAction::triggered, this, &MainWindow::onActExportTrig);
 		connect(actUnderConstr, &QAction::triggered, this, &MainWindow::onUnderConstrTrig);
 		connect(actResizerDlg, &QAction::triggered, this, &MainWindow::onResizerDlgTrig);
-		//		connect(actShowSqlQuery, &QAction::toggled, this, &MainWindow::onShowSqlQueryTogd);
 		connect(actCfgInpFrmTabOrd,  &QAction::triggered, this, &MainWindow::onActCfgInpFrmTabOrdTrig);
 		connect(actSave,  &QAction::triggered, this, &MainWindow::onActSaveTrig);
 		connect(actOpen,  &QAction::triggered, this, &MainWindow::onActOpenTrig);
-		connect(actDoFiltSelectedTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
-		connect(actDoFiltWorktimeTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
+//		connect(actDoFiltSelectedTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
+//		connect(actDoFiltWorktimeTbl, &QAction::triggered, this, &MainWindow::onActFilterWindowSource);
 
 		filterForm->addAction(actFilterForm);
+		filterFormWkt->addAction(actFilterForm);
 	}
 
 	if ((receivers == connectOthers) ||

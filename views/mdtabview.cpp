@@ -27,16 +27,17 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	//		m_gb->setStyleSheet(this->m_gb->styleSheet());
 	//	#endif
 
-	connect(horizontalHeader(),	&QHeaderView::sectionMoved,
-			  this,						&MdTabView::onSectionMoved);
-	connect(this,		&MdTabView::sqlTableNameChanged,
-			  this,		&MdTabView::setObjectName);
+	connect(horizontalHeader(), &QHeaderView::sectionMoved, this, &MdTabView::onSectionMoved);
 
 	restoreFont();
 
 	QTimer::singleShot(500, this, SLOT(restoreActionObjects()));
 	//	QTimer::singleShot(8000, this, SLOT(restoreActionObjects()));
 	//	setActiveSelected( false );
+}
+void MdTabView::setSqlTableName(const QString &name) {
+	m_sqlTableName = name;
+	emit sqlTableNameChanged(m_sqlTableName);
 }
 void MdTabView::createForeignModel(const QString &tNam) {
 	/**
@@ -149,7 +150,7 @@ void MdTabView::createForeignModel(const QString &tNam) {
 	time->start();
 	while (rmod->canFetchMore())
 		rmod->fetchMore();
-	INFO << tr("Model load delay: %1ms").arg(time->elapsed());
+	INFO << tr("Model fetch delay: %1ms").arg(time->elapsed());
 
 	// Set the model and hide the ID column
 	setSelectionMode(QAbstractItemView::ContiguousSelection);

@@ -3,6 +3,7 @@
 
 #include <QDate>
 #include <QSortFilterProxyModel>
+#include "debug.h"
 
 /* ======================================================================== */
 /*                                  SfiltMdl                                */
@@ -12,14 +13,14 @@ class SfiltMdl : public QSortFilterProxyModel {
     Q_OBJECT
 
 public:
-    SfiltMdl(QObject *parent = 0)
-        : QSortFilterProxyModel(parent) { }
+	 SfiltMdl(QObject *parent = 0) : QSortFilterProxyModel(parent) { }
 
     QDate filterMinimumDate() const { return minDate; }
     void setFilterMinimumDate(const QDate &date);
 
     QDate filterMaximumDate() const { return maxDate; }
     void setFilterMaximumDate(const QDate &date);
+	 virtual void setSourceModel(QAbstractItemModel *sourceModel) override;
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
@@ -27,11 +28,9 @@ protected:
 
 private:
     bool dateInRange(const QDate &date) const;
-
     QDate minDate;
     QDate maxDate;
 };
-
 
 /* ======================================================================== */
 /*                            SortFilterProxyModel                          */

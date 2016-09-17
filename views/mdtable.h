@@ -37,20 +37,21 @@ public:
 
 	MdTabView *tv() const { return m_tv; }
 	QGroupBox *gb() const { return m_gb; }
+	QString &sqlTableName() { return m_tv->sqlTableName(); }
 
 signals:
 	void selectedChanged(bool isSelected);
 	void groupBoxMouseButtonPress(MdTable *sender);
+
 public slots:
-
-protected:
-	const static QString StyleSheet_QGroupBox;
-
-	bool eventFilter(QObject *obj, QEvent *e);
+	void onSqlTableNameChanged(const QString &objNam);
 
 protected slots:
 	void onActSectionMask(bool sectionMask);
-	void onTabViewObjectNameChanged(const QString &objNam);
+
+protected:
+	const static QString StyleSheet_QGroupBox;
+	bool eventFilter(QObject *obj, QEvent *e);
 
 private:
 	QGroupBox	*m_gb;

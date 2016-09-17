@@ -57,10 +57,7 @@ public:
 	/* ======================================================================== */
 	MdTabView *tv() const;
 	QString &sqlTableName()		{ return m_sqlTableName; }
-	void setSqlTableName(const QString &name) {
-		m_sqlTableName = name;
-		emit sqlTableNameChanged(m_sqlTableName);
-	}
+	void setSqlTableName(const QString &name);
 	SqlRtm *clearMdlSrces();
 	void createForeignModel(const QString &tNam);
 	QAction *getActSectionMask() const { return actSectionMask; }
@@ -96,8 +93,8 @@ protected:
 	void hideEvent(QHideEvent *);
 	void restoreColumnOrderAndVisability2();
 	void wheelEvent(QWheelEvent *event);
-
 	void mousePressEvent(QMouseEvent *e);
+
 protected slots:
 	void onClearSelection() {
 
@@ -106,6 +103,9 @@ protected slots:
 	void onActGrContextTrigd(QAction *sender);
 	void storeActionState(QAction *sender);
 	bool restoreActionObjects();
+	void onObjNameChanged(const QString newName) {
+		INFO << newName;
+	}
 
 private:
 	QString				m_sqlTableName;

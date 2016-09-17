@@ -33,10 +33,12 @@ public:
 	};
 	Q_ENUM(SourceTableType)
 
-	explicit FilterForm(SourceTableType srcType, QList<MdTable *> allTbls,
+	explicit FilterForm(SourceTableType srcType,
+							  QList<MdTable *> allTbls,
 							  QWidget *parent = NULL);
 
 	~FilterForm();
+	/*
 	static FilterForm *instance(SourceTableType newSrcType, QList<MdTable *> allTvs) {
 		if(inst == 0)
 			inst = new FilterForm(newSrcType, allTvs);
@@ -47,6 +49,7 @@ public:
 			inst = new FilterForm(useSelectedSource, QList<MdTable *>());
 		return inst;
 	}
+	*/
 
 public slots:
 	SourceTableType sourceTableType() const { return mSourceTableType; }
@@ -77,7 +80,7 @@ private slots:
 	void dateFilterChanged();
 
 private:
-	static FilterForm *inst;
+//	static FilterForm *inst;
 	static const QString WINDOW_TITLE_PREFIX;
 	static const QString PROXY_GROUPBOX_TITLE_PREFIX;
 	static const QString SOURCE_GROUPBOX_TITLE_PREFIX;

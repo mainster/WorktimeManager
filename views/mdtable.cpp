@@ -31,10 +31,8 @@ MdTable::MdTable(const QString &tvObjName,
 	//	m_tv->installEventFilter(this);
 	//	m_tv->viewport()->installEventFilter(this);
 
-	connect(m_tv->getActSectionMask(),	&QAction::toggled,
-			  this,								&MdTable::onActSectionMask);
-	connect(m_tv,								&MdTabView::objectNameChanged,
-			  this,								&MdTable::onTabViewObjectNameChanged);
+	connect(m_tv->getActSectionMask(), &QAction::toggled, this, &MdTable::onActSectionMask);
+	connect(m_tv, &MdTabView::sqlTableNameChanged, this, &MdTable::onSqlTableNameChanged);
 
 	clearSelected();
 	show();
@@ -67,7 +65,7 @@ void MdTable::onActSectionMask(bool sectionMask) {
 //		qobject_cast<QVBoxLayout *>(m_gb->layout())->setStretchFactor(this, 15);
 	}
 }
-void MdTable::onTabViewObjectNameChanged(const QString &objNam) {
+void MdTable::onSqlTableNameChanged(const QString &objNam) {
 	m_gb->setTitle(Md::tableAlias[ objNam ]);
 }
 /* ======================================================================== */

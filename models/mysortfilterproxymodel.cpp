@@ -90,5 +90,14 @@ bool SortFilterProxyModel::filterAcceptsRow(int sourceRow,
     }
     return ret;
 }
+void SfiltMdl::setSourceModel(QAbstractItemModel *sourceModel) {
+	TICs("setSourceModel()");
+	beginResetModel();
+	QSortFilterProxyModel::setSourceModel(sourceModel);
+	endResetModel();
+	TOC;
+}
 
 #include "moc_mysortfilterproxymodel.cpp"
+
+
