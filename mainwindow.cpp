@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 			  stateBar,								SLOT(showMessage2sec(const QString&)));
 	connect(browser->connectionWidget(),	&ConnectionWidget::metaDataRequested,
 			  browser,								&Browser::onConnectWdgMetaDataReq);
+	connect(browser, &Browser::someHasBeenSelected, this, &MainWindow::onSomeHasBeenSelected);
 
 
 	QVBoxLayout *vCentralLayout = new QVBoxLayout(parent);
@@ -245,8 +246,13 @@ void MainWindow::onActFilterWindowSource(bool) {
 		filterFormWkt->setSourceTableType(act->data().value<FilterForm::SourceTableType>());
 }
 void MainWindow::onActFilterForm(bool b) {
-	filterForm->setVisible(b);
-	filterFormWkt->setVisible(b);
+	if (! browser->mTabs.hasSelected())
+		qReturn("Evil error");
+
+	if (browser->mTabs.currentSelected()->sqlTableName().contains("worktime"))
+		filterFormWkt->setVisible(b);
+	else
+		filterForm->setVisible(b);
 
 	return;
 	filterForm->show();
@@ -260,6 +266,9 @@ void MainWindow::onActFilterForm(bool b) {
 	//		filterForm->raise();
 	//		filterForm->activateWindow();
 	//	}
+}
+void MainWindow::onSomeHasBeenSelected(bool hasSelected) {
+	actFilterForm->setEnabled(hasSelected);
 }
 /* ======================================================================== */
 /*                              Event handler                               */
@@ -330,11 +339,17 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 		}
 	}
 
+	foreach (QWidget *w, qApp->topLevelWidgets()) {
+		if (w->objectName().contains(QRegularExpression("filterForm*")))
+			w->close();
+	}
+
 	QWidget::closeEvent(e);
 }
 void MainWindow::keyPressEvent(QKeyEvent *e) {
 	if (e->key() == Qt::Key_Escape) {
 		emit browser->clearSelections();
+		emit browser->someHasBeenSelected(false);
 		e->accept();
 		return;
 	}
@@ -366,6 +381,8 @@ bool MainWindow::restoreActionObjects() {
 	actGrTbMenu->blockSignals(false);
 	actGrFilterWidg->blockSignals(false);
 
+	if (! browser->mTabs.hasSelected())
+		emit browser->someHasBeenSelected(false);
 	return true;
 
 	//	QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));

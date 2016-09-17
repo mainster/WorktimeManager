@@ -117,6 +117,7 @@ protected slots:
 	void onActRichTextToggd(bool);
 	void onActFilterWindowSource(bool);
 	void onActFilterForm(bool b);
+	void onSomeHasBeenSelected(bool hasSelected);
 
 private slots:
 	void onOpenCloseInpFrm(bool onOff) {

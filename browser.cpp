@@ -293,6 +293,7 @@ void Browser::onTvViewPortMouseClicked(MdTabView *sender) {
 	if (! senderTbl->isSelected()) {
 		emit clearSelections();
 		senderTbl->setSelected();
+		emit someHasBeenSelected(true);
 	}
 }
 void Browser::onTblGbMouseClicked(MdTable *sender) {

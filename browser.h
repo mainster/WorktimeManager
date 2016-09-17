@@ -219,6 +219,11 @@ signals:
 	 */
 	void clearSelections();
 
+	/*!
+	 * \brief someHasBeenSelected signal was emitted if some table view has been selected.
+	 */
+	void someHasBeenSelected(bool hasSelected);
+
 public slots:
 	TvSelectors tvSelector() const	{ return m_tvSelector; }
 	QSqlDatabase getCurrentDatabase()	{ return connectionWidget()->currentDb(); }
