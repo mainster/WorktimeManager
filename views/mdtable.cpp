@@ -31,8 +31,17 @@ MdTable::MdTable(const QString &tvObjName,
 	//	m_tv->installEventFilter(this);
 	//	m_tv->viewport()->installEventFilter(this);
 
+	actEmployeeForm =	new QAction(tr("Mitarbeiter-Stammdaten ändern"), this);
+	actProjectForm = new QAction(tr("Projekt-Stammdaten ändern"), this);
+	actClientForm = new QAction(tr("Kunden-Stammdaten ändern"), this);
+	m_tv->addActions(QList<QAction *>() << actEmployeeForm << actProjectForm <<
+						  actClientForm);
+
 	connect(m_tv->getActSectionMask(), &QAction::toggled, this, &MdTable::onActSectionMask);
 	connect(m_tv, &MdTabView::sqlTableNameChanged, this, &MdTable::onSqlTableNameChanged);
+	connect(actEmployeeForm, &QAction::triggered, this, &MdTable::onActBaseDataForm);
+	connect(actProjectForm, &QAction::triggered, this, &MdTable::onActBaseDataForm);
+	connect(actClientForm, &QAction::triggered, this, &MdTable::onActBaseDataForm);
 
 	clearSelected();
 	show();
@@ -52,7 +61,7 @@ void MdTable::onActSectionMask(bool sectionMask) {
 		for (int k = 0; k < aim->columnCount(); k++)
 			colHead << aim->headerData(k, Qt::Horizontal, Qt::DisplayRole).toString();
 
-//		m_gb->layout()->removeWidget(this);
+		//		m_gb->layout()->removeWidget(this);
 
 		mSectMsk = new SectionMask(m_tv, this);
 		connect(mSectMsk,	&SectionMask::dblClickChecked,
@@ -61,12 +70,30 @@ void MdTable::onActSectionMask(bool sectionMask) {
 		m_gb->layout()->addWidget(mSectMsk);
 
 		//		qobject_cast<QVBoxLayout *>(m_gb->layout())->addWidget(mSectMsk);
-//		qobject_cast<QVBoxLayout *>(m_gb->layout())->addWidget(this);
-//		qobject_cast<QVBoxLayout *>(m_gb->layout())->setStretchFactor(this, 15);
+		//		qobject_cast<QVBoxLayout *>(m_gb->layout())->addWidget(this);
+		//		qobject_cast<QVBoxLayout *>(m_gb->layout())->setStretchFactor(this, 15);
 	}
 }
-void MdTable::onSqlTableNameChanged(const QString &objNam) {
-	m_gb->setTitle(Md::tableAlias[ objNam ]);
+void MdTable::onActBaseDataForm() {
+	QAction *action = qobject_cast<QAction *>(sender());
+	if (! action)
+		qReturn("Cast failed!");
+
+	if (action == actEmployeeForm) {
+		EmployeeForm *bdForm = new EmployeeForm(1, tv()->model(), 0);
+		bdForm->show();
+	}
+}
+void MdTable::onSqlTableNameChanged(const QString &sqlTableName) {
+	m_gb->setTitle(Md::tableAlias[ sqlTableName ]);
+
+	actEmployeeForm->setEnabled(false);
+	actProjectForm->setEnabled(false);
+	actClientForm->setEnabled(false);
+
+	if (sqlTableName.contains("worker"))	actEmployeeForm->setEnabled(true);
+	if (sqlTableName.contains("prj"))		actProjectForm->setEnabled(true);
+	if (sqlTableName.contains("client"))	actClientForm->setEnabled(true);
 }
 /* ======================================================================== */
 /*                              Event handler                               */
@@ -81,48 +108,48 @@ bool MdTable::eventFilter(QObject *obj, QEvent *event) {
 			emit groupBoxMouseButtonPress(this);
 			return true;
 		}
-//		if (mouseEv->type() == QEvent::MouseButtonDblClick) {
-//			INFO << tr("Double click:") << obj;
-//			return true;
-//		}
+		//		if (mouseEv->type() == QEvent::MouseButtonDblClick) {
+		//			INFO << tr("Double click:") << obj;
+		//			return true;
+		//		}
 	}
 	return QObject::eventFilter(obj, event);
 }
 #define QFOLDINGSTART {
-	const QString MdTable::StyleSheet_QGroupBox = QString(
-				"QGroupBox::title {"
-				"    subcontrol-origin: margin; /* margin boarder padding content */"
-				"    subcontrol-position: top center; /* position at the top center */"
-				"    font: italic 9pt ""Arial"";"
-				"    font-weight: bold;"
-				"    top: 1.0ex;   "
-				"    padding: 0px 8px;"
-				"  padding-top: -2ex;"
-				"  color:  rgba(50,50,50,255);"
-				"} [selected=false] {"
-				"  color:  rgba(245,0,0,255);"
-				"} "
-				"QGroupBox, QGroupBox [selected=false] {"
-				"  margin-top: 1ex; /*margin-bottom: 2px; margin-left: 2px; margin-right: 2px;*/"
-				"    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
-				"    font: italic 9pt ""Arial"";"
-				"    font-weight: bold;"
-				"    border-radius: 5px;"
-				"  border: 2px solid;"
-				"  border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));"
-				"  border-left-color: rgba(105,105,105,255);"
-				"  border-right-color: rgba(105,105,105,205);"
-				"  border-bottom-color: rgba(105,105,105,205);"
-				"} [selected=true] { "
-				"  /* margin-top: 5px; margin-bottom: -2px; margin-left: -2px; margin-right: -2px; */"
-				"  border: 2px solid; "
-				"  border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(255,0,0,255), stop:1 rgba(247, 247, 247, 250));"
-				"  border-left-color: rgba(255,0,0,255);"
-				"  border-right-color: rgba(255,0,0,255);"
-				"  border-bottom-color: rgba(255,0,0,255);"
-				"}"
-				"QGroupBox::title:hover {"
-				"    color: rgba(235, 235, 235, 255);"
-				"}"
-				);
+const QString MdTable::StyleSheet_QGroupBox = QString(
+																 "QGroupBox::title {"
+																 "    subcontrol-origin: margin; /* margin boarder padding content */"
+																 "    subcontrol-position: top center; /* position at the top center */"
+																 "    font: italic 9pt ""Arial"";"
+																 "    font-weight: bold;"
+																 "    top: 1.0ex;   "
+																 "    padding: 0px 8px;"
+																 "  padding-top: -2ex;"
+																 "  color:  rgba(50,50,50,255);"
+																 "} [selected=false] {"
+																 "  color:  rgba(245,0,0,255);"
+																 "} "
+																 "QGroupBox, QGroupBox [selected=false] {"
+																 "  margin-top: 1ex; /*margin-bottom: 2px; margin-left: 2px; margin-right: 2px;*/"
+																 "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
+																 "    font: italic 9pt ""Arial"";"
+																 "    font-weight: bold;"
+																 "    border-radius: 5px;"
+																 "  border: 2px solid;"
+																 "  border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));"
+																 "  border-left-color: rgba(105,105,105,255);"
+																 "  border-right-color: rgba(105,105,105,205);"
+																 "  border-bottom-color: rgba(105,105,105,205);"
+																 "} [selected=true] { "
+																 "  /* margin-top: 5px; margin-bottom: -2px; margin-left: -2px; margin-right: -2px; */"
+																 "  border: 2px solid; "
+																 "  border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(255,0,0,255), stop:1 rgba(247, 247, 247, 250));"
+																 "  border-left-color: rgba(255,0,0,255);"
+																 "  border-right-color: rgba(255,0,0,255);"
+																 "  border-bottom-color: rgba(255,0,0,255);"
+																 "}"
+																 "QGroupBox::title:hover {"
+																 "    color: rgba(235, 235, 235, 255);"
+																 "}"
+																 );
 #define QFOLDINGEND }

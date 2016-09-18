@@ -12,7 +12,8 @@ struct Md::confKeys_t Md::k {
 	QString("/mSectionIdxs"),
 	QString("/WindowGeometry"),
 	QString("/WindowState"),
-	QString("/AllTabableWidgets")
+	QString("/AllTabableWidgets"),
+	QString("/MaxHourlyWage")
 };
 QMap<QString, QString> Md::tableAlias {
 	{ "client",		"Kunden" },

@@ -19,7 +19,8 @@ public:
 		sectionIdxs,
 		windowGeometry,
 		WindowState,
-		allTabableWidgets;
+		allTabableWidgets,
+		maxHourlyWage;
 	} k;
 
 	static QMap<QString, QString> tableAlias;

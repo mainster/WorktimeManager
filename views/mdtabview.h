@@ -110,8 +110,11 @@ protected slots:
 private:
 	QString				m_sqlTableName;
 	QActionGroup		*actGrStrategy, *actGrContext;
-	QAction				*actInsertRow, *actDeleteRow, *actFieldStrategy,
-	*actRowStrategy, *actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask;
+
+	QAction *actInsertRow, *actDeleteRow, *actFieldStrategy, *actRowStrategy,
+	*actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask;
+
+
 	static const QString	StyleSheet_QTableView;
 };
 

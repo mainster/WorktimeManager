@@ -29,6 +29,8 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 
 	connect(horizontalHeader(), &QHeaderView::sectionMoved, this, &MdTabView::onSectionMoved);
 
+	setContextMenuPolicy(Qt::ActionsContextMenu);
+
 	restoreFont();
 
 	QTimer::singleShot(500, this, SLOT(restoreActionObjects()));

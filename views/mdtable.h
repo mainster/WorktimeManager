@@ -6,6 +6,7 @@
 #include <QGroupBox>
 
 #include "mdtabview.h"
+#include "employeeform.h"
 
 class MdTable : public QWidget {
 
@@ -44,10 +45,11 @@ signals:
 	void groupBoxMouseButtonPress(MdTable *sender);
 
 public slots:
-	void onSqlTableNameChanged(const QString &objNam);
+	void onSqlTableNameChanged(const QString &sqlTableName);
 
 protected slots:
 	void onActSectionMask(bool sectionMask);
+	void onActBaseDataForm();
 
 protected:
 	const static QString StyleSheet_QGroupBox;
@@ -57,6 +59,7 @@ private:
 	QGroupBox	*m_gb;
 	MdTabView	*m_tv;
 	SectionMask	*mSectMsk;
+	QAction		*actEmployeeForm, *actProjectForm, *actClientForm;
 	bool			m_selected;
 
 

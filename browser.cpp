@@ -534,7 +534,6 @@ void Browser::createUi(QWidget *passParent) {
 		tbl->tv()->setObjectName( currentName );
 
 		tbl->tv()->setToolTip( tr("Tooltip: ") + currentName);
-		tbl->tv()->setContextMenuPolicy(Qt::ActionsContextMenu);
 		connect(this,	&Browser::clearSelections,
 				  tbl,	&MdTable::clearSelected);
 		connect(this,			&Browser::updateWriteActions,
