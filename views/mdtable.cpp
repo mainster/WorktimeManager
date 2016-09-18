@@ -79,9 +79,10 @@ void MdTable::onActBaseDataForm() {
 	if (! action)
 		qReturn("Cast failed!");
 
-	if (action == actEmployeeForm) {
-//		EmployeeForm *bdForm = new EmployeeForm(1, tv()->model(), 0);
-		BaseDataForm *bdForm = new BaseDataForm(1, tv(), 0);
+	if ((action == actEmployeeForm) ||
+		 (action == actClientForm) ||
+		 (action == actProjectForm)) {
+		bdForm = new BaseDataForm(-1, tv(), 0);
 		bdForm->show();
 	}
 }

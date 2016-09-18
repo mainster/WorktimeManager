@@ -15,6 +15,7 @@ struct Md::confKeys_t Md::k {
 	QString("/AllTabableWidgets"),
 	QString("/MaxHourlyWage")
 };
+
 QMap<QString, QString> Md::tableAlias {
 	{ "client",		"Kunden" },
 	{ "prj",			"Projekte" },
@@ -26,6 +27,17 @@ QMap<QString, QString> Md::tableAlias {
 	{ "runtime",	"Überstd/Vorsch" }
 };
 
+QMap<QString, QString> Md::headerAlias {
+	{ "client/Nummer",	"Knd. #" },
+	{ "Stundensatz",		"€/h" },
+	{ "dat",					"Datum" },
+	{ "hours",				"Std" },
+	{ "prj/clientID",		"Kunde, Name" },
+	{ "PersonalNr",		"PN" },
+	{ "Wochenstunden",	"h/Woche" },
+	{ "prj/archID",		"Architekt, Name" },
+	{ "prj/subID",			"Subunternehmer" }
+};
 
 QFileInfo Locals::SQL_DATABASE = QFileInfo("/var/lib/mysql/delbassoSQL.db");
 QString Locals::SQL_DRIVER = QString("QSQLITE");

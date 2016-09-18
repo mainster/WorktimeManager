@@ -66,17 +66,15 @@ void MdTabView::createForeignModel(const QString &tNam) {
 			int colPrj = rmod->fieldIndex("prjID");
 
 			/** Set the relations to foreign database tables */
-			rmod->setRelation(colEmp, QSqlRelation(
-										"worker", "workerID", "Nachname"));
-			rmod->setRelation(colPrj, QSqlRelation(
-										"prj", "prjID", "Beschreibung"));
+			rmod->setRelation(colEmp, QSqlRelation("worker", "workerID", "Nachname"));
+			rmod->setRelation(colPrj, QSqlRelation("prj", "prjID", "Beschreibung"));
 
 			//!< Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("worktimID"), Qt::Horizontal, tr("ID"));
-			rmod->setHeaderData(rmod->fieldIndex("dat"), Qt::Horizontal, tr("Datum"));
+			rmod->setHeaderData(rmod->fieldIndex("dat"), Qt::Horizontal, Md::headerAlias[ "dat" ]);
+			rmod->setHeaderData(rmod->fieldIndex("hours"), Qt::Horizontal, Md::headerAlias[ "hours" ]);
 			rmod->setHeaderData(colEmp, Qt::Horizontal, tr("Mitarb"));
 			rmod->setHeaderData(colPrj, Qt::Horizontal, tr("Beschreibung"));
-			rmod->setHeaderData(rmod->fieldIndex("hours"), Qt::Horizontal, tr("Std"));
 
 			break;
 		}
@@ -86,14 +84,23 @@ void MdTabView::createForeignModel(const QString &tNam) {
 		if (tNam.contains("prj", Qt::CaseInsensitive)) {
 			/** Remember the indexes of the columns */
 			int colClient = rmod->fieldIndex("clientID");
+			int colSub = rmod->fieldIndex("subID");
+			int colArch = rmod->fieldIndex("archID");
 
+			rmod->setJoinMode(QSqlRelationalTableModel::LeftJoin);
 			/** Set the relations to the other database tables */
-			rmod->setRelation(colClient, QSqlRelation(
-										"client", "clientID", "Name"));
+			rmod->setRelation(colClient, QSqlRelation("client", "clientID", "Name"));
+			rmod->setRelation(colSub, QSqlRelation("arch", "archID", "Name"));
+			rmod->setRelation(colArch, QSqlRelation("arch", "archID", "Name"));
 
 			//!< Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("prjID"), Qt::Horizontal, tr("ID"));
-			rmod->setHeaderData(rmod->fieldIndex("clientID"), Qt::Horizontal, tr("Kunde, Name"));
+			rmod->setHeaderData(rmod->fieldIndex("clientID"), Qt::Horizontal,
+									  Md::headerAlias[ tr("%1/clientID").arg(tNam) ]);
+			rmod->setHeaderData(rmod->fieldIndex("subID"), Qt::Horizontal,
+									  Md::headerAlias[ tr("%1/subID").arg(tNam) ]);
+			rmod->setHeaderData(rmod->fieldIndex("archID"), Qt::Horizontal,
+									  Md::headerAlias[ tr("%1/archID").arg(tNam) ]);
 
 			break;
 		}
@@ -105,14 +112,16 @@ void MdTabView::createForeignModel(const QString &tNam) {
 			int colGrading = rmod->fieldIndex("gradingID");
 
 			/** Set the relations to foreign database tables */
-			rmod->setRelation(colGrading, QSqlRelation(
-										"grading", "gradingID", "Einstufung"));
+			rmod->setRelation(colGrading, QSqlRelation("grading", "gradingID", "Einstufung"));
 
 			//!< Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("workerID"), Qt::Horizontal, tr("ID"));
-			rmod->setHeaderData(rmod->fieldIndex("PersonalNr"), Qt::Horizontal, tr("PN"));
-			rmod->setHeaderData(rmod->fieldIndex("Stundensatz"), Qt::Horizontal, tr("€/h"));
-			rmod->setHeaderData(rmod->fieldIndex("Wochenstunden"), Qt::Horizontal, tr("h/Woche"));
+			rmod->setHeaderData(rmod->fieldIndex("PersonalNr"), Qt::Horizontal,
+									  Md::headerAlias[ "PersonalNr" ]);
+			rmod->setHeaderData(rmod->fieldIndex("Stundensatz"), Qt::Horizontal,
+									  Md::headerAlias[ "Stundensatz" ]);
+			rmod->setHeaderData(rmod->fieldIndex("Wochenstunden"), Qt::Horizontal,
+									  Md::headerAlias[ "Wochenstunden" ]);
 			break;
 		}
 		/* --------------------------------------------------------- */
@@ -121,9 +130,8 @@ void MdTabView::createForeignModel(const QString &tNam) {
 		if (tNam.contains("client", Qt::CaseInsensitive)) {
 			//!< Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("clientID"), Qt::Horizontal, tr("ID"));
-			rmod->setHeaderData(rmod->fieldIndex("Nummer"), Qt::Horizontal, tr("Knd. #"));
-			rmod->setHeaderData(rmod->fieldIndex("Stundensatz"), Qt::Horizontal, tr("€/h"));
-
+			rmod->setHeaderData(rmod->fieldIndex("Nummer"), Qt::Horizontal,
+									  Md::headerAlias[ tr("%1/Nummer").arg(tNam) ]);
 			break;
 		}
 		/* --------------------------------------------------------- */
@@ -141,6 +149,24 @@ void MdTabView::createForeignModel(const QString &tNam) {
 		if (tNam.contains("arch", Qt::CaseInsensitive)) {
 			//!< Set the localized header captions
 			rmod->setHeaderData(rmod->fieldIndex("archID"), Qt::Horizontal, tr("ID"));
+
+			break;
+		}
+		/* --------------------------------------------------------- */
+		/*                      Table grading								 */
+		/* --------------------------------------------------------- */
+		if (tNam.contains("grading", Qt::CaseInsensitive)) {
+			//!< Set the localized header captions
+			rmod->setHeaderData(rmod->fieldIndex("gradingID"), Qt::Horizontal, tr("ID"));
+
+			break;
+		}
+		/* --------------------------------------------------------- */
+		/*                      Table runtime								 */
+		/* --------------------------------------------------------- */
+		if (tNam.contains("runtime", Qt::CaseInsensitive)) {
+			//!< Set the localized header captions
+			rmod->setHeaderData(rmod->fieldIndex("runtimeID"), Qt::Horizontal, tr("ID"));
 
 			break;
 		}

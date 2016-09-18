@@ -104,7 +104,6 @@ SOURCES += \
 	 textedit/textedit.cpp \
 	 views/mdtable.cpp \
     views/mdtabview.cpp \
-    employeeform.cpp \
     basedataform.cpp
 
 

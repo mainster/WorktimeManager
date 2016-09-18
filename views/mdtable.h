@@ -61,6 +61,7 @@ private:
 	MdTabView	*m_tv;
 	SectionMask	*mSectMsk;
 	QAction		*actEmployeeForm, *actProjectForm, *actClientForm;
+	BaseDataForm *bdForm;
 	bool			m_selected;
 
 

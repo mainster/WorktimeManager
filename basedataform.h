@@ -8,8 +8,10 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QtWidgets>
+
 #include "globals.h"
 #include "mdtabview.h"
+#include "models.h"
 
 class QComboBox;
 class QDataWidgetMapper;
@@ -33,7 +35,9 @@ class QSqlRelationalTableModel;
 	Vorschuss               REAL                    -- Bereits geholt
 */
 
-#define	ID_COLUMN	0
+#define	ID_COLUMN					0
+#define	INT_VALIDATOR_UPPER		999999
+#define	REAL_VALIDATOR_UPPER		999.99
 
 struct ColumnSchema_t {
 	int cid;
@@ -65,34 +69,25 @@ public:
 	BaseDataForm(int id, QTableView *tableView, QWidget *parent = 0);
 
 	void done(int result);
+	virtual void reject() override;
 
 private slots:
 	void addEmployee();
 	void deleteEmployee();
+	void saveCurrent();
 
 private:
+	QTableView *m_tableView;
 	QSqlRelationalTableModel *tableModel;
 	QDataWidgetMapper *mapper;
-
-//	QLabel *lblLastName, *lblFirstName, *lblExtension, *lblHourlyWage,
-//	*lblAddress, *lblPayGrade, *lblHoursPerWeek;
-//	QLineEdit *leLastName, *leFirstName, *leExtension, *leHourlyWage,
-//	*leAddress, *lePayGrade, *leHoursPerWeek;
 
 	QList<QComboBox *> cbRelations;
 	QList<QLabel *> lblRelations;
 	QList<QLineEdit *> leRelations;
-//	QLineEdit *extensionLineEdit;
-//	QLineEdit *emailEdit;
-//	QDateEdit *startDateEdit;
 
-	QPushButton *firstButton;
-	QPushButton *previousButton;
-	QPushButton *nextButton;
-	QPushButton *lastButton;
-	QPushButton *addButton;
-	QPushButton *deleteButton;
-	QPushButton *closeButton;
+	QPushButton *firstButton, *previousButton, *nextButton, *lastButton, *addButton,
+	*deleteButton, *closeButton, *saveButton;
+
 	QDialogButtonBox *buttonBox;
 };
 

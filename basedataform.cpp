@@ -4,28 +4,36 @@
 #include "basedataform.h"
 
 BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
-	: QDialog(parent) {
+	: QDialog(parent), m_tableView(tableView) {
 	setObjectName(tr("BaseDataForm_%1")
 					  .arg(qobject_cast<MdTabView *>(tableView)->sqlTableName()));
 	QSETTINGS;
 
+	/* ======================================================================== */
+	/*                          Create button objects                           */
+	/* ======================================================================== */
 	firstButton = new QPushButton(tr("<<"));
 	previousButton = new QPushButton(tr("< &Letzter"));
 	nextButton = new QPushButton(tr("&Nächster >"));
 	lastButton = new QPushButton(tr(">>"));
 
-	addButton = new QPushButton(tr("&Add"));
-	deleteButton = new QPushButton(tr("&Delete"));
-	closeButton = new QPushButton(tr("&Close"));
+	addButton = new QPushButton(tr("&Hinzufügen"));
+	deleteButton = new QPushButton(tr("&Löschen"));
+	saveButton = new QPushButton(tr("&Anwenden"));
+	closeButton = new QPushButton(tr("A&bbruch"));
 
-	firstButton->setFixedWidth(40);
-	lastButton->setFixedWidth(40);
+	firstButton->setFixedWidth(30);
+	lastButton->setFixedWidth(30);
 
 	buttonBox = new QDialogButtonBox;
-	buttonBox->addButton(addButton, QDialogButtonBox::ActionRole);
+	buttonBox->addButton(addButton, QDialogButtonBox::ResetRole);
 	buttonBox->addButton(deleteButton, QDialogButtonBox::ActionRole);
-	buttonBox->addButton(closeButton, QDialogButtonBox::AcceptRole);
+	buttonBox->addButton(saveButton, QDialogButtonBox::ApplyRole);
+	buttonBox->addButton(closeButton, QDialogButtonBox::RejectRole);
 
+	/* ======================================================================== */
+	/*                             Set table model                              */
+	/* ======================================================================== */
 	tableModel = dynamic_cast<QSqlRelationalTableModel *>(tableView->model());
 	tableModel->select();
 
@@ -34,9 +42,9 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	mapper->setModel(tableModel);
 	mapper->setItemDelegate(new QSqlRelationalDelegate(this));
 
-	/*!
-	 * Query a string list of table column names.
-	 */
+	/* ======================================================================== */
+	/*                        Query a ColumnSchema list                         */
+	/* ======================================================================== */
 	QList<ColumnSchema> columnSchemas;
 	QSqlQuery query(tr("PRAGMA table_info('%1')").arg(
 							 qobject_cast<MdTabView *>(tableView)->sqlTableName()));
@@ -52,6 +60,9 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 		columnSchemas << columnSchema;
 	}
 
+	/* ======================================================================== */
+	/*                      Create button and main layout                       */
+	/* ======================================================================== */
 	QHBoxLayout *topButtonLayout = new QHBoxLayout;
 	topButtonLayout->setContentsMargins(20, 0, 20, 5);
 	topButtonLayout->addStretch();
@@ -65,6 +76,16 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	int gridRow = 0;
 	mainLayout->addLayout(topButtonLayout, gridRow++, 0, 1, 2);
 
+	for (int k = 0; k < tableModel->columnCount(QModelIndex()); k++) {
+		if (tableModel->relationModel(k)) {
+			QSqlTableModel *rtm = tableModel->relationModel(k);
+			INFO << tr("Column %1 has foreign key for: %2/%3")
+					  .arg(k)
+					  .arg(rtm->tableName())
+					  .arg(tableModel->headerData(k, Qt::Horizontal).toString());
+		}
+	}
+
 	int k = 0;
 	foreach (ColumnSchema cs, columnSchemas) {
 		/*!
@@ -72,9 +93,10 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 		 */
 		if (tableModel->relationModel(k)) {
 			QSqlTableModel *rtm = tableModel->relationModel(k);
-			INFO << tr("Column %1 has foreign key for table %2")
-					  .arg(k).arg(rtm->tableName());
-			INFO << tableModel->headerData(k, Qt::Horizontal);
+			INFO << tr("Column %1 has foreign key for: %2/%3")
+					  .arg(k)
+					  .arg(rtm->tableName())
+					  .arg(tableModel->headerData(k, Qt::Horizontal).toString());
 
 			cbRelations << new QComboBox();
 			lblRelations << new QLabel(tableModel->headerData(k, Qt::Horizontal).toString());
@@ -98,23 +120,30 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 				/*!
 				 * Check if a config value has been stored in settings ini.
 				 */
-				INFO << tr("Validator INT value for: %1 = %2")
-						  .arg(objectName() + tr("/%1").arg(cs.name))
-						  .arg(config.value(objectName() + tr("/%1").arg(cs.name),999).toInt());
-				leRelations.last()->setValidator(
-							new QIntValidator(0, config.value(objectName() + tr("/%1").arg(cs.name),
-																		 999).toInt(), this));
+				int upperValue = config.value(objectName() + tr("/%1").arg(cs.name),
+														INT_VALIDATOR_UPPER).toInt();
+
+				if (upperValue != INT_VALIDATOR_UPPER)
+					INFO << tr("Validator INT value for: %1 = %2")
+							  .arg(objectName() + tr("/%1").arg(cs.name))
+							  .arg(upperValue);
+
+				leRelations.last()->setValidator(new QIntValidator(0, upperValue, this));
 			}
+
 			if (cs.type.contains(tr("REAL"))) {
 				/*!
 				 * Check if a config value has been stored in settings ini.
 				 */
-				INFO << tr("Validator REAL value for: %1 = %2")
-						  .arg(objectName() + tr("/%1").arg(cs.name))
-						  .arg(config.value(objectName() + tr("/%1").arg(cs.name),999).toReal());
-				QDoubleValidator *dv =
-						new QDoubleValidator(0, config.value(objectName() + tr("/%1").arg(cs.name),
-																		 999).toReal(), 2, this);
+				qreal upperValue = config.value(objectName() + tr("/%1").arg(cs.name),
+														  REAL_VALIDATOR_UPPER).toReal();
+
+				if (upperValue != REAL_VALIDATOR_UPPER)
+					INFO << tr("Validator REAL value for: %1 = %2")
+							  .arg(objectName() + tr("/%1").arg(cs.name))
+							  .arg(upperValue);
+
+				QDoubleValidator *dv = new QDoubleValidator(0, upperValue, 2, this);
 				dv->setNotation(QDoubleValidator::StandardNotation);
 				leRelations.last()->setValidator(dv);
 			}
@@ -124,29 +153,31 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	}
 
 	if (id != -1) {
-		 for (int row = 0; row < tableModel->rowCount(); ++row) {
-			  QSqlRecord record = tableModel->record(row);
-			  if (record.value(ID_COLUMN).toInt() == id) {
-					mapper->setCurrentIndex(row);
-					break;
-			  }
-		 }
+		for (int row = 0; row < tableModel->rowCount(); ++row) {
+			QSqlRecord record = tableModel->record(row);
+			if (record.value(ID_COLUMN).toInt() == id) {
+				mapper->setCurrentIndex(row);
+				break;
+			}
+		}
 	}
 	else
 		mapper->toFirst();
 
-	connect(firstButton, SIGNAL(clicked()), mapper, SLOT(toFirst()));
+	connect(firstButton, &QPushButton::clicked, mapper, &QDataWidgetMapper::toFirst);
 	connect(previousButton, SIGNAL(clicked()), mapper, SLOT(toPrevious()));
 	connect(nextButton, SIGNAL(clicked()), mapper, SLOT(toNext()));
 	connect(lastButton, SIGNAL(clicked()), mapper, SLOT(toLast()));
+
 	connect(addButton, SIGNAL(clicked()), this, SLOT(addEmployee()));
 	connect(deleteButton, SIGNAL(clicked()), this, SLOT(deleteEmployee()));
-	connect(closeButton, SIGNAL(clicked()), this, SLOT(accept()));
+	connect(saveButton, SIGNAL(clicked()), this, SLOT(saveCurrent()));
+	connect(closeButton, SIGNAL(clicked()), this, SLOT(reject()));
 
 	mainLayout->addWidget(buttonBox, gridRow, 0, 1, 2);
 	//	mainLayout->setRowMinimumHeight(6, 10);
-	//	mainLayout->setRowStretch(6, 1);
-	//	mainLayout->setColumnStretch(2, 1);
+//		mainLayout->setRowStretch(6, 1);
+//		mainLayout->setColumnStretch(2, 1);
 	setLayout(mainLayout);
 
 	if (id == -1)
@@ -154,14 +185,10 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	else
 		leRelations.first()->setFocus();
 
-	setWindowTitle(tr("Mitarbeiter-Stammdaten bearbeiten"));
+	setWindowTitle(tr("Stammdaten bearbeiten: %1")
+						.arg(Md::tableAlias[ qobject_cast<MdTabView *>(
+							tableView)->sqlTableName() ]));
 }
-
-void BaseDataForm::done(int result) {
-	mapper->submit();
-	QDialog::done(result);
-}
-
 void BaseDataForm::addEmployee() {
 	int row = mapper->currentIndex();
 	mapper->submit();
@@ -176,10 +203,23 @@ void BaseDataForm::addEmployee() {
 
 	leRelations.first()->setFocus();
 }
-
 void BaseDataForm::deleteEmployee() {
 	int row = mapper->currentIndex();
 	tableModel->removeRow(row);
 	mapper->submit();
 	mapper->setCurrentIndex(qMin(row, tableModel->rowCount() - 1));
+}
+void BaseDataForm::saveCurrent() {
+	mapper->submit();
+	static_cast<SqlRtm *>(m_tableView->model())->submitAll();
+}
+void BaseDataForm::done(int result) {
+	mapper->submit();
+	static_cast<SqlRtm *>(m_tableView->model())->submitAll();
+	QDialog::done(result);
+}
+void BaseDataForm::reject() {
+	mapper->revert();
+	static_cast<SqlRtm *>(m_tableView->model())->revertAll();
+	QDialog::reject();
 }

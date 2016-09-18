@@ -36,7 +36,15 @@ public:
 		return maybeAliasedTable;
 	}
 
+	/*!
+	 * Lookup-table which holds aliases for sql table names.
+	 */
 	static QMap<QString, QString> tableAlias;
+
+	/*!
+	 * Lookup-table which holds aliases for sql table column header fields.
+	 */
+	static QMap<QString, QString> headerAlias;
 };
 
 class Locals {
