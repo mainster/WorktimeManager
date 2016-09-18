@@ -19,10 +19,11 @@ QMap<QString, QString> Md::tableAlias {
 	{ "client",		"Kunden" },
 	{ "prj",			"Projekte" },
 	{ "fehlzeit",	"Fehlzeiten" },
+	{ "arch",		"Architekten" },
+	{ "worktime",	"Arbeitszeiten" },
 	{ "worker",		"Mitarbeiter" },
-	{ "arch",		"Architekt" },
-	{ "worktime",	"Arbeitszeit" },
-	{ "worker",		"Mitarbeiter" }
+	{ "grading",	"Einstufungen" },
+	{ "runtime",	"Überstd/Vorsch" }
 };
 
 

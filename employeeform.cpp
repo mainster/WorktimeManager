@@ -13,9 +13,9 @@ EmployeeForm::EmployeeForm(int id, QAbstractItemModel *model, QWidget *parent)
 	lblFirstName = new QLabel(tr("&Vorname:"));
 	lblFirstName->setBuddy(leFirstName);
 
-	leEinstufung = new QLineEdit(this);
-	lblEinstufung = new QLabel(tr("&Einstufung:"));
-	lblEinstufung->setBuddy(leEinstufung);
+//	leEinstufung = new QLineEdit(this);
+//	lblEinstufung = new QLabel(tr("&Einstufung:"));
+//	lblEinstufung->setBuddy(leEinstufung);
 
 	leExtension = new QLineEdit(this);
 	leExtension->setValidator(new QIntValidator(-99, 9999, this));
@@ -53,15 +53,15 @@ EmployeeForm::EmployeeForm(int id, QAbstractItemModel *model, QWidget *parent)
 	lblHoursPerWeek = new QLabel(tr("&Wochenstunden:"));
 	lblHoursPerWeek->setBuddy(leHoursPerWeek);
 
-	leVorschuss = new QLineEdit(this);
-	leVorschuss->setValidator(new QIntValidator(-9999, 9999, this));
-	lblVorschuss = new QLabel(tr("&Vorschuss:"));
-	lblVorschuss->setBuddy(leVorschuss);
+//	leVorschuss = new QLineEdit(this);
+//	leVorschuss->setValidator(new QIntValidator(-9999, 9999, this));
+//	lblVorschuss = new QLabel(tr("&Vorschuss:"));
+//	lblVorschuss->setBuddy(leVorschuss);
 
-	firstButton = new QPushButton(tr("<< &Anfang"));
+	firstButton = new QPushButton(tr("<<"));
 	previousButton = new QPushButton(tr("< &Letzter"));
 	nextButton = new QPushButton(tr("&Nächster >"));
-	lastButton = new QPushButton(tr("&Ende >>"));
+	lastButton = new QPushButton(tr(">>"));
 
 	addButton = new QPushButton(tr("&Add"));
 	deleteButton = new QPushButton(tr("&Delete"));
@@ -81,24 +81,34 @@ EmployeeForm::EmployeeForm(int id, QAbstractItemModel *model, QWidget *parent)
 	tableModel = dynamic_cast<QSqlRelationalTableModel *>(model);
 	tableModel->select();
 
-	//    QSqlTableModel *relationModel =
-	//            tableModel->relationModel(Employee_DepartmentId);
-	//    departmentComboBox->setModel(relationModel);
-	//    departmentComboBox->setModelColumn(
-	//            relationModel->fieldIndex("name"));
-
 	mapper = new QDataWidgetMapper(this);
 	mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
 	mapper->setModel(tableModel);
 	mapper->setItemDelegate(new QSqlRelationalDelegate(this));
 	mapper->addMapping(leLastName, Employee_Nachname);
 	mapper->addMapping(leFirstName, Employee_Vorname);
-	mapper->addMapping(leEinstufung, Employee_Einstufung);
+//	mapper->addMapping(leEinstufung, Employee_Einstufung);
 	mapper->addMapping(leExtension, Employee_PersonalNr);
 	mapper->addMapping(leHourlyWage, Employee_Stundensatz);
 	mapper->addMapping(lePayGrade, Employee_Gehaltsstufe);
 	mapper->addMapping(leHoursPerWeek, Employee_Wochenstunden);
-	mapper->addMapping(leVorschuss, Employee_Vorschuss);
+
+	/*!
+	 * Check current table for some foreign key and create a QComboBox.
+	 */
+	for (int k = 0; k < tableModel->rowCount(QModelIndex()); k++)
+		if (tableModel->relationModel(k)) {
+			QSqlTableModel *rtm = tableModel->relationModel(k);
+			INFO << tr("Column %1 has foreign key for table %2")
+					  .arg(k).arg(rtm->tableName());
+			INFO << tableModel->headerData(k, Qt::Horizontal);
+
+			cbRelations << new QComboBox();
+			lblRelations << new QLabel(tableModel->headerData(k, Qt::Horizontal).toString());
+			mapper->addMapping(cbRelations.last(), k);
+			cbRelations.last()->setModel(rtm);
+			cbRelations.last()->setModelColumn(1);
+		}
 
 	if (id != -1) {
 		for (int row = 0; row < tableModel->rowCount(); ++row) {
@@ -131,24 +141,28 @@ EmployeeForm::EmployeeForm(int id, QAbstractItemModel *model, QWidget *parent)
 	topButtonLayout->addStretch();
 
 	QGridLayout *mainLayout = new QGridLayout;
-	mainLayout->addLayout(topButtonLayout, 0, 0, 1, 3);
-	mainLayout->addWidget(lblLastName, 1, 0);
-	mainLayout->addWidget(leLastName, 1, 1, 1, 2);
-	mainLayout->addWidget(lblFirstName, 2, 0);
-	mainLayout->addWidget(leFirstName, 2, 1, 1, 2);
-	mainLayout->addWidget(lblEinstufung, 3, 0);
-	mainLayout->addWidget(leEinstufung, 3, 1, 1, 2);
-	mainLayout->addWidget(lblExtension, 4, 0);
-	mainLayout->addWidget(leExtension, 4, 1);
-	mainLayout->addWidget(lblHourlyWage, 5, 0);
-	mainLayout->addWidget(leHourlyWage, 5, 1, 1, 2);
-	mainLayout->addWidget(lblPayGrade, 6, 0);
-	mainLayout->addWidget(lePayGrade, 6, 1);
+	int gridRow = 0;
+	mainLayout->addLayout(topButtonLayout, gridRow++, 0, 1, 3);
+	mainLayout->addWidget(lblLastName, gridRow, 0);
+	mainLayout->addWidget(leLastName, gridRow++, 1, 1, 2);
+	mainLayout->addWidget(lblFirstName, gridRow, 0);
+	mainLayout->addWidget(leFirstName, gridRow++, 1, 1, 2);
 
-	mainLayout->addWidget(buttonBox, 7, 0, 1, 3);
-	mainLayout->setRowMinimumHeight(6, 10);
-	mainLayout->setRowStretch(6, 1);
-	mainLayout->setColumnStretch(2, 1);
+	for (int cbs = 0; cbs < cbRelations.count(); cbs++) {
+		mainLayout->addWidget(lblRelations.at(cbs), gridRow, 0);
+		mainLayout->addWidget(cbRelations.at(cbs), gridRow++, 1, 1, 2);
+	}
+	mainLayout->addWidget(lblExtension, gridRow, 0);
+	mainLayout->addWidget(leExtension, gridRow++, 1);
+	mainLayout->addWidget(lblHourlyWage, gridRow, 0);
+	mainLayout->addWidget(leHourlyWage, gridRow++, 1, 1, 2);
+	mainLayout->addWidget(lblPayGrade, gridRow, 0);
+	mainLayout->addWidget(lePayGrade, gridRow++, 1);
+
+	mainLayout->addWidget(buttonBox, gridRow, 0, 1, 3);
+//	mainLayout->setRowMinimumHeight(6, 10);
+//	mainLayout->setRowStretch(6, 1);
+//	mainLayout->setColumnStretch(2, 1);
 	setLayout(mainLayout);
 
 	if (id == -1) {
@@ -157,7 +171,7 @@ EmployeeForm::EmployeeForm(int id, QAbstractItemModel *model, QWidget *parent)
 		leLastName->setFocus();
 	}
 
-	setWindowTitle(tr("Edit Employees"));
+	setWindowTitle(tr("Mitarbeiter-Stammdaten bearbeiten"));
 }
 
 void EmployeeForm::done(int result) {

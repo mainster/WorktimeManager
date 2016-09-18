@@ -161,7 +161,8 @@ void ConnectionWidget::on_tree_itemActivated(QTreeWidgetItem *item,
 }
 void ConnectionWidget::showMetaData() {
 	QTreeWidgetItem *cItem = tree->currentItem();
-	if (!cItem || !cItem->parent()) return;
+	if (!cItem || !cItem->parent())
+		return;
 	setActive(cItem->parent());
 	emit metaDataRequested(cItem->text(0));
 }

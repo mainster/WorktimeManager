@@ -23,6 +23,19 @@ public:
 		maxHourlyWage;
 	} k;
 
+	static QString unAliasTableName(const QString maybeAliasedTable) {
+		/*!
+		 * Test table for alias extension and get sqlTableName if alias extension is used.
+		 */
+		QRegularExpression re("\\[(\\w+)\\]");
+		QRegularExpressionMatch match = re.match(maybeAliasedTable);
+
+		if (match.hasMatch())
+			return match.captured(0).remove(QRegularExpression("[\\[\\]]"));
+
+		return maybeAliasedTable;
+	}
+
 	static QMap<QString, QString> tableAlias;
 };
 

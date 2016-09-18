@@ -196,20 +196,21 @@ void Browser::onConWidgetTableActivated(const QString &sqlTableName) {
 	 * becomes addressed by the event handler.
 	 */
 
-//	if (sqlTableName.contains(tr("worktime"))) {
-//		mdtv = new MdTabView(sqlTableName, mTabs.currentSelected()->tv());
-//		connect(this, &Browser::updateWriteActions,
-//				  mdtv, &MdTabView::onUpdateWriteActions);
-//	}
-//	else
-		mTabs.currentSelected()->tv()->createForeignModel(sqlTableName);
+	//	if (sqlTableName.contains(tr("worktime"))) {
+	//		mdtv = new MdTabView(sqlTableName, mTabs.currentSelected()->tv());
+	//		connect(this, &Browser::updateWriteActions,
+	//				  mdtv, &MdTabView::onUpdateWriteActions);
+	//	}
+	//	else
+	mTabs.currentSelected()->tv()->createForeignModel(sqlTableName);
 
-//	if (FilterForm::instance()->isVisible())
-//		FilterForm::instance()->setSourceTable(mTabs.currentSelected());
+	//	if (FilterForm::instance()->isVisible())
+	//		FilterForm::instance()->setSourceTable(mTabs.currentSelected());
 }
 /* ======================================================================== */
 QStandardItemModel *Browser::tblToMetaDataMdl(const QString &table) {
-	QSqlRecord rec = connectionWidget()->currentDb().record(table);
+	QSqlRecord rec = connectionWidget()->currentDb().record( Md::unAliasTableName(table) );
+
 	QStandardItemModel *model = new QStandardItemModel(/*tvs()->first()->tv()*/);
 
 	model->insertRows(0, rec.count());
@@ -340,7 +341,7 @@ bool Browser::eventFilter(QObject *obj, QEvent *e) {
 }
 void Browser::showEvent(QShowEvent *) {
 	SPLT_RESTORE(this);
-//	autofitRowCol();
+	//	autofitRowCol();
 	emit visibilityChanged( true );
 }
 void Browser::hideEvent(QHideEvent *) {
@@ -632,47 +633,47 @@ void Browser::selectAndSetRowColor() {
 bool Browser::selectAndSetColor(ColorSetTarget target) {
 	switch (target) {
 
-	case AlternatingRowsColor: {
-		QPalette pal = mTabs.currentSelected()->tv()->palette();
+		case AlternatingRowsColor: {
+			QPalette pal = mTabs.currentSelected()->tv()->palette();
 
-		QColor color = QColorDialog::getColor(
-					pal.background().color(), this,
-					tr("Farbe für alternierenden Zeilenhintergrund"),
-					QColorDialog::DontUseNativeDialog);
+			QColor color = QColorDialog::getColor(
+									pal.background().color(), this,
+									tr("Farbe für alternierenden Zeilenhintergrund"),
+									QColorDialog::DontUseNativeDialog);
 
-		if (! color.isValid())
-			return false;
+			if (! color.isValid())
+				return false;
 
-		if (mTabs.hasSelected())
-			mTabs.currentSelected()->tv()->setAlternateRowCol(color, true);
-		else
-			foreach (MdTabView *tv, mTabs.tvsNoPtr())
-				tv->setAlternateRowCol(color, true);
+			if (mTabs.hasSelected())
+				mTabs.currentSelected()->tv()->setAlternateRowCol(color, true);
+			else
+				foreach (MdTabView *tv, mTabs.tvsNoPtr())
+					tv->setAlternateRowCol(color, true);
 
-	}; break;
+		}; break;
 
-	case GridLineColor: {
-		QPalette pal = mTabs.currentSelected()->tv()->palette();
+		case GridLineColor: {
+			QPalette pal = mTabs.currentSelected()->tv()->palette();
 
-		QColor color = QColorDialog::getColor(
-					pal.background().color(), this,
-					tr("Farbe für alternierenden Zeilenhintergrund"),
-					QColorDialog::DontUseNativeDialog);
+			QColor color = QColorDialog::getColor(
+									pal.background().color(), this,
+									tr("Farbe für alternierenden Zeilenhintergrund"),
+									QColorDialog::DontUseNativeDialog);
 
-		if (! color.isValid())
-			return false;
+			if (! color.isValid())
+				return false;
 
-		if (mTabs.hasSelected())
-			mTabs.currentSelected()->tv()->setAlternateRowCol(color, true);
-		else
-			foreach (MdTabView *tv, mTabs.tvsNoPtr())
-				tv->setAlternateRowCol(color, true);
-	}; break;
+			if (mTabs.hasSelected())
+				mTabs.currentSelected()->tv()->setAlternateRowCol(color, true);
+			else
+				foreach (MdTabView *tv, mTabs.tvsNoPtr())
+					tv->setAlternateRowCol(color, true);
+		}; break;
 
-	case BackgroundColor: {
+		case BackgroundColor: {
 
-	}; break;
-	default:		break;
+		}; break;
+		default:		break;
 	}
 
 	return true;

@@ -7,6 +7,7 @@
 
 #include "mdtabview.h"
 #include "employeeform.h"
+#include "basedataform.h"
 
 class MdTable : public QWidget {
 
