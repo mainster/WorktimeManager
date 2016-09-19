@@ -25,6 +25,7 @@
         <file>images/editor.png</file>
         <file alias="sortup">images/uparrow.png</file>
         <file>images/search.png</file>
+        <file>images/splashScreen.png</file>
     </qresource>
     <qresource prefix="/textedit">
         <file>images/textedit_res/win/zoomout.png</file>

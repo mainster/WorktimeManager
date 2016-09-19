@@ -38,9 +38,11 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	tableModel->select();
 
 	mapper = new QDataWidgetMapper(this);
-	mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
 	mapper->setModel(tableModel);
-	mapper->setItemDelegate(new QSqlRelationalDelegate(this));
+	mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
+//	mapper->setItemDelegate(new QSqlRelationalDelegate(this));
+//	mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+	mapper->setItemDelegate(new NullDelegate(this));
 
 	/* ======================================================================== */
 	/*                        Query a ColumnSchema list                         */
@@ -76,16 +78,6 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	int gridRow = 0;
 	mainLayout->addLayout(topButtonLayout, gridRow++, 0, 1, 2);
 
-	for (int k = 0; k < tableModel->columnCount(QModelIndex()); k++) {
-		if (tableModel->relationModel(k)) {
-			QSqlTableModel *rtm = tableModel->relationModel(k);
-			INFO << tr("Column %1 has foreign key for: %2/%3")
-					  .arg(k)
-					  .arg(rtm->tableName())
-					  .arg(tableModel->headerData(k, Qt::Horizontal).toString());
-		}
-	}
-
 	int k = 0;
 	foreach (ColumnSchema cs, columnSchemas) {
 		/*!
@@ -99,10 +91,14 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 					  .arg(tableModel->headerData(k, Qt::Horizontal).toString());
 
 			cbRelations << new QComboBox();
+//			cbRelations.last()->addItem(QString(), QVariant());
 			lblRelations << new QLabel(tableModel->headerData(k, Qt::Horizontal).toString());
 			mapper->addMapping(cbRelations.last(), k);
 			cbRelations.last()->setModel(rtm);
-			cbRelations.last()->setModelColumn(1);
+			if (lblRelations.last()->text().contains(tr("Name")))
+				cbRelations.last()->setModelColumn(rtm->fieldIndex("Name"));
+			else
+				cbRelations.last()->setModelColumn(0);
 
 			mainLayout->addWidget(lblRelations.last(), gridRow, 0);
 			mainLayout->addWidget(cbRelations.last(), gridRow++, 1, 1, 1);
@@ -115,6 +111,16 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 
 			mainLayout->addWidget(lblRelations.last(), gridRow, 0);
 			mainLayout->addWidget(leRelations.last(), gridRow++, 1, 1, 1);
+
+			/*!
+			 * Check if current ColumnSchema holds the primary key.
+			 */
+			if (cs.pk) {
+				leRelations.last()->setEnabled(false);
+				lePrimaryKey = leRelations.last();
+				k++;
+				continue;
+			}
 
 			if (cs.type.contains(tr("INT"))) {
 				/*!
@@ -152,7 +158,7 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 		k++;
 	}
 
-	if (id != -1) {
+	if (id != -1)
 		for (int row = 0; row < tableModel->rowCount(); ++row) {
 			QSqlRecord record = tableModel->record(row);
 			if (record.value(ID_COLUMN).toInt() == id) {
@@ -160,24 +166,23 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 				break;
 			}
 		}
-	}
 	else
 		mapper->toFirst();
 
-	connect(firstButton, &QPushButton::clicked, mapper, &QDataWidgetMapper::toFirst);
-	connect(previousButton, SIGNAL(clicked()), mapper, SLOT(toPrevious()));
-	connect(nextButton, SIGNAL(clicked()), mapper, SLOT(toNext()));
-	connect(lastButton, SIGNAL(clicked()), mapper, SLOT(toLast()));
+	connect(firstButton,		&QPushButton::clicked, mapper, &QDataWidgetMapper::toFirst);
+	connect(previousButton, &QPushButton::clicked, mapper, &QDataWidgetMapper::toPrevious);
+	connect(nextButton,		&QPushButton::clicked, mapper, &QDataWidgetMapper::toNext);
+	connect(lastButton,		&QPushButton::clicked, mapper, &QDataWidgetMapper::toLast);
 
-	connect(addButton, SIGNAL(clicked()), this, SLOT(addEmployee()));
-	connect(deleteButton, SIGNAL(clicked()), this, SLOT(deleteEmployee()));
-	connect(saveButton, SIGNAL(clicked()), this, SLOT(saveCurrent()));
-	connect(closeButton, SIGNAL(clicked()), this, SLOT(reject()));
+	connect(addButton,		&QPushButton::clicked, this, &BaseDataForm::addNew);
+	connect(deleteButton,	&QPushButton::clicked, this, &BaseDataForm::deleteCurrent);
+	connect(saveButton,		&QPushButton::clicked, this, &BaseDataForm::saveCurrent);
+	connect(closeButton,		&QPushButton::clicked, this, &BaseDataForm::reject);
 
 	mainLayout->addWidget(buttonBox, gridRow, 0, 1, 2);
 	//	mainLayout->setRowMinimumHeight(6, 10);
-//		mainLayout->setRowStretch(6, 1);
-//		mainLayout->setColumnStretch(2, 1);
+	//		mainLayout->setRowStretch(6, 1);
+	//		mainLayout->setColumnStretch(2, 1);
 	setLayout(mainLayout);
 
 	if (id == -1)
@@ -185,15 +190,25 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	else
 		leRelations.first()->setFocus();
 
+
 	setWindowTitle(tr("Stammdaten bearbeiten: %1")
 						.arg(Md::tableAlias[ qobject_cast<MdTabView *>(
 							tableView)->sqlTableName() ]));
+
+//	QTimer *tim = new QTimer(this);
+//	tim->setInterval(500);
+//	connect(tim, &QTimer::timeout, this, &BaseDataForm::onCyclic);
+//	tim->start();
 }
-void BaseDataForm::addEmployee() {
-	int row = mapper->currentIndex();
-	mapper->submit();
+void BaseDataForm::onCyclic() {
+//	qobject_cast<SqlRtm *>(tableModel)->select();
+}
+void BaseDataForm::addNew() {
+	qobject_cast<SqlRtm *>(m_tableView->model())->revertAll();
+
+	int row = mapper->currentIndex() + 1;
+	//	mapper->submit();
 	tableModel->insertRow(row);
-	mapper->setCurrentIndex(row);
 
 	foreach(QLineEdit *le, leRelations)
 		le->clear();
@@ -201,9 +216,17 @@ void BaseDataForm::addEmployee() {
 	foreach(QComboBox *cb, cbRelations)
 		cb->setCurrentIndex(0);
 
-	leRelations.first()->setFocus();
+	mapper->setCurrentIndex(row);
+	lePrimaryKey->setText(QString::number(row + 1, 10));
+
+	qobject_cast<QGridLayout *>(
+				layout())->itemAtPosition(layout()->indexOf(lePrimaryKey), 1)
+			->widget()->setFocus();
+
+//	Browser *browser = Browser::instance();
+//	emit browser->sqlTableDataChanged();
 }
-void BaseDataForm::deleteEmployee() {
+void BaseDataForm::deleteCurrent() {
 	int row = mapper->currentIndex();
 	tableModel->removeRow(row);
 	mapper->submit();
@@ -212,6 +235,9 @@ void BaseDataForm::deleteEmployee() {
 void BaseDataForm::saveCurrent() {
 	mapper->submit();
 	static_cast<SqlRtm *>(m_tableView->model())->submitAll();
+//	Browser *browser = Browser::instance();
+//	emit browser->sqlTableDataChanged();
+
 }
 void BaseDataForm::done(int result) {
 	mapper->submit();
@@ -223,3 +249,19 @@ void BaseDataForm::reject() {
 	static_cast<SqlRtm *>(m_tableView->model())->revertAll();
 	QDialog::reject();
 }
+void BaseDataForm::keyPressEvent(QKeyEvent *e) {
+	if (e->key() == Qt::Key_F5) {
+		static_cast<SqlRtm *>(m_tableView->model())->select();
+		static_cast<SqlRtm *>(mapper->model())->select();
+
+		//			MdSplashScreen *splash = new MdSplashScreen(QPixmap(1920,1080));
+		//			splash->show();
+
+		//			splash->showMessage(QString("Processing..."),
+		//									  Qt::AlignVCenter | Qt::AlignHCenter, Qt::red);
+
+		//			QTimer::singleShot(3000, splash, &MdSplashScreen::clearMessage);
+	}
+}
+
+

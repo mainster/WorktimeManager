@@ -72,8 +72,9 @@ HEADERS += \
 	 textedit/textedit.h \
 	 views/mdtable.h \
     views/mdtabview.h \
-    employeeform.h \
-    basedataform.h
+    basedataform.h \
+    delegates/nulldelegate.h \
+    mdsplashscreen.h
 
 
 SOURCES += \
@@ -104,7 +105,9 @@ SOURCES += \
 	 textedit/textedit.cpp \
 	 views/mdtable.cpp \
     views/mdtabview.cpp \
-    basedataform.cpp
+    basedataform.cpp \
+    delegates/nulldelegate.cpp \
+    mdsplashscreen.cpp
 
 
 FORMS += \

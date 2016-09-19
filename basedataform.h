@@ -8,10 +8,14 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QtWidgets>
+#include <QSplashScreen>
 
 #include "globals.h"
 #include "mdtabview.h"
 #include "models.h"
+#include "nulldelegate.h"
+#include "mdsplashscreen.h"
+//#include "browser.h"
 
 class QComboBox;
 class QDataWidgetMapper;
@@ -21,6 +25,7 @@ class QLabel;
 class QLineEdit;
 class QPushButton;
 class QSqlRelationalTableModel;
+//class Browser;
 
 /*
 	workerID  INT PRIMARY   KEY   NOT NULL,         -- Primary key
@@ -71,24 +76,31 @@ public:
 	void done(int result);
 	virtual void reject() override;
 
+protected:
+	virtual void keyPressEvent(QKeyEvent *e) override;
+
 private slots:
-	void addEmployee();
-	void deleteEmployee();
+	void addNew();
+	void deleteCurrent();
 	void saveCurrent();
 
+	void onCyclic();
 private:
 	QTableView *m_tableView;
 	QSqlRelationalTableModel *tableModel;
+//	SqlRtmWithNoneEntry *tableModel;
 	QDataWidgetMapper *mapper;
 
 	QList<QComboBox *> cbRelations;
 	QList<QLabel *> lblRelations;
 	QList<QLineEdit *> leRelations;
+	QLineEdit *lePrimaryKey;
 
 	QPushButton *firstButton, *previousButton, *nextButton, *lastButton, *addButton,
 	*deleteButton, *closeButton, *saveButton;
 
 	QDialogButtonBox *buttonBox;
+
 };
 
 #endif

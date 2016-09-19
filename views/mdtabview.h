@@ -69,7 +69,6 @@ public slots:
 	void deleteRow();
 	void insertRow();
 	void onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx);
-	void onSqlTableNameChanged(const QString &name);
 	void onUpdateWriteActions();
 	void refreshView();
 	void removeColumnsConfig();
@@ -96,16 +95,11 @@ protected:
 	void mousePressEvent(QMouseEvent *e);
 
 protected slots:
-	void onClearSelection() {
-
-	}
 	void onActGrStrategyTrigd(QAction *sender);
 	void onActGrContextTrigd(QAction *sender);
 	void storeActionState(QAction *sender);
 	bool restoreActionObjects();
-	void onObjNameChanged(const QString newName) {
-		INFO << newName;
-	}
+
 
 private:
 	QString				m_sqlTableName;

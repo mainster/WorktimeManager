@@ -8,6 +8,8 @@
 #include "globals.h"
 #include "types.h"
 
+//#define WITH_NONE_ENTRY
+
 /*!
  \brief Class declaration of an relational custom table model used as delegate.
  \class SqlRtm browser.h "browser.h"
@@ -51,6 +53,21 @@ public:
 	QVariant data(const QModelIndex& idx, int role) const override {
 
 		switch (role) {
+#ifdef WITH_NONE_ENTRY
+			case Qt::DisplayRole: {
+				if (idx.row() == 0) {
+					  // if we are at the desired column return the None item
+					  if (idx.data().isNull())
+							 return QVariant("None");
+					  // otherwise a non valid QVariant
+					  else
+							 return QVariant();
+				}
+				// Return the parent's data
+				else
+					 return SqlRtm::data(createIndex(idx.row() - 1, idx.column()), role);
+			}; break;
+#endif
 			case Qt::TextAlignmentRole: {
 				return QVariant(Qt::AlignCenter | Qt::AlignVCenter);
 			}; break;
@@ -143,6 +160,32 @@ private:
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(SqlRtm::MdlSrcs)
 Q_DECLARE_METATYPE(SqlRtm::MdlSrc)
+
+
+//class SqlRtmWithNoneEntry : public SqlRtm {
+
+//public:
+//	 int rowCount() { return SqlRtm::rowCount() + 1; }
+//	 int columnCount() { return SqlRtm::columnCount(); }
+//	 QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const {
+//		  if (index.row() == 0) {
+//				 // if we are at the desired column return the None item
+//				 if (/*index.column() ==  NET_NAME*/
+//					  index.data().isNull() && role == Qt::DisplayRole)
+//						return QVariant("None");
+//				 // otherwise a non valid QVariant
+//				 else
+//						return QVariant();
+//		  }
+//		  // Return the parent's data
+//		  else
+//				return SqlRtm::data(createIndex(index.row() - 1, index.column()), role);
+//	 }
+
+//	 // parent and index should be defined as well but their implementation is straight
+//	 // forward
+//};
+
 
 //< Deprecated
 //< Deprecated

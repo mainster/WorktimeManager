@@ -224,6 +224,8 @@ signals:
 	 */
 	void someHasBeenSelected(bool hasSelected);
 
+	void sqlTableDataChanged();
+
 public slots:
 	TvSelectors tvSelector() const	{ return m_tvSelector; }
 	QSqlDatabase getCurrentDatabase()	{ return connectionWidget()->currentDb(); }

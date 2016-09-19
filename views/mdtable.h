@@ -6,7 +6,6 @@
 #include <QGroupBox>
 
 #include "mdtabview.h"
-#include "employeeform.h"
 #include "basedataform.h"
 
 class MdTable : public QWidget {
@@ -60,7 +59,7 @@ private:
 	QGroupBox	*m_gb;
 	MdTabView	*m_tv;
 	SectionMask	*mSectMsk;
-	QAction		*actEmployeeForm, *actProjectForm, *actClientForm;
+	QAction		*actBaseDataForm;
 	BaseDataForm *bdForm;
 	bool			m_selected;
 

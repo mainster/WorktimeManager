@@ -302,9 +302,6 @@ void MdTabView::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualId
 	modelCast()->setSectionIdx(logicalIdx, newVisualIdx);
 	modelCast()->storeModel(sqlTableName());
 }
-void MdTabView::onSqlTableNameChanged(const QString &name) {
-	WARN << name;
-}
 /* ======================================================================== */
 /*                              Init methodes                               */
 /* ======================================================================== */

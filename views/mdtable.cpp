@@ -3,10 +3,8 @@
 /* ======================================================================== */
 /*                             MdTable::MdTable                             */
 /* ======================================================================== */
-MdTable::MdTable(const QString &tvObjName,
-					  const QString &tableName,
-					  QWidget *parent)
-	: QWidget(parent) {
+MdTable::MdTable(const QString &tvObjName, const QString &tableName,
+					  QWidget *parent) : QWidget(parent) {
 
 	/*!
 	 * Create group box and MdTabView instances.
@@ -31,17 +29,12 @@ MdTable::MdTable(const QString &tvObjName,
 	//	m_tv->installEventFilter(this);
 	//	m_tv->viewport()->installEventFilter(this);
 
-	actEmployeeForm =	new QAction(tr("Mitarbeiter-Stammdaten ändern"), this);
-	actProjectForm = new QAction(tr("Projekt-Stammdaten ändern"), this);
-	actClientForm = new QAction(tr("Kunden-Stammdaten ändern"), this);
-	m_tv->addActions(QList<QAction *>() << actEmployeeForm << actProjectForm <<
-						  actClientForm);
+	actBaseDataForm =	new QAction(tr("Stammdaten ändern"), this);
+	m_tv->addActions(QList<QAction *>() << actBaseDataForm);
 
 	connect(m_tv->getActSectionMask(), &QAction::toggled, this, &MdTable::onActSectionMask);
 	connect(m_tv, &MdTabView::sqlTableNameChanged, this, &MdTable::onSqlTableNameChanged);
-	connect(actEmployeeForm, &QAction::triggered, this, &MdTable::onActBaseDataForm);
-	connect(actProjectForm, &QAction::triggered, this, &MdTable::onActBaseDataForm);
-	connect(actClientForm, &QAction::triggered, this, &MdTable::onActBaseDataForm);
+	connect(actBaseDataForm, &QAction::triggered, this, &MdTable::onActBaseDataForm);
 
 	clearSelected();
 	show();
@@ -79,23 +72,17 @@ void MdTable::onActBaseDataForm() {
 	if (! action)
 		qReturn("Cast failed!");
 
-	if ((action == actEmployeeForm) ||
-		 (action == actClientForm) ||
-		 (action == actProjectForm)) {
-		bdForm = new BaseDataForm(-1, tv(), 0);
-		bdForm->show();
-	}
+	bdForm = new BaseDataForm(-1, tv(), 0);
+	bdForm->show();
 }
 void MdTable::onSqlTableNameChanged(const QString &sqlTableName) {
 	m_gb->setTitle(Md::tableAlias[ sqlTableName ]);
 
-	actEmployeeForm->setEnabled(false);
-	actProjectForm->setEnabled(false);
-	actClientForm->setEnabled(false);
-
-	if (sqlTableName.contains("worker"))	actEmployeeForm->setEnabled(true);
-	if (sqlTableName.contains("prj"))		actProjectForm->setEnabled(true);
-	if (sqlTableName.contains("client"))	actClientForm->setEnabled(true);
+	if (sqlTableName.contains("worktime") ||
+		 sqlTableName.contains("runtime"))
+		actBaseDataForm->setEnabled(false);
+	else
+		actBaseDataForm->setEnabled(true);
 }
 /* ======================================================================== */
 /*                              Event handler                               */
