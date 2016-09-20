@@ -51,7 +51,6 @@ public:
 	 * handle, this subclass becomes more flexible.
 	 */
 	QVariant data(const QModelIndex& idx, int role) const override {
-
 		switch (role) {
 #ifdef WITH_NONE_ENTRY
 			case Qt::DisplayRole: {
@@ -145,11 +144,17 @@ public:
 		mSectionIdxs.clear();
 	}
 
+	void submitAll() {
+		QSqlRelationalTableModel::submitAll();
+		emit recordChanged();
+	}
+
 signals:
 	void srcChanged();
 	void centerColsChanged(QList<int> centerCols);
 	void visibleColsChanged(QList<bool> visibleCols);
 	void sectionIdxsChanged(QList<int> sectionIdxs);
+	void recordChanged();
 
 protected slots:
 
@@ -160,32 +165,6 @@ private:
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(SqlRtm::MdlSrcs)
 Q_DECLARE_METATYPE(SqlRtm::MdlSrc)
-
-
-//class SqlRtmWithNoneEntry : public SqlRtm {
-
-//public:
-//	 int rowCount() { return SqlRtm::rowCount() + 1; }
-//	 int columnCount() { return SqlRtm::columnCount(); }
-//	 QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const {
-//		  if (index.row() == 0) {
-//				 // if we are at the desired column return the None item
-//				 if (/*index.column() ==  NET_NAME*/
-//					  index.data().isNull() && role == Qt::DisplayRole)
-//						return QVariant("None");
-//				 // otherwise a non valid QVariant
-//				 else
-//						return QVariant();
-//		  }
-//		  // Return the parent's data
-//		  else
-//				return SqlRtm::data(createIndex(index.row() - 1, index.column()), role);
-//	 }
-
-//	 // parent and index should be defined as well but their implementation is straight
-//	 // forward
-//};
-
 
 //< Deprecated
 //< Deprecated

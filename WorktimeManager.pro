@@ -74,7 +74,8 @@ HEADERS += \
     views/mdtabview.h \
     basedataform.h \
     delegates/nulldelegate.h \
-    mdsplashscreen.h
+    mdsplashscreen.h \
+    mdplaintextedit.h
 
 
 SOURCES += \
@@ -107,7 +108,8 @@ SOURCES += \
     views/mdtabview.cpp \
     basedataform.cpp \
     delegates/nulldelegate.cpp \
-    mdsplashscreen.cpp
+    mdsplashscreen.cpp \
+    mdplaintextedit.cpp
 
 
 FORMS += \

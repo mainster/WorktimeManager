@@ -203,10 +203,17 @@ void Browser::onConWidgetTableActivated(const QString &sqlTableName) {
 	//	}
 	//	else
 	mTabs.currentSelected()->tv()->createForeignModel(sqlTableName);
+	INFO << (bool) connect(static_cast<SqlRtm *>(mTabs.currentSelected()->tv()->model()),
+									&SqlRtm::recordChanged, this, &Browser::selectModels);
 
 	//	if (FilterForm::instance()->isVisible())
 	//		FilterForm::instance()->setSourceTable(mTabs.currentSelected());
 }
+void Browser::selectModels() {
+	foreach (MdTable *t, *mTabs.tbls())
+		qobject_cast<SqlRtm *>(t->tv()->model())->select();
+}
+
 /* ======================================================================== */
 QStandardItemModel *Browser::tblToMetaDataMdl(const QString &table) {
 	QSqlRecord rec = connectionWidget()->currentDb().record( Md::unAliasTableName(table) );

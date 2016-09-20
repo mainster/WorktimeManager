@@ -5,7 +5,7 @@
 
 
 BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
-	: QDialog(parent), m_tableView(tableView) {
+	: QDialog(parent), m_tableView(tableView), m_rowCountChanged(false) {
 	setObjectName(tr("BaseDataForm_%1")
 					  .arg(qobject_cast<MdTabView *>(tableView)->sqlTableName()));
 	QSETTINGS;
@@ -35,14 +35,14 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	/* ======================================================================== */
 	/*                             Set table model                              */
 	/* ======================================================================== */
-	tableModel = dynamic_cast<QSqlRelationalTableModel *>(tableView->model());
+	tableModel = qobject_cast<SqlRtm *>(tableView->model());
 	tableModel->select();
 
 	mapper = new QDataWidgetMapper(this);
 	mapper->setModel(tableModel);
-	mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
-	//	mapper->setItemDelegate(new QSqlRelationalDelegate(this));
-	//	mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+//	mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
+//		mapper->setItemDelegate(new QSqlRelationalDelegate(this));
+		mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
 	mapper->setItemDelegate(new NullDelegate(this));
 
 	/* ======================================================================== */
@@ -98,14 +98,18 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 			cbEditors.last()->setModel(rtm);
 			cbEditors.last()->setEditable(true);
 
+//			cbEditors.last()
+
 			if (lblEditors.last()->text().contains(tr("Name")))
-				cbEditors.last()->setModelColumn(rtm->fieldIndex("Name"));
+				cbEditors.last()->setProperty("modelColumn", rtm->fieldIndex("Name"));
 			else {
 				if (lblEditors.last()->text().contains(tr("Einstufung")))
-					cbEditors.last()->setModelColumn(rtm->fieldIndex("Einstufung"));
+					cbEditors.last()->setProperty("modelColumn", rtm->fieldIndex("Einstufung"));
 				else
-					cbEditors.last()->setModelColumn(0);
+					cbEditors.last()->setProperty("modelColumn", 0);
 			}
+
+			populateComboBoxes();
 		}
 		else {
 			lblEditors << new QLabel(cs.name);
@@ -113,9 +117,16 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 			if (lblEditors.last()->text().contains("beschreibung", Qt::CaseInsensitive) ||
 				 lblEditors.last()->text().contains("anschrift", Qt::CaseInsensitive) ||
 				 lblEditors.last()->text().contains("adresse", Qt::CaseInsensitive)) {
-				teEditors << new QPlainTextEdit(this);
+				teEditors << new MdPlainTextEdit(this);
 				allEditors << qobject_cast<QWidget *>(teEditors.last());
 				teEditors.last()->setWordWrapMode(QTextOption::WordWrap);
+				teEditors.last()->setTabChangesFocus(true);
+				teEditors.last()->setUndoRedoEnabled(true);
+
+				QSize size = teEditors.last()->document()->size().toSize();
+				size.setHeight(allEditors.first()->height() * 3);
+				size.setWidth(QWIDGETSIZE_MAX);
+				teEditors.last()->setMaximumSize(size);
 			}
 			else {
 				leEditors << new QLineEdit(this);
@@ -126,6 +137,7 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 			 */
 				if (cs.pk) {
 					leEditors.last()->setEnabled(false);
+					leEditors.last()->setProperty("primaryKey", true);
 					lePrimaryKey = leEditors.last();
 				}
 				else {
@@ -166,6 +178,7 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 
 		lblEditors.last()->setBuddy(allEditors.last());
 		mapper->addMapping(allEditors.last(), k);
+//		dataMaps << new DataMap(allEditors.last(), k);
 		mainLayout->addWidget(lblEditors.last(), gridRow, 0);
 		mainLayout->addWidget(allEditors.last(), gridRow++, 1, 1, 1);
 
@@ -175,9 +188,10 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 			lblEditors.last()->setTextFormat(Qt::RichText);
 			allEditors.last()->setProperty("notnull", true);
 		}
-
 		k++;
 	}
+
+//	refreshMapper();
 
 	if (id != -1)
 		for (int row = 0; row < tableModel->rowCount(); ++row) {
@@ -189,6 +203,15 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 		}
 	else
 		mapper->toFirst();
+
+	topButtonGroup = new QButtonGroup(this);
+	topButtonGroup->addButton(firstButton);
+	topButtonGroup->addButton(previousButton);
+	topButtonGroup->addButton(nextButton);
+	topButtonGroup->addButton(lastButton);
+
+	connect(topButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)),
+			  this,				SLOT(onTopButtonClicked(QAbstractButton*)));
 
 	connect(firstButton,		&QPushButton::clicked, mapper, &QDataWidgetMapper::toFirst);
 	connect(previousButton, &QPushButton::clicked, mapper, &QDataWidgetMapper::toPrevious);
@@ -219,29 +242,75 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 
 	setStyleSheet(STYLESHEET);
 }
+//void BaseDataForm::refreshMapper() {
+//	mapper->clearMapping();
+//	mapper->setModel(m_tableView->model());
+
+//	foreach (DataMap *map, dataMaps)
+//		mapper->addMapping(map->w, map->column);
+//}
+void BaseDataForm::populateComboBoxes() {
+	foreach (QComboBox *cb, cbEditors)
+		cb->setModelColumn(cb->property("modelColumn").toInt());
+}
+
 void BaseDataForm::onCyclic() {
 	//	qobject_cast<SqlRtm *>(tableModel)->select();
 }
 void BaseDataForm::addNew() {
 	qobject_cast<SqlRtm *>(m_tableView->model())->revertAll();
 
-	int row = mapper->currentIndex() + 1;
-	//	mapper->submit();
-	tableModel->insertRow(row);
-
-	foreach(QLineEdit *le, leEditors)
-		le->clear();
+	/*!
+	 * Reset all editor values.
+	 */
+	foreach(QWidget *w, allEditors) {
+		if (qobject_cast<QLineEdit *>(w)) {
+			qobject_cast<QLineEdit *>(w)->clear();
+			continue;
+		}
+		if (qobject_cast<QTextEdit *>(w)) {
+			qobject_cast<QTextEdit *>(w)->clear();
+			continue;
+		}
+		if (qobject_cast<QPlainTextEdit *>(w)) {
+			qobject_cast<QPlainTextEdit *>(w)->clear();
+			continue;
+		}
+	}
 
 	foreach(QComboBox *cb, cbEditors)
 		cb->setCurrentIndex(0);
 
+	/*!
+	 * Insert new table row before current index.
+	 */
+	int row = mapper->currentIndex() + 1;
+	tableModel->insertRow(row);
+
+	/*!
+	 * Set data mapper index to the new row.
+	 */
 	mapper->setCurrentIndex(row);
-	lePrimaryKey->setText(QString::number(row + 1, 10));
+
+	/*!
+	 * Query all records of the active tables model to get the last AUTOINCREMENTed
+	 * primary key value, increment by on and write the determined pk into its disabled
+	 * editor.
+	 */
+	QSqlQuery q(tr("SELECT * from %1")
+					.arg(qobject_cast<MdTabView *>(m_tableView)->sqlTableName()));
+	QSqlRecord rec = q.record();
+	q.last();
+
+	lePrimaryKey->setText(QString::number(q.value(0).toInt() + 1));
 
 	qobject_cast<QGridLayout *>(
 				layout())->itemAtPosition(layout()->indexOf(lePrimaryKey), 1)
 			->widget()->setFocus();
 
+	mapper->submit();
+
+	m_rowCountChanged = true;
 	//	Browser *browser = Browser::instance();
 	//	emit browser->sqlTableDataChanged();
 }
@@ -249,11 +318,13 @@ void BaseDataForm::deleteCurrent() {
 	int row = mapper->currentIndex();
 	tableModel->removeRow(row);
 	mapper->submit();
-	mapper->setCurrentIndex(qMin(row, tableModel->rowCount() - 1));
+	m_rowCountChanged = true;
+//	mapper->setCurrentIndex(qMin(row, tableModel->rowCount() - 1));
 }
 void BaseDataForm::saveCurrent() {
-	mapper->submit();
+	int mapperIndex = mapper->currentIndex();
 
+	mapper->submit();
 	QList<QWidget *> allEditors = QList<QWidget *>()
 											<< listCast<QWidget *>(leEditors)
 											<< listCast<QWidget *>(cbEditors);
@@ -277,10 +348,20 @@ void BaseDataForm::saveCurrent() {
 			if (editorText.isEmpty()) {
 				stateBar->showMessage(MSG_MANDATORY_EDITOR);
 				Globals::setStylesheetProperty(w, "orangeBg", true);
+				return;
 			}
 		}
 	}
 	static_cast<SqlRtm *>(m_tableView->model())->submitAll();
+//	refreshMapper();
+	populateComboBoxes();
+
+	if (! m_rowCountChanged)
+		mapper->setCurrentIndex(mapperIndex);
+	else {
+		m_rowCountChanged = false;
+		mapper->toLast();
+	}
 }
 void BaseDataForm::done(int result) {
 	saveCurrent();
@@ -304,27 +385,34 @@ void BaseDataForm::keyPressEvent(QKeyEvent *e) {
 		static_cast<SqlRtm *>(mapper->model())->select();
 	}
 }
+void BaseDataForm::onTopButtonClicked(QAbstractButton *button) {
+	Q_UNUSED(button);
+	qobject_cast<SqlRtm *>(m_tableView->model())->revertAll();
+}
 
 #define QFOLDINGSTART {
 const QString BaseDataForm::STYLESHEET =
 		QString("/* ----------------------------------------------------------------------------------------------- */"
 				  "QComboBox, QLineEdit, QSpinBox, QDateEdit {	"
-				  "	border: 1px solid gray;"
-				  "	background-color: rgb(255, 255, 255);"
-				  "	color: rgb(70, 70, 70);"
+				  "	border:					1px solid gray;"
+//				  "	background-color: rgb(255, 255, 255);"
+				  "	color:					rgb(70, 70, 70);"
 				  "}  [orangeBg=true] {"
-				  "	background-color: rgb(255, 217, 137);"
+				  "	background-color:		rgb(255, 217, 137);"
+				  "}	[enabled=""false""] {"
+				  "	color:					rgb(120, 120, 120);"
+				  "	background-color:		rgb(214, 214, 214);"
 				  "}"
 				  "/* ----------------------------------------------------------------------------------------------- */"
 				  "QComboBox, QLineEdit, QSpinBox, QDateEdit {"
-				  "	border: 1px solid gray;"
-				  "	border-radius: 3px;"
-				  "	padding: 0px 3px 0px 3px;"
-				  "	min-width: 3em;"
+				  "	border:					1px solid gray;"
+				  "	border-radius:			3px;"
+				  "	padding:					0px 3px 0px 3px;"
+				  "	min-width:				3em;"
 				  "} "
-				  //				  "QComboBox:editable, QDateEdit:editable	{ "
-				  //				  "	background: white;"
-				  //				  "}"
+				  "QComboBox:editable, QDateEdit:editable	{ "
+				  "	background: white;"
+				  "}"
 				  "QComboBox:!editable, QComboBox::drop-down:!editable {"
 				  "	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
 				  "	stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,"
@@ -360,14 +448,6 @@ const QString BaseDataForm::STYLESHEET =
 				  "	top: 1px;"
 				  "	left: 1px;"
 				  "}");
-
-
-//const QString BaseDataForm::STYLESHEET_SMALL =
-//      QString("QLineEdit, QComboBox{	"
-//              "	background-color: rgb(255, 255, 255);"
-//              "}  [orangeBg=true] {"
-//              "	background-color: rgb(255, 217, 137);"
-//              "}");
 
 const QString BaseDataForm::MSG_MANDATORY_EDITOR =
 		QString("*Pflichtfeld!");

@@ -217,7 +217,7 @@ QList<QTableView *> castToQTableView(const QList<QWidget *> os);
 /* ======================================================================== */
 /*										Class Globals						                */
 /* ======================================================================== */
-class Globals {
+class Globals : public QObject {
 
 	Q_OBJECT
 

@@ -28,7 +28,6 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	//	#endif
 
 	connect(horizontalHeader(), &QHeaderView::sectionMoved, this, &MdTabView::onSectionMoved);
-
 	setContextMenuPolicy(Qt::ActionsContextMenu);
 
 	restoreFont();

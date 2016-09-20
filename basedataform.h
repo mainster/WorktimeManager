@@ -15,6 +15,8 @@
 #include "models.h"
 #include "nulldelegate.h"
 #include "mdsplashscreen.h"
+#include "mdplaintextedit.h"
+
 //#include "browser.h"
 
 class QComboBox;
@@ -59,18 +61,13 @@ class BaseDataForm : public QDialog {
 	Q_OBJECT
 
 public:
-	enum {
-		Employee_Id = 0,
-		Employee_Nachname = 1,
-		Employee_Vorname = 2,
-		Employee_Einstufung = 3,
-		Employee_PersonalNr = 4,
-		Employee_Stundensatz = 5,
-		Employee_Anschrift = 6,
-		Employee_Gehaltsstufe = 7,
-		Employee_Wochenstunden = 8,
-		Employee_Vorschuss = 9,
+	struct DataMap {
+		DataMap(QWidget *widget, const int column)
+			: w(widget), column(column) { }
+		QWidget *w;
+		int column;
 	};
+
 	BaseDataForm(int id, QTableView *tableView, QWidget *parent = 0);
 
 	void done(int result);
@@ -79,12 +76,18 @@ public:
 protected:
 	virtual void keyPressEvent(QKeyEvent *e) override;
 
+protected slots:
+//	void refreshMapper();
+	void populateComboBoxes();
+
 private slots:
 	void addNew();
 	void deleteCurrent();
 	void saveCurrent();
 	void onCyclic();
 	void clearEditorBackgrounds();
+
+	void onTopButtonClicked(QAbstractButton *button);
 
 private:
 	QTableView *m_tableView;
@@ -94,12 +97,14 @@ private:
 
 	QList<QComboBox *> cbEditors;
 	QList<QLineEdit *> leEditors;
-	QList<QPlainTextEdit *> teEditors;
+	QList<MdPlainTextEdit *> teEditors;
 	QList<QWidget *> allEditors;
+	QList<DataMap *> dataMaps;
 
 	QList<QLabel *> lblEditors;
 	QLineEdit *lePrimaryKey;
 
+	QButtonGroup *topButtonGroup;
 	QPushButton *firstButton, *previousButton, *nextButton, *lastButton, *addButton,
 	*deleteButton, *closeButton, *saveButton;
 
@@ -107,6 +112,8 @@ private:
 
 	QDialogButtonBox *buttonBox;
 	static const QString STYLESHEET, MSG_MANDATORY_EDITOR;
+
+	bool m_rowCountChanged;
 
 };
 
