@@ -340,7 +340,8 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	}
 
 	foreach (QWidget *w, qApp->topLevelWidgets()) {
-		if (w->objectName().contains(QRegularExpression("filterForm*")))
+		if (w->objectName().contains(QRegularExpression("filterForm*")) ||
+			 w->objectName().contains(QRegularExpression("Stammdaten bearbeiten*")))
 			w->close();
 	}
 

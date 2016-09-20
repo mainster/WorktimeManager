@@ -24,6 +24,9 @@
 /* ----------------------------------------------------------------------------------------------- */
 QComboBox, QLineEdit, QSpinBox, QDateEdit {	
 	border: 1px solid gray;
+	font: italic 10pt &quot;Arial&quot;;
+	font-weight: bold;
+	color: rgb(70, 70, 70);
 }  [hasFocus=true] {
 	border: 2px solid red;
 }
@@ -52,25 +55,26 @@ QComboBox:!editable:on, QComboBox::drop-down:editable:on {
 	stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);
 }
 /* shift the text when the popup opens */
-QComboBox:on {
+QComboBox:on, QDateEdit:on {
 	padding-top: 3px;
 	padding-left: 4px;
 }
-QComboBox::drop-down {
+QComboBox::drop-down, QDateEdit::drop-down {
 	subcontrol-origin: padding;
 	subcontrol-position: top right;
 	width: 15px;
 	border-left-width: 1px;
 	border-left-color: darkgray;
 	border-left-style: solid; /* just a single line */
-	border-top-right-radius: 3px; /* same radius as the QComboBox */
+	border-top-right-radius: 3px; /* same radius as the QDateEdit */
 	border-bottom-right-radius: 3px;
+	color: rgb(70, 70, 70);
 }
-QComboBox::down-arrow {
+QComboBox::down-arrow, QDateEdit::down-arrow {
 /*	image: url(://images/1downarrow13.png);*/
-	image: url(&quot;://images/1downarrow13.png&quot;);
+	image: url(&quot;://sortdown&quot;);
 }
-QComboBox::down-arrow:on { /* shift the arrow when popup is open */
+QComboBox::down-arrow:on, QDateEdit::down-arrow:on { /* shift the arrow when popup is open */
 	top: 1px;
 	left: 1px;
 }
@@ -108,29 +112,6 @@ QDateEdit:!editable:on, QDateEdit::drop-down:editable:on {
 	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
 	stop: 0 #D3D3D3, stop: 0.4 #D8D8D8,
 	stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);
-}
- /* shift the text when the popup opens */
-QDateEdit:on {
-	padding-top: 3px;
-	padding-left: 4px;
-}
-QDateEdit::drop-down {
-	subcontrol-origin: padding;
-	subcontrol-position: top right;
-	width: 15px;
-	border-left-width: 1px;
-	border-left-color: darkgray;
-	border-left-style: solid; /* just a single line */
-	border-top-right-radius: 3px; /* same radius as the QDateEdit */
-	border-bottom-right-radius: 3px;
-}
-QDateEdit::down-arrow {
-	image: url(://images/1downarrow13.png);
-}
-/* shift the arrow when popup is open */
-QDateEdit::down-arrow:on { 
-	top: 1px;
-	left: 1px;
 }
 QDockWidget {
 	border: 1px solid black;
@@ -219,6 +200,9 @@ QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
             <font>
              <family>Arial</family>
              <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
             </font>
            </property>
            <property name="alignment">
@@ -321,8 +305,9 @@ color: ;
             <font>
              <family>Arial</family>
              <pointsize>10</pointsize>
-             <weight>50</weight>
-             <bold>false</bold>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
             </font>
            </property>
            <property name="maximumDate">

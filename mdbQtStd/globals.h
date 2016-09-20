@@ -219,6 +219,8 @@ QList<QTableView *> castToQTableView(const QList<QWidget *> os);
 /* ======================================================================== */
 class Globals {
 
+	Q_OBJECT
+
 public:  /** Declarations */
 
 
@@ -281,6 +283,8 @@ public:  /** Declarations */
 		return l;
 	};
 	static QList<quint8> seqUInt(quint8 i, int count, int lBound = 0, int step = 0);
+	static bool setStylesheetProperty(QWidget *widget, const char *propertyName,
+												 const QVariant &property);
 
 public slots:
 	static bool storeFont(const QByteArray objName, const QFont &font);

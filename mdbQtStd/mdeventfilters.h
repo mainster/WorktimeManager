@@ -52,6 +52,7 @@ protected:
 
 signals:
 	void control_one_pressed();
+
 private:
 	bool	mPrintDebug;
 };

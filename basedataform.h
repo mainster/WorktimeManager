@@ -54,8 +54,8 @@ struct ColumnSchema_t {
 };
 typedef struct ColumnSchema_t ColumnSchema;
 
-class BaseDataForm : public QDialog
-{
+class BaseDataForm : public QDialog {
+
 	Q_OBJECT
 
 public:
@@ -83,23 +83,30 @@ private slots:
 	void addNew();
 	void deleteCurrent();
 	void saveCurrent();
-
 	void onCyclic();
+	void clearEditorBackgrounds();
+
 private:
 	QTableView *m_tableView;
 	QSqlRelationalTableModel *tableModel;
 //	SqlRtmWithNoneEntry *tableModel;
 	QDataWidgetMapper *mapper;
 
-	QList<QComboBox *> cbRelations;
-	QList<QLabel *> lblRelations;
-	QList<QLineEdit *> leRelations;
+	QList<QComboBox *> cbEditors;
+	QList<QLineEdit *> leEditors;
+	QList<QPlainTextEdit *> teEditors;
+	QList<QWidget *> allEditors;
+
+	QList<QLabel *> lblEditors;
 	QLineEdit *lePrimaryKey;
 
 	QPushButton *firstButton, *previousButton, *nextButton, *lastButton, *addButton,
 	*deleteButton, *closeButton, *saveButton;
 
+	QStatusBar *stateBar;
+
 	QDialogButtonBox *buttonBox;
+	static const QString STYLESHEET, MSG_MANDATORY_EDITOR;
 
 };
 

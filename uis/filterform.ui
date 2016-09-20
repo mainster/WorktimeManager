@@ -13,6 +13,19 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QComboBox:!editable, QComboBox::drop-down:editable {
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
+	stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
+}
+/* QComboBox gets the &quot;on&quot; state when the popup is open */
+QComboBox:!editable:on, QComboBox::drop-down:editable:on {
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	stop: 0 #D3D3D3, stop: 0.4 #D8D8D8,
+	stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);
+}</string>
+  </property>
   <layout class="QGridLayout" name="gridLayout_4">
    <item row="0" column="0">
     <widget class="QSplitter" name="splitter">
@@ -43,12 +56,8 @@
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout_3">
-         <item row="1" column="1">
-          <widget class="QCheckBox" name="filtCaseSensCB">
-           <property name="text">
-            <string>Case sensitive</string>
-           </property>
-          </widget>
+         <item row="2" column="0">
+          <widget class="QDateEdit" name="toDateEdit"/>
          </item>
          <item row="2" column="1">
           <widget class="QComboBox" name="filtSyntaxCB"/>
@@ -56,16 +65,10 @@
          <item row="1" column="0">
           <widget class="QDateEdit" name="fromDateEdit"/>
          </item>
-         <item row="2" column="0">
-          <widget class="QDateEdit" name="toDateEdit"/>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLineEdit" name="filtPattLE">
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="filtCaseSensCB">
            <property name="text">
-            <string/>
-           </property>
-           <property name="placeholderText">
-            <string>search pattern</string>
+            <string>Case sensitive</string>
            </property>
           </widget>
          </item>
@@ -76,6 +79,31 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="modelColumn">
+            <number>3</number>
+           </property>
+           <property name="notnull" stdset="0">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLineEdit" name="filtPattLE">
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string>search pattern</string>
+           </property>
+           <property name="notnull" stdset="0">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

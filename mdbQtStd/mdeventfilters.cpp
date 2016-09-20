@@ -15,19 +15,25 @@ bool GlobalEventFilter::eventFilter(QObject *obj, QEvent *event) {
 				  << tr("property ""hasFocus"":") << obj->property("hasFocus").toBool();
 		}
 
-		QWidget *wdg = qobject_cast<QWidget *>(obj);
+		QWidget *w = qobject_cast<QWidget *>(obj);
 
-		if (! wdg)
+		if (! w)
 			return QObject::eventFilter(obj, event);
 
 		/*!
 		 * Validate obj if custom property "hasFocus" exists and set/clear the value
 		 */
-		if (wdg->property("hasFocus").isValid()) {
-			wdg->setProperty("hasFocus",(event->type() == QEvent::FocusIn) ? true : false);
-			wdg->style()->unpolish(wdg);
-			wdg->style()->polish(wdg);
-			wdg->update();
+		if (w->property("hasFocus").isValid()) {
+			Globals::setStylesheetProperty(
+						w, "hasFocus", (event->type() == QEvent::FocusIn) ? true : false);
+		}
+
+		/*!
+		 * Clear background color of highlighted QLineEdit/QCombox objects.
+		 */
+		if (w->property("orangeBg").isValid()) {
+			if (event->type() == QEvent::FocusIn)
+				Globals::setStylesheetProperty(w, "orangeBg", false);
 		}
 
 		event->ignore();

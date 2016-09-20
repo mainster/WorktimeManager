@@ -178,6 +178,18 @@ QList<quint8> Globals::seqUInt(quint8 i, int count, int lBound, int step) {
 	return il;
 }
 
+bool Globals::setStylesheetProperty(QWidget *widget, const char *propertyName,
+												const QVariant &property) {
+	if ((! widget) || (sizeof(propertyName) == 0) || (! property.isValid()))
+		bReturn("Malformed argument(s)!");
+
+	widget->setProperty(propertyName, property);
+	widget->style()->unpolish(widget);
+	widget->style()->polish(widget);
+	widget->update();
+	return true;
+}
+
 QStringList Globals::widToStrLst(QWidgetList &lst) {
 
 	strLst.clear();

@@ -410,6 +410,68 @@ protected:
 
 Q_DECLARE_METATYPE(Item)
 
+/* ======================================================================== */
+/*                     QLineEdit setLineEditTextFormat                      */
+/* ======================================================================== */
+/* Usage example:
+	QLineEdit* lineEdit = ui->lineEdit;
+	lineEdit->setText(tr("Task Tracker - Entry"));
+
+	QList<QTextLayout::FormatRange> formats;
+
+	QTextCharFormat f;
+
+	f.setFontWeight(QFont::Bold);
+	QTextLayout::FormatRange fr_task;
+	fr_task.start = 0;
+	fr_task.length = 4;
+	fr_task.format = f;
+
+	f.setFontItalic(true);
+	f.setBackground(Qt::darkYellow);
+	f.setForeground(Qt::white);
+	QTextLayout::FormatRange fr_tracker;
+	fr_tracker.start = 5;
+	fr_tracker.length = 7;
+	fr_tracker.format = f;
+
+	formats.append(fr_task);
+	formats.append(fr_tracker);
+
+	setLineEditTextFormat(lineEdit, formats);
+*/
+
+#ifdef SET_LINE_EDIT_FORMAT
+static void setLineEditTextFormat(QLineEdit* lineEdit,
+											 const QList<QTextLayout::FormatRange>& formats) {
+	if(!lineEdit) return;
+
+	QList<QInputMethodEvent::Attribute> attributes;
+	foreach(const QTextLayout::FormatRange& fr, formats) {
+		QInputMethodEvent::AttributeType type = QInputMethodEvent::TextFormat;
+		int start = fr.start - lineEdit->cursorPosition();
+		int length = fr.length;
+		QVariant value = fr.format;
+		attributes.append(QInputMethodEvent::Attribute(type, start, length, value));
+	}
+	QInputMethodEvent event(QString(), attributes);
+	QCoreApplication::sendEvent(lineEdit, &event);
+}
+
+static void setLineEditTextFormat(QLineEdit* lineEdit,
+											 const QTextLayout::FormatRange format) {
+	QList<QTextLayout::FormatRange> formats;
+	formats.append(format);
+
+	setLineEditTextFormat(lineEdit, formats);
+}
+#endif
+#ifdef CLEAR_LINE_EDIT_FORMAT
+static void clearLineEditTextFormat(QLineEdit* lineEdit) {
+	setLineEditTextFormats(lineEdit, QList<QTextLayout::FormatRange>());
+}
+#endif
+
 
 
 #ifdef OLD_ITM
