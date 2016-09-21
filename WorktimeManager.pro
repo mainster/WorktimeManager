@@ -10,7 +10,7 @@ qtHaveModule(printsupport): QT += printsupport
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = WorktimeManager
-QMAKE_CXX = ccache g++
+#QMAKE_CXX = ccache g++
 TEMPLATE = app
 CONFIG+=c++11
 INCLUDEPATH += mdbQtStd
@@ -41,10 +41,6 @@ OTHER_FILES +=
 #target.path = $$[QT_INSTALL_EXAMPLES]/sql/sqlbrowser
 #INSTALLS += target
 
-
-wince*: {
-    DEPLOYMENT_PLUGIN += qsqlite
-}
 
 HEADERS += \
 	 browser.h \
