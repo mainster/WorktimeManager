@@ -13,8 +13,9 @@ public:
 	static struct confKeys_t {
 		QString
 		focusOrder,
-		altRowColOn,
+		alterRowColOn,
 		alterRowColor,
+		gridLineColor,
 		tableFont,
 		centerCols,
 		visibleCols,

@@ -628,6 +628,9 @@ void Browser::selectAndSetFont() {
 void Browser::selectAndSetRowColor() {
 	selectAndSetColor(AlternatingRowsColor);
 }
+void Browser::selectAndSetGridColor() {
+	selectAndSetColor(GridLineColor);
+}
 bool Browser::selectAndSetColor(ColorSetTarget target) {
 	switch (target) {
 
@@ -655,17 +658,17 @@ bool Browser::selectAndSetColor(ColorSetTarget target) {
 
 			QColor color = QColorDialog::getColor(
 									pal.background().color(), this,
-									tr("Farbe für alternierenden Zeilenhintergrund"),
+									tr("Farbe für Tabellen-Raster"),
 									QColorDialog::DontUseNativeDialog);
 
 			if (! color.isValid())
 				return false;
 
 			if (mTabs.hasSelected())
-				mTabs.currentSelected()->tv()->setAlternateRowCol(color, true);
+				mTabs.currentSelected()->tv()->setGridColor(color);
 			else
 				foreach (MdTabView *tv, mTabs.tvsNoPtr())
-					tv->setAlternateRowCol(color, true);
+					tv->setGridColor(color);
 		}; break;
 
 		case BackgroundColor: {

@@ -244,6 +244,7 @@ public slots:
 	void requeryWorktimeTableView(QString nonDefaulQuery = "");
 	void selectAndSetFont();
 	void selectAndSetRowColor();
+	void selectAndSetGridColor();
 	void resetColumnConfig();
 
 	void reselectModels();

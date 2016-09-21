@@ -170,9 +170,9 @@ private:
 	QAction *actNew, *actOpen, *actSave, *actExport, *actBrowseSQL, *actInpForm,
 	*actShowTbl, *actDbModMaster, *actClose, *actRichEdit, *actUnderConstr, *actNotes,
 	*actGbStyleShtA, *actGbSShtInpFrm, *actSelFont, *actCyclicObjInfo, *actResizerDlg,
-	*actShowSqlQuery, *actSetAlterRowCol, *actAutoFitTables, *actFilterTable,
-	*actFilterTableWindow, *actFilterForm, *actCfgInpFrmTabOrd, *actDoFiltWorktimeTbl,
-	*actDoFiltSelectedTbl, *actResetConfig;
+	*actShowSqlQuery, *actSetAlterRowCol, *actSetGridColor, *actAutoFitTables,
+	*actFilterTable, *actFilterTableWindow, *actFilterForm, *actCfgInpFrmTabOrd,
+	*actDoFiltWorktimeTbl, *actDoFiltSelectedTbl, *actResetConfig;
 
 };
 

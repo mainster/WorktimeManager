@@ -71,23 +71,7 @@ public:
 	void createForeignModel(const QString &tableName);
 	QAction *getActSectionMask() const { return actSectionMask; }
 	void setActSectionMask(QAction *value) { actSectionMask = value; }
-	QList<TableInfo_column *> queryTableInfo() {
-		QList<TableInfo_column *> tableInfo;
-		QSqlQuery query(tr("PRAGMA table_info('%1')").arg(sqlTableName()));
-
-		while (query.next()) {
-			TableInfo_column *tableColumn;
-			tableColumn->cid			= query.value(query.record().indexOf("cid")).toInt();
-			tableColumn->name			= query.value(query.record().indexOf("name")).toString();
-			tableColumn->type			= query.value(query.record().indexOf("type")).toString();
-			tableColumn->notnull		= query.value(query.record().indexOf("notnull")).toBool();
-			tableColumn->defaultVal = query.value(query.record().indexOf("dflt_value"));
-			tableColumn->pk			= query.value(query.record().indexOf("pk")).toInt();
-			tableInfo << tableColumn;
-		}
-
-		return tableInfo;
-	}
+	QList<TableInfo_column> queryTableInfo();
 
 public slots:
 	QFont restoreFont();
@@ -101,7 +85,8 @@ public slots:
 	void resizeRowsColsToContents();
 	void restoreColumnOrderAndVisability();
 	void restoreView();
-	void setAlternateRowCol(QColor &col, bool alternateEnabled = true);
+	void setAlternateRowCol(QColor &color, bool alternateEnabled = true);
+	void setGridColor(QColor &color);
 	void setColumnHidden(const int column, const bool hide);
 	void setEditTriggers(QTableView::EditTriggers triggers);
 	void storeFont(QFont font);
@@ -121,7 +106,8 @@ protected:
 	void hideEvent(QHideEvent *);
 	void restoreColumnOrderAndVisability2();
 	void wheelEvent(QWheelEvent *event);
-	void mousePressEvent(QMouseEvent *e);
+	void mousePressEvent(QMouseEvent *e);	
+	void refreshStylesheet(QString stylesheet = QString());
 
 protected slots:
 	void onActGrStrategyTrigd(QAction *sender);
@@ -135,6 +121,8 @@ private:
 
 	QAction *actInsertRow, *actDeleteRow, *actFieldStrategy, *actRowStrategy,
 	*actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask;
+
+	QMap<QString, QString> stylesheetPvs;
 
 #ifdef USE_QPOINTER
 	QPointer<SqlRtm> sqlRtm;

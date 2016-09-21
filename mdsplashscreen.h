@@ -14,6 +14,8 @@ public slots:
 	void showMessage(const QString& message,
 						  int alignment = Qt::AlignLeft,
 						  const QColor& color = Qt::black);
+protected:
+	virtual void mousePressEvent(QMouseEvent *) override;
 
 private:
 	virtual void paintEvent(QPaintEvent* e);
@@ -22,6 +24,8 @@ private:
 	QString itsMessage;
 	int itsAlignment;
 	QColor itsColor;
+
+	// QWidget interface
 };
 
 #endif // MDSPLASHSCREEN_H

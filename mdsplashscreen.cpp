@@ -32,3 +32,6 @@ void MdSplashScreen::paintEvent(QPaintEvent *e) {
 	aPainter.setPen(itsColor);
 	aPainter.drawText(aTextRect, itsAlignment, itsMessage);
 }
+void MdSplashScreen::mousePressEvent(QMouseEvent *) {
+	close();
+}

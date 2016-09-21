@@ -6,6 +6,7 @@ struct Md::confKeys_t Md::k {
 	QString("/TabOrder"),
 	QString("/AlternateRowColEnabled"),
 	QString("/AlternateRowColor"),
+	QString("/GridLineColor"),
 	QString("/TableFont"),
 	QString("/mCenterCols"),
 	QString("/mVisibleCols"),

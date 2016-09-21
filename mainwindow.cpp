@@ -465,12 +465,12 @@ void MainWindow::createActions() {
 	actGbSShtInpFrm = new QAction("actGbSShtInpFrm", this);
 	actFilterTable = new QAction("actFilterTable", this);
 	//	actFilterTableWindow = new QAction("actFilterTableWindow", this);
-
 	actSelFont = new QAction("Schriftfont", this);
 	actCyclicObjInfo = new QAction("Cyclic object info", this);
 	actResizerDlg = new QAction("Fenstergröße ändern", this);
 	actShowSqlQuery = new QAction("Eingabefeld SQL querys", this);
 	actSetAlterRowCol = new QAction("Zeilenhintergrund", this);
+	actSetGridColor = new QAction("Rasterfarbe ändern", this);
 	actAutoFitTables = new QAction("Autofit Zeile/Spalte", this);
 	actCfgInpFrmTabOrd = new QAction("Tabulator Reihenfolge", this);
 	actDoFiltSelectedTbl = new QAction("Auf ausgewählte Tabelle anwenden", this);
@@ -511,8 +511,8 @@ void MainWindow::createActions() {
 	acts.clear();
 	acts << PONAM(actGbStyleShtA) << PONAM(actGbSShtInpFrm) << PONAM(actSelFont)
 		  << PONAM(actCyclicObjInfo) << PONAM(actResizerDlg) << PONAM(actShowSqlQuery)
-		  << PONAM(actSetAlterRowCol) << PONAM(actAutoFitTables) << PONAM(actFilterTable)
-			  /*<< PONAM(actFilterTableWindow)*/ << PONAM(actFilterForm) << PONAM(actCfgInpFrmTabOrd)
+		  << PONAM(actSetAlterRowCol) << PONAM(actSetGridColor) << PONAM(actAutoFitTables)
+		  << PONAM(actFilterTable) << PONAM(actFilterForm) << PONAM(actCfgInpFrmTabOrd)
 		  << PONAM(actResetConfig);
 
 	foreach (QAction *act, acts)
@@ -612,6 +612,7 @@ void MainWindow::createActions() {
 	actShowSqlQuery->setToolTip(tr("Hide or show the input field to submit manuall "
 											 "SQL querys thru database driver backend"));
 	actSetAlterRowCol->setToolTip(tr("Farbe für alternierenden Zeilenhintergund auswählen."));
+	actSetGridColor->setToolTip(tr("Farbe für das Tabellen-Raster auswählen."));
 	actInpForm->setToolTip(tr("Öffnet die <b>Eingabeform</b> um neue Einträge in die "
 									  "Arbeitszeitentabelle einzutragen."));
 	actDoFiltSelectedTbl->setToolTip(tr("Das Filter/Suchfenster wird auf die <b>aktuell "
@@ -661,6 +662,7 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		connect(actShowSqlQuery, &QAction::toggled, inpFrm, &InpFrm::setQueryBoxVisible);
 		connect(actSelFont, &QAction::triggered, browser, &Browser::selectAndSetFont);
 		connect(actSetAlterRowCol, &QAction::triggered, browser, &Browser::selectAndSetRowColor);
+		connect(actSetGridColor, &QAction::triggered, browser, &Browser::selectAndSetGridColor);
 		connect(actResetConfig, &QAction::triggered, browser, &Browser::resetColumnConfig);
 	}
 }
@@ -700,8 +702,9 @@ void MainWindow::makeMenu() {
 	sep3->setSeparator(true);
 
 	setupMenu->addActions(QList<QAction *>() << actSelFont << actSetAlterRowCol
-								 << sep3 << actCyclicObjInfo << actResizerDlg << actShowSqlQuery
-								 << actCfgInpFrmTabOrd << actResetConfig);
+								 << actSetGridColor << sep3 << actCyclicObjInfo << actResizerDlg
+								 << actShowSqlQuery << actCfgInpFrmTabOrd << actResetConfig);
+
 	setupMenu->addSeparator();
 
 	MdMenu *muFilterForm = new MdMenu(this);

@@ -189,7 +189,16 @@ bool Globals::setStylesheetProperty(QWidget *widget, const char *propertyName,
 	widget->update();
 	return true;
 }
+bool Globals::setStylesheet(QWidget *widget, const QString &stylesheet) {
+	if (! widget)
+		bReturn("Malformed argument(s)!");
 
+	widget->setStyleSheet(stylesheet);
+	widget->style()->unpolish(widget);
+	widget->style()->polish(widget);
+	widget->update();
+	return true;
+}
 QStringList Globals::widToStrLst(QWidgetList &lst) {
 
 	strLst.clear();

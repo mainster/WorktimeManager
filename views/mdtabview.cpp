@@ -114,11 +114,11 @@ void MdTabView::createForeignModel(const QString &tableName) {
 			//!< Set the localized header captions
 			sqlRtm->setHeaderData(sqlRtm->fieldIndex("prjID"), tr("ID"));
 			sqlRtm->setHeaderData(sqlRtm->fieldIndex("clientID"),
-									  Md::headerAlias[ tr("%1/clientID").arg(tableName) ]);
+										 Md::headerAlias[ tr("%1/clientID").arg(tableName) ]);
 			sqlRtm->setHeaderData(sqlRtm->fieldIndex("subID"),
-									  Md::headerAlias[ tr("%1/subID").arg(tableName) ]);
+										 Md::headerAlias[ tr("%1/subID").arg(tableName) ]);
 			sqlRtm->setHeaderData(sqlRtm->fieldIndex("archID"),
-									  Md::headerAlias[ tr("%1/archID").arg(tableName) ]);
+										 Md::headerAlias[ tr("%1/archID").arg(tableName) ]);
 
 			break;
 		}
@@ -135,11 +135,11 @@ void MdTabView::createForeignModel(const QString &tableName) {
 			//!< Set the localized header captions
 			sqlRtm->setHeaderData(sqlRtm->fieldIndex("workerID"), tr("ID"));
 			sqlRtm->setHeaderData(sqlRtm->fieldIndex("PersonalNr"),
-									  Md::headerAlias[ "PersonalNr" ]);
+										 Md::headerAlias[ "PersonalNr" ]);
 			sqlRtm->setHeaderData(sqlRtm->fieldIndex("Stundensatz"),
-									  Md::headerAlias[ "Stundensatz" ]);
+										 Md::headerAlias[ "Stundensatz" ]);
 			sqlRtm->setHeaderData(sqlRtm->fieldIndex("Wochenstunden"),
-									  Md::headerAlias[ "Wochenstunden" ]);
+										 Md::headerAlias[ "Wochenstunden" ]);
 
 			break;
 		}
@@ -150,7 +150,7 @@ void MdTabView::createForeignModel(const QString &tableName) {
 			//!< Set the localized header captions
 			sqlRtm->setHeaderData(sqlRtm->fieldIndex("clientID"), tr("ID"));
 			sqlRtm->setHeaderData(sqlRtm->fieldIndex("Nummer"),
-									  Md::headerAlias[ tr("%1/Nummer").arg(tableName) ]);
+										 Md::headerAlias[ tr("%1/Nummer").arg(tableName) ]);
 
 			break;
 		}
@@ -257,6 +257,23 @@ void MdTabView::createForeignModel(const QString &tableName) {
 	restoreColumnOrderAndVisability();
 	setFont(restoreFont());
 }
+QList<MdTabView::TableInfo_column> MdTabView::queryTableInfo() {
+	QList<TableInfo_column> tableInfo;
+	QSqlQuery query(tr("PRAGMA table_info('%1')").arg(m_sqlTableName));
+
+	while (query.next()) {
+		TableInfo_column tableColumn;
+		tableColumn.cid			= query.value(query.record().indexOf("cid")).toInt();
+		tableColumn.name			= query.value(query.record().indexOf("name")).toString();
+		tableColumn.type			= query.value(query.record().indexOf("type")).toString();
+		tableColumn.notnull		= query.value(query.record().indexOf("notnull")).toBool();
+		tableColumn.defaultVal = query.value(query.record().indexOf("dflt_value"));
+		tableColumn.pk			= query.value(query.record().indexOf("pk")).toInt();
+		tableInfo << tableColumn;
+	}
+
+	return tableInfo;
+}
 void MdTabView::refreshView() {
 	this->update();
 }
@@ -360,11 +377,18 @@ void MdTabView::restoreView() {
 
 	/** Restore alternating row color */
 	QSETTINGS;
-	QColor color = config.value(objectName() + Md::k.alterRowColor,
-										 QColor(Qt::white)).value<QColor>();
-	if (color.isValid())
+	QColor *color = new QColor(config.value(objectName() + Md::k.alterRowColor,
+														 QColor(Qt::white)).value<QColor>());
+	if (color->isValid())
 		setAlternateRowCol(
-					color, config.value(objectName() + Md::k.altRowColOn, "true").toBool());
+					*color, config.value(objectName() + Md::k.alterRowColOn, "true").toBool());
+
+	color = new QColor(config.value(objectName() + Md::k.gridLineColor,
+												QColor(Qt::gray)).value<QColor>());
+	if (color->isValid())
+		setGridColor(*color);
+
+	delete color;
 
 	/*!	Restore model sources	*/
 }
@@ -491,7 +515,7 @@ void MdTabView::mousePressEvent(QMouseEvent *e) {
 		e->accept();
 }
 void MdTabView::hideEvent(QHideEvent *) {
-//	return; //@@@MDB
+	//	return; //@@@MDB
 	if (! modelCast())
 		qReturn("ModelCast failed");
 	modelCast()->storeModel(sqlTableName());
@@ -522,20 +546,43 @@ void MdTabView::wheelEvent (QWheelEvent * event) {
 /* ======================================================================== */
 /*                             Helper methodes                              */
 /* ======================================================================== */
-void MdTabView::setAlternateRowCol(QColor &col, bool alternateEnabled) {
-	setAlternatingRowColors(alternateEnabled);
+void MdTabView::setAlternateRowCol(QColor &color, bool alternateEnabled) {
+	QSETTINGS;
+	if (color.isValid()) {
+		stylesheetPvs.insert("alternate-background-color:", tr("rgba(%1,%2,%3,%4);")
+									.arg( color.red()).arg( color.green())
+									.arg( color.blue()).arg( color.alpha()));
 
-	if (alternateEnabled && col.isValid()) {
-		QTableView::setStyleSheet(
-					QString("alternate-background-color: rgba(%1,%2,%3,%4);")
-					.arg( col.red())
-					.arg( col.green())
-					.arg( col.blue())
-					.arg( col.alpha()) );
-		QSETTINGS;
-		config.setValue(objectName() + "/AlternateRowColEnable", alternateEnabled);
-		config.setValue(objectName() + "/AlternateRowColor", col);
+		config.setValue(objectName() + Md::k.alterRowColor, color);
+		refreshStylesheet();
 	}
+	setAlternatingRowColors(alternateEnabled);
+	config.setValue(objectName() + Md::k.alterRowColOn, alternateEnabled);
+
+}
+void MdTabView::setGridColor(QColor &color) {
+	QSETTINGS;
+	stylesheetPvs.insert("gridline-color:", tr("rgba(%1,%2,%3,%4);")
+								.arg( color.red()).arg( color.green())
+								.arg( color.blue()).arg( color.alpha()));
+
+	config.setValue(objectName() + Md::k.gridLineColor, color);
+	refreshStylesheet();
+}
+void MdTabView::refreshStylesheet(QString stylesheet) {
+	QString s;
+
+	if (stylesheet.isEmpty()) {
+		QStringList keys = stylesheetPvs.keys();
+		QStringList values = stylesheetPvs.values();
+
+		for (int k = 0; k < stylesheetPvs.count(); k++)
+			s.append(keys.at(k) + " " + values.at(k) + "\n");
+	}
+	else
+		s = stylesheet;
+
+	Globals::setStylesheet(this, s);
 }
 void MdTabView::storeFont(QFont f) {
 	QSETTINGS;
@@ -617,32 +664,32 @@ void MdTabView::resetColumnsDefaultPos(bool allVisible) {
 
 #define QFOLDINGSTART {
 const QString MdTabView::StyleSheet_QTableView = QString(
-			"QTableView {"
-			"	margin-top: 1ex; "
-			"	background-color: white;"
-			" 	border-radius: 5px;"
-			"	border: 0px solid;"
-			"	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));"
-			"	border-left-color: rgba(105,105,105,255);"
-			"	border-right-color: rgba(105,105,105,205);"
-			"	border-bottom-color: rgba(105,105,105,205);"
-			" } [selected=true] {"
-			"	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); "
-			"}"
-			"QHeaderView::section {"
-			"     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
-			"                                       stop:    0 #616161, stop: 0.5 #505050,"
-			"                                       stop: 0.6 #434343, stop:    1 #656565);"
-			"     color: white;"
-			"     padding-left: 4px;"
-			"     padding-right: 4px;"
-			"     padding-top: 2px;"
-			"     padding-bottom: 2px;"
-			"     border: 1px solid #6c6c6c;"
-			"}"
-			" QHeaderView::section:checked {"
-			"     background-color: rgb(31, 94, 233);"
-			"}"
-			);
+																	 "QTableView {"
+																	 "	margin-top: 1ex; "
+																	 "	background-color: white;"
+																	 " 	border-radius: 5px;"
+																	 "	border: 0px solid;"
+																	 "	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));"
+																	 "	border-left-color: rgba(105,105,105,255);"
+																	 "	border-right-color: rgba(105,105,105,205);"
+																	 "	border-bottom-color: rgba(105,105,105,205);"
+																	 " } [selected=true] {"
+																	 "	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); "
+																	 "}"
+																	 "QHeaderView::section {"
+																	 "     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+																	 "                                       stop:    0 #616161, stop: 0.5 #505050,"
+																	 "                                       stop: 0.6 #434343, stop:    1 #656565);"
+																	 "     color: white;"
+																	 "     padding-left: 4px;"
+																	 "     padding-right: 4px;"
+																	 "     padding-top: 2px;"
+																	 "     padding-bottom: 2px;"
+																	 "     border: 1px solid #6c6c6c;"
+																	 "}"
+																	 " QHeaderView::section:checked {"
+																	 "     background-color: rgb(31, 94, 233);"
+																	 "}"
+																	 );
 #define QFOLDINGEND }
 
