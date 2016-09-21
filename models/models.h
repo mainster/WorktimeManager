@@ -80,6 +80,15 @@ public:
 		}
 		return QSqlTableModel::data(idx, role);
 	}
+	virtual QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal,
+										 int role = Qt::DisplayRole) const {
+		return QSqlRelationalTableModel::headerData(section, orientation, role);
+	}
+	virtual void setHeaderData(int section, const QVariant &value,
+										Qt::Orientation orientation = Qt::Horizontal,
+										int role = Qt::DisplayRole) {
+		QSqlRelationalTableModel::setHeaderData(section, orientation, value, role);
+	}
 
 	void storeModel(const QString &sqlTableName) {
 		QSETTINGS;
@@ -162,6 +171,7 @@ private:
 	QList<int>	mCenterCols;
 	QList<bool>	mVisibleCols;
 	QList<int>	mSectionIdxs;
+
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(SqlRtm::MdlSrcs)
 Q_DECLARE_METATYPE(SqlRtm::MdlSrc)

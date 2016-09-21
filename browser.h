@@ -246,7 +246,7 @@ public slots:
 	void selectAndSetRowColor();
 	void resetColumnConfig();
 
-	void selectModels();
+	void reselectModels();
 protected:
 	void createUi(QWidget *passParent = 0);
 	void createActions();

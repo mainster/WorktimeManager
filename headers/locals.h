@@ -6,6 +6,8 @@
 
 #define MAINWINDOW_TITLE QString(qApp->applicationName())
 
+//#define USE_QPOINTER
+
 class Md {
 public:
 	static struct confKeys_t {

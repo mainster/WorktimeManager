@@ -15,6 +15,8 @@ TEMPLATE = app
 CONFIG+=c++11
 INCLUDEPATH += mdbQtStd
 
+DEFINES += USE_QPOINTER
+
 DISTFILES += \
 	 NOTES \
     ../../../../.config/delBassoDEV/WorktimeManager.ini \

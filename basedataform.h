@@ -16,6 +16,7 @@
 #include "nulldelegate.h"
 #include "mdsplashscreen.h"
 #include "mdplaintextedit.h"
+#include "mdtabview.h"
 
 //#include "browser.h"
 
@@ -45,16 +46,6 @@ class QSqlRelationalTableModel;
 #define	ID_COLUMN					0
 #define	INT_VALIDATOR_UPPER		999999
 #define	REAL_VALIDATOR_UPPER		999.99
-
-struct ColumnSchema_t {
-	int cid;
-	QString name;
-	QString type;
-	bool notnull;
-	QVariant defaultVal;
-	int pk;
-};
-typedef struct ColumnSchema_t ColumnSchema;
 
 class BaseDataForm : public QDialog {
 

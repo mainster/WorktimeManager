@@ -10,25 +10,23 @@ class SectionMask;
 MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	: QTableView(parent) {
 
+	/*!
+	 * Create this classes QAction objects.
+	 */
 	addActions( createActions() );
-
-	if (!tableName.isEmpty())
-		createForeignModel(tableName);
-
+	setContextMenuPolicy(Qt::ActionsContextMenu);
 	setSortingEnabled( true );
+
+	if (!tableName.isEmpty()) {
+		createForeignModel(tableName);
+	}
 
 	setSizeAdjustPolicy(QTableView::AdjustToContents);
 	adjustSize();
 
 	setStyleSheet(StyleSheet_QTableView);
 
-	//	/*! HACK to force redrawing if dynamic property stylesheets are used! */
-	//	#ifdef SET_STYLESHEETS
-	//		m_gb->setStyleSheet(this->m_gb->styleSheet());
-	//	#endif
-
 	connect(horizontalHeader(), &QHeaderView::sectionMoved, this, &MdTabView::onSectionMoved);
-	setContextMenuPolicy(Qt::ActionsContextMenu);
 
 	restoreFont();
 
@@ -40,132 +38,162 @@ void MdTabView::setSqlTableName(const QString &name) {
 	m_sqlTableName = name;
 	emit sqlTableNameChanged(m_sqlTableName);
 }
-void MdTabView::createForeignModel(const QString &tNam) {
-	/**
-		 * Get active database pointer
-		 */
-	QSqlDatabase pDb = ConnectionWidget::instance()->currentDb();
-	SqlRtm *rmod = new SqlRtm(SqlRtm::srcNew, this, pDb);
-	rmod->setEditStrategy(QSqlTableModel::OnFieldChange);
-	rmod->setTable(pDb.driver()->escapeIdentifier(tNam, QSqlDriver::TableName));
-	/**
-		 * Because the target database contains more than one table related on
-		 * foreign keys, varying process is necessary to set the different
-		 * relations correctly. Which processing branch must be used depends on
-		 * the table name passed by sqlTbl
-		 */
-	/** Processing branch for table ... */
-	while (1) {
+void MdTabView::createForeignModel(const QString &tableName) {
+	/*!
+	 * Get pointer to active database.
+	 * Instantiate new relational sql table model.
+	 */
+	if (! sqlRtm.isNull())
+		delete sqlRtm.data();
+
+	sqlRtm = new SqlRtm(SqlRtm::srcNew, this,
+							  ConnectionWidget::instance()->currentDb());
+	sqlRtm->setEditStrategy(QSqlTableModel::OnFieldChange);
+	/*!
+	 * Set the passed sql table name.
+	 */
+	sqlRtm->setTable(tableName);
+
+	QTime *swatch = new QTime();
+	swatch->start();
+
+	/*!
+	 * Fetch the models whole data from sql database.
+	 */
+	while (sqlRtm->canFetchMore())
+		sqlRtm->fetchMore();
+	INFO << tr("Model fetch delay: %1ms").arg(swatch->elapsed());
+	delete swatch;
+
+	/*!
+	 * Because the target database contains more than one table related on foreign keys,
+	 * varying process is necessary to set the different relations correctly. Which
+	 * processing branch must be used depends on the table name passed by sqlTbl.
+	 */
+
+	/*!
+	 * Processing branches for table ...
+	 */
+	do {
 		/* --------------------------------------------------------- */
 		/*                      Table worktimes                      */
 		/* --------------------------------------------------------- */
-		if (tNam.contains("worktime", Qt::CaseInsensitive)) {
+		if (tableName.contains("worktime", Qt::CaseInsensitive)) {
 			/** Remember the indexes of the columns */
-			int colEmp = rmod->fieldIndex("workerID");
-			int colPrj = rmod->fieldIndex("prjID");
+			int colEmp = sqlRtm->fieldIndex("workerID");
+			int colPrj = sqlRtm->fieldIndex("prjID");
 
 			/** Set the relations to foreign database tables */
-			rmod->setRelation(colEmp, QSqlRelation("worker", "workerID", "Nachname"));
-			rmod->setRelation(colPrj, QSqlRelation("prj", "prjID", "Beschreibung"));
+			sqlRtm->setRelation(colEmp, QSqlRelation("worker", "workerID", "Nachname"));
+			sqlRtm->setRelation(colPrj, QSqlRelation("prj", "prjID", "Beschreibung"));
 
 			//!< Set the localized header captions
-			rmod->setHeaderData(rmod->fieldIndex("worktimID"), Qt::Horizontal, tr("ID"));
-			rmod->setHeaderData(rmod->fieldIndex("dat"), Qt::Horizontal, Md::headerAlias[ "dat" ]);
-			rmod->setHeaderData(rmod->fieldIndex("hours"), Qt::Horizontal, Md::headerAlias[ "hours" ]);
-			rmod->setHeaderData(colEmp, Qt::Horizontal, tr("Mitarb"));
-			rmod->setHeaderData(colPrj, Qt::Horizontal, tr("Beschreibung"));
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("worktimID"), tr("ID"));
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("dat"), Md::headerAlias[ "dat" ]);
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("hours"), Md::headerAlias[ "hours" ]);
+			sqlRtm->setHeaderData(colEmp, Md::headerAlias[ "workerID" ]);
+			sqlRtm->setHeaderData(colPrj, tr("Beschreibung"));
 
 			break;
 		}
 		/* --------------------------------------------------------- */
 		/*                      Table projects                       */
 		/* --------------------------------------------------------- */
-		if (tNam.contains("prj", Qt::CaseInsensitive)) {
+		if (tableName.contains("prj", Qt::CaseInsensitive)) {
 			/** Remember the indexes of the columns */
-			int colClient = rmod->fieldIndex("clientID");
-			int colSub = rmod->fieldIndex("subID");
-			int colArch = rmod->fieldIndex("archID");
+			int colClient = sqlRtm->fieldIndex("clientID");
+			int colSub = sqlRtm->fieldIndex("subID");
+			int colArch = sqlRtm->fieldIndex("archID");
 
-			rmod->setJoinMode(QSqlRelationalTableModel::LeftJoin);
+			sqlRtm->setJoinMode(QSqlRelationalTableModel::LeftJoin);
 			/** Set the relations to the other database tables */
-			rmod->setRelation(colClient, QSqlRelation("client", "clientID", "Name"));
-			rmod->setRelation(colSub, QSqlRelation("arch", "archID", "Name"));
-			rmod->setRelation(colArch, QSqlRelation("arch", "archID", "Name"));
+			sqlRtm->setRelation(colClient, QSqlRelation("client", "clientID", "Name"));
+			sqlRtm->setRelation(colSub, QSqlRelation("arch", "archID", "Name"));
+			sqlRtm->setRelation(colArch, QSqlRelation("arch", "archID", "Name"));
 
 			//!< Set the localized header captions
-			rmod->setHeaderData(rmod->fieldIndex("prjID"), Qt::Horizontal, tr("ID"));
-			rmod->setHeaderData(rmod->fieldIndex("clientID"), Qt::Horizontal,
-									  Md::headerAlias[ tr("%1/clientID").arg(tNam) ]);
-			rmod->setHeaderData(rmod->fieldIndex("subID"), Qt::Horizontal,
-									  Md::headerAlias[ tr("%1/subID").arg(tNam) ]);
-			rmod->setHeaderData(rmod->fieldIndex("archID"), Qt::Horizontal,
-									  Md::headerAlias[ tr("%1/archID").arg(tNam) ]);
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("prjID"), tr("ID"));
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("clientID"),
+									  Md::headerAlias[ tr("%1/clientID").arg(tableName) ]);
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("subID"),
+									  Md::headerAlias[ tr("%1/subID").arg(tableName) ]);
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("archID"),
+									  Md::headerAlias[ tr("%1/archID").arg(tableName) ]);
 
 			break;
 		}
 		/* --------------------------------------------------------- */
 		/*                      Table worker                         */
 		/* --------------------------------------------------------- */
-		if (tNam.contains("worker", Qt::CaseInsensitive)) {
+		if (tableName.contains("worker", Qt::CaseInsensitive)) {
 			/** Remember the indexes of the columns */
-			int colGrading = rmod->fieldIndex("gradingID");
+			int colGrading = sqlRtm->fieldIndex("gradingID");
 
 			/** Set the relations to foreign database tables */
-			rmod->setRelation(colGrading, QSqlRelation("grading", "gradingID", "Einstufung"));
+			sqlRtm->setRelation(colGrading, QSqlRelation("grading", "gradingID", "Einstufung"));
 
 			//!< Set the localized header captions
-			rmod->setHeaderData(rmod->fieldIndex("workerID"), Qt::Horizontal, tr("ID"));
-			rmod->setHeaderData(rmod->fieldIndex("PersonalNr"), Qt::Horizontal,
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("workerID"), tr("ID"));
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("PersonalNr"),
 									  Md::headerAlias[ "PersonalNr" ]);
-			rmod->setHeaderData(rmod->fieldIndex("Stundensatz"), Qt::Horizontal,
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("Stundensatz"),
 									  Md::headerAlias[ "Stundensatz" ]);
-			rmod->setHeaderData(rmod->fieldIndex("Wochenstunden"), Qt::Horizontal,
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("Wochenstunden"),
 									  Md::headerAlias[ "Wochenstunden" ]);
+
 			break;
 		}
 		/* --------------------------------------------------------- */
 		/*                      Table client                         */
 		/* --------------------------------------------------------- */
-		if (tNam.contains("client", Qt::CaseInsensitive)) {
+		if (tableName.contains("client", Qt::CaseInsensitive)) {
 			//!< Set the localized header captions
-			rmod->setHeaderData(rmod->fieldIndex("clientID"), Qt::Horizontal, tr("ID"));
-			rmod->setHeaderData(rmod->fieldIndex("Nummer"), Qt::Horizontal,
-									  Md::headerAlias[ tr("%1/Nummer").arg(tNam) ]);
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("clientID"), tr("ID"));
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("Nummer"),
+									  Md::headerAlias[ tr("%1/Nummer").arg(tableName) ]);
+
 			break;
 		}
 		/* --------------------------------------------------------- */
 		/*                      Table fehlzeit                       */
 		/* --------------------------------------------------------- */
-		if (tNam.contains("fehlzeit", Qt::CaseInsensitive)) {
+		if (tableName.contains("fehlzeit", Qt::CaseInsensitive)) {
 			//!< Set the localized header captions
-			rmod->setHeaderData(rmod->fieldIndex("fehlID"), Qt::Horizontal, tr("ID"));
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("fehlID"), tr("ID"));
 
 			break;
 		}
 		/* --------------------------------------------------------- */
 		/*                      Table arch									 */
 		/* --------------------------------------------------------- */
-		if (tNam.contains("arch", Qt::CaseInsensitive)) {
+		if (tableName.contains("arch", Qt::CaseInsensitive)) {
 			//!< Set the localized header captions
-			rmod->setHeaderData(rmod->fieldIndex("archID"), Qt::Horizontal, tr("ID"));
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("archID"), tr("ID"));
 
 			break;
 		}
 		/* --------------------------------------------------------- */
 		/*                      Table grading								 */
 		/* --------------------------------------------------------- */
-		if (tNam.contains("grading", Qt::CaseInsensitive)) {
+		if (tableName.contains("grading", Qt::CaseInsensitive)) {
 			//!< Set the localized header captions
-			rmod->setHeaderData(rmod->fieldIndex("gradingID"), Qt::Horizontal, tr("ID"));
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("gradingID"), tr("ID"));
 
 			break;
 		}
 		/* --------------------------------------------------------- */
 		/*                      Table runtime								 */
 		/* --------------------------------------------------------- */
-		if (tNam.contains("runtime", Qt::CaseInsensitive)) {
+		if (tableName.contains("runtime", Qt::CaseInsensitive)) {
+			/** Remember the indexes of the columns */
+			int colEmp = sqlRtm->fieldIndex("workerID");
+
+			/** Set the relations to foreign database tables */
+			sqlRtm->setRelation(colEmp, QSqlRelation("worker", "workerID", "Nachname"));
+
 			//!< Set the localized header captions
-			rmod->setHeaderData(rmod->fieldIndex("runtimeID"), Qt::Horizontal, tr("ID"));
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("runtimeID"), tr("ID"));
+			sqlRtm->setHeaderData(colEmp, Md::headerAlias[ "workerID" ]);
 
 			break;
 		}
@@ -174,37 +202,58 @@ void MdTabView::createForeignModel(const QString &tNam) {
 		/* --------------------------------------------------------- */
 		QMessageBox::warning(this, tr("Warnung"),
 									tr("Unbekannter SQL Tabellenbezeichner: %1")
-									.arg(tNam), QMessageBox::Ok);
+									.arg(tableName), QMessageBox::Ok);
 		break;
-	}
+	} while(1);
 
-	// Populate the model
-	rmod->select();
+	/*!
+	 * Populate the model.
+	 */
+	sqlRtm->select();
 
-	QTime *time = new QTime();
-	time->start();
-	while (rmod->canFetchMore())
-		rmod->fetchMore();
-	INFO << tr("Model fetch delay: %1ms").arg(time->elapsed());
-
-	// Set the model and hide the ID column
+	/*!
+	 * Set the model to this's base class and hide the ID column.
+	 */
+	setModel(sqlRtm);
 	setSelectionMode(QAbstractItemView::ContiguousSelection);
-	setModel(rmod);
 	setEditTriggers( QAbstractItemView::DoubleClicked |
 						  QAbstractItemView::EditKeyPressed );
 
-	for (int k = 0; k < rmod->columnCount(); k++)
-		rmod->sectionIdxs().append( k );
+	/*!
+	 * Sorting column and direction differs per sql table.
+	 */
+	if (tableName.contains("worktime"))
+		sortByColumn(0, Qt::DescendingOrder);
+	else {
+		int k;
+		for (k = 0; k < model()->columnCount(); k++) {
+			QString colHead = modelCast()->headerData(k).toString();
 
-	if (! (bool) connect( selectionModel(),
-								 SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-								 this, SLOT(currentChanged(QModelIndex,QModelIndex)) ) ) {
+			if (colHead.contains(tr("Name"), Qt::CaseSensitive) ||
+				 colHead.contains(tr("Nachname"), Qt::CaseSensitive) ||
+				 colHead.contains(tr("Einstufung"), Qt::CaseSensitive)) {
+				sortByColumn(k, Qt::AscendingOrder);
+				break;
+			}
+		}
+		/*!
+		 * If break has not been reached...
+		 */
+		if (k >= model()->columnCount())
+			sortByColumn(0, Qt::AscendingOrder);
+	}
+
+	for (int k = 0; k < sqlRtm->columnCount(); k++)
+		sqlRtm->sectionIdxs().append( k );
+
+	if (! (bool) connect(selectionModel(), &QItemSelectionModel::currentRowChanged,
+								this, &MdTabView::currentChanged)) {
 		//			emit stateMsg(tr("Slot connection returns false"));
 		INFO << tr("Slot connection returns false");
 	}
 	resizeRowsColsToContents();
 	//    emit updateActions();
-	setSqlTableName(tNam);
+	setSqlTableName(tableName);
 	restoreColumnOrderAndVisability();
 	setFont(restoreFont());
 }
@@ -547,13 +596,6 @@ bool MdTabView::restoreActionObjects() {
 	//	actGrContext->blockSignals(false);
 
 	return true;
-}
-SqlRtm *MdTabView::modelCast() {
-//	QAbstractItemModel *itm = model();
-
-	if (! qobject_cast<SqlRtm *>(model()))
-		CRIT << tr("dynamic cast failed");
-	return qobject_cast<SqlRtm *>(model());
 }
 void MdTabView::removeColumnsConfig() {
 	QSETTINGS;

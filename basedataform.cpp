@@ -48,20 +48,8 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	/* ======================================================================== */
 	/*                        Query a ColumnSchema list                         */
 	/* ======================================================================== */
-	QList<ColumnSchema> columnSchemas;
-	QSqlQuery query(tr("PRAGMA table_info('%1')").arg(
-							 qobject_cast<MdTabView *>(tableView)->sqlTableName()));
-
-	while (query.next()) {
-		ColumnSchema columnSchema;
-		columnSchema.cid			= query.value(query.record().indexOf("cid")).toInt();
-		columnSchema.name			= query.value(query.record().indexOf("name")).toString();
-		columnSchema.type			= query.value(query.record().indexOf("type")).toString();
-		columnSchema.notnull		= query.value(query.record().indexOf("notnull")).toBool();
-		columnSchema.defaultVal = query.value(query.record().indexOf("dflt_value"));
-		columnSchema.pk			= query.value(query.record().indexOf("pk")).toInt();
-		columnSchemas << columnSchema;
-	}
+	QList<MdTabView::TableInfo_column *> columnSchemas =
+			qobject_cast<MdTabView *>(m_tableView)->queryTableInfo();
 
 	/* ======================================================================== */
 	/*                      Create button and main layout                       */
@@ -80,7 +68,7 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	mainLayout->addLayout(topButtonLayout, gridRow++, 0, 1, 2);
 
 	int k = 0;
-	foreach (ColumnSchema cs, columnSchemas) {
+	foreach (MdTabView::TableInfo_column *cs, columnSchemas) {
 		/*!
 		 * Check current table for some foreign key and create a QComboBox.
 		 */
@@ -112,7 +100,7 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 			populateComboBoxes();
 		}
 		else {
-			lblEditors << new QLabel(cs.name);
+			lblEditors << new QLabel(cs->name);
 
 			if (lblEditors.last()->text().contains("beschreibung", Qt::CaseInsensitive) ||
 				 lblEditors.last()->text().contains("anschrift", Qt::CaseInsensitive) ||
@@ -135,37 +123,37 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 				/*!
 			 * Check if current ColumnSchema holds the primary key.
 			 */
-				if (cs.pk) {
+				if (cs->pk) {
 					leEditors.last()->setEnabled(false);
 					leEditors.last()->setProperty("primaryKey", true);
 					lePrimaryKey = leEditors.last();
 				}
 				else {
-					if (cs.type.contains(tr("INT"))) {
+					if (cs->type.contains(tr("INT"))) {
 						/*!
 				 * Check if a config value has been stored in settings ini.
 				 */
-						int upperValue = config.value(objectName() + tr("/%1").arg(cs.name),
+						int upperValue = config.value(objectName() + tr("/%1").arg(cs->name),
 																INT_VALIDATOR_UPPER).toInt();
 
 						if (upperValue != INT_VALIDATOR_UPPER)
 							INFO << config.fileName() << tr("has validator INT value for: %1 = %2")
-									  .arg(objectName() + tr("/%1").arg(cs.name))
+									  .arg(objectName() + tr("/%1").arg(cs->name))
 									  .arg(upperValue);
 
 						leEditors.last()->setValidator(new QIntValidator(0, upperValue, this));
 					}
 
-					if (cs.type.contains(tr("REAL"))) {
+					if (cs->type.contains(tr("REAL"))) {
 						/*!
 				 * Check if a config value has been stored in settings ini.
 				 */
-						qreal upperValue = config.value(objectName() + tr("/%1").arg(cs.name),
+						qreal upperValue = config.value(objectName() + tr("/%1").arg(cs->name),
 																  REAL_VALIDATOR_UPPER).toReal();
 
 						if (upperValue != REAL_VALIDATOR_UPPER)
 							INFO << config.fileName() << tr("has validator REAL value for: %1 = %2")
-									  .arg(objectName() + tr("/%1").arg(cs.name))
+									  .arg(objectName() + tr("/%1").arg(cs->name))
 									  .arg(upperValue);
 
 						QDoubleValidator *dv = new QDoubleValidator(0, upperValue, 2, this);
@@ -182,7 +170,7 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 		mainLayout->addWidget(lblEditors.last(), gridRow, 0);
 		mainLayout->addWidget(allEditors.last(), gridRow++, 1, 1, 1);
 
-		if (cs.notnull || cs.pk) {
+		if (cs->notnull || cs->pk) {
 			lblEditors.last()->setText(lblEditors.last()->text() +
 												tr("<span style='color:#ff0000;'>*</span>"));
 			lblEditors.last()->setTextFormat(Qt::RichText);

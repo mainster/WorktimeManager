@@ -36,7 +36,8 @@ QMap<QString, QString> Md::headerAlias {
 	{ "PersonalNr",		"PN" },
 	{ "Wochenstunden",	"h/Woche" },
 	{ "prj/archID",		"Architekt, Name" },
-	{ "prj/subID",			"Subunt., Name" }
+	{ "prj/subID",			"Subunt., Name" },
+	{ "workerID",			"Mitarbeiter" }
 };
 
 QFileInfo Locals::SQL_DATABASE = QFileInfo("/var/lib/mysql/delbassoSQL.db");

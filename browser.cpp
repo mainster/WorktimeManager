@@ -196,24 +196,15 @@ void Browser::onConWidgetTableActivated(const QString &sqlTableName) {
 	 * becomes addressed by the event handler.
 	 */
 
-	//	if (sqlTableName.contains(tr("worktime"))) {
-	//		mdtv = new MdTabView(sqlTableName, mTabs.currentSelected()->tv());
-	//		connect(this, &Browser::updateWriteActions,
-	//				  mdtv, &MdTabView::onUpdateWriteActions);
-	//	}
-	//	else
 	mTabs.currentSelected()->tv()->createForeignModel(sqlTableName);
 	INFO << (bool) connect(static_cast<SqlRtm *>(mTabs.currentSelected()->tv()->model()),
-									&SqlRtm::recordChanged, this, &Browser::selectModels);
+								  &SqlRtm::recordChanged, this, &Browser::reselectModels);
 
-	//	if (FilterForm::instance()->isVisible())
-	//		FilterForm::instance()->setSourceTable(mTabs.currentSelected());
 }
-void Browser::selectModels() {
+void Browser::reselectModels() {
 	foreach (MdTable *t, *mTabs.tbls())
 		qobject_cast<SqlRtm *>(t->tv()->model())->select();
 }
-
 /* ======================================================================== */
 QStandardItemModel *Browser::tblToMetaDataMdl(const QString &table) {
 	QSqlRecord rec = connectionWidget()->currentDb().record( Md::unAliasTableName(table) );
