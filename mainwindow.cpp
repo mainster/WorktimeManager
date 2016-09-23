@@ -18,9 +18,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	notes.features	= new MDNotes(tr("feature list"), parent);
 	richEditor		= new TextEdit(this);
 	filterForm		= new FilterForm(FilterForm::useSelectedSource,
-										  browser->mTabs.tblsNoPtr());
+											  browser->mTabs.tblsNoPtr());
 	filterFormWkt	= new FilterForm(FilterForm::useWorktimeSource,
-										  browser->mTabs.tblsNoPtr());
+											  browser->mTabs.tblsNoPtr());
+	browser->connectionWidget()->refresh();
+
 	notes.toDo->hide();
 	notes.features->hide();
 	richEditor->hide();

@@ -14,7 +14,8 @@ struct Md::confKeys_t Md::k {
 	QString("/WindowGeometry"),
 	QString("/WindowState"),
 	QString("/AllTabableWidgets"),
-	QString("/MaxHourlyWage")
+	QString("/MaxHourlyWage"),
+	QString("/CustomDatabaseFilePath")
 };
 
 QMap<QString, QString> Md::tableAlias {
@@ -22,6 +23,7 @@ QMap<QString, QString> Md::tableAlias {
 	{ "prj",			"Projekte" },
 	{ "fehlzeit",	"Fehlzeiten" },
 	{ "arch",		"Architekten" },
+	{ "sub",			"Subunternehmer" },
 	{ "worktime",	"Arbeitszeiten" },
 	{ "worker",		"Mitarbeiter" },
 	{ "grading",	"Einstufungen" },
@@ -41,11 +43,12 @@ QMap<QString, QString> Md::headerAlias {
 	{ "workerID",			"Mitarbeiter" }
 };
 
-QFileInfo Locals::SQL_DATABASE = QFileInfo("/var/lib/mysql/delbassoSQL.db");
-QString Locals::SQL_DRIVER = QString("QSQLITE");
+//QFileInfo Locals::SQL_DATABASE = QFileInfo("/var/lib/mysql/delbassoSQL.db");
 QStringList Locals::PROJECT_PATHS = QStringList()
 		<< QString("/home/mainster/CODES_local/qt_creator/worktimeManagerSubdirPrj/WorktimeManager")
 		<< QString("/home/mainster/CODES_local/qt_creator/WorktimeManager");
+QFileInfo Locals::SQL_DATABASE = QFileInfo(Locals::PROJECT_PATHS.at(1) + "/sqlite/delbassoSQL.db");
+QString Locals::SQL_DRIVER = QString("QSQLITE");
 #define QFOLDINGSTART {
 const QString Locals::browserStyleSheet = QString(
 			"QGroupBox{"

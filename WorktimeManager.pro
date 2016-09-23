@@ -73,7 +73,8 @@ HEADERS += \
     basedataform.h \
     delegates/nulldelegate.h \
     mdsplashscreen.h \
-    mdplaintextedit.h
+    mdplaintextedit.h \
+    runtimetable.h
 
 
 SOURCES += \
@@ -107,7 +108,8 @@ SOURCES += \
     basedataform.cpp \
     delegates/nulldelegate.cpp \
     mdsplashscreen.cpp \
-    mdplaintextedit.cpp
+    mdplaintextedit.cpp \
+    runtimetable.cpp
 
 
 FORMS += \

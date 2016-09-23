@@ -7,6 +7,7 @@
 #include <QSqlDatabase>
 #include <QSqlDriver>
 #include <QSqlQuery>
+#include <QFileDialog>
 
 #include "connectionwidget.h"
 #include "locals.h"

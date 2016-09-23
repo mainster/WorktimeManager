@@ -3,6 +3,8 @@
 
 DbController::DbController(QObject *parent) : QObject(parent) {
 	inst = this;
+	setObjectName(tr("DbController"));
+	QSETTINGS;
 
 	/*!
 	 * Query platforms available SQL driver names.
@@ -12,17 +14,37 @@ DbController::DbController(QObject *parent) : QObject(parent) {
 		CRIT << tr("empty");
 
 	QSqlDatabase mDb = QSqlDatabase::addDatabase(Locals::SQL_DRIVER);
+
+	/*!
+	 * Check if ini contains a custom sql database file path...
+	 */
+	INFO << objectName() << config.value(objectName() + Md::k.customDbFilePath);
+
+	if (config.allKeys().join(',').contains(Md::k.customDbFilePath))
+		Locals::SQL_DATABASE.setFile(config.value(Md::k.customDbFilePath).toString());
+	else {
+		if (! Locals::SQL_DATABASE.dir().entryList().contains(
+				 Locals::SQL_DATABASE.fileName(), Qt::CaseSensitive)) {
+			QString customPath =
+					QFileDialog::getOpenFileName(0, tr("Open sqlite database ..."),
+														  Locals::SQL_DATABASE.absoluteDir()
+														  .absolutePath());
+			Locals::SQL_DATABASE.setFile(customPath);
+			config.setValue(objectName() + Md::k.customDbFilePath, customPath);
+		}
+	}
 	mDb.setDatabaseName(Locals::SQL_DATABASE.filePath());
 
 	/*!
 	 * If no connection is available, try to open the SQL database
 	 */
-	if ((! mDb.open()) || QSqlDatabase::connectionNames().isEmpty())
+	if ((! mDb.open()) || QSqlDatabase::connectionNames().isEmpty()) {
 		qReturn("(! mDb.open())");
+	}
 
 	if (! bool( connect((&mDb)->driver(),	SIGNAL(notification(QString)),
 							  this,				SLOT(onDriverMessage(QString)))))
-	qReturn("QObject::connect driver notification to error handler slot failed!");
+		qReturn("QObject::connect driver notification to error handler slot failed!");
 
 }
 
@@ -76,8 +98,8 @@ bool DbController::addConnectionsByCmdline(QVariant args) {
 			url.setScheme("QMYSQL");
 
 			QSqlError sqlErr = addConnection(
-										 url.scheme().toUpper(), url.path(), url.host(),
-										 url.userName(), url.password(), url.port(-1));
+						url.scheme().toUpper(), url.path(), url.host(),
+						url.userName(), url.password(), url.port(-1));
 			if (sqlErr.type() != QSqlError::NoError) {
 				bReturn(tr("Unable to open connection: %s")
 						  .arg(sqlErr.text()));
