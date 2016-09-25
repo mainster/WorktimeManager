@@ -64,7 +64,7 @@ public:
 	/* ======================================================================== */
 	/*                            Getters / Setters                             */
 	/* ======================================================================== */
-	MdTabView *tv() const;
+//	MdTabView *tv() const;
 	QString &sqlTableName()		{ return m_sqlTableName; }
 	void setSqlTableName(const QString &name);
 	SqlRtm *clearMdlSrces();

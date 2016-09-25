@@ -187,13 +187,16 @@ void MdTabView::createForeignModel(const QString &tableName) {
 		if (tableName.contains("runtime", Qt::CaseInsensitive)) {
 			/** Remember the indexes of the columns */
 			int colEmp = sqlRtm->fieldIndex("workerID");
+			int colFehl = sqlRtm->fieldIndex("fehlID");
 
 			/** Set the relations to foreign database tables */
 			sqlRtm->setRelation(colEmp, QSqlRelation("worker", "workerID", "Nachname"));
+			sqlRtm->setRelation(colFehl, QSqlRelation("fehlzeit", "fehlID", "Grund"));
 
 			//!< Set the localized header captions
 			sqlRtm->setHeaderData(sqlRtm->fieldIndex("runtimeID"), tr("ID"));
 			sqlRtm->setHeaderData(colEmp, Md::headerAlias[ "workerID" ]);
+			sqlRtm->setHeaderData(colFehl, Md::headerAlias[ "fehlID" ]);
 
 			break;
 		}
@@ -205,6 +208,18 @@ void MdTabView::createForeignModel(const QString &tableName) {
 									.arg(tableName), QMessageBox::Ok);
 		break;
 	} while(1);
+
+	/*!
+	 * Replace "*summe" by "*-<SigmaSign>".
+	 */
+	for (int k = 0; k < sqlRtm->columnCount(); k++) {
+		QString colData = sqlRtm->headerData(k).toString();
+		if (colData.contains("summe", Qt::CaseInsensitive)) {
+			colData.replace("summe", tr("-%1").arg(MathSymbolSigma));
+			sqlRtm->setHeaderData(k, colData, Qt::Horizontal, Qt::EditRole);
+		}
+	}
+
 
 	/*!
 	 * Populate the model.
@@ -384,7 +399,7 @@ void MdTabView::restoreView() {
 					*color, config.value(objectName() + Md::k.alterRowColOn, "true").toBool());
 
 	color = new QColor(config.value(objectName() + Md::k.gridLineColor,
-												QColor(Qt::gray)).value<QColor>());
+											  QColor(Qt::gray)).value<QColor>());
 	if (color->isValid())
 		setGridColor(*color);
 

@@ -40,9 +40,9 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 
 	mapper = new QDataWidgetMapper(this);
 	mapper->setModel(tableModel);
-//	mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
-//		mapper->setItemDelegate(new QSqlRelationalDelegate(this));
-		mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+	//	mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
+	//		mapper->setItemDelegate(new QSqlRelationalDelegate(this));
+	mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
 	mapper->setItemDelegate(new NullDelegate(this));
 
 	/* ======================================================================== */
@@ -86,17 +86,37 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 			cbEditors.last()->setModel(rtm);
 			cbEditors.last()->setEditable(true);
 
-//			cbEditors.last()
+			//			cbEditors.last()
 
-			if (lblEditors.last()->text().contains(tr("Name")))
-				cbEditors.last()->setProperty("modelColumn", rtm->fieldIndex("Name"));
-			else {
-				if (lblEditors.last()->text().contains(tr("Einstufung")))
-					cbEditors.last()->setProperty("modelColumn", rtm->fieldIndex("Einstufung"));
+//			if (lblEditors.last()->text().contains(tr("Name")))
+//				cbEditors.last()->setProperty("modelColumn", rtm->fieldIndex("Name"));
+//			else {
+//				if (lblEditors.last()->text().contains(tr("Einstufung")))
+//					cbEditors.last()->setProperty("modelColumn", rtm->fieldIndex("Einstufung"));
+//				else
+//					cbEditors.last()->setProperty("modelColumn", 0);
+//			}
+
+//			if (lblEditors.last()->text().contains(tr("Name"))) {
+//				INFO << tableModel->headerData(k, Qt::Horizontal, Qt::DisplayRole).toString();
+//				INFO << cs.name;
+//				cbEditors.last()->setProperty("modelColumn", rtm->fieldIndex(
+//															lblEditors.last()->text()));
+//			}
+
+			if (cs.name.contains(tr("ID"))) {
+				INFO << tableModel->headerData(k, Qt::Horizontal, Qt::DisplayRole).toString();
+				INFO << cs.name;
+				if (rtm->fieldIndex("Name") < 0) {
+					/*!
+					 * No field named  "Name" found.
+					 */
+					cbEditors.last()->setProperty("modelColumn", 1);
+				}
 				else
-					cbEditors.last()->setProperty("modelColumn", 0);
-			}
+					cbEditors.last()->setProperty("modelColumn", rtm->fieldIndex("Name"));
 
+			}
 			populateComboBoxes();
 		}
 		else {
@@ -166,7 +186,7 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 
 		lblEditors.last()->setBuddy(allEditors.last());
 		mapper->addMapping(allEditors.last(), k);
-//		dataMaps << new DataMap(allEditors.last(), k);
+		//		dataMaps << new DataMap(allEditors.last(), k);
 		mainLayout->addWidget(lblEditors.last(), gridRow, 0);
 		mainLayout->addWidget(allEditors.last(), gridRow++, 1, 1, 1);
 
@@ -179,7 +199,7 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 		k++;
 	}
 
-//	refreshMapper();
+	//	refreshMapper();
 
 	if (id != -1)
 		for (int row = 0; row < tableModel->rowCount(); ++row) {
@@ -283,7 +303,10 @@ void BaseDataForm::addNew() {
 	QSqlRecord rec = q.record();
 	q.last();
 
-	lePrimaryKey->setText(QString::number(q.value(0).toInt() + 1));
+	if (rec.count() > 0)
+		lePrimaryKey->setText(QString::number(q.value(0).toInt() + 1));
+	else
+		lePrimaryKey->setText("0");
 
 	qobject_cast<QGridLayout *>(
 				layout())->itemAtPosition(layout()->indexOf(lePrimaryKey), 1)
@@ -300,7 +323,7 @@ void BaseDataForm::deleteCurrent() {
 	tableModel->removeRow(row);
 	mapper->submit();
 	m_rowCountChanged = true;
-//	mapper->setCurrentIndex(qMin(row, tableModel->rowCount() - 1));
+	//	mapper->setCurrentIndex(qMin(row, tableModel->rowCount() - 1));
 }
 void BaseDataForm::saveCurrent() {
 	int mapperIndex = mapper->currentIndex();
@@ -334,7 +357,7 @@ void BaseDataForm::saveCurrent() {
 		}
 	}
 	static_cast<SqlRtm *>(m_tableView->model())->submitAll();
-//	refreshMapper();
+	//	refreshMapper();
 	populateComboBoxes();
 
 	if (! m_rowCountChanged)
@@ -375,7 +398,7 @@ const QString BaseDataForm::STYLESHEET =
 		QString("/* ----------------------------------------------------------------------------------------------- */"
 				  "QComboBox, QLineEdit, QSpinBox, QDateEdit {	"
 				  "	border:					1px solid gray;"
-//				  "	background-color: rgb(255, 255, 255);"
+				  //				  "	background-color: rgb(255, 255, 255);"
 				  "	color:					rgb(70, 70, 70);"
 				  "}  [orangeBg=true] {"
 				  "	background-color:		rgb(255, 217, 137);"

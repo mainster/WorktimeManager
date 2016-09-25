@@ -5,7 +5,7 @@
 
 class RuntimeTable {
 
-	Q_OBJECT
+//	Q_OBJECT
 
 public:
 	explicit RuntimeTable() { }
