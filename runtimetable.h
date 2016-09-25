@@ -3,10 +3,13 @@
 
 #include <QObject>
 
-class RuntimeTable
-{
+class RuntimeTable {
+
+	Q_OBJECT
+
 public:
-	RuntimeTable();
+	explicit RuntimeTable() { }
+
 };
 
 #endif // RUNTIMETABLE_H
