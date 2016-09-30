@@ -59,6 +59,7 @@ public:
 class Locals {
 public:
 	static QFileInfo SQL_DATABASE;
+	static QFileInfo *pSQL_DATABASE;
 	static QString SQL_DRIVER;
 	static QStringList PROJECT_PATHS;
 	static const QString

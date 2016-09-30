@@ -198,6 +198,8 @@ void MdTabView::createForeignModel(const QString &tableName) {
 			sqlRtm->setHeaderData(colEmp, Md::headerAlias[ "workerID" ]);
 			sqlRtm->setHeaderData(colFehl, Md::headerAlias[ "fehlID" ]);
 
+			RuntimeTable *runtimeTable = new RuntimeTable();
+			runtimeTable->dropTable();
 			break;
 		}
 		/* --------------------------------------------------------- */

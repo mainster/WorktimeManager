@@ -29,6 +29,7 @@
 #include "connectionwidget.h"
 #include "models.h"
 #include "sectionmask.h"
+#include "runtimetable.h"
 
 
 /* ======================================================================== */
@@ -106,7 +107,7 @@ protected:
 	void hideEvent(QHideEvent *);
 	void restoreColumnOrderAndVisability2();
 	void wheelEvent(QWheelEvent *event);
-	void mousePressEvent(QMouseEvent *e);	
+	void mousePressEvent(QMouseEvent *e);
 	void refreshStylesheet(QString stylesheet = QString());
 
 protected slots:

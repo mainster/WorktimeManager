@@ -14,8 +14,8 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	/*                          Create button objects                           */
 	/* ======================================================================== */
 	firstButton = new QPushButton(tr("<<"));
-	previousButton = new QPushButton(tr("< &Letzter"));
-	nextButton = new QPushButton(tr("&Nächster >"));
+	previousButton = new QPushButton(tr("< &zurück"));
+	nextButton = new QPushButton(tr("&vor >"));
 	lastButton = new QPushButton(tr(">>"));
 
 	addButton = new QPushButton(tr("&Hinzufügen"));

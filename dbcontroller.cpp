@@ -20,8 +20,10 @@ DbController::DbController(QObject *parent) : QObject(parent) {
 	 */
 	INFO << objectName() << config.value(objectName() + Md::k.customDbFilePath);
 
-	if (config.allKeys().join(',').contains(Md::k.customDbFilePath))
+	if (config.allKeys().join(',').contains(Md::k.customDbFilePath)) {
 		Locals::SQL_DATABASE.setFile(config.value(Md::k.customDbFilePath).toString());
+		INFO << Locals::SQL_DATABASE.filePath();
+	}
 	else {
 		if (! Locals::SQL_DATABASE.dir().entryList().contains(
 				 Locals::SQL_DATABASE.fileName(), Qt::CaseSensitive)) {
