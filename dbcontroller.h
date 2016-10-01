@@ -28,10 +28,10 @@ public slots:
 									const QString &host = "", const QString &user = "",
 									const QString &passwd = "", int port = -1);
 	bool addConnectionsByCmdline(QVariant args);
-	void onNewConnection();
+	void onOpenDatabase();
 
 protected slots:
-	void newDatabase(QString database = QString());
+	void openDatabase(QString database);
 	void onDriverMessage(const QString &name);
 
 private:

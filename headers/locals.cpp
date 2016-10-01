@@ -43,12 +43,11 @@ QMap<QString, QString> Md::headerAlias {
 	{ "fehlID",				"Grund" }
 };
 
-//QFileInfo Locals::SQL_DATABASE = QFileInfo("/var/lib/mysql/delbassoSQL.db");
+//QFileInfo Locals::SQL_DB_PATH = QFileInfo("/var/lib/mysql/delbassoSQL.db");
 QStringList Locals::PROJECT_PATHS = QStringList()
 		<< QString("/home/mainster/CODES_local/qt_creator/worktimeManagerSubdirPrj/WorktimeManager")
 		<< QString("/home/mainster/CODES_local/qt_creator/WorktimeManager");
-QFileInfo Locals::SQL_DATABASE = QFileInfo(Locals::PROJECT_PATHS.at(0) + "/sqlite/delbassoSQL.db");
-QFileInfo *Locals::pSQL_DATABASE = new QFileInfo(Locals::PROJECT_PATHS.at(0) + "/sqlite/delbassoSQL.db");
+QFileInfo Locals::SQL_DB_PATH = QFileInfo(Locals::PROJECT_PATHS.at(0) + "/sqlite/delbassoSQL.db");
 QString Locals::SQL_DRIVER = QString("QSQLITE");
 #define QFOLDINGSTART {
 const QString Locals::browserStyleSheet = QString(

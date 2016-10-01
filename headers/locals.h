@@ -29,7 +29,7 @@ public:
 		WindowState,
 		allTabableWidgets,
 		maxHourlyWage,
-		sqlDatabaseFilePath;
+		sqlDbFilePath;
 	} k;
 
 	static QString unAliasTableName(const QString maybeAliasedTable) {
@@ -58,8 +58,7 @@ public:
 
 class Locals {
 public:
-	static QFileInfo SQL_DATABASE;
-	static QFileInfo *pSQL_DATABASE;
+	static QFileInfo SQL_DB_PATH;
 	static QString SQL_DRIVER;
 	static QStringList PROJECT_PATHS;
 	static const QString
