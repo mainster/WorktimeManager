@@ -349,7 +349,9 @@ void Browser::hideEvent(QHideEvent *) {
 void Browser::closeEvent(QCloseEvent *) {
 	QSETTINGS;
 
+#ifdef DEBUG_CLOSE_EVENT
 	INFO << findChildren<QSplitter *>(QString(), Qt::FindDirectChildrenOnly);
+#endif
 
 	/**** Write splitter sizes to config
 	\*/
@@ -360,7 +362,9 @@ void Browser::closeEvent(QCloseEvent *) {
 	foreach (MdTable *tbl, mTabs.tblsNoPtr()) {
 		config.setValue(objectName() + "/" + tbl->tv()->objectName(),
 							 /*tv->grBox()->title()*/ tbl->sqlTableName());
+#ifdef DEBUG_CLOSE_EVENT
 		INFO << objectName() + "/" + tbl->tv()->objectName() << tbl->sqlTableName();
+#endif
 	}
 
 	/**** Safe all action states from Browser

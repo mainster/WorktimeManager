@@ -5,3 +5,5 @@
 *.h.autosave
 *.pro.user*
 *.db
+*.sql
+olddb/

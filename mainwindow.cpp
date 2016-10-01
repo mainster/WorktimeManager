@@ -680,7 +680,8 @@ void MainWindow::makeMenu() {
 	/* ======================================================================== */
 	MdMenu *fileMenu = new MdMenu(this);
 	fileMenu->setTitle(tr("&Datei"));
-	fileMenu->addAction(tr("Add &Connection..."), mDbc, SLOT(addConnection()));
+	//	fileMenu->addAction(tr("Add &Connection..."), mDbc, SLOT(addConnection()));
+	fileMenu->addAction(tr("Add &Connection..."), mDbc, SLOT(onNewConnection()));
 	fileMenu->actions().last()->
 			setToolTip(tr("Neue SQLITE Datenbank Verbindung aufbauen."));
 	fileMenu->addSeparator();

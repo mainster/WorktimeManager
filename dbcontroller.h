@@ -18,7 +18,6 @@ class DbController : public QObject {
 
 public:
 	explicit DbController(QObject *parent = 0);
-
 	QSqlDatabase db() const { return mDb; }
 	QList<bool> getConnectionState(bool beQuiet = false);
 
@@ -29,8 +28,10 @@ public slots:
 									const QString &host = "", const QString &user = "",
 									const QString &passwd = "", int port = -1);
 	bool addConnectionsByCmdline(QVariant args);
+	void onNewConnection();
 
 protected slots:
+	void newDatabase(QString database = QString());
 	void onDriverMessage(const QString &name);
 
 private:

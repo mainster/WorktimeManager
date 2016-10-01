@@ -1,55 +1,68 @@
 #include "dbcontroller.h"
 
 
-DbController::DbController(QObject *parent) : QObject(parent) {
+DbController::DbController(QObject *parent)
+	: QObject(parent) {
+	QSETTINGS;
 	inst = this;
 	setObjectName(tr("DbController"));
-	QSETTINGS;
 
+	Locals *locals = new Locals();
 	/*!
-	 * Query platforms available SQL driver names.
+	 * Load SQL file path from ini.
 	 */
-	QStringList drivers = QSqlDatabase::drivers();
-	if (!drivers.contains(Locals::SQL_DRIVER))
-		CRIT << tr("empty");
-
-	QSqlDatabase mDb = QSqlDatabase::addDatabase(Locals::SQL_DRIVER);
-
-	/*!
-	 * Check if ini contains a custom sql database file path...
-	 */
-	INFO << objectName() << config.value(objectName() + Md::k.customDbFilePath);
-
-	if (config.allKeys().join(',').contains(Md::k.customDbFilePath)) {
-		Locals::SQL_DATABASE.setFile(config.value(Md::k.customDbFilePath).toString());
-		INFO << Locals::SQL_DATABASE.filePath();
-	}
-	else {
-		if (! Locals::SQL_DATABASE.dir().entryList().contains(
-				 Locals::SQL_DATABASE.fileName(), Qt::CaseSensitive)) {
-			QString customPath =
+	if ((config.value(objectName() + Md::k.sqlDatabaseFilePath, "")
+		  .toString()).isEmpty()) {
+		Locals::SQL_DATABASE.setFile(
 					QFileDialog::getOpenFileName(0, tr("Open sqlite database ..."),
-														  Locals::SQL_DATABASE.absoluteDir()
-														  .absolutePath());
-			Locals::SQL_DATABASE.setFile(customPath);
-			config.setValue(objectName() + Md::k.customDbFilePath, customPath);
-		}
+														  Locals::PROJECT_PATHS.at(0)));
 	}
-	mDb.setDatabaseName(Locals::SQL_DATABASE.filePath());
+	else
+		Locals::SQL_DATABASE.setFile(
+					config.value(objectName() + Md::k.sqlDatabaseFilePath, "")
+					.toString());
+
+//	if ((config.value(objectName() + Md::k.sqlDatabaseFilePath, "")
+//		  .toString()).isEmpty()) {
+//		locals->SQL_DATABASE.setFile(
+//					QFileDialog::getOpenFileName(0, tr("Open sqlite database ..."),
+//														  locals->PROJECT_PATHS.at(0)));
+//	}
+//	else
+//		locals->SQL_DATABASE.setFile(
+//					config.value(objectName() + Md::k.sqlDatabaseFilePath, "")
+//					.toString());
+
 
 	/*!
-	 * If no connection is available, try to open the SQL database
+	 * If no sql path key stored in ini...
 	 */
-	if ((! mDb.open()) || QSqlDatabase::connectionNames().isEmpty()) {
-		qReturn("(! mDb.open())");
-	}
+//	if (Locals::SQL_DATABASE.path().isEmpty()) {
+//		Locals::SQL_DATABASE.setFile(
+//					QFileDialog::getOpenFileName(0, tr("Open sqlite database ..."),
+//														  Locals::PROJECT_PATHS.at(0)));
+//	}
+	INFO << Locals::SQL_DATABASE.filePath();
 
-	if (! bool( connect((&mDb)->driver(),	SIGNAL(notification(QString)),
-							  this,				SLOT(onDriverMessage(QString)))))
-		qReturn("QObject::connect driver notification to error handler slot failed!");
+	/*!
+	 * Validate SQL database path.
+	 */
+	if (! (Locals::SQL_DATABASE.isFile() &&
+			 Locals::SQL_DATABASE.isWritable() &&
+			 Locals::SQL_DATABASE.isReadable())) {
+		CRIT << tr("Bad sql database file!");
+		return;
+	}
+//	if (! (locals->SQL_DATABASE.isFile() &&
+//			 locals->SQL_DATABASE.isWritable() &&
+//			 locals->SQL_DATABASE.isReadable())) {
+//		CRIT << tr("Bad sql database file!");
+//		return;
+//	}
+
+	newDatabase();
 
 }
-
 QSqlError DbController::addConnection( const QString &driver, const QString &dbName,
 													const QString &host, const QString &user,
 													const QString &passwd, int port) {
@@ -75,11 +88,57 @@ QSqlError DbController::addConnection( const QString &driver, const QString &dbN
 
 	return err;
 }
+void DbController::newDatabase(QString database) {
+	QSETTINGS;
+	/*!
+	 * Query platforms available SQL driver names.
+	 */
+	QStringList drivers = QSqlDatabase::drivers();
+	if (!drivers.contains(Locals::SQL_DRIVER))
+		CRIT << tr("empty");
+
+	if (mDb.isOpen())
+		mDb.close();
+
+	mDb = QSqlDatabase::addDatabase(Locals::SQL_DRIVER);
+
+	/*!
+	 * Check if ini contains a custom sql database file path...
+	 */
+	INFO << objectName() << config.value(objectName() + Md::k.sqlDatabaseFilePath);
+
+	if (database.isEmpty())
+		mDb.setDatabaseName(Locals::SQL_DATABASE.filePath());
+	else
+		mDb.setDatabaseName(database);
+
+	/*!
+	 * If no connection is available, try to open the SQL database
+	 */
+	if ((! mDb.open()) || QSqlDatabase::connectionNames().isEmpty())
+		qReturn("(! mDb.open())");
+
+	if (! bool( connect((&mDb)->driver(),	SIGNAL(notification(QString)),
+							  this,				SLOT(onDriverMessage(QString)))))
+		qReturn("QObject::connect driver notification to error handler slot failed!");
+
+	/*!
+	 * Store current db path to ini file.
+	 */
+	config.setValue(objectName() + Md::k.sqlDatabaseFilePath,
+						 Locals::SQL_DATABASE.filePath());
+	ConnectionWidget::instance()->refresh();
+}
+void DbController::onNewConnection() {
+	QSETTINGS;
+	Locals::SQL_DATABASE.setFile(
+				QFileDialog::getOpenFileName(0, tr("Open sqlite database ..."),
+													  Locals::PROJECT_PATHS.at(0)));
+	newDatabase();
+}
 void DbController::onDriverMessage (const QString& name) {
 	WARN << name;
 }
-
-
 bool DbController::addConnectionsByCmdline(QVariant args) {
 	QSqlError err;
 
@@ -112,7 +171,6 @@ bool DbController::addConnectionsByCmdline(QVariant args) {
 	}
 	return false;
 }
-
 QList<bool> DbController::getConnectionState(bool beQuiet) {
 	QList<bool> summary;
 

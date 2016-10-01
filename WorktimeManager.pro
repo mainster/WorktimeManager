@@ -51,7 +51,6 @@ HEADERS += \
 	 delegates/tabledelegate.h \
 	 filterform.h \
 	 headers/locals.h \
-	 initdb.h \
 	 inpfrm.h \
 	 mainwindow.h \
 	 mdbQtStd/debug.h \

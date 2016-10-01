@@ -45,7 +45,7 @@ CREATE TABLE runtime(
    Vorschuss      REAL     NOT NULL,      -- Bereits geholt
    fehlID         INT      NOT NULL,      -- Fehlzeit ...
    FOREIGN KEY(workerID)   REFERENCES worker(workerID),
-   FOREIGN KEY(fehlID)     REFERENCES fehl(fehlID)
+   FOREIGN KEY(fehlID)     REFERENCES fehlzeit(fehlID)
 );
 
 CREATE TABLE fehlzeit(
@@ -182,6 +182,10 @@ INSERT INTO "prj" (clientID, Beschreibung, Kurzform, Nummer, subID, archID, Ansp
 INSERT INTO "prj" (clientID, Beschreibung, Kurzform, Nummer, subID, archID, Ansprechpartner) VALUES (5, 'Kleinauträge',                                 'Kl.Arb', 999999, NULL, NULL, NULL);
 INSERT INTO "prj" (clientID, Beschreibung, Kurzform, Nummer, subID, archID, Ansprechpartner) VALUES (3, 'Reparaturen, Instandsetzung',                  'Rep.',   450999, NULL, NULL, NULL);
 INSERT INTO "prj" (clientID, Beschreibung, Kurzform, Nummer, subID, archID, Ansprechpartner) VALUES (1, 'Forschung (Dr. Karl-Storz-Straße 11)',         'DKS-11', 252000, NULL, NULL, NULL);
+
+INSERT INTO "runtime" (workerID, Wochensumme, Monatssumme, Jahressumme, Überstunden, Vorschuss, fehlID) VALUES (1, 20, 60, 700, 3.3, 0 , 1);
+INSERT INTO "runtime" (workerID, Wochensumme, Monatssumme, Jahressumme, Überstunden, Vorschuss, fehlID) VALUES (2, 25, 65, 705, 6.3, 300 , 1);
+INSERT INTO "runtime" (workerID, Wochensumme, Monatssumme, Jahressumme, Überstunden, Vorschuss, fehlID) VALUES (3, 27, 67, 707, 20.3, 0 , 1);
 
 INSERT INTO "worktime" (dat, workerID, prjID, hours) VALUES ('2015-07-02',  8,  5, 5.5);
 INSERT INTO "worktime" (dat, workerID, prjID, hours) VALUES ('2015-04-16',  9,  5, 5.5);

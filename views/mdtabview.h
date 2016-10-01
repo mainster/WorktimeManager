@@ -65,7 +65,7 @@ public:
 	/* ======================================================================== */
 	/*                            Getters / Setters                             */
 	/* ======================================================================== */
-//	MdTabView *tv() const;
+	//	MdTabView *tv() const;
 	QString &sqlTableName()		{ return m_sqlTableName; }
 	void setSqlTableName(const QString &name);
 	SqlRtm *clearMdlSrces();
@@ -94,6 +94,10 @@ public slots:
 	SqlRtm *modelCast() {
 		Q_ASSERT(qobject_cast<SqlRtm *>(model()));
 		return qobject_cast<SqlRtm *>(model());
+	}
+	bool clearRecords() {
+		QSqlQuery query(QString("DELETE * FROM %1").arg(sqlTableName()));
+		return query.exec();
 	}
 
 signals:

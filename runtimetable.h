@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSql>
 #include <QSqlQuery>
+#include <QSqlRecord>
 #include "globals.h"
 #include "debug.h"
 
@@ -16,15 +17,21 @@ public:
 	~RuntimeTable() {}
 
 	bool recalcOvertime() {
-		INFO << dropTable();
+
+		QSqlQueryModel model;
+		model.setQuery("SELECT * FROM worker");
+
+		for (int i = 0; i < model.rowCount(); ++i) {
+			 INFO << model.record(i).value("workerID").toInt()
+					<< model.record(i).value("Vorname").toString();
+		}
+
 		return true;
 	}
 	bool dropTable() {
-	   return true;
 		QSqlQuery query(QString("DROP TABLE runtime;"));
 		return query.exec();
 	}
-
 };
 
 #endif // RUNTIMETABLE_H
