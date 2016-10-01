@@ -1,7 +1,7 @@
 #include <QtGui>
 #include "mysortfilterproxymodel.h"
 
-#define     ID              0
+//#define     ID              0
 #define     Datum           1
 #define     Mitarb          2
 #define     Beschreibung    3
@@ -20,14 +20,18 @@ void SfiltMdl::setFilterMaximumDate(const QDate &date) {
 	 qDebug() << tr("max date:") << maxDate.toString("dd.MM.yyyy");
 }
 
+void SfiltMdl::setFilterID(const int ID) {
+
+}
+
 bool SfiltMdl::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const {
 	 QModelIndex idxDate = sourceModel()->index(sourceRow, Datum, sourceParent);
 	 QModelIndex idxMitarb = sourceModel()->index(sourceRow, Mitarb, sourceParent);
 	 QModelIndex idxBesch = sourceModel()->index(sourceRow, Beschreibung, sourceParent);
 
-	 return (sourceModel()->data(idxMitarb).toString().contains(filterRegExp()) ||
-				sourceModel()->data(idxBesch).toString().contains(filterRegExp())) &&
-				dateInRange(sourceModel()->data(idxDate).toDate());
+	 return (sourceModel()->data(idxMitarb).toString().contains(filterRegExp()) ||  //< RegExp must match the field Mitarb...
+				sourceModel()->data(idxBesch).toString().contains(filterRegExp())) &&  //< ... or it must match the field Beschreibung...
+				dateInRange(sourceModel()->data(idxDate).toDate());						  //< ... but in all cases, it must be in date range.
 }
 bool SfiltMdl::lessThan(const QModelIndex &left, const QModelIndex &right) const {
 	 QVariant leftData = sourceModel()->data(left);

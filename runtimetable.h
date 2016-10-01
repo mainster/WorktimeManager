@@ -8,6 +8,7 @@
 #include <QRegExp>
 #include <QTableView>
 #include <QList>
+#include <QTableView>
 
 #include "globals.h"
 #include "debug.h"
@@ -36,6 +37,9 @@ public:
 private:
 	QTableView *m_worktimeTv, *m_runtimeTv;
 	QList<QString> m_workers;
+	QMap<int, SfiltMdl *> workerProxyMdls;
+	QList<MdTabView::TableInfo_column> columnSchemas;
+
 
 	static const QString OVERTIME_TABLE_NAME;
 };

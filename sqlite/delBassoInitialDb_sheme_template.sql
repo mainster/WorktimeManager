@@ -1,4 +1,6 @@
 PRAGMA foreign_keys=ON;
+PRAGMA synchronous=OFF;
+
 BEGIN TRANSACTION;
 -- Create newDatabase file from bash:
 -- $ sqlite3 newDatabase.db < delBassoInitialDb.sql 
