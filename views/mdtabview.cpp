@@ -273,23 +273,6 @@ void MdTabView::createForeignModel(const QString &tableName) {
 	restoreColumnOrderAndVisability();
 	setFont(restoreFont());
 }
-QList<MdTabView::TableInfo_column> MdTabView::queryTableInfo() {
-	QList<TableInfo_column> tableInfo;
-	QSqlQuery query(tr("PRAGMA table_info('%1')").arg(m_sqlTableName));
-
-	while (query.next()) {
-		TableInfo_column tableColumn;
-		tableColumn.cid			= query.value(query.record().indexOf("cid")).toInt();
-		tableColumn.name			= query.value(query.record().indexOf("name")).toString();
-		tableColumn.type			= query.value(query.record().indexOf("type")).toString();
-		tableColumn.notnull		= query.value(query.record().indexOf("notnull")).toBool();
-		tableColumn.defaultVal = query.value(query.record().indexOf("dflt_value"));
-		tableColumn.pk			= query.value(query.record().indexOf("pk")).toInt();
-		tableInfo << tableColumn;
-	}
-
-	return tableInfo;
-}
 void MdTabView::refreshView() {
 	this->update();
 }

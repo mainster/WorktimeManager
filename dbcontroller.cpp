@@ -1,5 +1,6 @@
 #include "dbcontroller.h"
 
+QSqlDatabase DbController::mDb = QSqlDatabase();
 
 /* ======================================================================== */
 /*                        DbController::DbController                        */

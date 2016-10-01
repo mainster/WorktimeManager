@@ -18,7 +18,7 @@ class DbController : public QObject {
 
 public:
 	explicit DbController(QObject *parent = 0);
-	QSqlDatabase db() const { return mDb; }
+	static QSqlDatabase db() { return mDb; }
 	QList<bool> getConnectionState(bool beQuiet = false);
 
 signals:
@@ -36,6 +36,6 @@ protected slots:
 
 private:
 	DbController *inst;
-	QSqlDatabase mDb;
+	static QSqlDatabase mDb;
 };
 #endif // DBCONTROLLER_H

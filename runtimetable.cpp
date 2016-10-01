@@ -11,7 +11,9 @@ bool RuntimeTable::recalcOvertime() {
 	/* ======================================================================== */
 	/*                        Query a ColumnSchema list                         */
 	/* ======================================================================== */
-	columnSchemas = qobject_cast<MdTabView *>(m_worktimeTv)->queryTableInfo();
+	columnInfos = MdTableInfo::queryInfo(qobject_cast<MdTabView *>(
+														 m_worktimeTv)->sqlTableName(),
+													 DbController::db());
 
 	/*!
 	 * Query worker records.

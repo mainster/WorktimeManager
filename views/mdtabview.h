@@ -27,8 +27,10 @@
 
 #include "globals.h"
 #include "connectionwidget.h"
+#include "dbcontroller.h"
 #include "models.h"
 #include "sectionmask.h"
+#include "mdtableinfo.h"
 
 
 /* ======================================================================== */
@@ -42,15 +44,6 @@ class MdTabView : public QTableView {
 	Q_PROPERTY(QString sqlTableName READ sqlTableName WRITE setSqlTableName NOTIFY sqlTableNameChanged)
 
 public:
-	struct TableInfo_column {
-		int cid;
-		QString name;
-		QString type;
-		bool notnull;
-		QVariant defaultVal;
-		int pk;
-	};
-
 	explicit MdTabView(const QString &tableName = QString(), QWidget *parent = 0);
 	~MdTabView() {}
 
@@ -71,7 +64,6 @@ public:
 	void createForeignModel(const QString &tableName);
 	QAction *getActSectionMask() const { return actSectionMask; }
 	void setActSectionMask(QAction *value) { actSectionMask = value; }
-	QList<TableInfo_column> queryTableInfo();
 
 public slots:
 	QFont restoreFont();

@@ -27,6 +27,10 @@ public:
 
 	QDate filterMaximumDate() const { return maxDate; }
 	void setFilterMaximumDate(const QDate &date);
+
+	void setFilterID(const int ID);
+	int filterID() const { return mID; }
+
 	virtual void setSourceModel(QAbstractItemModel *sourceModel) override;
 
 protected:
@@ -37,6 +41,7 @@ private:
 	bool dateInRange(const QDate &date) const;
 	QDate minDate;
 	QDate maxDate;
+	int	mID;
 };
 
 /* ======================================================================== */

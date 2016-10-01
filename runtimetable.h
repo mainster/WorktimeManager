@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "mdtabview.h"
 #include "mysortfilterproxymodel.h"
+
 //#include "browser.h"
 
 class RuntimeTable : public QObject {
@@ -38,7 +39,7 @@ private:
 	QTableView *m_worktimeTv, *m_runtimeTv;
 	QList<QString> m_workers;
 	QMap<int, SfiltMdl *> workerProxyMdls;
-	QList<MdTabView::TableInfo_column> columnSchemas;
+	QList<MdTableInfo::TableInfo_column_t> columnInfos;
 
 
 	static const QString OVERTIME_TABLE_NAME;

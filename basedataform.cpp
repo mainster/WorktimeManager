@@ -48,8 +48,9 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	/* ======================================================================== */
 	/*                        Query a ColumnSchema list                         */
 	/* ======================================================================== */
-	QList<MdTabView::TableInfo_column> columnSchemas;
-	columnSchemas = qobject_cast<MdTabView *>(m_tableView)->queryTableInfo();
+	QList<MdTableInfo::TableInfo_column_t> columnSchemas;
+	columnSchemas = MdTableInfo::queryInfo(qobject_cast<MdTabView *>(m_tableView)
+								->sqlTableName(), DbController::db());
 
 	/* ======================================================================== */
 	/*                      Create button and main layout                       */
@@ -68,7 +69,7 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	mainLayout->addLayout(topButtonLayout, gridRow++, 0, 1, 2);
 
 	int k = 0;
-	foreach (MdTabView::TableInfo_column cs, columnSchemas) {
+	foreach (MdTableInfo::TableInfo_column_t cs, columnSchemas) {
 		/*!
 		 * Check current table for some foreign key and create a QComboBox.
 		 */
