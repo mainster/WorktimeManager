@@ -29,7 +29,6 @@
 #include "connectionwidget.h"
 #include "models.h"
 #include "sectionmask.h"
-#include "runtimetable.h"
 
 
 /* ======================================================================== */

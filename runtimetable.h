@@ -5,33 +5,39 @@
 #include <QSql>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QRegExp>
+#include <QTableView>
+#include <QList>
+
 #include "globals.h"
 #include "debug.h"
+#include "mdtabview.h"
+#include "mysortfilterproxymodel.h"
+//#include "browser.h"
 
 class RuntimeTable : public QObject {
 
 	Q_OBJECT
 
 public:
-	explicit RuntimeTable(/*QObject *parent = 0*/)  { }
-	~RuntimeTable() {}
-
-	bool recalcOvertime() {
-
-		QSqlQueryModel model;
-		model.setQuery("SELECT * FROM worker");
-
-		for (int i = 0; i < model.rowCount(); ++i) {
-			 INFO << model.record(i).value("workerID").toInt()
-					<< model.record(i).value("Vorname").toString();
-		}
-
-		return true;
+	explicit RuntimeTable(QTableView *worktimeTv, QObject *parent)
+		: QObject(parent), m_worktimeTv(worktimeTv) {
+		INFO << m_worktimeTv << this;
 	}
+	~RuntimeTable() { }
+
 	bool dropTable() {
 		QSqlQuery query(QString("DROP TABLE runtime;"));
 		return query.exec();
 	}
+	void setRuntimeTable(QTableView *runtimeTable) { m_runtimeTv = runtimeTable; }
+	bool recalcOvertime();
+
+private:
+	QTableView *m_worktimeTv, *m_runtimeTv;
+	QList<QString> m_workers;
+
+	static const QString OVERTIME_TABLE_NAME;
 };
 
 #endif // RUNTIMETABLE_H

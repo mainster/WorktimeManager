@@ -57,6 +57,7 @@
 #include "mdtabview.h"
 #include "connectionwidget.h"
 #include "mdmenu.h"
+#include "runtimetable.h"
 
 class MdTable;
 class MdTabView;
@@ -147,6 +148,14 @@ public:
 			 * If all tv's had an active model, return TVA.
 			 */
 			return tva;
+		}
+		MdTable *findByTableName(QString tableName,
+										 Qt::CaseSensitivity sensitivity = Qt::CaseInsensitive) {
+			foreach (MdTable *mdt, mTbls)
+				if (mdt->sqlTableName().contains(tableName, sensitivity))
+					return mdt;
+
+			return NULL;
 		}
 
 		/*!
@@ -266,6 +275,7 @@ protected slots:
 	void onTblGbMouseClicked(MdTable *sender);
 	void onTvViewPortMouseClicked(MdTabView *sender);
 
+	void onActCalcRuntime();
 private:
 	static Browser		*inst;
 	ConnectionWidget	*mConnectionWidget;
@@ -275,7 +285,8 @@ private:
 	TvSelectors			m_tvSelector;
 	QSplitter	*splitter, *splitter_2, *splitter_3,
 	*splitter_4, *splitter_5, *splitter_6, *splitter_7;
-	MdTabView   *mdtv;
+	MdTabView			*mdtv;
+	RuntimeTable		*runtimeTable;
 	QActionGroup		*actGrTvSelectBy, *actGrTvCount;
 	QAction				*actSelByNone, *actSelByGrBx, *actSelByVPort, *actSelByBoth;
 	int m_stateCounter;

@@ -7,6 +7,8 @@
 
 #include "mdtabview.h"
 #include "basedataform.h"
+#include "runtimetable.h"
+
 
 class MdTable : public QWidget {
 
@@ -62,8 +64,6 @@ private:
 	QAction		*actBaseDataForm;
 	BaseDataForm *bdForm;
 	bool			m_selected;
-
-
 };
 
 #endif // MDTABLE_H

@@ -19,6 +19,7 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 
 	if (!tableName.isEmpty()) {
 		createForeignModel(tableName);
+		setSqlTableName(tableName);
 	}
 
 	setSizeAdjustPolicy(QTableView::AdjustToContents);
@@ -198,8 +199,6 @@ void MdTabView::createForeignModel(const QString &tableName) {
 			sqlRtm->setHeaderData(colEmp, Md::headerAlias[ "workerID" ]);
 			sqlRtm->setHeaderData(colFehl, Md::headerAlias[ "fehlID" ]);
 
-			RuntimeTable *runtimeTable = new RuntimeTable();
-			runtimeTable->recalcOvertime();
 			break;
 		}
 		/* --------------------------------------------------------- */

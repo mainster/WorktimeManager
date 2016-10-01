@@ -78,11 +78,8 @@ void MdTable::onActBaseDataForm() {
 void MdTable::onSqlTableNameChanged(const QString &sqlTableName) {
 	m_gb->setTitle(Md::tableAlias[ sqlTableName ]);
 
-	if (sqlTableName.contains("worktime") /*||
-		 sqlTableName.contains("runtime")*/)
-		actBaseDataForm->setEnabled(true);
-	else
-		actBaseDataForm->setEnabled(true);
+	actBaseDataForm->setEnabled(true);
+
 }
 /* ======================================================================== */
 /*                              Event handler                               */

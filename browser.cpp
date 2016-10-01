@@ -12,8 +12,7 @@ Browser *Browser::inst = 0;
 /* ======================================================================== */
 /*                             Browser::Browser                             */
 /* ======================================================================== */
-Browser::Browser(QWidget *parent)
-	: QWidget(parent) {
+Browser::Browser(QWidget *parent) : QWidget(parent) {
 	inst = this;
 	setObjectName("Browser");
 
@@ -47,7 +46,6 @@ Browser::Browser(QWidget *parent)
 	}
 
 	emit stateMsg(tr("Browser Ready."));
-
 	QTimer::singleShot(50, this, SLOT(restoreUi()));
 }
 Browser::~Browser() {
@@ -315,6 +313,9 @@ void Browser::onTblGbMouseClicked(MdTable *sender) {
 		return;
 	}
 }
+void Browser::onActCalcRuntime() {
+	runtimeTable->recalcOvertime();
+}
 /*void Browser::onSourceTableChanged(FilterForm::SourceTableType sourceTable) {
 	if (sourceTable == FilterForm::useWorktime) {
 		foreach (MdTable *tv, mTabs.tvsNoPtr()) {
@@ -396,6 +397,9 @@ bool Browser::restoreUi() {
 	/**** Restore all action states from Browser
 	\*/
 	restoreActionObjects();
+
+	runtimeTable = new RuntimeTable(mTabs.findByTableName(tr("worktime"))->tv(),
+											  this);
 
 	/**** Restore table font configs
 	\*/

@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 											  browser->mTabs.tblsNoPtr());
 	filterFormWkt	= new FilterForm(FilterForm::useWorktimeSource,
 											  browser->mTabs.tblsNoPtr());
+
+
 	browser->connectionWidget()->refresh();
 
 	notes.toDo->hide();
@@ -680,9 +682,15 @@ void MainWindow::makeMenu() {
 	/* ======================================================================== */
 	MdMenu *fileMenu = new MdMenu(this);
 	fileMenu->setTitle(tr("&Datei"));
+	/* ======================================================================== */
 	fileMenu->addAction(tr("&Datenbank öffnen..."), mDbc, SLOT(onOpenDatabase()));
 	fileMenu->actions().last()->setToolTip(tr("Neue SQLITE3 Datenbank laden."));
 	fileMenu->addSeparator();
+	/* ======================================================================== */
+	fileMenu->addAction(tr("&Calc runtime data"), browser, SLOT(onActCalcRuntime()));
+	fileMenu->actions().last()->setToolTip(tr("Runtime Tabelle neu berechnen!"));
+	fileMenu->addSeparator();
+	/* ======================================================================== */
 	fileMenu->addActions(actGrTbMain->actions());
 
 	/* ======================================================================== */

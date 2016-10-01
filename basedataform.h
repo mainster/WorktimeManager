@@ -28,20 +28,6 @@ class QLabel;
 class QLineEdit;
 class QPushButton;
 class QSqlRelationalTableModel;
-//class Browser;
-
-/*
-	workerID  INT PRIMARY   KEY   NOT NULL,         -- Primary key
-	Nachname                TEXT  NOT NULL UNIQUE,
-	Vorname                 TEXT  NOT NULL,
-	Einstufung              TEXT  NOT NULL,         -- Meister, Monteur
-	PersonalNr              INT   NOT NULL UNIQUE,  -- PersonalNr
-	Stundensatz             REAL,                   -- Stundensatz 35.70 €
-	Anschrift               CHAR(50),               -- Anschrift
-	Gehaltsstufe            INT,                    -- Gehaltsstufe 1, 2, 3
-	Wochenstunden           REAL,                   -- Wochenstunden 40h Woche
-	Vorschuss               REAL                    -- Bereits geholt
-*/
 
 #define	ID_COLUMN					0
 #define	INT_VALIDATOR_UPPER		999999
