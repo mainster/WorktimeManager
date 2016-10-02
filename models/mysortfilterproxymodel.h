@@ -1,9 +1,15 @@
 #ifndef MYSORTFILTERPROXYMODEL_H
 #define MYSORTFILTERPROXYMODEL_H
 
-#include <QDate>
 #include <QSortFilterProxyModel>
+#include <QAbstractItemModel>
+#include <QAbstractTableModel>
+#include <QDate>
+
+#include "mdtableinfo.h"
+#include "mdtabview.h"
 #include "debug.h"
+#include "dbcontroller.h"
 
 /* ======================================================================== */
 /*                                  SfiltMdl                                */
@@ -13,19 +19,18 @@ class SfiltMdl : public QSortFilterProxyModel {
 	Q_OBJECT
 
 public:
-	explicit SfiltMdl(QObject *parent = 0)
-		: QSortFilterProxyModel(parent) { }
+	explicit SfiltMdl(QObject *parent = 0);
 	explicit SfiltMdl(SfiltMdl &others, QObject *parent = 0)
 		: QSortFilterProxyModel(parent) {
-		minDate = others.minDate;
-		maxDate = others.maxDate;
+		m_minDate = others.m_minDate;
+		m_maxDate = others.m_maxDate;
 	}
 	~SfiltMdl() { }
 
-	QDate filterMinimumDate() const { return minDate; }
+	QDate filterMinimumDate() const { return m_minDate; }
 	void setFilterMinimumDate(const QDate &date);
 
-	QDate filterMaximumDate() const { return maxDate; }
+	QDate filterMaximumDate() const { return m_maxDate; }
 	void setFilterMaximumDate(const QDate &date);
 
 	void setFilterID(const int ID);
@@ -39,9 +44,13 @@ protected:
 
 private:
 	bool dateInRange(const QDate &date) const;
-	QDate minDate;
-	QDate maxDate;
+	QDate m_minDate;
+	QDate m_maxDate;
 	int	mID;
+	QList<MdTableInfo::TableInfo_column_t> mTableInfo;
+	QString mSqlTableName;
+
+	QMap<QString, int> headIdxs;
 };
 
 /* ======================================================================== */

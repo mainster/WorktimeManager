@@ -5,6 +5,7 @@
 #include <QSql>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QSqlQueryModel>
 #include <QRegExp>
 #include <QTableView>
 #include <QList>
