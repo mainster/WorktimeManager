@@ -49,8 +49,8 @@ bool RuntimeTable::recalcOvertime() {
 //						QRegExp::FixedString);
 //	proxyModel->setFilterRegExp(regExp);
 
-	int iKey = workerRecs->record(1).indexOf("workerID");
-	int key = workerRecs->record(1).value("workerID").toInt();
+	int iKey = workerRecs->record(1).indexOf("PersonalNr");
+	int key = workerRecs->record(1).value("PersonalNr").toInt();
 	proxyModel->setFilterID( key );
 	proxyModel->setFilterMaximumDate(QDate(2016, 12, 25));
 	proxyModel->setFilterMinimumDate(QDate(2000, 12, 25));

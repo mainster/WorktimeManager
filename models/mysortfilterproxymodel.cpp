@@ -26,28 +26,32 @@ void SfiltMdl::setFilterID(const int ID) {
 	mID = ID;
 	invalidateFilter();
 }
+/* ======================================================================== */
+/*                             filterAcceptsRow                             */
+/* ======================================================================== */
 bool SfiltMdl::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const {
 	if (headIdxs.isEmpty())
 		bReturn("tryed to accept filter but headIdxs is empty!");
-
-	INFO << headIdxs["Datum"] << headIdxs["Mitarb"] << headIdxs["Beschreibung"];
 
 	QModelIndex iDate = sourceModel()->index(sourceRow, headIdxs["Datum"], sourceParent);
 	QModelIndex iMitarb = sourceModel()->index(sourceRow, headIdxs["Mitarb"], sourceParent);
 	QModelIndex iBesch = sourceModel()->index(sourceRow, headIdxs["Beschreibung"], sourceParent);
 	QModelIndex iPN = sourceModel()->index(sourceRow, headIdxs["PersonalNr"], sourceParent);
+	QModelIndex iNr = sourceModel()->index(sourceRow, headIdxs["Nummer"], sourceParent);
 
-#define DEBUG_ACCEPT_ROW
-#ifdef DEBUG_ACCEPT_ROW
-	INFO << tr("iMitarb:") << sourceModel()->data(iMitarb).toString().contains(filterRegExp())
-		  << tr("|| iPN:") << sourceModel()->data(iPN).toString().contains(filterRegExp())
-		  << tr("|| iBesch:") << sourceModel()->data(iBesch).toString().contains(filterRegExp())
-		  << tr("&& iDate:") << dateInRange(sourceModel()->data(iDate).toDate());
-#endif
-	return (sourceModel()->data(iMitarb).toString().contains(filterRegExp()) ||	//< RegExp must match to field Mitarb...
-			  sourceModel()->data(iPN).toString().contains(filterRegExp())  ||	//< ... or it must match to field Beschreibung...
-			  sourceModel()->data(iBesch).toString().contains(filterRegExp())) &&	//< ... or it must match to field PersonalNr...
-			dateInRange(sourceModel()->data(iDate).toDate());								//< ... but in all cases, it must be in date range.
+	if (headIdxs.contains("Datum") && headIdxs.contains("Mitarb") &&
+		 headIdxs.contains("Beschreibung") && headIdxs.contains("PersonalNr"))
+		return (sourceModel()->data(iMitarb).toString().contains(filterRegExp()) ||	//< RegExp must match to field Mitarb...
+				  sourceModel()->data(iPN).toString().contains(filterRegExp())  ||		//< ... or it must match to field Beschreibung...
+				  sourceModel()->data(iBesch).toString().contains(filterRegExp())) &&	//< ... or it must match to field PersonalNr...
+				dateInRange(sourceModel()->data(iDate).toDate());								//< ... but in all cases, it must be in date range.
+
+	if (headIdxs.contains("Datum") && headIdxs.contains("Mitarb") &&
+		 headIdxs.contains("Beschreibung") && headIdxs.contains("PersonalNr"))
+		return (sourceModel()->data(iMitarb).toString().contains(filterRegExp()) ||	//< RegExp must match to field Mitarb...
+				  sourceModel()->data(iPN).toString().contains(filterRegExp())  ||		//< ... or it must match to field Beschreibung...
+				  sourceModel()->data(iBesch).toString().contains(filterRegExp())) &&	//< ... or it must match to field PersonalNr...
+				dateInRange(sourceModel()->data(iDate).toDate());								//< ... but in all cases, it must be in date range.
 }
 bool SfiltMdl::lessThan(const QModelIndex &left, const QModelIndex &right) const {
 	QVariant leftData = sourceModel()->data(left);
@@ -84,33 +88,35 @@ void SfiltMdl::setSourceModel(QAbstractItemModel *sourceModel) {
 	endResetModel();
 
 	/*!
-	 * Create/Update lookup table for table columns
+	 * Create/Update lookup table for table columns. This QMap modifies the
+	 * filterAcceptsRow(..) behavior. If the SfiltMdl's sourceModel dosen't
+	 * contain "date" columns, the filterAcceptsRow(..) methode must exclude
+	 * the condition corresponding to the date range.
 	 */
 	for (int k = 0; k < columnCount(QModelIndex()); k++)
-		headIdxs.insert(headerData(k, Qt::Horizontal).toString(), k);
+		headIdxs[ headerData(k, Qt::Horizontal).toString() ] = k;
 
-	INFO << headIdxs;
+	INFO << columnCount(QModelIndex()) << headIdxs;
 	//	/*!
-//	 * Write SqlTableName to member field.
-//	 */
-//	mSqlTableName = qobject_cast<MdTabView *>(sourceModel)->sqlTableName();
+	//	 * Write SqlTableName to member field.
+	//	 */
+	//	mSqlTableName = qobject_cast<MdTabView *>(sourceModel)->sqlTableName();
 
-//	/*!
-//	 * Query table info list from current table.
-//	 */
-//	mTableInfo = MdTableInfo::queryInfo(mSqlTableName, DbController::db());
+	//	/*!
+	//	 * Query table info list from current table.
+	//	 */
+	//	mTableInfo = MdTableInfo::queryInfo(mSqlTableName, DbController::db());
 
-//	INFO << columnIndexes;
+	//	INFO << columnIndexes;
 
-//	columnIndexes.insert(sourceModel->
-//	field
-//	foreach (MdTableInfo::TableInfo_column_t ti, mTableInfo)
-//		if (ti.name.contains("datum"), Qt::CaseInsensitive)
-//			INFO << mSqlTableName << ti;
+	//	columnIndexes.insert(sourceModel->
+	//	field
+	//	foreach (MdTableInfo::TableInfo_column_t ti, mTableInfo)
+	//		if (ti.name.contains("datum"), Qt::CaseInsensitive)
+	//			INFO << mSqlTableName << ti;
 
 	//	TOC;
 }
-
 
 
 ///* ======================================================================== */
@@ -148,3 +154,11 @@ void SfiltMdl::setSourceModel(QAbstractItemModel *sourceModel) {
 #include "moc_mysortfilterproxymodel.cpp"
 
 
+
+////#define DEBUG_ACCEPT_ROW
+//#ifdef DEBUG_ACCEPT_ROW
+//	INFO << tr("iMitarb:") << sourceModel()->data(iMitarb).toString().contains(filterRegExp())
+//		  << tr("|| iPN:") << sourceModel()->data(iPN).toString().contains(filterRegExp())
+//		  << tr("|| iBesch:") << sourceModel()->data(iBesch).toString().contains(filterRegExp())
+//		  << tr("&& iDate:") << dateInRange(sourceModel()->data(iDate).toDate());
+//#endif

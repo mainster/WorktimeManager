@@ -74,7 +74,8 @@ HEADERS += \
     mdsplashscreen.h \
     mdplaintextedit.h \
     runtimetable.h \
-    mdtableinfo.h
+    mdtableinfo.h \
+    headeralias.h
 
 
 SOURCES += \
@@ -110,7 +111,8 @@ SOURCES += \
     mdsplashscreen.cpp \
     mdplaintextedit.cpp \
     runtimetable.cpp \
-    mdtableinfo.cpp
+    mdtableinfo.cpp \
+    headeralias.cpp
 
 
 FORMS += \
