@@ -25,11 +25,6 @@ bool RuntimeTable::recalcOvertime() {
 								"FROM worker wk "
 								"INNER JOIN worktime wkt "
 								"ON wkt.workerID = wk.workerID");
-	//	workerRecs->setHeaderData(0, Qt::Horizontal, tr("ID"));
-	//	workerRecs->setHeaderData(1, Qt::Horizontal, tr("Date"));
-	//	workerRecs->setHeaderData(2, Qt::Horizontal, tr("last"));
-	//	workerRecs->setHeaderData(3, Qt::Horizontal, tr("first"));
-	//	workerRecs->setHeaderData(4, Qt::Horizontal, tr("PN"));
 
 	QTableView *view = new QTableView();
 	view->setModel(workerRecs);
@@ -39,13 +34,11 @@ bool RuntimeTable::recalcOvertime() {
 	 * Clear old worker proxy models.
 	 */
 	workerProxyMdls.clear();
+
 	/*!
 	 * Create a SfiltMdl proxy model for each employee record ...
 	 */
-	//	int iKey = workerRecs->record(0).indexOf("PersonalNr");
-
 	for (int i = 0; i < workerRecs->rowCount(); ++i) {
-		//		int PN = workerRecs->record(i).value("PersonalNr").toInt();
 		int workerID = workerRecs->record(i).value("workerID").toInt();
 
 		SfiltMdl *sfm = new SfiltMdl();
@@ -76,7 +69,6 @@ bool RuntimeTable::recalcOvertime() {
 		proxyView->show();
 	}
 #else
-	SqlRtm *runtimeTblMdl = dynamic_cast<SqlRtm *>(m_runtimeTv->model());
 
 	QList<QString> columns;
 	foreach (MdTableInfo::TableInfo_column_t ti, runtimeColumnInfos)
@@ -96,22 +88,16 @@ bool RuntimeTable::recalcOvertime() {
 
 		for (int k = 0; k < proxyModel->rowCount(QModelIndex()); k++) {
 			hoursSum += proxyModel->index(k, 2, QModelIndex()).data().toReal(&ok);
-			if (! ok)	INFO << tr("toReal-Error");
-
-			//			QStringList s;
-			//			for (int i = 0; i < proxyModel->columnCount(QModelIndex()); i++)
-			//				s << proxyModel->index(k, i, QModelIndex()).data().toString();
-
-			//			INFO << s.join(',');
+			if (! ok)
+				INFO << tr("toReal-Error");
 		}
 
 		QSqlQuery q(DbController::db());
-		q.prepare("INSERT INTO runtime (workerID, Wochensumme, Monatssumme, Jahressumme, Ueberstunden, Vorschuss, fehlID) "
-					 "VALUES (:ID, 0, 0, :SUM, 0, 0, 1)");
+		q.prepare(tr("INSERT INTO runtime (%1) "
+					 "VALUES (:ID, 0, 0, :SUM, 0, 0, 1)").arg(columns.join(", ")));
 		q.bindValue(":ID", workerID);
 		q.bindValue(":SUM", hoursSum);
 		q.exec();
-//		m_runtimeTv->getActSubmit()->trigger();
 
 		INFO << q.lastQuery() << q.lastInsertId();
 
@@ -121,27 +107,6 @@ bool RuntimeTable::recalcOvertime() {
 			INFO << q.lastError().text();
 			return false;
 		}
-
-
-		//		QSqlQuery query(tr("INSERT INTO runtime (%1) VALUES (%2, %3, %4, %5, %6, %7, %8)")
-		//							 .arg(columns.join(", "))
-		//							 .arg(workerID)
-		//							 .arg(-1)
-		//							 .arg(-1)
-		//							 .arg(hoursSum)
-		//							 .arg(-1)
-		//							 .arg(0)
-		//							 .arg(0));
-
-		//		QMapIterator<QString, QVariant> i(query->boundValues());
-		//		while (i.hasNext()) {
-		//			 i.next();
-		//			 INFO << i.key().toUtf8().data() << ": "
-		//					<< i.value().toString().toUtf8().data();
-		//		}
-
-		//		INFO << query->exec() << query->lastQuery();
-		//		QSqlQuery query(tr(""))
 	}
 #endif
 	return true;
