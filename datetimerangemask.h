@@ -28,10 +28,10 @@ class DateTimeRangeMask : public QWidget {
 	Q_OBJECT
 
 public:
-	DateTimeRangeMask(QWidget *parent) : QWidget(parent) {
-		m_inst = this;
-		queryHolidyLookup();
-	}
+//	DateTimeRangeMask(QWidget *parent) : QWidget(parent) {
+//		m_inst = this;
+//		queryHolidyLookup();
+//	}
 	DateTimeRangeMask(QTableView *_tv, QWidget *parent)
 		: QWidget(parent) {
 		QSETTINGS;
@@ -59,6 +59,8 @@ public:
 		lblMinDate->setBuddy(deMinDate);
 		lblMaxDate->setBuddy(deMaxDate);
 
+		INFO << listCast<QDateEdit *>(findChildren<QDateEdit *>(QString(), Qt::FindDirectChildrenOnly));
+
 		foreach (QDateEdit *de, listCast<QDateEdit *>(
 						findChildren<QDateEdit *>(QString(), Qt::FindDirectChildrenOnly))) {
 			de->setMinimumDate(QDate(2000, 1, 1));
@@ -75,13 +77,19 @@ public:
 												  QDate::currentDate()).toDate());
 
 		QGridLayout *gl = new QGridLayout(this);
-		QSpacerItem *spacer = new QSpacerItem(50, 10, QSizePolicy::Expanding);
 
+		/*!
+		 * Fixed reproducible segmentation fault when destructing DateTimeRangeMask:: objects.
+		 * Problem was the spacer object which has been added two times to the gl layout
+		 * instance?!!!!
+		 */
 		gl->addWidget(lblMinDate,	0, 0, 1, 1);
 		gl->addWidget(deMinDate,	0, 1, 1, 1);
+		QSpacerItem *spacer = new QSpacerItem(50, 10, QSizePolicy::Expanding);
 		gl->addItem(spacer,			0, 2, 1, 1);
 		gl->addWidget(lblMaxDate,	1, 0, 1, 1);
 		gl->addWidget(deMaxDate,	1, 1, 1, 1);
+		spacer = new QSpacerItem(50, 10, QSizePolicy::Expanding);
 		gl->addItem(spacer,			1, 2, 1, 1);
 
 		lblMonth->hide();
@@ -113,7 +121,9 @@ public:
 		}
 		return m_inst;
 	}
-	~DateTimeRangeMask() { }
+	~DateTimeRangeMask() {
+
+	}
 
 	void queryHolidyLookup() {
 		/*!

@@ -52,6 +52,7 @@ public slots:
 
 protected slots:
 	void onActSectionMask(bool sectionMask);
+	void onActDateTimeRngMsk(bool actDateTimeRngMsk);
 	void onActBaseDataForm();
 
 protected:
@@ -62,7 +63,7 @@ private:
 	QGroupBox	*m_gb;
 	MdTabView	*m_tv;
 	SectionMask	*mSectMsk;
-	QPointer<DateTimeRangeMask> mDateTimeRngMsk;
+	DateTimeRangeMask *mDateTimeRngMsk;
 	QAction		*actBaseDataForm;
 	BaseDataForm *bdForm;
 	bool			m_selected;

@@ -343,16 +343,10 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 		}
 	}
 
-	INFO << qApp->topLevelWidgets();
-
-
 	foreach (QWidget *w, qApp->topLevelWidgets()) {
 		if (w->objectName().contains(QRegularExpression("filterForm*")) ||
-			 w->objectName().contains(QRegularExpression("Stammdaten bearbeiten*"))) {
-			INFO << w->objectName()
-				  << w->metaObject()->className();
-//			w->close();
-		}
+			 w->objectName().contains(QRegularExpression("Stammdaten bearbeiten*")))
+			w->close();
 	}
 
 //	QWidget::closeEvent(e);

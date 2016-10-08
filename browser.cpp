@@ -398,12 +398,14 @@ bool Browser::restoreUi() {
 	\*/
 	restoreActionObjects();
 
-	runtimeTable = new RuntimeTable(mTabs.findByTableName(tr("worktime"))->tv(), this);
+	if ((mTabs.findByTableName(tr("worktime")) != NULL) &&
+		 (mTabs.findByTableName(tr("runtime")) != NULL)) {
+		runtimeTable = new RuntimeTable(mTabs.findByTableName(tr("worktime"))->tv(), this);
+		runtimeTable->setRuntimeTable(mTabs.findByTableName(tr("runtime"))->tv());
+	}
+	else
+		bReturn("No runtime- or worktime table found byTableName!");
 
-	if (mTabs.findByTableName(tr("runtime")) == NULL)
-		bReturn("No runtime table found byTableName!");
-
-	runtimeTable->setRuntimeTable(mTabs.findByTableName(tr("runtime"))->tv());
 	/**** Restore table font configs
 	\*/
 	//	INFO << mTabs.tva->tv()->confTableFont();

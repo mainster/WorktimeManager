@@ -33,6 +33,7 @@ MdTable::MdTable(const QString &tvObjName, const QString &tableName,
 	m_tv->addActions(QList<QAction *>() << actBaseDataForm);
 
 	connect(m_tv->getActSectionMask(), &QAction::toggled, this, &MdTable::onActSectionMask);
+	connect(m_tv->getActDateTimeRngMsk(), &QAction::toggled, this, &MdTable::onActDateTimeRngMsk);
 	connect(m_tv, &MdTabView::sqlTableNameChanged, this, &MdTable::onSqlTableNameChanged);
 	connect(actBaseDataForm, &QAction::triggered, this, &MdTable::onActBaseDataForm);
 
@@ -67,6 +68,19 @@ void MdTable::onActSectionMask(bool sectionMask) {
 		//		qobject_cast<QVBoxLayout *>(m_gb->layout())->setStretchFactor(this, 15);
 	}
 }
+void MdTable::onActDateTimeRngMsk(bool actDateTimeRngMsk) {
+	if (! actDateTimeRngMsk) {
+//		mDateTimeRngMsk->close();
+		delete mDateTimeRngMsk;
+	}
+	else {
+		if (tv()->sqlTableName().contains("runtime", Qt::CaseInsensitive)) {
+			mDateTimeRngMsk = new DateTimeRangeMask(m_tv, this);
+			m_gb->layout()->addWidget(mDateTimeRngMsk);
+		}
+	}
+}
+
 void MdTable::onActBaseDataForm() {
 	QAction *action = qobject_cast<QAction *>(sender());
 	if (! action)
@@ -78,21 +92,6 @@ void MdTable::onActBaseDataForm() {
 void MdTable::onSqlTableNameChanged(const QString &sqlTableName) {
 	m_gb->setTitle(Md::tableAlias[ sqlTableName ]);
 	actBaseDataForm->setEnabled(true);
-
-	if (sqlTableName.contains("runtime", Qt::CaseInsensitive)) {
-		if (mDateTimeRngMsk.isNull()) {
-			mDateTimeRngMsk = new DateTimeRangeMask(this);
-			m_gb->layout()->addWidget(mDateTimeRngMsk.data());
-		}
-	}
-	else {
-		if (! mDateTimeRngMsk.isNull()) {
-			mDateTimeRngMsk->hide();
-			m_gb->layout()->removeWidget(mDateTimeRngMsk.data());
-//			mDateTimeRngMsk->deleteLater();
-//			delete mDateTimeRngMsk.data();
-		}
-	}
 }
 /* ======================================================================== */
 /*                              Event handler                               */

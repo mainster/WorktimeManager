@@ -418,6 +418,7 @@ QList<QAction *> MdTabView::createActions() {
 	actRevert =			new QAction(tr("Re&vert All"), this);
 	actSelect =			new QAction(tr("S&elect"), this);
 	actSectionMask =	new QAction(tr("Spaltenmaske"), this);
+	actDateTimeRngMsk = new QAction(tr("Datumsbereich"), this);
 	actClearRecords =	new QAction(tr("Alle Zeilen löschen"), this);
 	actDropTable =		new QAction(tr("Tabelle löschen"), this);
 	actFieldStrategy =	new QAction(tr("Submit on &Field Change"), this);
@@ -475,6 +476,7 @@ QList<QAction *> MdTabView::createActions() {
 	/*                       Action object configurations                       */
 	/* ======================================================================== */
 	actSectionMask->setCheckable(true);
+	actDateTimeRngMsk->setCheckable(true);
 
 	//	tblActs = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
 
@@ -483,8 +485,8 @@ QList<QAction *> MdTabView::createActions() {
 	QAction *sep2 = new QAction(this);
 	sep2->setSeparator(true);
 
-	acts2 << sep1 << acts << sep2 << actSectionMask << sep2 << actClearRecords
-			<< actDropTable;
+	acts2 << sep1 << acts << sep2 << actSectionMask << actDateTimeRngMsk << sep2
+			<< actClearRecords << actDropTable;
 	return acts2;
 }
 /* ======================================================================== */

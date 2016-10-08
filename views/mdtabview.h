@@ -64,6 +64,7 @@ public:
 	SqlRtm *clearMdlSrces();
 	void createForeignModel(const QString &tableName);
 	QAction *getActSectionMask() const { return actSectionMask; }
+	QAction *getActDateTimeRngMsk() const { return actDateTimeRngMsk; }
 	void setActSectionMask(QAction *value) { actSectionMask = value; }
 	QPointer<SqlRtm> getSqlRtm() const { return sqlRtm; }
 	QAction *getActSubmit() const { return actSubmit; }
@@ -134,7 +135,7 @@ private:
 
 	QAction *actInsertRow, *actDeleteRow, *actFieldStrategy, *actRowStrategy,
 	*actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask,
-	*actClearRecords, *actDropTable;
+	*actDateTimeRngMsk, *actClearRecords, *actDropTable;
 
 	QMap<QString, QString> stylesheetPvs;
 
