@@ -398,9 +398,12 @@ bool Browser::restoreUi() {
 	\*/
 	restoreActionObjects();
 
-	runtimeTable = new RuntimeTable(mTabs.findByTableName(tr("worktime"))->tv(),
-											  this);
+	runtimeTable = new RuntimeTable(mTabs.findByTableName(tr("worktime"))->tv(), this);
 
+	if (mTabs.findByTableName(tr("runtime")) == NULL)
+		bReturn("No runtime table found byTableName!");
+
+	runtimeTable->setRuntimeTable(mTabs.findByTableName(tr("runtime"))->tv());
 	/**** Restore table font configs
 	\*/
 	//	INFO << mTabs.tva->tv()->confTableFont();

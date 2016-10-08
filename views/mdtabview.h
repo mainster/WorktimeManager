@@ -65,6 +65,10 @@ public:
 	QAction *getActSectionMask() const { return actSectionMask; }
 	void setActSectionMask(QAction *value) { actSectionMask = value; }
 
+	QPointer<SqlRtm> getSqlRtm() const { return sqlRtm; }
+
+	QAction *getActSubmit() const { return actSubmit; }
+
 public slots:
 	QFont restoreFont();
 	void deleteRow();
@@ -87,9 +91,23 @@ public slots:
 		return qobject_cast<SqlRtm *>(model());
 	}
 	bool clearRecords() {
-		QSqlQuery query(QString("DELETE * FROM %1").arg(sqlTableName()));
-		return query.exec();
+		QSqlQuery q(DbController::db());
+		q.prepare(tr("DELETE FROM %1").arg(sqlTableName()));
+		q.exec();
+
+		sqlRtm->select();
+
+		if (q.lastError().type() != QSqlError::NoError) {
+			INFO << q.lastError().text();
+			return false;
+		}
+
+		return true;
 	}
+	void onActDropTableTrigd() {
+		DbController::dropTable(sqlTableName());
+	}
+
 
 signals:
 	void sqlTableNameChanged(const QString &name);
@@ -116,7 +134,8 @@ private:
 	QActionGroup		*actGrStrategy, *actGrContext;
 
 	QAction *actInsertRow, *actDeleteRow, *actFieldStrategy, *actRowStrategy,
-	*actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask;
+	*actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask,
+	*actClearRecords, *actDropTable;
 
 	QMap<QString, QString> stylesheetPvs;
 

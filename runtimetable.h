@@ -15,15 +15,20 @@
 #include "debug.h"
 #include "mdtabview.h"
 #include "mysortfilterproxymodel.h"
+#include "mdtableinfo.h"
+#include "models.h"
 
-//#include "browser.h"
+class DbController;
 
+/* ======================================================================== */
+/*                               RuntimeTable                               */
+/* ======================================================================== */
 class RuntimeTable : public QObject {
 
 	Q_OBJECT
 
 public:
-	explicit RuntimeTable(QTableView *worktimeTv, QObject *parent)
+	explicit RuntimeTable(MdTabView *worktimeTv, QObject *parent)
 		: QObject(parent), m_worktimeTv(worktimeTv) {
 		INFO << m_worktimeTv << this;
 	}
@@ -33,14 +38,15 @@ public:
 		QSqlQuery query(QString("DROP TABLE runtime;"));
 		return query.exec();
 	}
-	void setRuntimeTable(QTableView *runtimeTable) { m_runtimeTv = runtimeTable; }
+	void setRuntimeTable(MdTabView *runtimeTable) { m_runtimeTv = runtimeTable; }
 	bool recalcOvertime();
 
 private:
-	QTableView *m_worktimeTv, *m_runtimeTv;
+	MdTabView *m_worktimeTv, *m_runtimeTv;
 	QList<QString> m_workers;
 	QMap<int, SfiltMdl *> workerProxyMdls;
-	QList<MdTableInfo::TableInfo_column_t> columnInfos;
+	QList<MdTableInfo::TableInfo_column_t> worktimeColumnInfos;
+	QList<MdTableInfo::TableInfo_column_t> runtimeColumnInfos;
 
 
 	static const QString OVERTIME_TABLE_NAME;

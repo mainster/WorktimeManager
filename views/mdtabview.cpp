@@ -417,6 +417,8 @@ QList<QAction *> MdTabView::createActions() {
 	actRevert =			new QAction(tr("Re&vert All"), this);
 	actSelect =			new QAction(tr("S&elect"), this);
 	actSectionMask =	new QAction(tr("Spaltenmaske"), this);
+	actClearRecords =	new QAction(tr("Alle Zeilen löschen"), this);
+	actDropTable =		new QAction(tr("Tabelle löschen"), this);
 	actFieldStrategy =	new QAction(tr("Submit on &Field Change"), this);
 	actRowStrategy =		new QAction(tr("Submit on &Row Change"), this);
 	actManualStrategy =	new QAction(tr("Submit &Manually"), this);
@@ -465,6 +467,8 @@ QList<QAction *> MdTabView::createActions() {
 	 */
 	connect(actGrContext, &QActionGroup::triggered, this, &MdTabView::storeActionState);
 	connect(actGrContext, &QActionGroup::triggered, this, &MdTabView::onActGrContextTrigd);
+	connect(actClearRecords, &QAction::triggered, this, &MdTabView::clearRecords);
+	connect(actDropTable, &QAction::triggered, this, &MdTabView::onActDropTableTrigd);
 
 	/* ======================================================================== */
 	/*                       Action object configurations                       */
@@ -478,7 +482,8 @@ QList<QAction *> MdTabView::createActions() {
 	QAction *sep2 = new QAction(this);
 	sep2->setSeparator(true);
 
-	acts2 << sep1 << acts << sep2 << actSectionMask;
+	acts2 << sep1 << acts << sep2 << actSectionMask << sep2 << actClearRecords
+			<< actDropTable;
 	return acts2;
 }
 /* ======================================================================== */
@@ -644,8 +649,8 @@ bool MdTabView::restoreActionObjects() {
 	return true;
 }
 void MdTabView::removeColumnsConfig() {
-	QSETTINGS;
-	config.remove(sqlTableName() + Md::k.centerCols);
+    QSETTINGS;
+    config.remove(sqlTableName() + Md::k.centerCols);
 	config.remove(sqlTableName() + Md::k.visibleCols);
 	config.remove(sqlTableName() + Md::k.sectionIdxs);
 

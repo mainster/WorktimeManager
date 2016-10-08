@@ -34,6 +34,8 @@ public:
 	static QList<TableInfo_column_t> queryInfo(const QString &tableName,
 															 QSqlDatabase db) {
 		static QList<TableInfo_column_t> tableInfo;
+		tableInfo.clear();
+
 		QSqlQuery query(tr("PRAGMA table_info('%1')").arg(tableName), db);
 
 		while (query.next()) {

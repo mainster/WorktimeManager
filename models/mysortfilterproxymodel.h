@@ -42,10 +42,7 @@ public:
 	virtual void setSourceModel(QAbstractItemModel *sourceModel) override;
 
 //	QPointer<HeaderAlias> headIdxs() const { return mHeadIdxs; }
-
-	QPointer<HeaderAlias> headIdxs() const {
-		return mHeadIdxs;
-	}
+	HeaderAlias *headIdxs() const { return mHeadIdxs; }
 
 protected:
 	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
@@ -59,7 +56,8 @@ private:
 	QList<MdTableInfo::TableInfo_column_t> mTableInfo;
 	QString mSqlTableName;
 
-	QPointer<HeaderAlias> mHeadIdxs;
+//	QPointer<HeaderAlias> mHeadIdxs;
+	HeaderAlias *mHeadIdxs;
 //	QMap<QString , int> headIdxs;
 
 };
