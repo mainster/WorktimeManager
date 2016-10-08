@@ -91,6 +91,21 @@ public:
 
 		show();
 	}
+	DateTimeRangeMask(const DateTimeRangeMask &others)
+		: QWidget(new QWidget()) {
+		m_inst = this;
+		lblMinDate = others.lblMinDate;
+		lblMaxDate = others.lblMaxDate;
+		lblMonth = others.lblMonth;
+		lblWeek = others.lblWeek;
+		deMinDate = others.deMinDate;
+		deMaxDate = others.deMaxDate;
+		mMinDate = others.mMinDate;
+		mMaxDate = others.mMaxDate;
+		holidays = others.holidays;
+		manager = others.manager;
+	}
+
 	static DateTimeRangeMask *inst() {
 		if (! m_inst) {
 			qDebug().noquote() << tr("Instance pointer is empty!");
@@ -98,13 +113,13 @@ public:
 		}
 		return m_inst;
 	}
-//	~DateTimeRangeMask() { }
+	~DateTimeRangeMask() { }
 
 	void queryHolidyLookup() {
 		/*!
 		 * web query for "Feiertage" dates in BaWü.
 		 */
-		QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+		manager = new QNetworkAccessManager(this);
 		connect(manager, SIGNAL(finished(QNetworkReply*)),
 				  this, SLOT(onResult(QNetworkReply*)));
 
@@ -113,8 +128,8 @@ public:
 								 QUrl(tr("http://feiertage.jarmedia.de/api/?jahr=%1&nur_land=BW&nur_daten")
 										.arg(year))));
 	}
-	QDateEdit *getDeMinDate() const { return deMinDate; }
-	QDateEdit *getDeMaxDate() const { return deMaxDate; }
+	static QDate getMinDate() { return mMinDate; }
+	static QDate getMaxDate() { return mMaxDate; }
 
 protected slots:
 	void onResult(QNetworkReply *reply);
@@ -123,12 +138,14 @@ protected slots:
 
 		if (qobject_cast<QDateEdit *>(sender())->objectName().contains("deMinDate")) {
 			config.setValue(objectName() + Md::k.minDateEdit, date);
+			mMinDate = date;
 			if (holidays.contains(date))
 				INFO << tr("Feiertag:") << date.toString("dd.MM.yyyy:") << holidays.value(date);
 		}
 
 		if (qobject_cast<QDateEdit *>(sender())->objectName().contains("deMaxDate")) {
 			config.setValue(objectName() + Md::k.maxDateEdit, date);
+			mMaxDate = date;
 			if (holidays.contains(date))
 				INFO << tr("Feiertag:") << date.toString("dd.MM.yyyy:") << holidays.value(date);
 		}
@@ -149,8 +166,9 @@ private:
 	QTableView *tv;
 	QLabel *lblMinDate, *lblMaxDate, *lblMonth, *lblWeek;
 	QDateEdit *deMinDate, *deMaxDate;
+	static QDate mMinDate, mMaxDate;
 	QMap<QDate, QString> holidays;
-	QCalendarWidget *calendar;
+	QNetworkAccessManager *manager;
 };
 
 #endif // DATETIMERANGEMASK_H

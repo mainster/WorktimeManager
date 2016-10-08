@@ -343,13 +343,19 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 		}
 	}
 
+	INFO << qApp->topLevelWidgets();
+
+
 	foreach (QWidget *w, qApp->topLevelWidgets()) {
 		if (w->objectName().contains(QRegularExpression("filterForm*")) ||
-			 w->objectName().contains(QRegularExpression("Stammdaten bearbeiten*")))
-			w->close();
+			 w->objectName().contains(QRegularExpression("Stammdaten bearbeiten*"))) {
+			INFO << w->objectName()
+				  << w->metaObject()->className();
+//			w->close();
+		}
 	}
 
-	QWidget::closeEvent(e);
+//	QWidget::closeEvent(e);
 }
 void MainWindow::keyPressEvent(QKeyEvent *e) {
 	if (e->key() == Qt::Key_Escape) {

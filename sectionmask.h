@@ -18,12 +18,20 @@ class SectionMask : public QWidget {
 	Q_OBJECT
 
 public:
-	SectionMask(const QList<QString> headerTexts,
-					QWidget *parent) : QWidget(parent) {
+	SectionMask(const QList<QString> headerTexts, QWidget *parent)
+		: QWidget(parent) {
 		Q_UNUSED(headerTexts);
 		inst = this;
 	}
-	SectionMask(QTableView *_tv, QWidget *parent) : QWidget(parent) {
+
+	SectionMask(const SectionMask &other)
+		: QWidget(new QWidget()) {
+		inst = this;
+		checkBoxs = other.checkBoxs;
+	}
+
+	SectionMask(QTableView *_tv, QWidget *parent)
+		: QWidget(parent) {
 		inst = this;
 		tv = _tv;
 //		INFO << tv->objectName();
@@ -66,11 +74,7 @@ public:
 		restoreVisibleCols();
 		show();
 	}
-	SectionMask(const SectionMask &other)
-		: QWidget(new QWidget()) {
-		inst = this;
-		checkBoxs = other.checkBoxs;
-	}
+
 	static SectionMask *instance() {
 		if (! inst) {
 			qDebug().noquote() << tr("Instance pointer is empty!");

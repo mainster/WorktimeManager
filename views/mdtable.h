@@ -21,6 +21,7 @@ public:
 	explicit MdTable(const QString &tvObjName,
 						  const QString &tableName = QString(),
 						  QWidget *parent = 0);
+	~MdTable() { }
 
 	bool isSelected()	{ return m_selected; }
 	void setSelected(bool selected = true) {
@@ -61,7 +62,7 @@ private:
 	QGroupBox	*m_gb;
 	MdTabView	*m_tv;
 	SectionMask	*mSectMsk;
-	DateTimeRangeMask *mDateTimeRngMsk;
+	QPointer<DateTimeRangeMask> mDateTimeRngMsk;
 	QAction		*actBaseDataForm;
 	BaseDataForm *bdForm;
 	bool			m_selected;

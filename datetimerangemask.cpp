@@ -1,9 +1,10 @@
 #include "datetimerangemask.h"
 DateTimeRangeMask *DateTimeRangeMask::m_inst = 0;
 
+QDate DateTimeRangeMask::mMinDate = QDate();
+QDate DateTimeRangeMask::mMaxDate = QDate();
 
-void DateTimeRangeMask::onResult(QNetworkReply* reply)
-{
+void DateTimeRangeMask::onResult(QNetworkReply* reply) {
 	if (reply->error() != QNetworkReply::NoError)
 		return;  // ...only in a blog post
 
@@ -26,6 +27,8 @@ void DateTimeRangeMask::onResult(QNetworkReply* reply)
 													 "yyyy-MM-dd"), s.split(':').at(0));
 //		INFO << tr("At") << holidays.lastKey() << tr("it's:") << holidays.last();
 	}
+
+	delete manager;
 }
 
 

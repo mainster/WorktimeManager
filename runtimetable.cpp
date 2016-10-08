@@ -50,11 +50,13 @@ bool RuntimeTable::recalcOvertime() {
 		 */
 		workerProxyMdls[workerID]->setFilterID(workerRecs->record(i).value("PersonalNr").toInt());
 
-		DateTimeRangeMask *dateTimeRngMsk = DateTimeRangeMask::inst();
-		if (dateTimeRngMsk) {
-			workerProxyMdls[workerID]->setFilterMinimumDate(dateTimeRngMsk->getDeMinDate()->date());
-			workerProxyMdls[workerID]->setFilterMaximumDate(dateTimeRngMsk->getDeMaxDate()->date());
-		}
+		workerProxyMdls[workerID]->setFilterMinimumDate(DateTimeRangeMask::getMinDate());
+		workerProxyMdls[workerID]->setFilterMaximumDate(DateTimeRangeMask::getMaxDate());
+//		DateTimeRangeMask *dateTimeRngMsk = DateTimeRangeMask::inst();
+//		if (dateTimeRngMsk) {
+//			workerProxyMdls[workerID]->setFilterMinimumDate(dateTimeRngMsk->getDeMinDate()->date());
+//			workerProxyMdls[workerID]->setFilterMaximumDate(dateTimeRngMsk->getDeMaxDate()->date());
+//		}
 	}
 
 	//	#define	DEBUG_FILTER_MODEL
