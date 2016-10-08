@@ -11,6 +11,7 @@
 #include "mysortfilterproxymodel.h"
 #include "globals.h"
 #include "mdtable.h"
+#include "mdtabview.h"
 #include "browser.h"
 
 namespace Ui {
@@ -103,7 +104,7 @@ private:
 	QComboBox *filtSyntaxCB, *filtPattCb;
 	QDateEdit *fromDateEdit;
 	QDateEdit *toDateEdit;
-	QAction *deleteAct;
+	QAction *actSumSelection;
 };
 
 //Q_DECLARE_OPERATORS_FOR_FLAGS(FilterForm::SourceTable)

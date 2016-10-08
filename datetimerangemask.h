@@ -28,23 +28,12 @@ class DateTimeRangeMask : public QWidget {
 	Q_OBJECT
 
 public:
-//	DateTimeRangeMask(QWidget *parent) : QWidget(parent) {
-//		m_inst = this;
-//		queryHolidyLookup();
-//	}
-	DateTimeRangeMask(QTableView *_tv, QWidget *parent)
+	DateTimeRangeMask(QWidget *parent)
 		: QWidget(parent) {
 		QSETTINGS;
 
 		m_inst = this;
 		setObjectName(tr("DateTimeRangeMask"));
-		tv = _tv;
-		INFO << tv->objectName();
-
-		if (! tv) {
-			qDebug().noquote() << tr("Cast parent to MdTable failed!");
-			return;
-		}
 
 		lblMinDate = new QLabel(tr("Von: "), this);
 		lblMaxDate = new QLabel(tr("Bis: "), this);
@@ -68,8 +57,11 @@ public:
 			de->setDisplayFormat(tr("dd.MM.yyyy"));
 			de->setCalendarPopup(true);
 			de->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-			connect(de, &QDateEdit::dateChanged, this, &DateTimeRangeMask::onDateEditChanged);
 			de->setFixedWidth(120);
+			de->setLocale(QLocale::German);
+			de->calendarWidget()->setLocale(QLocale::German);
+
+			connect(de, &QDateEdit::dateChanged, this, &DateTimeRangeMask::onDateEditChanged);
 		}
 		deMinDate->setDate(config.value(objectName() + Md::k.minDateEdit,
 												  QDate::currentDate()).toDate());
@@ -99,6 +91,7 @@ public:
 
 		show();
 	}
+
 	DateTimeRangeMask(const DateTimeRangeMask &others)
 		: QWidget(new QWidget()) {
 		m_inst = this;
@@ -173,7 +166,6 @@ protected slots:
 
 private:
 	static DateTimeRangeMask *m_inst;
-	QTableView *tv;
 	QLabel *lblMinDate, *lblMaxDate, *lblMonth, *lblWeek;
 	QDateEdit *deMinDate, *deMaxDate;
 	static QDate mMinDate, mMaxDate;

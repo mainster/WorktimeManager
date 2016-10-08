@@ -17,6 +17,7 @@ Browser::Browser(QWidget *parent) : QWidget(parent) {
 	setObjectName("Browser");
 
 	m_stateCounter = 0;
+	clipboard		= qApp->clipboard();
 
 	setStyleSheet(Locals::browserStyleSheetv2);
 	style()->unpolish(this);
@@ -182,6 +183,9 @@ void Browser::execCustomQuery() {
 
 	//	qtv->parentWidget()->resizeRowsColsToContents();
 	emit updateWriteActions();
+}
+void Browser::loadClipboard(const QString &buff) {
+	clipboard->setText(buff, QClipboard::Clipboard);
 }
 /* ======================================================================== */
 void Browser::onConWidgetTableActivated(const QString &sqlTableName) {

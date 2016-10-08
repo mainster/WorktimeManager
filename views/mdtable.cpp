@@ -43,6 +43,9 @@ MdTable::MdTable(const QString &tvObjName, const QString &tableName,
 /* ======================================================================== */
 /*                            Callback handler                              */
 /* ======================================================================== */
+void MdTable::onAction() {
+	INFO << tr("trigged");
+}
 void MdTable::onActSectionMask(bool sectionMask) {
 	QAbstractItemModel *aim = m_tv->model();
 
@@ -75,12 +78,11 @@ void MdTable::onActDateTimeRngMsk(bool actDateTimeRngMsk) {
 	}
 	else {
 		if (tv()->sqlTableName().contains("runtime", Qt::CaseInsensitive)) {
-			mDateTimeRngMsk = new DateTimeRangeMask(m_tv, this);
+			mDateTimeRngMsk = new DateTimeRangeMask(this);
 			m_gb->layout()->addWidget(mDateTimeRngMsk);
 		}
 	}
 }
-
 void MdTable::onActBaseDataForm() {
 	QAction *action = qobject_cast<QAction *>(sender());
 	if (! action)
@@ -92,6 +94,10 @@ void MdTable::onActBaseDataForm() {
 void MdTable::onSqlTableNameChanged(const QString &sqlTableName) {
 	m_gb->setTitle(Md::tableAlias[ sqlTableName ]);
 	actBaseDataForm->setEnabled(true);
+
+	if (sqlTableName.contains("runtime", Qt::CaseInsensitive))
+		m_tv->getActDateTimeRngMsk()->trigger();
+
 }
 /* ======================================================================== */
 /*                              Event handler                               */

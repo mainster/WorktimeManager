@@ -75,8 +75,15 @@ FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTbls, QWidge
 	foreach (MdTable *tbl, allTbls)
 		connect (tbl, &MdTable::selectedChanged, this, &FilterForm::onSelectedTableChange);
 
+	actSumSelection =	new QAction(tr("Summe über Auswahl-Maske bilden"), this);
+	actSumSelection->setShortcut(QKeySequence("Ctrl+Shift+s"));
+	actSumSelection->setShortcutContext(Qt::WidgetShortcut);
+
+//	connect(actSumSelection, &QAction::triggered, sourceView, &MdTabView::sumSelection);
+	addAction(actSumSelection);
+
 	installEventFilter(this);
-	QTimer::singleShot(10, this, &FilterForm::restoreWidgetStates);
+	QTimer::singleShot(100, this, &FilterForm::restoreWidgetStates);
 }
 FilterForm::~FilterForm() {
 	QSETTINGS;
@@ -95,11 +102,20 @@ void FilterForm::restoreWidgetStates() {
 	fromDateEdit->setDate(config.value(objectName() + Md::k.minDateEdit,
 												  QDate::currentDate().addYears(-2)).toDate());
 	toDateEdit->setDate(config.value(objectName() + Md::k.maxDateEdit,
-												  QDate::currentDate().addYears(2)).toDate());
+												QDate::currentDate().addYears(2)).toDate());
 	filtCaseSensCB->setChecked(config.value(objectName() + Md::k.filtCaseSensCB, false).toBool());
 
 	if (config.value(objectName() + Md::k.windowGeometry).isValid())
 		restoreGeometry(config.value(objectName() + Md::k.windowGeometry).toByteArray());
+
+	/*!
+	 * Try to add some of MdTabViews QAction objects to this widget. This is necessary
+	 * if we want to use QKeySequence:: functions natively.
+	 */
+	//	QAction *act = sourceView->getActSumSelection();
+	//	INFO << act;
+	//	INFO << act->shortcut().toString();
+
 }
 void FilterForm::setSourceTable(MdTable *tbl) {
 	if (sourceTableType() == SourceTableType::useWorktimeSource)
@@ -176,8 +192,8 @@ void FilterForm::cbTextFilterChanged() {
 void FilterForm::dateFilterChanged() {
 	QSETTINGS;
 	//    qDebug().noquote() << fromDateEdit->date().toString("MM/dd/yy");
-	proxyModel->setFilterMinimumDate(fromDateEdit->date());
-	proxyModel->setFilterMaximumDate(toDateEdit->date());
+	proxyModel->setFilterMinDate(fromDateEdit->date());
+	proxyModel->setFilterMaxDate(toDateEdit->date());
 	config.setValue(objectName() + Md::k.minDateEdit, fromDateEdit->date());
 	config.setValue(objectName() + Md::k.maxDateEdit, toDateEdit->date());
 	onProxyRowCountChanged(0, proxyModel->rowCount());

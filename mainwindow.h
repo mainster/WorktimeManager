@@ -159,7 +159,6 @@ private:
 	QWidget			*wid, *mCentralWidget;
 	QTimer			*timCyc;
 
-
 	struct notes_t {
 		MDNotes *toDo,
 		*comments,

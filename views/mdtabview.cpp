@@ -7,6 +7,10 @@ class SectionMask;
 /* ======================================================================== */
 /*                             MdTabView::MdTabView                         */
 /* ======================================================================== */
+MdTabView::MdTabView(QWidget *parent)
+	: QTableView(parent) {
+	MdTabView(QString(), parent);
+}
 MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	: QTableView(parent) {
 
@@ -16,6 +20,7 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	addActions( createActions() );
 	setContextMenuPolicy(Qt::ActionsContextMenu);
 	setSortingEnabled( true );
+	setSelectionMode(QAbstractItemView::ExtendedSelection);
 
 	if (!tableName.isEmpty()) {
 		createForeignModel(tableName);
@@ -26,15 +31,16 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	adjustSize();
 
 	setStyleSheet(StyleSheet_QTableView);
-
 	connect(horizontalHeader(), &QHeaderView::sectionMoved, this, &MdTabView::onSectionMoved);
 
+	clipbord = qApp->clipboard();
 	restoreFont();
 
-	QTimer::singleShot(500, this, SLOT(restoreActionObjects()));
+	QTimer::singleShot(200, this, SLOT(restoreActionObjects()));
 	//	QTimer::singleShot(8000, this, SLOT(restoreActionObjects()));
 	//	setActiveSelected( false );
 }
+/* ======================================================================== */
 void MdTabView::setSqlTableName(const QString &name) {
 	m_sqlTableName = name;
 	emit sqlTableNameChanged(m_sqlTableName);
@@ -334,16 +340,20 @@ void MdTabView::onActGrContextTrigd(QAction *sender) {
 
 	if ((sender != actSubmit) && (sender != actRevert) &&
 		 (sender != actSelect) && (sender != actInsertRow) &&
-		 (sender != actDeleteRow))
+		 (sender != actDeleteRow) && (sender != actCopy) &&
+		 (sender != actPaste) && (sender != actSumSelection))
 		qReturn("Bad sender detected!");
 
 	SqlRtm *rtm = static_cast<SqlRtm *>(model());
 
-	if (sender == actSubmit)	rtm->submitAll();
-	if (sender == actRevert)	rtm->revertAll();
-	if (sender == actSelect)	rtm->select();
-	if (sender == actInsertRow) insertRow();
-	if (sender == actDeleteRow) deleteRow();
+	if (sender == actSubmit)		rtm->submitAll();
+	if (sender == actRevert)		rtm->revertAll();
+	if (sender == actSelect)		rtm->select();
+	if (sender == actInsertRow)	insertRow();
+	if (sender == actDeleteRow)	deleteRow();
+	if (sender == actCopy)			copy();
+	if (sender == actPaste)			paste();
+	if (sender == actSumSelection)	sumSelection();
 }
 void MdTabView::onUpdateWriteActions() {
 	/*!
@@ -418,9 +428,12 @@ QList<QAction *> MdTabView::createActions() {
 	actRevert =			new QAction(tr("Re&vert All"), this);
 	actSelect =			new QAction(tr("S&elect"), this);
 	actSectionMask =	new QAction(tr("Spaltenmaske"), this);
-	actDateTimeRngMsk = new QAction(tr("Datumsbereich"), this);
+	actCopy =			new QAction(tr("Kopieren"), this);
+	actPaste =			new QAction(tr("Einfügen"), this);
+	actSumSelection =	new QAction(tr("Summe über Auswahl-Maske bilden"), this);
 	actClearRecords =	new QAction(tr("Alle Zeilen löschen"), this);
 	actDropTable =		new QAction(tr("Tabelle löschen"), this);
+	actDateTimeRngMsk =	new QAction(tr("Datumsbereich"), this);
 	actFieldStrategy =	new QAction(tr("Submit on &Field Change"), this);
 	actRowStrategy =		new QAction(tr("Submit on &Row Change"), this);
 	actManualStrategy =	new QAction(tr("Submit &Manually"), this);
@@ -459,7 +472,15 @@ QList<QAction *> MdTabView::createActions() {
 
 	QList<QAction *> acts2;
 	acts2 << PONAM(actInsertRow) << PONAM(actDeleteRow) << PONAM(actSubmit)
-			<< PONAM(actRevert)  << PONAM(actSelect);
+			<< PONAM(actRevert)  << PONAM(actSelect) << PONAM(actCopy) << PONAM(actPaste)
+			<< PONAM(actSumSelection);
+
+	actCopy->setShortcut(QKeySequence("Ctrl+C"));
+	actPaste->setShortcut(QKeySequence("Ctrl+V"));
+	actSumSelection->setShortcut(QKeySequence("Ctrl+Shift+s"));
+	actCopy->setShortcutContext(Qt::WidgetShortcut);
+	actPaste->setShortcutContext(Qt::WidgetShortcut);
+	actSumSelection->setShortcutContext(Qt::WidgetShortcut);
 
 	foreach (QAction *act, acts2)
 		actGrContext->addAction(act);
@@ -469,6 +490,7 @@ QList<QAction *> MdTabView::createActions() {
 	 */
 	connect(actGrContext, &QActionGroup::triggered, this, &MdTabView::storeActionState);
 	connect(actGrContext, &QActionGroup::triggered, this, &MdTabView::onActGrContextTrigd);
+
 	connect(actClearRecords, &QAction::triggered, this, &MdTabView::clearRecords);
 	connect(actDropTable, &QAction::triggered, this, &MdTabView::onActDropTableTrigd);
 
@@ -478,15 +500,16 @@ QList<QAction *> MdTabView::createActions() {
 	actSectionMask->setCheckable(true);
 	actDateTimeRngMsk->setCheckable(true);
 
-	//	tblActs = findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
+	acts2 << acts;
 
-	QAction *sep1 = new QAction(this);
-	sep1->setSeparator(true);
-	QAction *sep2 = new QAction(this);
-	sep2->setSeparator(true);
+	QAction *sep = new QAction(this);
+	sep->setSeparator(true);
+	acts2 << sep << actSectionMask << actDateTimeRngMsk;
 
-	acts2 << sep1 << acts << sep2 << actSectionMask << actDateTimeRngMsk << sep2
-			<< actClearRecords << actDropTable;
+	sep = new QAction(this);
+	sep->setSeparator(true);
+	acts2 << sep << actClearRecords << actDropTable;
+
 	return acts2;
 }
 /* ======================================================================== */
@@ -549,6 +572,64 @@ void MdTabView::wheelEvent (QWheelEvent * event) {
 				verticalScrollBar()->value() - dsize );
 
 	event->accept();
+}
+/* ======================================================================== */
+/*                             Callback handler                             */
+/* ======================================================================== */
+QList<QString> MdTabView::copy(bool overwriteClipboardBuffer) {
+	QItemSelectionModel * selection = selectionModel();
+	QModelIndexList indexes = selection->selectedIndexes();
+
+	if(indexes.size() < 1)
+		return QList<QString>();
+
+	// QModelIndex::operator < sorts first by row, then by column.
+	// this is what we need
+	qSort(indexes);
+	QStringList fields;
+
+	foreach (QModelIndex idx, indexes)
+		fields << idx.data(Qt::DisplayRole).toString();
+
+	if (overwriteClipboardBuffer)
+		clipbord->setText(fields.join(' '));
+	else
+		if (clipbord->text(QClipboard::Clipboard).isEmpty())
+			clipbord->setText(fields.join(' '));
+
+	return fields;
+}
+void MdTabView::paste() {
+	INFO << tr("paste");
+	return;
+}
+void MdTabView::sumSelection() {
+	bool ok = true;
+	QItemSelectionModel * selection = selectionModel();
+	QModelIndexList indexes = selection->selectedIndexes();
+
+	if(indexes.size() < 1)
+		return;
+
+	// QModelIndex::operator < sorts first by row, then by column.
+	// this is what we need
+	qSort(indexes);
+
+	QList<qreal> numerics;
+
+	foreach (QModelIndex idx, indexes) {
+		qreal field = idx.data(Qt::DisplayRole).toReal(&ok);
+		if (! ok)
+			selection->select(idx, QItemSelectionModel::Deselect);
+		else
+			numerics << field;
+	}
+
+	qreal sum = 0;
+	foreach (qreal v, numerics)
+		sum += v;
+
+	INFO << sum;
 }
 /* ======================================================================== */
 /*                             Helper methodes                              */
@@ -651,9 +732,11 @@ bool MdTabView::restoreActionObjects() {
 
 	return true;
 }
+
+
 void MdTabView::removeColumnsConfig() {
-    QSETTINGS;
-    config.remove(sqlTableName() + Md::k.centerCols);
+	QSETTINGS;
+	config.remove(sqlTableName() + Md::k.centerCols);
 	config.remove(sqlTableName() + Md::k.visibleCols);
 	config.remove(sqlTableName() + Md::k.sectionIdxs);
 

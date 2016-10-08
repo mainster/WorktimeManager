@@ -10,12 +10,12 @@
 /*                            SfiltMdl::SfiltMdl                            */
 /* ======================================================================== */
 
-void SfiltMdl::setFilterMinimumDate(const QDate &date) {
+void SfiltMdl::setFilterMinDate(const QDate &date) {
 	m_minDate = date;
 	invalidateFilter();
 //	qDebug() << tr("min date:") << m_minDate.toString("dd.MM.yyyy");
 }
-void SfiltMdl::setFilterMaximumDate(const QDate &date) {
+void SfiltMdl::setFilterMaxDate(const QDate &date) {
 	m_maxDate = date;
 	invalidateFilter();
 //	qDebug() << tr("max date:") << m_maxDate.toString("dd.MM.yyyy");

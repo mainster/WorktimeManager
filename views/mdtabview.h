@@ -33,7 +33,6 @@
 #include "datetimerangemask.h"
 #include "mdtableinfo.h"
 
-
 /* ======================================================================== */
 /*                              class MdTabView                               */
 /* ======================================================================== */
@@ -45,6 +44,7 @@ class MdTabView : public QTableView {
 	Q_PROPERTY(QString sqlTableName READ sqlTableName WRITE setSqlTableName NOTIFY sqlTableNameChanged)
 
 public:
+	explicit MdTabView(QWidget *parent = 0);
 	explicit MdTabView(const QString &tableName = QString(), QWidget *parent = 0);
 	~MdTabView() {}
 
@@ -68,6 +68,7 @@ public:
 	void setActSectionMask(QAction *value) { actSectionMask = value; }
 	QPointer<SqlRtm> getSqlRtm() const { return sqlRtm; }
 	QAction *getActSubmit() const { return actSubmit; }
+	QAction *getActSumSelection() const { return actSumSelection; }
 
 public slots:
 	QFont restoreFont();
@@ -107,11 +108,15 @@ public slots:
 	void onActDropTableTrigd() {
 		DbController::dropTable(sqlTableName());
 	}
+	QList<QString> copy(bool overwriteClipboardBuffer = true);
+	void paste();
+	void sumSelection();
 
 
 signals:
 	void sqlTableNameChanged(const QString &name);
 	void viewportMouseButtonPress(MdTabView *sender);
+//	void loadToClipboard(const QString &buff);
 
 protected:
 	QList<QAction *> createActions();
@@ -135,9 +140,10 @@ private:
 
 	QAction *actInsertRow, *actDeleteRow, *actFieldStrategy, *actRowStrategy,
 	*actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask,
-	*actDateTimeRngMsk, *actClearRecords, *actDropTable;
+	*actDateTimeRngMsk, *actClearRecords, *actDropTable, *actCopy, *actPaste, *actSumSelection;
 
 	QMap<QString, QString> stylesheetPvs;
+	QClipboard *clipbord;
 
 #ifdef USE_QPOINTER
 	QPointer<SqlRtm> sqlRtm;

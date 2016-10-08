@@ -50,6 +50,7 @@ signals:
 public slots:
 	void onSqlTableNameChanged(const QString &sqlTableName);
 
+	void onAction();
 protected slots:
 	void onActSectionMask(bool sectionMask);
 	void onActDateTimeRngMsk(bool actDateTimeRngMsk);

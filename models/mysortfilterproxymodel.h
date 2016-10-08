@@ -31,10 +31,10 @@ public:
 	~SfiltMdl() { }
 
 	QDate filterMinimumDate() const { return m_minDate; }
-	void setFilterMinimumDate(const QDate &date);
+	void setFilterMinDate(const QDate &date);
 
 	QDate filterMaximumDate() const { return m_maxDate; }
-	void setFilterMaximumDate(const QDate &date);
+	void setFilterMaxDate(const QDate &date);
 
 	void setFilterID(const int ID);
 	int filterID() const { return mID; }

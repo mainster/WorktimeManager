@@ -40,10 +40,10 @@ CREATE TABLE sub(
 CREATE TABLE runtime(
    runtimeID      INTEGER PRIMARY KEY AUTOINCREMENT,
    workerID       INT      NOT NULL,      -- Mitarbeiter ...
-   Wochensumme    REAL     NOT NULL,      -- h / Woche
-   Monatssumme    REAL     NOT NULL,      -- h / Monat
    Jahressumme    REAL     NOT NULL,      -- h / Jahr
-   Ueberstunden    REAL     NOT NULL,      -- Jahressaldo
+   Monatssumme    REAL     NOT NULL,      -- h / Monat
+   VonBis         REAL     NOT NULL,      -- h / Woche
+   Ueberstunden   REAL     NOT NULL,      -- Jahressaldo
    Vorschuss      REAL     NOT NULL,      -- Bereits geholt
    fehlID         INT      NOT NULL,      -- Fehlzeit ...
    FOREIGN KEY(workerID)   REFERENCES worker(workerID),
@@ -185,9 +185,9 @@ INSERT INTO "prj" (clientID, Beschreibung, Kurzform, Nummer, subID, archID, Ansp
 INSERT INTO "prj" (clientID, Beschreibung, Kurzform, Nummer, subID, archID, Ansprechpartner) VALUES (3, 'Reparaturen, Instandsetzung',                  'Rep.',   450999, NULL, NULL, NULL);
 INSERT INTO "prj" (clientID, Beschreibung, Kurzform, Nummer, subID, archID, Ansprechpartner) VALUES (1, 'Forschung (Dr. Karl-Storz-Straße 11)',         'DKS-11', 252000, NULL, NULL, NULL);
 
-INSERT INTO "runtime" (workerID, Wochensumme, Monatssumme, Jahressumme, Ueberstunden, Vorschuss, fehlID) VALUES (1, 20, 60, 700, 3.3, 0 , 1);
-INSERT INTO "runtime" (workerID, Wochensumme, Monatssumme, Jahressumme, Ueberstunden, Vorschuss, fehlID) VALUES (2, 25, 65, 705, 6.3, 300 , 1);
-INSERT INTO "runtime" (workerID, Wochensumme, Monatssumme, Jahressumme, Ueberstunden, Vorschuss, fehlID) VALUES (3, 27, 67, 707, 20.3, 0 , 1);
+INSERT INTO "runtime" (workerID, Jahressumme, Monatssumme, VonBis, Ueberstunden, Vorschuss, fehlID) VALUES (1, 20, 60, 700, 3.3, 0 , 1);
+INSERT INTO "runtime" (workerID, Jahressumme, Monatssumme, VonBis, Ueberstunden, Vorschuss, fehlID) VALUES (2, 25, 65, 705, 6.3, 300 , 1);
+INSERT INTO "runtime" (workerID, Jahressumme, Monatssumme, VonBis, Ueberstunden, Vorschuss, fehlID) VALUES (3, 27, 67, 707, 20.3, 0 , 1);
 
 INSERT INTO "worktime" (dat, workerID, prjID, hours) VALUES ('2015-07-02',  8,  5, 5.5);
 INSERT INTO "worktime" (dat, workerID, prjID, hours) VALUES ('2015-04-16',  9,  5, 5.5);

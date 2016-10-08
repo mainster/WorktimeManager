@@ -46,7 +46,21 @@ public:
 private:
 	MdTabView *m_worktimeTv, *m_runtimeTv;
 	QList<QString> m_workers;
+
+	/*!
+	 * The key represents the worker ID from current sql query records.
+	 */
 	QMap<int, SfiltMdl *> workerProxyMdls;
+
+	typedef struct {
+		qreal weekly, monthly, yearly, inRange;
+	} WorktimeSum_t;
+
+	/*!
+	 * The index must match the current worker ID.
+	 */
+	QMap<int, WorktimeSum_t> worktimeSums;
+
 	QList<MdTableInfo::TableInfo_column_t> worktimeColumnInfos;
 	QList<MdTableInfo::TableInfo_column_t> runtimeColumnInfos;
 

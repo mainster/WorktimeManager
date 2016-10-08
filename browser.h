@@ -45,6 +45,7 @@
 #include <QtSql>
 #include <QtWidgets>
 #include <QWidget>
+#include <QClipboard>
 
 #include "dbconndlg.h"
 #include "globals.h"
@@ -255,8 +256,9 @@ public slots:
 	void selectAndSetRowColor();
 	void selectAndSetGridColor();
 	void resetColumnConfig();
-
 	void reselectModels();
+	void loadClipboard(const QString &buff);
+
 protected:
 	void createUi(QWidget *passParent = 0);
 	void createActions();
@@ -289,6 +291,8 @@ private:
 	RuntimeTable		*runtimeTable;
 	QActionGroup		*actGrTvSelectBy, *actGrTvCount;
 	QAction				*actSelByNone, *actSelByGrBx, *actSelByVPort, *actSelByBoth;
+	QClipboard			*clipboard;
+
 	int m_stateCounter;
 };
 
