@@ -16,6 +16,7 @@ FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTbls, QWidge
 	sourceView = ui->sourceView;
 	sourceGB = ui->sourceGB;
 	filtCaseSensCB = ui->filtCaseSensCB;
+
 	filtPattLE = ui->filtPattLE;
 	filterPatternLabel = new QLabel(tr("&Filter pattern:"));
 	filterPatternLabel->setBuddy(filtPattLE);
@@ -26,18 +27,15 @@ FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTbls, QWidge
 	filtSyntaxCB->addItem(tr("Fixed string"), QRegExp::FixedString);
 
 	fromDateEdit = ui->fromDateEdit;
-	fromDateEdit->setDate( QDate::currentDate().addYears(-2));
 	fromDateEdit->setDisplayFormat("dd.MM.yyyy");
 	fromLabel = new QLabel(tr("F&rom:"));
 	fromLabel->setBuddy(fromDateEdit);
 
 	toDateEdit = ui->toDateEdit;
-	toDateEdit->setDate( QDate::currentDate().addYears(2));
 	toDateEdit->setDisplayFormat("dd.MM.yyyy");
 	toLabel = new QLabel(tr("&To:"));
 	toLabel->setBuddy(toDateEdit);
 	proxyGB = ui->proxyGB;
-
 	proxyView = ui->proxyView;
 
 	//!< Model instances
@@ -78,10 +76,30 @@ FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTbls, QWidge
 		connect (tbl, &MdTable::selectedChanged, this, &FilterForm::onSelectedTableChange);
 
 	installEventFilter(this);
+	QTimer::singleShot(10, this, &FilterForm::restoreWidgetStates);
 }
-
 FilterForm::~FilterForm() {
+	QSETTINGS;
+	config.setValue(objectName() + Md::k.windowGeometry, saveGeometry());
 	delete ui;
+}
+void FilterForm::restoreWidgetStates() {
+	QSETTINGS;
+	INFO << objectName() + Md::k.filtSyntaxCB;
+	INFO << config.value(objectName() + Md::k.filtSyntaxCB, 0).toInt();
+	INFO << config.value(objectName() + Md::k.minDateEdit, QDate::currentDate()).toDate();
+	INFO << config.value(objectName() + Md::k.maxDateEdit, QDate::currentDate()).toDate();
+	INFO << config.value(objectName() + Md::k.filtCaseSensCB, false).toBool();
+
+	filtSyntaxCB->setCurrentIndex(config.value(objectName() + Md::k.filtSyntaxCB, 0).toInt());
+	fromDateEdit->setDate(config.value(objectName() + Md::k.minDateEdit,
+												  QDate::currentDate().addYears(-2)).toDate());
+	toDateEdit->setDate(config.value(objectName() + Md::k.maxDateEdit,
+												  QDate::currentDate().addYears(2)).toDate());
+	filtCaseSensCB->setChecked(config.value(objectName() + Md::k.filtCaseSensCB, false).toBool());
+
+	if (config.value(objectName() + Md::k.windowGeometry).isValid())
+		restoreGeometry(config.value(objectName() + Md::k.windowGeometry).toByteArray());
 }
 void FilterForm::setSourceTable(MdTable *tbl) {
 	if (sourceTableType() == SourceTableType::useWorktimeSource)
@@ -92,6 +110,10 @@ void FilterForm::setSourceTable(MdTable *tbl) {
 	if (mTbl != tbl) {
 		mTbl = tbl;
 		sourceView->setModel(mTbl->tv()->model());
+
+		while (sourceView->model()->canFetchMore(QModelIndex()))
+			sourceView->model()->fetchMore(QModelIndex());
+
 		/*!
 		 * Clear models header QMap
 		 */
@@ -106,13 +128,18 @@ void FilterForm::setSourceTable(MdTable *tbl) {
 	}
 }
 void FilterForm::textFilterChanged() {
+	QSETTINGS;
 	QRegExp::PatternSyntax syntax =
 			QRegExp::PatternSyntax(filtSyntaxCB->itemData(
 											  filtSyntaxCB->currentIndex()).toInt());
+	config.setValue(objectName() + Md::k.filtSyntaxCB,
+						 filtSyntaxCB->itemData(filtSyntaxCB->currentIndex()).toInt());
+
 	Qt::CaseSensitivity caseSensitivity =
 			filtCaseSensCB->isChecked()
 			? Qt::CaseSensitive
 			: Qt::CaseInsensitive;
+	config.setValue(objectName() + Md::k.filtCaseSensCB, caseSensitivity);
 
 	QRegExp regExp(filtPattLE->text(), caseSensitivity, syntax);
 	proxyModel->setFilterRegExp(regExp);
@@ -127,13 +154,19 @@ void FilterForm::onProxyRowCountChanged(const uint oldCount, const uint newCount
 	proxyGB->setTitle(PROXY_GROUPBOX_TITLE_PREFIX.arg(newCount));
 }
 void FilterForm::cbTextFilterChanged() {
+	QSETTINGS;
 	QRegExp::PatternSyntax syntax =
 			QRegExp::PatternSyntax(filtSyntaxCB->itemData(
 											  filtSyntaxCB->currentIndex()).toInt());
+	config.setValue(objectName() + Md::k.filtSyntaxCB,
+						 filtSyntaxCB->itemData(filtSyntaxCB->currentIndex()).toInt());
+
 	Qt::CaseSensitivity caseSensitivity =
 			filtCaseSensCB->isChecked()
 			? Qt::CaseSensitive
 			: Qt::CaseInsensitive;
+	config.setValue(objectName() + Md::k.filtCaseSensCB, caseSensitivity);
+
 
 	QRegExp regExp(filtPattLE->text(), caseSensitivity, syntax);
 	proxyModel->setFilterRegExp(regExp);
@@ -141,9 +174,12 @@ void FilterForm::cbTextFilterChanged() {
 	onProxyRowCountChanged(0, proxyModel->rowCount());
 }
 void FilterForm::dateFilterChanged() {
+	QSETTINGS;
 	//    qDebug().noquote() << fromDateEdit->date().toString("MM/dd/yy");
 	proxyModel->setFilterMinimumDate(fromDateEdit->date());
 	proxyModel->setFilterMaximumDate(toDateEdit->date());
+	config.setValue(objectName() + Md::k.minDateEdit, fromDateEdit->date());
+	config.setValue(objectName() + Md::k.maxDateEdit, toDateEdit->date());
 	onProxyRowCountChanged(0, proxyModel->rowCount());
 }
 void FilterForm::onSelectedTableChange(bool selected) {

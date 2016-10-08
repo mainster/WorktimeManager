@@ -24,7 +24,7 @@ void DateTimeRangeMask::onResult(QNetworkReply* reply)
 
 		holidays.insert(QDate::fromString(s.split(':').at(1),
 													 "yyyy-MM-dd"), s.split(':').at(0));
-		INFO << tr("At") << holidays.lastKey() << tr("it's:") << holidays.last();
+//		INFO << tr("At") << holidays.lastKey() << tr("it's:") << holidays.last();
 	}
 }
 

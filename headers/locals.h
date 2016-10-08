@@ -29,7 +29,11 @@ public:
 		WindowState,
 		allTabableWidgets,
 		maxHourlyWage,
-		sqlDbFilePath;
+		sqlDbFilePath,
+		minDateEdit,
+		maxDateEdit,
+		filtCaseSensCB,
+		filtSyntaxCB;
 	} k;
 
 	static QString unAliasTableName(const QString maybeAliasedTable) {

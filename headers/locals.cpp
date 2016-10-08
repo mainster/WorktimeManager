@@ -14,7 +14,11 @@ struct Md::confKeys_t Md::k {
 	QString("/WindowState"),
 	QString("/AllTabableWidgets"),
 	QString("/MaxHourlyWage"),
-	QString("/CustomDatabaseFilePath")
+	QString("/CustomDatabaseFilePath"),
+	QString("/MinDateEdit"),
+	QString("/MaxDateEdit"),
+	QString("/FiltCaseSensCheckBox"),
+	QString("/FiltSyntaxComboBox")
 };
 
 QMap<QString, QString> Md::tableAlias {

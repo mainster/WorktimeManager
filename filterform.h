@@ -75,6 +75,7 @@ protected slots:
 	void onSourceRowCountChanged(const uint oldCount, const uint newCount);
 	void onProxyRowCountChanged(const uint oldCount, const uint newCount);
 
+	void restoreWidgetStates();
 private slots:
 	void textFilterChanged();
 	void dateFilterChanged();
