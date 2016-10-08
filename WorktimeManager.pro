@@ -5,6 +5,9 @@
 #-------------------------------------------------
 
 QT       += core gui sql widgets
+QT			+= network
+QT			+= script
+
 qtHaveModule(printsupport): QT += printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -75,7 +78,8 @@ HEADERS += \
     mdplaintextedit.h \
     runtimetable.h \
     mdtableinfo.h \
-    headeralias.h
+    headeralias.h \
+    datetimerangemask.h
 
 
 SOURCES += \
@@ -112,7 +116,8 @@ SOURCES += \
     mdplaintextedit.cpp \
     runtimetable.cpp \
     mdtableinfo.cpp \
-    headeralias.cpp
+    headeralias.cpp \
+    datetimerangemask.cpp
 
 
 FORMS += \

@@ -26,9 +26,9 @@ bool RuntimeTable::recalcOvertime() {
 								"INNER JOIN worktime wkt "
 								"ON wkt.workerID = wk.workerID");
 
-	QTableView *view = new QTableView();
-	view->setModel(workerRecs);
-	view->show();
+	//	QTableView *view = new QTableView();
+	//	view->setModel(workerRecs);
+	//	view->show();
 
 	/*!
 	 * Clear old worker proxy models.
@@ -49,8 +49,11 @@ bool RuntimeTable::recalcOvertime() {
 		 * Apply column filters
 		 */
 		workerProxyMdls[workerID]->setFilterID(workerRecs->record(i).value("PersonalNr").toInt());
-		workerProxyMdls[workerID]->setFilterMinimumDate(QDate(2015,1,1));
-		workerProxyMdls[workerID]->setFilterMaximumDate(QDate(2016,1,1));
+
+		DateTimeRangeMask *dateTimeRngMsk = DateTimeRangeMask::inst();
+
+		workerProxyMdls[workerID]->setFilterMinimumDate(dateTimeRngMsk->getDeMinDate()->date());
+		workerProxyMdls[workerID]->setFilterMaximumDate(dateTimeRngMsk->getDeMaxDate()->date());
 	}
 
 	//	#define	DEBUG_FILTER_MODEL
@@ -77,6 +80,11 @@ bool RuntimeTable::recalcOvertime() {
 	columns.removeFirst();
 
 	/*!
+	 * Clear runtime table records.
+	 */
+	m_runtimeTv->clearRecords();
+
+	/*!
 	 * Iterate over each worker proxy model and sum the "hours" column.
 	 */
 	bool ok;
@@ -94,12 +102,12 @@ bool RuntimeTable::recalcOvertime() {
 
 		QSqlQuery q(DbController::db());
 		q.prepare(tr("INSERT INTO runtime (%1) "
-					 "VALUES (:ID, 0, 0, :SUM, 0, 0, 1)").arg(columns.join(", ")));
+						 "VALUES (:ID, 0, 0, :SUM, 0, 0, 1)").arg(columns.join(", ")));
 		q.bindValue(":ID", workerID);
 		q.bindValue(":SUM", hoursSum);
 		q.exec();
 
-		INFO << q.lastQuery() << q.lastInsertId();
+		//		INFO << q.lastQuery() << q.lastInsertId();
 
 		m_runtimeTv->getSqlRtm()->select();
 

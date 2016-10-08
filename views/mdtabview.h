@@ -30,6 +30,7 @@
 #include "dbcontroller.h"
 #include "models.h"
 #include "sectionmask.h"
+#include "datetimerangemask.h"
 #include "mdtableinfo.h"
 
 
@@ -64,9 +65,7 @@ public:
 	void createForeignModel(const QString &tableName);
 	QAction *getActSectionMask() const { return actSectionMask; }
 	void setActSectionMask(QAction *value) { actSectionMask = value; }
-
 	QPointer<SqlRtm> getSqlRtm() const { return sqlRtm; }
-
 	QAction *getActSubmit() const { return actSubmit; }
 
 public slots:

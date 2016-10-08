@@ -61,6 +61,7 @@ private:
 	QGroupBox	*m_gb;
 	MdTabView	*m_tv;
 	SectionMask	*mSectMsk;
+	DateTimeRangeMask *mDateTimeRngMsk;
 	QAction		*actBaseDataForm;
 	BaseDataForm *bdForm;
 	bool			m_selected;

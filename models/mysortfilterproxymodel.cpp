@@ -65,8 +65,8 @@ bool SfiltMdl::filterAcceptsRow(int srcRow, const QModelIndex &sourceParent) con
 	if (! iBesc.isValid()) s << tr("iBesc: invalid");
 	if (! iPers.isValid()) s << tr("iPers: invalid");
 
-	if (! s.isEmpty())
-		INFO << s.join(" ");
+//	if (! s.isEmpty())
+//		INFO << s.join(" ");
 
 	if (iDate.isValid() && iMita.isValid() && iBesc.isValid() && iPers.isValid())
 		return (sourceModel()->data(iMita).toString().contains(filterRegExp())	||	//< RegExp must match to field Mitarb...
@@ -84,7 +84,8 @@ bool SfiltMdl::filterAcceptsRow(int srcRow, const QModelIndex &sourceParent) con
 				  sourceModel()->data(iPers).toString().contains(filterRegExp())		||	//< ... or it must match to field Beschreibung...
 				  sourceModel()->data(iBesc).toString().contains(filterRegExp()));	//< ... or it must match to field PersonalNr...
 
-	bReturn("Bad filter accepts row call!");
+	return false;
+//	bReturn("Bad filter accepts row call!");
 }
 bool SfiltMdl::lessThan(const QModelIndex &left, const QModelIndex &right) const {
 	QVariant leftData = sourceModel()->data(left);

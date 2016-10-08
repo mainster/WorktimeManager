@@ -11,6 +11,7 @@
 #include <QList>
 #include <QTableView>
 
+
 #include "globals.h"
 #include "debug.h"
 #include "mdtabview.h"
@@ -41,6 +42,7 @@ public:
 	void setRuntimeTable(MdTabView *runtimeTable) { m_runtimeTv = runtimeTable; }
 	bool recalcOvertime();
 
+
 private:
 	MdTabView *m_worktimeTv, *m_runtimeTv;
 	QList<QString> m_workers;
@@ -50,6 +52,7 @@ private:
 
 
 	static const QString OVERTIME_TABLE_NAME;
+	QNetworkReply *m_currentReply;
 };
 
 #endif // RUNTIMETABLE_H

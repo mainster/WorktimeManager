@@ -79,7 +79,10 @@ void MdTable::onSqlTableNameChanged(const QString &sqlTableName) {
 	m_gb->setTitle(Md::tableAlias[ sqlTableName ]);
 
 	actBaseDataForm->setEnabled(true);
-
+	if (sqlTableName.contains("runtime", Qt::CaseInsensitive)) {
+		mDateTimeRngMsk = new DateTimeRangeMask(m_tv, this);
+		m_gb->layout()->addWidget(mDateTimeRngMsk);
+	}
 }
 /* ======================================================================== */
 /*                              Event handler                               */
