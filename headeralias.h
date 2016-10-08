@@ -10,15 +10,15 @@ class HeaderAlias : public QObject {
 	Q_OBJECT
 
 public:
-	HeaderAlias(QObject *parent) : QObject(parent) { }
-	HeaderAlias(HeaderAlias *others, QObject *parent) : QObject(parent) {
+	HeaderAlias(QObject *parent = 0) : QObject(parent) { }
+	HeaderAlias(const HeaderAlias *others, QObject *parent) : QObject(parent) {
 		map = others->map;
 	}
 	~HeaderAlias() { }
 
-	QMap<QString , int> map;
 
-	int operator[](const QString &key);
+//	int operator[](const QString &key);
+	QMap<QString , int> map;
 
 
 private:

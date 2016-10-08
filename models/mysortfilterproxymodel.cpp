@@ -9,9 +9,7 @@
 /* ======================================================================== */
 /*                            SfiltMdl::SfiltMdl                            */
 /* ======================================================================== */
-SfiltMdl::SfiltMdl(QObject *parent)
-	: QSortFilterProxyModel(parent) {
-}
+
 void SfiltMdl::setFilterMinimumDate(const QDate &date) {
 	m_minDate = date;
 	invalidateFilter();
@@ -30,28 +28,42 @@ void SfiltMdl::setFilterID(const int ID) {
 /*                             filterAcceptsRow                             */
 /* ======================================================================== */
 bool SfiltMdl::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const {
-	if (headIdxs.isEmpty())
+	if (mHeadIdxs->map.isEmpty())
 		bReturn("tryed to accept filter but headIdxs is empty!");
 
-	QModelIndex iDate = sourceModel()->index(sourceRow, headIdxs["Datum"], sourceParent);
-	QModelIndex iMitarb = sourceModel()->index(sourceRow, headIdxs["Mitarb"], sourceParent);
-	QModelIndex iBesch = sourceModel()->index(sourceRow, headIdxs["Beschreibung"], sourceParent);
-	QModelIndex iPN = sourceModel()->index(sourceRow, headIdxs["PersonalNr"], sourceParent);
-	QModelIndex iNr = sourceModel()->index(sourceRow, headIdxs["Nummer"], sourceParent);
+	QModelIndex iDate = sourceModel()->index(sourceRow, mHeadIdxs->map["Datum"], sourceParent);
+	QModelIndex iMitarb = sourceModel()->index(sourceRow, mHeadIdxs->map["Mitarb"], sourceParent);
+	QModelIndex iBesch = sourceModel()->index(sourceRow, mHeadIdxs->map["Beschreibung"], sourceParent);
+	QModelIndex iPN = sourceModel()->index(sourceRow, mHeadIdxs->map["PersonalNr"], sourceParent);
+	QModelIndex iNr = sourceModel()->index(sourceRow, mHeadIdxs->map["Nummer"], sourceParent);
 
-	if (headIdxs.contains("Datum") && headIdxs.contains("Mitarb") &&
-		 headIdxs.contains("Beschreibung") && headIdxs.contains("PersonalNr"))
-		return (sourceModel()->data(iMitarb).toString().contains(filterRegExp()) ||	//< RegExp must match to field Mitarb...
-				  sourceModel()->data(iPN).toString().contains(filterRegExp())  ||		//< ... or it must match to field Beschreibung...
-				  sourceModel()->data(iBesch).toString().contains(filterRegExp())) &&	//< ... or it must match to field PersonalNr...
-				dateInRange(sourceModel()->data(iDate).toDate());								//< ... but in all cases, it must be in date range.
+	if (filterID() > -1)
+		return (sourceModel()->data(iPN).toInt() == filterID()) ? true : false;
 
-	if (headIdxs.contains("Datum") && headIdxs.contains("Mitarb") &&
-		 headIdxs.contains("Beschreibung") && headIdxs.contains("PersonalNr"))
-		return (sourceModel()->data(iMitarb).toString().contains(filterRegExp()) ||	//< RegExp must match to field Mitarb...
-				  sourceModel()->data(iPN).toString().contains(filterRegExp())  ||		//< ... or it must match to field Beschreibung...
-				  sourceModel()->data(iBesch).toString().contains(filterRegExp())) &&	//< ... or it must match to field PersonalNr...
+	INFO << mHeadIdxs->map;
+	INFO << iDate.isValid() << iMitarb.isValid() << iBesch.isValid() << iPN.isValid()
+		  << iNr.isValid();
+
+
+	if (mHeadIdxs->map.contains("Datum") &&
+		 mHeadIdxs->map.contains("Mitarb") &&
+		 mHeadIdxs->map.contains("Beschreibung") &&
+		 mHeadIdxs->map.contains("PersonalNr")) {
+		INFO << filterID() << filterRegExp().pattern();
+		return (sourceModel()->data(iMitarb).toString().contains(filterRegExp())	||	//< RegExp must match to field Mitarb...
+				  sourceModel()->data(iPN).toString().contains(filterRegExp())			||	//< ... or it must match to field Beschreibung...
+				  sourceModel()->data(iBesch).toString().contains(filterRegExp()))	&&	//< ... or it must match to field PersonalNr...
 				dateInRange(sourceModel()->data(iDate).toDate());								//< ... but in all cases, it must be in date range.
+	}
+
+	return false;
+//	if (headIdxs->map.contains("Datum") && headIdxs->map.contains("Mitarb") &&
+//		 headIdxs->map.contains("Beschreibung") && headIdxs->map.contains("PersonalNr"))
+//		return (sourceModel()->data(iMitarb).toString().contains(filterRegExp()) ||	//< RegExp must match to field Mitarb...
+//				  sourceModel()->data(iPN).toString().contains(filterRegExp())  ||		//< ... or it must match to field Beschreibung...
+//				  sourceModel()->data(iBesch).toString().contains(filterRegExp())) &&	//< ... or it must match to field PersonalNr...
+//				dateInRange(sourceModel()->data(iDate).toDate());								//< ... but in all cases, it must be in date range.
+
 }
 bool SfiltMdl::lessThan(const QModelIndex &left, const QModelIndex &right) const {
 	QVariant leftData = sourceModel()->data(left);
@@ -82,6 +94,8 @@ bool SfiltMdl::dateInRange(const QDate &date) const {
 	return (!m_minDate.isValid() || date > m_minDate)
 			&& (!m_maxDate.isValid() || date < m_maxDate);
 }
+
+
 void SfiltMdl::setSourceModel(QAbstractItemModel *sourceModel) {
 	beginResetModel();
 	QSortFilterProxyModel::setSourceModel(sourceModel);
@@ -94,9 +108,9 @@ void SfiltMdl::setSourceModel(QAbstractItemModel *sourceModel) {
 	 * the condition corresponding to the date range.
 	 */
 	for (int k = 0; k < columnCount(QModelIndex()); k++)
-		headIdxs[ headerData(k, Qt::Horizontal).toString() ] = k;
+		mHeadIdxs->map[ headerData(k, Qt::Horizontal).toString() ] = k;
 
-	INFO << columnCount(QModelIndex()) << headIdxs;
+	INFO << columnCount(QModelIndex()) << mHeadIdxs;
 	//	/*!
 	//	 * Write SqlTableName to member field.
 	//	 */

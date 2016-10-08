@@ -92,8 +92,13 @@ void FilterForm::setSourceTable(MdTable *tbl) {
 	if (mTbl != tbl) {
 		mTbl = tbl;
 		sourceView->setModel(mTbl->tv()->model());
-		proxyModel->setSourceModel(mTbl->tv()->model());
+		/*!
+		 * Clear models header QMap
+		 */
+		if (proxyModel->headIdxs())
+			proxyModel->headIdxs()->map.clear();
 
+		proxyModel->setSourceModel(mTbl->tv()->model());
 		setWindowTitle(WINDOW_TITLE_PREFIX.arg(mTbl->tv()->sqlTableName()));
 		onSourceRowCountChanged(0, sourceView->model()->rowCount());
 

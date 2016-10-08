@@ -20,12 +20,13 @@ class SfiltMdl : public QSortFilterProxyModel {
 	Q_OBJECT
 
 public:
-	explicit SfiltMdl(QObject *parent = 0);
-	explicit SfiltMdl(SfiltMdl &others, QObject *parent = 0)
+	explicit SfiltMdl(QObject *parent = 0)
+		: QSortFilterProxyModel(parent), mID(-1), mHeadIdxs(new HeaderAlias()) {	}
+	explicit SfiltMdl(const SfiltMdl &others, QObject *parent = 0)
 		: QSortFilterProxyModel(parent) {
 		m_minDate = others.m_minDate;
 		m_maxDate = others.m_maxDate;
-		headIdxs = others.headIdxs;
+		mHeadIdxs = others.mHeadIdxs;
 	}
 	~SfiltMdl() { }
 
@@ -40,6 +41,12 @@ public:
 
 	virtual void setSourceModel(QAbstractItemModel *sourceModel) override;
 
+//	QPointer<HeaderAlias> headIdxs() const { return mHeadIdxs; }
+
+	QPointer<HeaderAlias> headIdxs() const {
+		return mHeadIdxs;
+	}
+
 protected:
 	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 	bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
@@ -52,7 +59,7 @@ private:
 	QList<MdTableInfo::TableInfo_column_t> mTableInfo;
 	QString mSqlTableName;
 
-	HeaderAlias headIdxs;
+	QPointer<HeaderAlias> mHeadIdxs;
 //	QMap<QString , int> headIdxs;
 
 };

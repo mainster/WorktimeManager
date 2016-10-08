@@ -68,42 +68,42 @@ bool RuntimeTable::recalcOvertime() {
 	/*!
 	 * For each employee record ...
 	 */
-	for (int i = 0; i < 2/*workerRecs->rowCount()*/; ++i) {
-		int iPN = workerRecs->record(i).indexOf("PersonalNr");
-		int PN = workerRecs->record(i).value("PersonalNr").toInt();
-		SfiltMdl *sfm = new SfiltMdl();
-		workerProxyMdls.insert( PN, sfm);
-		workerProxyMdls[ PN ]->setDynamicSortFilter(true);
-		//				workerProxyMdls[ PN ]->setSourceModel(m_worktimeTv->model());
-		//		QTableView *dummy = new QTableView();
-		//		dummy->hide();
-		//		dummy->setModel(workerRecs);
-		workerProxyMdls[ PN ]->setSourceModel(workerRecs);
+//	for (int i = 0; i < 2/*workerRecs->rowCount()*/; ++i) {
+//		int iPN = workerRecs->record(i).indexOf("PersonalNr");
+//		int PN = workerRecs->record(i).value("PersonalNr").toInt();
+//		SfiltMdl *sfm = new SfiltMdl();
+//		workerProxyMdls.insert( PN, sfm);
+//		workerProxyMdls[ PN ]->setDynamicSortFilter(true);
+//		//				workerProxyMdls[ PN ]->setSourceModel(m_worktimeTv->model());
+//		//		QTableView *dummy = new QTableView();
+//		//		dummy->hide();
+//		//		dummy->setModel(workerRecs);
+//		workerProxyMdls[ PN ]->setSourceModel(workerRecs);
 
-		/*!
-		 * Apply column filter and sort direction.
-		 */
-		workerProxyMdls[ PN ]->setFilterFixedString(QString::number( PN ));
-		workerProxyMdls[ PN ]->setFilterKeyColumn( iPN );
-		workerProxyMdls[ PN ]->sort( iPN , Qt::AscendingOrder);
+//		/*!
+//		 * Apply column filter and sort direction.
+//		 */
+//		workerProxyMdls[ PN ]->setFilterFixedString(QString::number( PN ));
+//		workerProxyMdls[ PN ]->setFilterKeyColumn( iPN );
+//		workerProxyMdls[ PN ]->sort( iPN , Qt::AscendingOrder);
 
-		INFO << workerProxyMdls[ PN ];
-		INFO << workerProxyMdls[ PN ]->filterKeyColumn();
-	}
+//		INFO << workerProxyMdls[ PN ];
+//		INFO << workerProxyMdls[ PN ]->filterKeyColumn();
+//	}
 
 #define	DEBUG_FILTER_MODEL
 #ifdef	DEBUG_FILTER_MODEL
-	foreach (SfiltMdl *proxyModel, workerProxyMdls) {
-		QTableView *sfv = new QTableView();
-		sfv->resizeColumnsToContents();
-		sfv->resizeRowsToContents();
+//	foreach (SfiltMdl *proxyModel, workerProxyMdls) {
+//		QTableView *sfv = new QTableView();
+//		sfv->resizeColumnsToContents();
+//		sfv->resizeRowsToContents();
 
-		sfv->setFixedSize(sfv->horizontalHeader()->length() + 600,
-								sfv->verticalHeader()->length() + 600);
+//		sfv->setFixedSize(sfv->horizontalHeader()->length() + 600,
+//								sfv->verticalHeader()->length() + 600);
 
-		sfv->setModel(proxyModel);
-		sfv->show();
-	}
+//		sfv->setModel(proxyModel);
+//		sfv->show();
+//	}
 #endif
 
 	for (int k = 0; k < workerProxyMdls.count(); k++) {
