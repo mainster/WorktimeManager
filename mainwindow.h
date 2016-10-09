@@ -28,6 +28,7 @@
 #include "mdnotes.h"
 #include "mdmenu.h"
 #include "textedit.h"
+#include "filterwidget.h"
 
 namespace Ui {
 class MainWindow;

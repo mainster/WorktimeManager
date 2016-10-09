@@ -79,7 +79,8 @@ HEADERS += \
     headeralias.h \
     datetimerangemask.h \
     models/sqlrtm.h \
-    models/sfiltmdl.h
+    models/sfiltmdl.h \
+    filterwidget.h
 
 
 SOURCES += \
@@ -117,7 +118,8 @@ SOURCES += \
     headeralias.cpp \
     datetimerangemask.cpp \
     models/sqlrtm.cpp \
-    models/sfiltmdl.cpp
+    models/sfiltmdl.cpp \
+    filterwidget.cpp
 
 
 FORMS += \

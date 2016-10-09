@@ -17,7 +17,6 @@
 #include "mdtabview.h"
 #include "mdtableinfo.h"
 #include "sfiltmdl.h"
-//#include "models.h"
 
 class DbController;
 
