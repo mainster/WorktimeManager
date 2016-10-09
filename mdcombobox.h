@@ -137,7 +137,8 @@ protected:
 		QObject::killTimer(e->timerId());
 	}
 	virtual void focusInEvent(QFocusEvent *e) override {
-		lineEdit()->setSelection(1,3);
+		if (isEditable())
+			lineEdit()->setSelection(1,3);
 		QObject::startTimer(0);
 		QComboBox::focusInEvent(e);
 	}

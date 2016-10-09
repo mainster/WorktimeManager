@@ -178,10 +178,10 @@ void InpFrm::onInpFormUserCommitAlt() {
 
 
 	/** Prepare query for new record */
-	query.prepare("INSERT INTO worktime (worktimID, dat, workerID, prjID, hours) "
-					  "VALUES (:worktimID, :dat, :workerID, :prjID, :hours)");
+	query.prepare("INSERT INTO worktime (dat, workerID, prjID, hours) "
+					  "VALUES (:dat, :workerID, :prjID, :hours)");
 
-	query.bindValue(":worktimID",   ++ worktimID_max);
+	//	query.bindValue(":worktimID",   -1);
 	query.bindValue(":dat",         ui->datePicker->date().toString("yyyy-MM-dd"));
 	query.bindValue(":workerID",    workerID);
 	query.bindValue(":prjID",       prjID);
@@ -199,6 +199,57 @@ void InpFrm::onInpFormUserCommitAlt() {
 	emit newWorktimeRecord();
 	INFO << query.lastQuery();
 
+}
+void InpFrm::onInpFormUserCommit() {
+	QSqlQuery query;
+	QString q;
+
+	/*!
+	  * Find workerID based on InpFrm ui selections
+	  */
+	QStringList strList = ui->cbWorker->currentData(Qt::DisplayRole).toString().split(tr(", "));
+	q = QString("SELECT workerID FROM worker WHERE Nachname = \"%1\" AND PersonalNr = %2")
+		 .arg( strList.at(0)).arg( strList.at(2) );
+	query.exec( q );
+
+	if (query.lastError().type() != QSqlError::NoError)
+		qReturn("Bad query command feedback!");
+	int workerID = query.value(0).toInt();
+
+	/*!
+	  * Find prjID based on InpFrm ui selections.
+	  */
+	strList = ui->cbPrj->currentData(Qt::DisplayRole).toString().split(tr(", "));
+	q = QString("SELECT prjID FROM prj WHERE Kurzform = \"%1\" AND Nummer = %2")
+		 .arg(strList.at(0)).arg(strList.at(1));
+	query.exec( q );
+
+	if (query.lastError().type() != QSqlError::NoError)
+		qReturn("Bad query command feedback!");
+	int prjID = query.value(0).toInt();
+
+
+	/*!
+	 * Prepare query for new record.
+	 */
+	query.clear();
+	query.prepare("INSERT INTO worktime (dat, workerID, prjID, hours) "
+					  "VALUES (:dat, :workerID, :prjID, :hours)");
+	query.bindValue(":dat",         ui->datePicker->date().toString("yyyy-MM-dd"));
+	query.bindValue(":workerID",    workerID);
+	query.bindValue(":prjID",       prjID);
+	query.bindValue(":hours",       ui->leHrs->text().toInt());
+	query.exec();
+
+	if (query.lastError().type() != QSqlError::NoError) {
+		QMessageBox::warning(this, "Fehler bei SQL Query",
+									QString("Error type:" + query.lastError().driverText() +
+											  "\nin final add-record query"));
+		return;
+	}
+
+	emit newWorktimeRecord();
+	Browser::instance()->mTabs.findByTableName(tr("worktime"))->tv()->reset();
 }
 void InpFrm::onCbIndexChanged(const int index) {
 	MdComboBox *cbSender = qobject_cast<MdComboBox *>(QObject::sender());
@@ -242,14 +293,14 @@ void InpFrm::aButtonClick(bool) {
 	if (pbSender == ui->btnSaveQuery) { /*saveSqlQueryInputText();*/ return; }
 	if (pbSender == ui->btnRestoreQuery) { /*restoreSqlQueryInputText();*/ return; }
 	if (pbSender == ui->btnSubmitQuery) {
-//		Browser::instance()->exec();
+		//		Browser::instance()->exec();
 		Browser::instance()->execCustomQuery();
 	}
 	if (pbSender == ui->btnClear) {
 		//		foreach (MdComboBox *mcbx, QList<MdComboBox*>(listCast<MdComboBox*,QComboBox*>(mSqlCbs))) {
 		//			mcbx->makePermanentView(true);
 		//		}
-
+		onInpFormUserCommit();
 
 	}
 	if (pbSender == ui->btnOk) {
@@ -294,7 +345,7 @@ QList<QWidget *> InpFrm::getTabableWidgets() {
 		if (w->objectName().contains("qt_"))
 			inpWids.removeOne(w);
 
-//	INFO << (*listObjectNames<QWidget *>(inpWids)).join("\n");
+	//	INFO << (*listObjectNames<QWidget *>(inpWids)).join("\n");
 
 	return inpWids;
 }
@@ -451,16 +502,16 @@ bool InpFrm::setFocusOrder(QList<QWidget *> targets) {
 	 */
 	for (int k = 0; k < (targets.length() - 1); k++) {
 		setTabOrder(targets.at(k), targets.at(k + 1));
-//		INFO << tr("setTabOrder([%1]").arg(k) << targets.at(k)->objectName()
-//			  << tr(",[%1]").arg(k+1) << targets.at(k+1)->objectName();
+		//		INFO << tr("setTabOrder([%1]").arg(k) << targets.at(k)->objectName()
+		//			  << tr(",[%1]").arg(k+1) << targets.at(k+1)->objectName();
 	}
 
 	/*!
 	 * Clear now tab function for all other input widgets.
 	 */
 	QList<QWidget *> noFocusWids = getTabableWidgets();
-//	INFO << *listObjectNames<QWidget *>(noFocusWids);
-//	INFO << *listObjectNames<QWidget *>(targets);
+	//	INFO << *listObjectNames<QWidget *>(noFocusWids);
+	//	INFO << *listObjectNames<QWidget *>(targets);
 
 	foreach (QWidget *w, targets)
 		noFocusWids.removeOne(w);
@@ -547,8 +598,8 @@ void InpFrm::keyPressEvent(QKeyEvent *e) {
 	e->ignore();
 }
 void InpFrm::resizeEvent(QResizeEvent *) {
-//	if (isFloating())
-//		WIN_STORE(this);
+	//	if (isFloating())
+	//		WIN_STORE(this);
 }
 /* ======================================================================== */
 /*									    Init methodes										    */
@@ -563,8 +614,8 @@ void InpFrm::initComboboxes() {
 			mSqlCbs.removeOne(cb);
 		else {
 			/*!
-				 * Install custom event filter object for SQL mapping purposes.
-				 */
+			 * Install custom event filter object for SQL mapping purposes.
+			 */
 			cb->installEventFilter( new SqlEventFilter(this) );
 		}
 	}
@@ -577,8 +628,8 @@ void InpFrm::initComboboxes() {
 			  << fieldGroup_t(tr("worker"), ui->cbWorker);
 
 	/*!
-	  * Set foreign key relations.
-	  */
+	 * Set foreign key relations.
+	 */
 	mModels[IDX_PROJECT].tableModel->setRelation(
 				mModels[IDX_PROJECT].tableModel->fieldIndex("clientID"),
 				QSqlRelation("client", "clientID", "Name"));
@@ -602,7 +653,7 @@ void InpFrm::initComboboxes() {
 		list << tr("Table: %1").arg(field.tableModel->tableName());
 		for (int k = 0; k < field.tableModel->columnCount(QModelIndex()); k++)
 			list << field.tableModel->record().fieldName(k);
-//		INFO << list;
+		//		INFO << list;
 	}
 	/*!
 	  * Select the model columns which should be transformed into string list model and

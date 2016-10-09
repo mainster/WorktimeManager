@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	filterFormWkt	= new FilterWidget(FilterWidget::useWorktimeSource,
 												 browser->mTabs.tblsNoPtr());
 
+
 	browser->connectionWidget()->refresh();
 
 	notes.toDo->hide();
@@ -41,7 +42,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	connect(browser->connectionWidget(),	&ConnectionWidget::metaDataRequested,
 			  browser,								&Browser::onConnectWdgMetaDataReq);
 	connect(browser, &Browser::someHasBeenSelected, this, &MainWindow::onSomeHasBeenSelected);
-
 
 	QVBoxLayout *vCentralLayout = new QVBoxLayout(parent);
 	QHBoxLayout *hCentralLayout = new QHBoxLayout(parent);
@@ -75,6 +75,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
 	setStatusBar( stateBar );
 	makeMenu();
+
+	QAction *actTest = new QAction(tr("test action"), this);
+	connect (actTest, &QAction::triggered, this, &MainWindow::onTestButtonClick);
+
+	menuBar()->addActions(QList<QAction *>() << actTest);
 
 	/*!
 	 * Connect the inpFrm's statusMessage signal to the statebar message slot
@@ -111,8 +116,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 MainWindow::~MainWindow() {
 	delete ui;
 }
-void MainWindow::onInpFrmButtonClick(bool ) {
-
+void MainWindow::onTestButtonClick(bool b) {
+	MdComboBox *cbt = new MdComboBox();
+	cbt->setModel(browser->mTabs.findByTableName(tr("client"))->tv()->model());
+	cbt->setEditable(true);
+	cbt->setModelColumns(QList<short>() << 0 << 1 << 2);
+	cbt->show();
 }
 void MainWindow::onResizerDlgTrig() {
 	bool ok;

@@ -107,7 +107,7 @@ protected slots:
 	void onUnderConstrTrig();
 	void onCyclic();
 	void onResizerDlgTrig();
-	void onInpFrmButtonClick(bool);
+	void onTestButtonClick(bool b);
 	bool restoreActionObjects();
 	void createActions();
 	void onActionGroupTrigd(QAction *sender);

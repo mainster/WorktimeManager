@@ -126,7 +126,10 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 }
 void Browser::exec() {
 	InpFrm *inpFrm = InpFrm::instance();
+	MdTabView *wktTv = mTabs.findByTableName(tr("worktime"), Qt::CaseInsensitive)->tv();
 
+	INFO << inpFrm->getQueryText();
+//	QSqlQuery
 	QSqlQueryModel *model = new QSqlQueryModel(mTabs.tvl1->tv());
 
 	model->setQuery(QSqlQuery(inpFrm->getQueryText(),

@@ -149,7 +149,7 @@ public:
 			 */
 			return tva;
 		}
-		MdTable *findByTableName(QString tableName,
+		MdTable *findByTableName(const QString &tableName,
 										 Qt::CaseSensitivity sensitivity = Qt::CaseInsensitive) {
 			foreach (MdTable *mdt, mTbls)
 				if (mdt->sqlTableName().contains(tableName, sensitivity))
