@@ -250,7 +250,7 @@ void MdTabView::createForeignModel(const QString &tableName) {
 	else {
 		int k;
 		for (k = 0; k < model()->columnCount(); k++) {
-			QString colHead = modelCast()->headerData(k).toString();
+			QString colHead = sqlRtmCast()->headerData(k).toString();
 
 			if (colHead.contains(tr("Name"), Qt::CaseSensitive) ||
 				 colHead.contains(tr("Nachname"), Qt::CaseSensitive) ||
@@ -372,10 +372,10 @@ void MdTabView::onUpdateWriteActions() {
 }
 void MdTabView::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx) {
 	Q_UNUSED(oldVisualIdx);
-	if (! modelCast())
+	if (! sqlRtmCast())
 		CRIT << tr("ModelCast failed");
-	modelCast()->setSectionIdx(logicalIdx, newVisualIdx);
-	modelCast()->storeModel(sqlTableName());
+	sqlRtmCast()->setSectionIdx(logicalIdx, newVisualIdx);
+	sqlRtmCast()->storeModel(sqlTableName());
 }
 /* ======================================================================== */
 /*                              Init methodes                               */
@@ -404,9 +404,9 @@ void MdTabView::restoreView() {
 }
 void MdTabView::restoreColumnOrderAndVisability() {
 	//!< Restore the models source members
-	if (! modelCast())
+	if (! sqlRtmCast())
 		CRIT << tr("ModelCast failed");
-	modelCast()->restoreModelSrcsFromIni(sqlTableName());
+	sqlRtmCast()->restoreModelSrcsFromIni(sqlTableName());
 
 	//!< restoreVisibleCols(); takes access into models column-show/hide source list
 	SectionMask *sm = new SectionMask(this, this);
@@ -414,7 +414,7 @@ void MdTabView::restoreColumnOrderAndVisability() {
 	delete sm;
 
 	//!< modelCast()->sectionIdxs(); takes the section order list from model source...
-	QList<int> sectIdxs = modelCast()->sectionIdxs();
+	QList<int> sectIdxs = sqlRtmCast()->sectionIdxs();
 
 	//!< ... and iterates over all elements so the restore process is complete
 	for (int k = 0; k < sectIdxs.length(); k++)
@@ -546,9 +546,9 @@ void MdTabView::mousePressEvent(QMouseEvent *e) {
 }
 void MdTabView::hideEvent(QHideEvent *) {
 	//	return; //@@@MDB
-	if (! modelCast())
+	if (! sqlRtmCast())
 		qReturn("ModelCast failed");
-	modelCast()->storeModel(sqlTableName());
+	sqlRtmCast()->storeModel(sqlTableName());
 }
 void MdTabView::wheelEvent (QWheelEvent * event) {
 	/*!

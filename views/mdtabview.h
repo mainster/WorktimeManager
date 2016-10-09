@@ -28,7 +28,7 @@
 #include "globals.h"
 #include "connectionwidget.h"
 #include "dbcontroller.h"
-#include "models.h"
+#include "sqlrtm.h"
 #include "sectionmask.h"
 #include "datetimerangemask.h"
 #include "mdtableinfo.h"
@@ -87,7 +87,7 @@ public slots:
 	void setColumnHidden(const int column, const bool hide);
 	void setEditTriggers(QTableView::EditTriggers triggers);
 	void storeFont(QFont font);
-	SqlRtm *modelCast() {
+	SqlRtm *sqlRtmCast() {
 		Q_ASSERT(qobject_cast<SqlRtm *>(model()));
 		return qobject_cast<SqlRtm *>(model());
 	}

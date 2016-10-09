@@ -65,8 +65,6 @@ HEADERS += \
 	 mdmenu.h \
 	 mdnotes.h \
 	 models/editablesqlmdl.h \
-	 models/models.h \
-	 models/mysortfilterproxymodel.h \
 	 mpushbutton.h \
 	 sectionmask.h \
 	 textedit/textedit.h \
@@ -79,7 +77,9 @@ HEADERS += \
     runtimetable.h \
     mdtableinfo.h \
     headeralias.h \
-    datetimerangemask.h
+    datetimerangemask.h \
+    models/sqlrtm.h \
+    models/sfiltmdl.h
 
 
 SOURCES += \
@@ -103,8 +103,6 @@ SOURCES += \
 	 mdmenu.cpp \
 	 mdnotes.cpp \
 	 models/editablesqlmdl.cpp \
-	 models/models.cpp \
-	 models/mysortfilterproxymodel.cpp \
 	 mpushbutton.cpp \
 	 sectionmask.cpp \
 	 textedit/textedit.cpp \
@@ -117,7 +115,9 @@ SOURCES += \
     runtimetable.cpp \
     mdtableinfo.cpp \
     headeralias.cpp \
-    datetimerangemask.cpp
+    datetimerangemask.cpp \
+    models/sqlrtm.cpp \
+    models/sfiltmdl.cpp
 
 
 FORMS += \

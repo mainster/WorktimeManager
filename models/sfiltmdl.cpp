@@ -1,15 +1,8 @@
-#include <QtGui>
-#include "mysortfilterproxymodel.h"
-
-//#define     ID              0
-#define     Datum           1
-#define     Mitarb          2
-#define     Beschreibung    3
+#include "sfiltmdl.h"
 
 /* ======================================================================== */
 /*                            SfiltMdl::SfiltMdl                            */
 /* ======================================================================== */
-
 void SfiltMdl::setFilterMinDate(const QDate &date) {
 	m_minDate = date;
 	invalidateFilter();
@@ -116,8 +109,6 @@ bool SfiltMdl::dateInRange(const QDate &date) const {
 	return (!m_minDate.isValid() || date > m_minDate)
 			&& (!m_maxDate.isValid() || date < m_maxDate);
 }
-
-
 void SfiltMdl::setSourceModel(QAbstractItemModel *sourceModel) {
 	beginResetModel();
 	QSortFilterProxyModel::setSourceModel(sourceModel);
@@ -156,47 +147,3 @@ void SfiltMdl::setSourceModel(QAbstractItemModel *sourceModel) {
 	//	TOC;
 }
 
-
-///* ======================================================================== */
-///*                            SortFilterProxyModel                          */
-///* ======================================================================== */
-//void SortFilterProxyModel::setFilterKeyColumns(const QList<qint32> &filterColumns) {
-//	m_columnPatterns.clear();
-
-//	foreach(qint32 column, filterColumns)
-//		m_columnPatterns.insert(column, QString());
-//}
-//void SortFilterProxyModel::addFilterFixedString(qint32 column, const QString &pattern) {
-//	if(!m_columnPatterns.contains(column))
-//		return;
-
-//	m_columnPatterns[column] = pattern;
-//}
-//bool SortFilterProxyModel::filterAcceptsRow(int sourceRow,
-//														  const QModelIndex &sourceParent) const {
-//	if(m_columnPatterns.isEmpty())
-//		return true;
-
-//	bool ret = false;
-
-//	for(QMap<qint32, QString>::const_iterator iter = m_columnPatterns.constBegin();
-//		 iter != m_columnPatterns.constEnd(); ++iter) {
-//		QModelIndex index = sourceModel()->index(sourceRow, iter.key(), sourceParent);
-//		ret = (index.data().toString() == iter.value());
-
-//		if(!ret)		return ret;
-//	}
-//	return ret;
-//}
-
-#include "moc_mysortfilterproxymodel.cpp"
-
-
-
-////#define DEBUG_ACCEPT_ROW
-//#ifdef DEBUG_ACCEPT_ROW
-//	INFO << tr("iMitarb:") << sourceModel()->data(iMitarb).toString().contains(filterRegExp())
-//		  << tr("|| iPN:") << sourceModel()->data(iPN).toString().contains(filterRegExp())
-//		  << tr("|| iBesch:") << sourceModel()->data(iBesch).toString().contains(filterRegExp())
-//		  << tr("&& iDate:") << dateInRange(sourceModel()->data(iDate).toDate());
-//#endif

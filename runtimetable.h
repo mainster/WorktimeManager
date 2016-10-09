@@ -15,9 +15,9 @@
 #include "globals.h"
 #include "debug.h"
 #include "mdtabview.h"
-#include "mysortfilterproxymodel.h"
 #include "mdtableinfo.h"
-#include "models.h"
+#include "sfiltmdl.h"
+//#include "models.h"
 
 class DbController;
 

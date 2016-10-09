@@ -9,8 +9,9 @@
 #include <QDebug>
 #include <QTableView>
 #include <QObject>
-#include "models.h"
+//#include "models.h"
 #include "globals.h"
+#include "sqlrtm.h"
 
 
 class SectionMask : public QWidget {

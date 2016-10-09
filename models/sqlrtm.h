@@ -1,22 +1,28 @@
-#ifndef MODELS_H
-#define MODELS_H
+#ifndef SQLRTM_H
+#define SQLRTM_H
 
-#include <QtCore>
-#include <QtWidgets>
+#include <QObject>
+#include <QWidget>
 #include <QSqlRelationalTableModel>
+#include <QAbstractItemModel>
+#include <QAbstractTableModel>
+#include <QtCore>
 
+#include "debug.h"
 #include "globals.h"
 #include "types.h"
-
-//#define WITH_NONE_ENTRY
 
 /*!
  \brief Class declaration of an relational custom table model used as delegate.
  \class SqlRtm browser.h "browser.h"
 */
+/* ======================================================================== */
+/*                        SQL relational table model                        */
+/* ======================================================================== */
 class SqlRtm: public QSqlRelationalTableModel {
 
 	Q_OBJECT
+
 	Q_PROPERTY(QList<bool> visibleCols READ visibleCols WRITE setVisibleCols NOTIFY visibleColsChanged)
 	Q_PROPERTY(QList<int> sectionIdxs READ sectionIdxs WRITE setSectionIdxs NOTIFY sectionIdxsChanged)
 	Q_PROPERTY(QList<int> centerCols READ centerCols WRITE setCenterCols NOTIFY centerColsChanged)
@@ -152,7 +158,6 @@ public:
 		mVisibleCols.clear();
 		mSectionIdxs.clear();
 	}
-
 	void submitAll() {
 		QSqlRelationalTableModel::submitAll();
 		emit recordChanged();
@@ -175,71 +180,4 @@ private:
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(SqlRtm::MdlSrcs)
 Q_DECLARE_METATYPE(SqlRtm::MdlSrc)
-
-//< Deprecated
-//< Deprecated
-//< Deprecated
-/*!
- \brief An alternative to subclussing QItemDelegate is to subclass the model
- and override data() method.
-
- \class CustomMdl browser.h "browser.h"
-*/
-class SqlTm: public QSqlTableModel{
-	Q_OBJECT
-
-public:
-
-	QVector<int> getCCol() const;
-	void setCCol(const QVector<int> &value);
-
-	/*!
-	 \brief Constructor of custom table model inherited from QSqlTableModel.
-	 Subclassing only a table model and override some base methods to prevent
-	 subclassing a complete delegate.
-
-	 \param parent
-	 \param db
-	*/
-	explicit SqlTm (QObject *parent = 0,
-						 QSqlDatabase db = QSqlDatabase())
-		: QSqlTableModel(parent, db) { }
-
-	/*!
-	\brief This methode overrides data() methode from its base class
-	QSqlTableModel. Text alignment could be controlled by this extended methode.
-
-	 \param idx
-	 \param role
-	 \return QVariant
-	*/
-	QVariant data(const QModelIndex& idx, int role) const Q_DECL_OVERRIDE {
-
-		Qt::ItemDataRole idr = static_cast<Qt::ItemDataRole>(role);
-
-		if ( idr == Qt::TextAlignmentRole ) {
-			return QVariant( Qt::AlignCenter | Qt::AlignVCenter );
-		}
-
-		/**
-		 * The extension is the ability to return a QBrush object rather then
-		 * pure data handeling.
-		 */
-		if (idr == Qt::BackgroundRole && isDirty(idx)) {
-			return QBrush(QColor(Qt::yellow));
-		}
-
-		return QSqlTableModel::data(idx, role);
-	}
-
-private:
-	/**
-	 * Hold a list of columns which shold be center aligned
-	 */
-	QVector<int> cCol;
-
-};
-
-
-
-#endif // MODELS_H
+#endif // SQLRTM_H

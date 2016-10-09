@@ -12,7 +12,7 @@
 
 #include "globals.h"
 #include "mdtabview.h"
-#include "models.h"
+//#include "models.h"
 #include "nulldelegate.h"
 #include "mdsplashscreen.h"
 #include "mdplaintextedit.h"

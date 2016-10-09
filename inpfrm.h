@@ -12,7 +12,7 @@
 #include "mdeventfilters.h"
 #include "types.h"
 #include "mdcombobox.h"
-#include "mysortfilterproxymodel.h"
+//#include "models.h"
 #include "browser.h"
 #include "qpair.h"
 

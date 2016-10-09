@@ -700,13 +700,13 @@ void Browser::resetColumnConfig() {
 	if (mTabs.hasSelected()) {
 		mTabs.currentSelected()->tv()->resetColumnsDefaultPos(true);
 		mTabs.currentSelected()->tv()->removeColumnsConfig();
-		mTabs.currentSelected()->tv()->modelCast()->resetModelSrcs();
+		mTabs.currentSelected()->tv()->sqlRtmCast()->resetModelSrcs();
 	}
 	else {
 		foreach (MdTabView *tv, mTabs.tvsNoPtr()) {
 			tv->resetColumnsDefaultPos(true);
 			tv->removeColumnsConfig();
-			tv->modelCast()->resetModelSrcs();
+			tv->sqlRtmCast()->resetModelSrcs();
 		}
 	}
 }

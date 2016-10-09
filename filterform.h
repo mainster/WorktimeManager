@@ -8,7 +8,7 @@
 #include <QtEvents>
 #include <QTableView>
 
-#include "mysortfilterproxymodel.h"
+#include "sfiltmdl.h"
 #include "globals.h"
 #include "mdtable.h"
 #include "mdtabview.h"

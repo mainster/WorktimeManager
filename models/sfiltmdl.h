@@ -1,19 +1,27 @@
-#ifndef MYSORTFILTERPROXYMODEL_H
-#define MYSORTFILTERPROXYMODEL_H
+#ifndef SFILTMDL_H
+#define SFILTMDL_H
 
+
+#include <QObject>
+#include <QtWidgets>
 #include <QSortFilterProxyModel>
 #include <QAbstractItemModel>
 #include <QAbstractTableModel>
-#include <QDate>
+#include <QtCore>
 
-#include "mdtableinfo.h"
-#include "mdtabview.h"
-#include "debug.h"
 #include "dbcontroller.h"
+#include "debug.h"
+#include "globals.h"
 #include "headeralias.h"
+#include "sfiltmdl.h"
+#include "mdtableinfo.h"
+//#include "mdtabview.h"
+#include "types.h"
+
+
 
 /* ======================================================================== */
-/*                                  SfiltMdl                                */
+/*                         Sort filter proxy model                          */
 /* ======================================================================== */
 class SfiltMdl : public QSortFilterProxyModel {
 
@@ -61,26 +69,5 @@ private:
 //	QMap<QString , int> headIdxs;
 
 };
-
-/* ======================================================================== */
-/*                            SortFilterProxyModel                          */
-/* ======================================================================== */
-//class SortFilterProxyModel : public QSortFilterProxyModel {
-
-//	Q_OBJECT
-
-//public:
-//	explicit SortFilterProxyModel(QObject *parent = 0)
-//		: QSortFilterProxyModel(parent) {}
-
-//	void setFilterKeyColumns(const QList<qint32> &filterColumns);
-//	void addFilterFixedString(qint32 column, const QString &pattern);
-
-//protected:
-//	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
-
-//private:
-//	QMap<qint32, QString> m_columnPatterns;
-//};
 
 #endif
