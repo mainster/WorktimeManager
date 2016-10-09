@@ -250,9 +250,31 @@ void Browser::customMenuRequested(QPoint pos) {
 	menu->addAction(new QAction("Action 3", this));
 	menu->popup(mTabs.tblsNoPtr().first()->tv()->viewport()->mapToGlobal(pos));
 }
-void Browser::autofitRowCol() {
-	foreach (MdTabView *tvc, mTabs.tvsNoPtr())
-		tvc->resizeRowsColsToContents();
+void Browser::autofitRowCol(bool searchChildren) {
+	//	if (! searchChildren) {
+	//		foreach (MdTabView *tvc, mTabs.tvsNoPtr())
+	//			tvc->resizeRowsColsToContents();
+	//		return;
+	//	}
+	//	INFO << listCast<MdTabView *>(qApp->topLevelWidgets());
+
+	foreach (QObject *o, listCast<QObject *>(qApp->topLevelWidgets()))
+		if (o->inherits("MdTable") ||
+			 o->inherits("MdTabView") ||
+			 o->inherits("QMainWindow")) {
+			if (o->inherits("MdTable"))
+				qobject_cast<MdTable *>(o)->tv()->resizeRowsColsToContents();
+
+			if (o->inherits("MdTabView"))
+				qobject_cast<MdTabView *>(o)->resizeRowsColsToContents();
+
+			if (o->inherits("QMainWindow")) {
+				foreach (MdTabView *tv, o->findChildren<MdTabView *>())
+					tv->resizeRowsColsToContents();
+			}
+		}
+//	INFO << listCast<MdTabView *>(qApp->topLevelWidgets());
+	//		tvc->resizeRowsColsToContents();
 }
 void Browser::onCyclic() {
 
@@ -262,7 +284,7 @@ void Browser::onTvSelectorChanged() {
 	/*! Notify signal via proberty class */
 	INFO << tr("m_tvSelector:") << tvSelector();
 	/**** Safe all action states from Browser
-	\*/
+			  \*/
 	//	Globals::ACTION_STORE(this);
 }
 void Browser::onActGroupTrigd(QAction *sender) {
@@ -273,11 +295,11 @@ void Browser::onActGroupTrigd(QAction *sender) {
 }
 void Browser::onTvViewPortMouseClicked(MdTabView *sender) {
 	/*!
-	 * tvSelector() returns the property which determines the valid sender objects.
-	 * This could be none, QTableView::viewport(), QGroupBox or both.
-	 * If obj->parent() obj could be casted to a QTableView, then the sender object obj
-	 * was a viewPort instance.
-	 */
+				* tvSelector() returns the property which determines the valid sender objects.
+				* This could be none, QTableView::viewport(), QGroupBox or both.
+				* If obj->parent() obj could be casted to a QTableView, then the sender object obj
+				* was a viewPort instance.
+				*/
 	if ((tvSelector() != selectByViewPort) &&
 		 (tvSelector() != selectByBoth))	return;
 
@@ -288,9 +310,9 @@ void Browser::onTvViewPortMouseClicked(MdTabView *sender) {
 		qReturn("qobject_cast<MdTable *>(sender->parentWidget()) failed");
 
 	/*!
-	 * If the casted MdTable instance is currently NOT selected, emit the clearSelect
-	 * signal and invoke tv->setSelected();
-	 */
+				* If the casted MdTable instance is currently NOT selected, emit the clearSelect
+				* signal and invoke tv->setSelected();
+				*/
 	if (! senderTbl->isSelected()) {
 		emit clearSelections();
 		senderTbl->setSelected();
@@ -299,18 +321,18 @@ void Browser::onTvViewPortMouseClicked(MdTabView *sender) {
 }
 void Browser::onTblGbMouseClicked(MdTable *sender) {
 	/*!
-	 * tvSelector() returns the property which determines the valid sender objects.
-	 * This could be none, QTableView::viewport(), QGroupBox or both.
-	 * If obj->parent() obj could be casted to a QTableView, then the sender object obj
-	 * was a viewPort instance.
-	 */
+				* tvSelector() returns the property which determines the valid sender objects.
+				* This could be none, QTableView::viewport(), QGroupBox or both.
+				* If obj->parent() obj could be casted to a QTableView, then the sender object obj
+				* was a viewPort instance.
+				*/
 	if ((tvSelector() != selectByGroupBox) &&
 		 (tvSelector() != selectByBoth))	return;
 
 	/*!
-	 * If the casted MdTable instance is currently NOT selected, emit the clearSelect
-	 * signal and invoke tv->setSelected();
-	 */
+				* If the casted MdTable instance is currently NOT selected, emit the clearSelect
+				* signal and invoke tv->setSelected();
+				*/
 	if (! sender->isSelected()) {
 		emit clearSelections();
 		sender->setSelected();
@@ -321,25 +343,25 @@ void Browser::onActCalcRuntime() {
 	runtimeTable->recalcOvertime();
 }
 /*void Browser::onSourceTableChanged(FilterForm::SourceTableType sourceTable) {
-	if (sourceTable == FilterForm::useWorktime) {
-		foreach (MdTable *tv, mTabs.tvsNoPtr()) {
-			//			INFO << tv->tv()->objectName() << tv->grBox()->title();
-			if (tv->objectName().contains(tr("worktime")))
-				FilterForm::instance()->setSourceTable(tv);
-		}
-	}
-	if (sourceTable == FilterForm::useSelectedSource) {
-		FilterForm::instance()->setSourceTable(mTabs.currentSelected());
-	}
+			  if (sourceTable == FilterForm::useWorktime) {
+				  foreach (MdTable *tv, mTabs.tvsNoPtr()) {
+					  //			INFO << tv->tv()->objectName() << tv->grBox()->title();
+					  if (tv->objectName().contains(tr("worktime")))
+						  FilterForm::instance()->setSourceTable(tv);
+				  }
+			  }
+			  if (sourceTable == FilterForm::useSelectedSource) {
+				  FilterForm::instance()->setSourceTable(mTabs.currentSelected());
+			  }
 
-}*/
+		  }*/
 /* ======================================================================== */
 /*                              Event handler                               */
 /* ======================================================================== */
 bool Browser::eventFilter(QObject *obj, QEvent *e) {
 	/**
-	  * standard event processing
-	  */
+				 * standard event processing
+				 */
 	return QObject::eventFilter(obj, e);
 }
 void Browser::showEvent(QShowEvent *) {
@@ -359,11 +381,11 @@ void Browser::closeEvent(QCloseEvent *) {
 #endif
 
 	/**** Write splitter sizes to config
-	\*/
+			  \*/
 	SPLT_STORE(this);
 
 	/**** Write mdTable <-> SQL table relations
-	  \*/
+				 \*/
 	foreach (MdTable *tbl, mTabs.tblsNoPtr()) {
 		config.setValue(objectName() + "/" + tbl->tv()->objectName(),
 							 /*tv->grBox()->title()*/ tbl->sqlTableName());
@@ -373,7 +395,7 @@ void Browser::closeEvent(QCloseEvent *) {
 	}
 
 	/**** Safe all action states from Browser
-	\*/
+			  \*/
 	//	ACTION_STORE(this, tr("act*"));
 }
 /* ======================================================================== */
@@ -384,11 +406,11 @@ bool Browser::restoreUi() {
 	QSETTINGS;
 
 	/**** Restore splitter sizes to config
-	\*/
+			  \*/
 	SPLT_RESTORE(this);
 
 	/**** Restore mdTable <-> SQL table assignements, but only if valid keys are stored
-	 \*/
+				\*/
 	foreach (MdTabView *tv, mTabs.tvsNoPtr()) {
 		if (! config.allKeys().join(',').contains( tv->objectName() ))
 			continue;
@@ -399,7 +421,7 @@ bool Browser::restoreUi() {
 	}
 
 	/**** Restore all action states from Browser
-	\*/
+			  \*/
 	restoreActionObjects();
 
 	if ((mTabs.findByTableName(tr("worktime")) != NULL) &&
@@ -411,7 +433,7 @@ bool Browser::restoreUi() {
 		bReturn("No runtime- or worktime table found byTableName!");
 
 	/**** Restore table font configs
-	\*/
+			  \*/
 	//	INFO << mTabs.tva->tv()->confTableFont();
 	//	INFO << mTabs.tva->tv()->confTableFont();
 	return ret;
@@ -480,8 +502,8 @@ MdMenu *Browser::menuBarElement() {
 }
 void Browser::createUi(QWidget *passParent) {
 	/*!
-	 * Build UI.
-	 */
+				* Build UI.
+				*/
 
 	grLay = new QGridLayout(passParent);
 	mConnectionWidget = new ConnectionWidget(passParent);
@@ -569,8 +591,8 @@ bool Browser::restoreActionObjects () {
 	QSETTINGS;
 
 	/*!
-	 * This restore loop handles only QAction objects which are kind of QActionGroup.
-	 */
+				* This restore loop handles only QAction objects which are kind of QActionGroup.
+				*/
 	QList<QActionGroup *> actGroups = findChildren<QActionGroup *>();
 
 	foreach (QActionGroup *actGrp, actGroups) {
@@ -598,8 +620,8 @@ bool Browser::restoreActionObjects () {
 	}
 
 	/*!
-	 * Create list of ungrouped QAction objects.
-	 */
+				* Create list of ungrouped QAction objects.
+				*/
 	QList<QAction *> ungroupedActs;
 	foreach (QAction * a, findChildren<QAction *>(QRegularExpression("act*")))
 		if (! a->actionGroup())
@@ -619,8 +641,8 @@ void Browser::storeActionState(QAction *sender) {
 
 	if (sender->isCheckable()) {
 		/*!
-		 * If action group is exclusive, clear all action config flags.
-		 */
+					* If action group is exclusive, clear all action config flags.
+					*/
 		if (sender->actionGroup()->isExclusive())
 			foreach(QAction *act, sender->actionGroup()->actions())
 				config.setValue(objectName() + tr("/") + act->objectName(), false);
@@ -635,8 +657,8 @@ void Browser::selectAndSetFont() {
 					QFontDialog::getFont(&ok, mTabs.currentSelected()->tv()->font(), this));
 	else {
 		/*!
-		 * If no tv is selected, configure all tvs.
-		 */
+					* If no tv is selected, configure all tvs.
+					*/
 		QFont f = QFontDialog::getFont(&ok, QFont("Helvetica [Cronyx]", 10), this);
 		foreach (MdTabView *tv, mTabs.tvsNoPtr())
 			tv->storeFont(f);

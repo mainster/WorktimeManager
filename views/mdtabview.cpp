@@ -24,8 +24,8 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 			createForeignModel(tableName);
 			setSqlTableName(tableName);
 		}
-		else
-			WARN << tr("No valid table name passed");
+//		else
+//			WARN << tr("No valid table name passed");
 	}
 
 	/*!
@@ -249,7 +249,6 @@ void MdTabView::createForeignModel(const QString &tableName) {
 	 * Set the model to this's base class and hide the ID column.
 	 */
 	setModel(sqlRtm);
-	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setEditTriggers( QAbstractItemView::DoubleClicked |
 						  QAbstractItemView::EditKeyPressed );
 
@@ -360,27 +359,26 @@ void MdTabView::onActGrStrategyTrigd(QAction *sender) {
 		rtm->setEditStrategy(QSqlTableModel::OnManualSubmit);
 }
 void MdTabView::onActGrContextTrigd(QAction *sender) {
-//	if (! static_cast<SqlRtm *>(model()))
-//		return;
-	if (mModelType != MdTabView::Model_SqlRtm)
-		return;
-
 	if ((sender != actSubmit) && (sender != actRevert) &&
 		 (sender != actSelect) && (sender != actInsertRow) &&
 		 (sender != actDeleteRow) && (sender != actCopy) &&
 		 (sender != actPaste) && (sender != actSumSelection))
 		qReturn("Bad sender detected!");
 
-	SqlRtm *rtm = sqlRtmCast();
-
-	if (sender == actSubmit)		rtm->submitAll();
-	if (sender == actRevert)		rtm->revertAll();
-	if (sender == actSelect)		rtm->select();
 	if (sender == actInsertRow)	insertRow();
 	if (sender == actDeleteRow)	deleteRow();
 	if (sender == actCopy)			copy();
 	if (sender == actPaste)			paste();
 	if (sender == actSumSelection)	sumSelection();
+
+	if (mModelType != MdTabView::Model_SqlRtm)
+		return;
+
+	SqlRtm *rtm = sqlRtmCast();
+
+	if (sender == actSubmit)		rtm->submitAll();
+	if (sender == actRevert)		rtm->revertAll();
+	if (sender == actSelect)		rtm->select();
 }
 void MdTabView::onUpdateWriteActions() {
 	/*!
@@ -505,8 +503,8 @@ QList<QAction *> MdTabView::createActions() {
 	actPaste->setShortcut(QKeySequence("Ctrl+V"));
 	actSumSelection->setShortcut(QKeySequence("Ctrl+Shift+s"));
 	actCopy->setShortcutContext(Qt::WidgetShortcut);
-	actPaste->setShortcutContext(Qt::WindowShortcut);
-	actSumSelection->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+	actPaste->setShortcutContext(Qt::WidgetShortcut);
+	actSumSelection->setShortcutContext(Qt::WidgetShortcut);
 
 	foreach (QAction *act, acts2)
 		actGrContext->addAction(act);
@@ -561,15 +559,19 @@ void MdTabView::mousePressEvent(QMouseEvent *e) {
 	 * Event handler for single mouse button press events inside QTableView
 	 * viewport area.
 	 */
-	Qt::KeyboardModifiers keyboardModifiers = QApplication::queryKeyboardModifiers();
+	Qt::KeyboardModifiers keyboardModifiers =
+			QApplication::queryKeyboardModifiers();
 
-	if (keyboardModifiers != Qt::ControlModifier) {
+	if (keyboardModifiers != Qt::ControlModifier)
 		emit viewportMouseButtonPress(this);
-		e->ignore();
-		QTableView::mousePressEvent(e);
-	}
-	else
-		e->accept();
+
+	/*!
+	 * Should be ignored since we only want to inform some instances about the viewport
+	 * mouse click. Also we need the ControlModifier event to be passed to superclass
+	 * when the QTableView::selectionMode() "Extended" is in use!
+	 */
+	e->ignore();
+	QTableView::mousePressEvent(e);
 }
 void MdTabView::hideEvent(QHideEvent *) {
 	if (mModelType == MdTabView::Model_SqlRtm)
@@ -583,7 +585,8 @@ void MdTabView::wheelEvent (QWheelEvent * event) {
 	/*!
 	 * query current keyboard modifiers
 	 */
-	Qt::KeyboardModifiers keyboardModifiers = QApplication::queryKeyboardModifiers();
+	Qt::KeyboardModifiers keyboardModifiers =
+			QApplication::queryKeyboardModifiers();
 	int dsize = event->delta() / abs(event->delta());     /**< Delta size */
 
 	if(keyboardModifiers == Qt::ShiftModifier) {

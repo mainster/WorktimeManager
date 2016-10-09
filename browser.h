@@ -243,7 +243,7 @@ public slots:
 	void onConnectWdgMetaDataReq(const QString &table);
 	MdMenu *menuBarElement();
 	QStandardItemModel *tblToMetaDataMdl(const QString &table);
-	void autofitRowCol();
+	void autofitRowCol(bool searchChildren = false);
 	void customMenuRequested(QPoint pos);
 	void exec();
 	void execCustomQuery();

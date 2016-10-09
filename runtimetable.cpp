@@ -15,99 +15,151 @@ bool RuntimeTable::recalcOvertime() {
 	runtimeColumnInfos = MdTableInfo::queryInfo(qobject_cast<MdTabView *>(
 																  m_runtimeTv)->sqlTableName(), DbController::db());
 	/*!
-	 * Query worker records.
+	 * Query worktime and worker records.
 	 */
+	QSqlQueryModel *worktimeRecs = new QSqlQueryModel();
+	worktimeRecs->setQuery("SELECT wkt.worktimID, wkt.dat, wkt.hours,"
+								  "wk.workerID, wk.Nachname, wk.Vorname, wk.PersonalNr "
+								  "FROM worker wk "
+								  "INNER JOIN worktime wkt "
+								  "ON wkt.workerID = wk.workerID");
+
 	QSqlQueryModel *workerRecs = new QSqlQueryModel();
-	workerRecs->setQuery("SELECT wkt.worktimID, wkt.dat, wkt.hours,"
-								"wk.workerID, wk.Nachname, wk.Vorname, wk.PersonalNr "
-								"FROM worker wk "
-								"INNER JOIN worktime wkt "
-								"ON wkt.workerID = wk.workerID");
-	/*!
-	 * Clear old worker proxy models.
-	 */
-	workerProxyMdls.clear();
+	workerRecs->setQuery("SELECT * FROM worker");
 
 	/*!
-	 * Create a SfiltMdl proxy model for each employee record ...
+	 * Create a vector of all PN's
 	 */
-	for (int i = 0; i < workerRecs->rowCount(); ++i) {
-		int ID = workerRecs->record(i).value("workerID").toInt();
+	QMap<int, int> workerPnId;		//!< Holds PN and ID
+	for (int k = 0; k < workerRecs->rowCount(); k++)
+		workerPnId.insert(workerRecs->record( k ).value("PersonalNr").toInt(),
+							  workerRecs->record( k ).value("workerID").toInt());
 
-		SfiltMdl *sfm = new SfiltMdl();
-		workerProxyMdls.insert(ID, sfm);
-		workerProxyMdls[ID]->setDynamicSortFilter(true);
-		workerProxyMdls[ID]->setSourceModel(workerRecs);
-		/*!
-		 * Apply column filters
-		 */
-		workerProxyMdls[ID]->setFilterID(workerRecs->record(i).value("PersonalNr").toInt());
+	/*!
+	 * Check querys against errors.
+	 */
+	if ((worktimeRecs->lastError().type() != QSqlError::NoError) ||
+		 (workerRecs->lastError().type() != QSqlError::NoError))
+		bReturn("Error while query worker or worktime table");
 
-		QDate n = QDate::currentDate();
+//	QDate minDate, maxDate;
 
-		/*!
-		 * Setup date filter min and max to fit the running month, eg. if QDate::currentDate
-		 * returns 11.05.2016, set the date range to 01.05.2016 ... (01.06.2016 - 1 day).
-		 * Iterate over each worker proxy model and sum the "hours" column.
-		 */
-		workerProxyMdls[ID]->setFilterMinDate(QDate(n.year(), n.month(), 1));
-		workerProxyMdls[ID]->setFilterMaxDate(QDate(n.year(), n.month() + 1, 1).addDays(-1));
+	/*!
+	 * Create new proxy model, config and set QSqlQueryModel worktimeRecs
+	 * as it's source model, don't miss to fetch the whole model payload.
+	 */
+	SfiltMdl *proxyMdl = new SfiltMdl();
+	proxyMdl->setDynamicSortFilter(true);
+	proxyMdl->setSourceModel(worktimeRecs);
+	while (proxyMdl->canFetchMore(QModelIndex()))
+		proxyMdl->fetchMore(QModelIndex());
 
-		worktimeSums.insert(ID, WorktimeSum_t());
-		for (int k = 0; k < workerProxyMdls[ID]->rowCount(QModelIndex()); k++) {
-			worktimeSums[ID].monthly +=
-					workerProxyMdls[ID]->index(k, 2, QModelIndex()).data().toReal(&ok);
-			if (! ok)	INFO << tr("toReal-Error");
+	/*!
+	 * Sort the proxy model for date column so we don't need to sort it later.
+	 */
+	proxyMdl->sort(1);
+
+	typedef QMap<QDate, qreal> records_t;
+	QMap<int, records_t> workers;
+	records_t recs;
+
+	/*!
+	 * Find the absolut min and max date values.
+	 */
+	QDate n = QDate::currentDate();
+	QList<QDate> dates = QList<QDate>()
+								<< QDate(n.year(), 1, 1)
+								<< QDate(n.year()+1, 1, 1).addDays(-1)
+								<< QDate(n.year(), n.month(), 1)
+								<< QDate(n.year(), n.month()+1, 1).addDays(-1)
+								<< DateTimeRangeMask::getMinDate()
+								<< DateTimeRangeMask::getMaxDate();
+
+	QList<QDate> datesSort( dates );
+
+	qSort(datesSort.begin(), datesSort.end());
+
+	/*!
+	 * Truncate the large proxy model to the upper and lower date bounds of all kind of
+	 * date filter ranges.
+	 */
+	proxyMdl->setFilterMinDate(datesSort.first());
+	proxyMdl->setFilterMaxDate(datesSort.last());
+	worktimeSums.clear();
+
+	/*!
+	 * Loop for each worker PN.
+	 */
+	foreach (int PN, workerPnId.keys()) {
+		proxyMdl->setFilterID(PN);
+
+		worktimeSums.insert(/*wkID*/PN, WorktimeSum_t());
+
+		for (int r = 0; r < proxyMdl->rowCount(); r++) {
+			QDate dat = proxyMdl->index(r, 1).data().toDate();
+
+			if (dates.at(2) <= dat && dat <= dates.at(3))
+				worktimeSums[PN].monthly += proxyMdl->index(r, 2).data().toReal(&ok);
+			if (! ok)	INFO << tr("toReal-Error 1");
+
+			if (dates.at(0) <= dat && dat <= dates.at(1))
+				worktimeSums[PN].yearly += proxyMdl->index(r, 2).data().toReal(&ok);
+			if (! ok)	INFO << tr("toReal-Error 1");
+
+			if (dates.at(4) <= dat && dat <= dates.at(5))
+				worktimeSums[PN].inRange += proxyMdl->index(r, 2).data().toReal(&ok);
+			if (! ok)	INFO << tr("toReal-Error 1");
 		}
-
-		/*!
-		 * Setup date filter min and max to fit the running year, eg. if QDate::currentDate
-		 * returns 11.05.2016, set the date range to 01.01.2016 ... (01.01.2017 - 1 day).
-		 */
-		workerProxyMdls[ID]->setFilterMinDate(QDate(n.year(), 1, 1));
-		workerProxyMdls[ID]->setFilterMaxDate(QDate(n.year() + 1, 1, 1).addDays(-1));
-
-		for (int k = 0; k < workerProxyMdls[ID]->rowCount(QModelIndex()); k++) {
-			worktimeSums[ID].yearly +=
-					workerProxyMdls[ID]->index(k, 2, QModelIndex()).data().toReal(&ok);
-			if (! ok)	INFO << tr("toReal-Error");
-		}
-
-		/*!
-		 * Setup date filter min and max to fit the range passed from DateTimeRangeMask.
-		 */
-		workerProxyMdls[ID]->setFilterMinDate(DateTimeRangeMask::getMinDate());
-		workerProxyMdls[ID]->setFilterMaxDate(DateTimeRangeMask::getMaxDate());
-
-		for (int k = 0; k < workerProxyMdls[ID]->rowCount(QModelIndex()); k++) {
-			worktimeSums[ID].inRange +=
-					workerProxyMdls[ID]->index(k, 2, QModelIndex()).data().toReal(&ok);
-			if (! ok)	INFO << tr("toReal-Error");
-		}
-
 	}
 
-	//	#define	DEBUG_FILTER_MODEL
-#ifdef	DEBUG_FILTER_MODEL
-	foreach (SfiltMdl *proxyModel, workerProxyMdls) {
-		QTableView *proxyView = new QTableView();
-		proxyView->resizeColumnsToContents();
-		proxyView->resizeRowsToContents();
-		proxyView->setAlternatingRowColors(true);
-		proxyView->setFixedSize(proxyView->horizontalHeader()->length() + 600,
-										proxyView->verticalHeader()->length() + 600);
-		proxyView->setSortingEnabled(true);
-		proxyView->sortByColumn(iKey, Qt::AscendingOrder);
+	foreach (int PN, workerPnId.keys()) {
+		INFO << PN
+			  << tr(": y:") << worktimeSums[PN].yearly
+			  << tr(": r:") << worktimeSums[PN].inRange
+			  << tr(": m:") << worktimeSums[PN].monthly;
+	}
 
-		proxyView->setModel(proxyModel);
-		proxyView->show();
+
+//#define	DEBUG_FILTER_MODEL
+#ifdef	DEBUG_FILTER_MODEL
+	int ct = 5;
+	qreal ssum = 0;
+
+	foreach (SfiltMdl *proxyModel, workerProxyMdls) {
+		MdTable *proxyTbl = new MdTable(tr("none"));
+
+		proxyTbl->tv()->resizeColumnsToContents();
+		proxyTbl->tv()->resizeRowsToContents();
+		proxyTbl->tv()->setAlternatingRowColors(true);
+		proxyTbl->tv()->setFixedSize(proxyTbl->tv()->horizontalHeader()->length() + 600,
+											  proxyTbl->tv()->verticalHeader()->length() + 600);
+		proxyTbl->tv()->setSortingEnabled(true);
+		proxyTbl->tv()->sortByColumn(1, Qt::AscendingOrder);
+
+		while (proxyModel->canFetchMore(QModelIndex()))
+			proxyModel->fetchMore(QModelIndex());
+
+		proxyModel->setFilterMinDate(DateTimeRangeMask::getMinDate());
+		proxyModel->setFilterMaxDate(DateTimeRangeMask::getMaxDate());
+		proxyTbl->tv()->setModel(proxyModel);
+		proxyTbl->tv()->show();
+
+		INFO << tr("row cnt: ") << proxyModel->rowCount();
+
+		ssum = 0;
+		for (int k = 0; k < proxyModel->rowCount(); k++) {
+			ssum += proxyModel->index(k, 2).data().toReal(&ok);
+			if (! ok)	INFO << tr("toReal-Error 3");
+		}
+
+		if (! --ct)
+			break;
 	}
 #else
 
 	QList<QString> columns;
 	foreach (MdTableInfo::TableInfo_column_t ti, runtimeColumnInfos)
 		columns << ti.name;
-
 	columns.removeFirst();
 
 	/*!
@@ -116,18 +168,18 @@ bool RuntimeTable::recalcOvertime() {
 	m_runtimeTv->clearRecords(true);
 	QSqlQuery q(DbController::db());
 
-	foreach (int ID, workerProxyMdls.keys()) {
-//		SfiltMdl *proxyModel = workerProxyMdls.value(ID);
-
+//	for (int id = 0; id < worktimeSums.count(); id++) {
+	foreach (int PN, workerPnId.keys()) {
 		q.clear();
 		q.prepare(tr("INSERT INTO runtime (%1) "
 						 "VALUES (:ID, :YEAR, :MONTH, :RANGE, 0, 0, 1)").arg(columns.join(", ")));
-		q.bindValue(":ID", ID);
-		q.bindValue(":YEAR", worktimeSums[ID].yearly);
-		q.bindValue(":MONTH", worktimeSums[ID].monthly);
-		q.bindValue(":RANGE", worktimeSums[ID].inRange);
+		q.bindValue(":ID", workerPnId[PN]);
+		q.bindValue(":YEAR", worktimeSums[PN].yearly);
+		q.bindValue(":MONTH", worktimeSums[PN].monthly);
+		q.bindValue(":RANGE", worktimeSums[PN].inRange);
 		q.exec();
 
+		INFO << q.lastQuery();
 		m_runtimeTv->getSqlRtm()->select();
 
 		if (q.lastError().type() != QSqlError::NoError) {
@@ -135,6 +187,7 @@ bool RuntimeTable::recalcOvertime() {
 			return false;
 		}
 	}
+
 #endif
 	return true;
 }

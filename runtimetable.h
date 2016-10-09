@@ -16,6 +16,7 @@
 #include "debug.h"
 #include "mdtabview.h"
 #include "mdtableinfo.h"
+#include "mdtable.h"
 #include "sfiltmdl.h"
 
 class DbController;
@@ -49,7 +50,7 @@ private:
 	/*!
 	 * The key represents the worker ID from current sql query records.
 	 */
-	QMap<int, SfiltMdl *> workerProxyMdls;
+//	QMap<int, SfiltMdl *> workerProxyMdls;
 
 	typedef struct {
 		qreal weekly, monthly, yearly, inRange;

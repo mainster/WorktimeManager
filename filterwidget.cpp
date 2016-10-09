@@ -61,11 +61,12 @@ FilterWidget::FilterWidget(SourceTableType srcType, QList<MdTable *> allTbls,
 		de->calendarWidget()->setLocale(QLocale::German);
 	}
 
+
 	if (srcType == FilterWidget::useWorktimeSource)
 		foreach (MdTable *tbl, allTbls)
-			if (tbl->sqlTableName().contains("worktime"))
+			if (tbl->sqlTableName().contains("worktime")) {
 				setSourceTable(tbl);
-
+			}
 	/*!
 	 * Connect Signals/Slots.
 	 */

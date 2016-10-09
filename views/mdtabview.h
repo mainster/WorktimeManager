@@ -116,7 +116,6 @@ public slots:
 		msgBoxSure.setButtonText(QMessageBox::Yes, tr("&Ja"));
 		msgBoxSure.setDefaultButton(QMessageBox::Cancel);
 	}
-
 	bool clearRecords(bool yesDoIt = false) {
 		if (! yesDoIt) {
 			msgBoxSure.setWindowTitle(tr("Alle SQL-Einträge löschen?!"));
@@ -146,7 +145,7 @@ public slots:
 		msgBoxSure.setText(tr("Soll Tabelle \"%1\" wirklich aus der SQL-Datenbank "
 									 "gelöscht werden?\nDirekter Datenbank-Zugriff, "
 									 "<b>kein STRG+z möglich!</b>")
-												 .arg(Md::tableAlias[sqlTableName()]));
+								 .arg(Md::tableAlias[sqlTableName()]));
 
 		if (msgBoxSure.exec() != QMessageBox::Yes)
 			return;
@@ -157,11 +156,9 @@ public slots:
 	void paste();
 	void sumSelection();
 
-
 signals:
 	void sqlTableNameChanged(const QString &name);
 	void viewportMouseButtonPress(MdTabView *sender);
-//	void loadToClipboard(const QString &buff);
 
 protected:
 	QList<QAction *> createActions();

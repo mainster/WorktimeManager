@@ -46,13 +46,17 @@ OTHER_FILES +=
 
 
 HEADERS += \
+	 basedataform.h \
 	 browser.h \
 	 connectionwidget.h \
+	 datetimerangemask.h \
 	 dbconndlg.h \
 	 dbcontroller.h \
+	 delegates/nulldelegate.h \
 	 delegates/sqlreldel.h \
 	 delegates/tabledelegate.h \
-#	 filterform.h \
+	 filterwidget.h \
+	 headeralias.h \
 	 headers/locals.h \
 	 inpfrm.h \
 	 mainwindow.h \
@@ -64,33 +68,32 @@ HEADERS += \
 	 mdcombobox.h \
 	 mdmenu.h \
 	 mdnotes.h \
+	 mdplaintextedit.h \
+	 mdsplashscreen.h \
+	 mdtableinfo.h \
 	 models/editablesqlmdl.h \
+	 models/sfiltmdl.h \
+	 models/sqlrtm.h \
 	 mpushbutton.h \
+	 runtimetable.h \
 	 sectionmask.h \
 	 textedit/textedit.h \
 	 views/mdtable.h \
-    views/mdtabview.h \
-    basedataform.h \
-    delegates/nulldelegate.h \
-    mdsplashscreen.h \
-    mdplaintextedit.h \
-    runtimetable.h \
-    mdtableinfo.h \
-    headeralias.h \
-    datetimerangemask.h \
-    models/sqlrtm.h \
-    models/sfiltmdl.h \
-    filterwidget.h
+	 views/mdtabview.h \
 
 
 SOURCES += \
+	 basedataform.cpp \
 	 browser.cpp \
 	 connectionwidget.cpp \
+	 datetimerangemask.cpp \
 	 dbconndlg.cpp \
 	 dbcontroller.cpp \
+	 delegates/nulldelegate.cpp \
 	 delegates/sqlreldel.cpp \
 	 delegates/tabledelegate.cpp \
-#	 filterform.cpp \
+	 filterwidget.cpp \
+	 headeralias.cpp \
 	 headers/locals.cpp \
 	 inpfrm.cpp \
 	 main.cpp \
@@ -103,30 +106,24 @@ SOURCES += \
 	 mdcombobox.cpp \
 	 mdmenu.cpp \
 	 mdnotes.cpp \
+	 mdplaintextedit.cpp \
+	 mdsplashscreen.cpp \
+	 mdtableinfo.cpp \
 	 models/editablesqlmdl.cpp \
+	 models/sfiltmdl.cpp \
+	 models/sqlrtm.cpp \
 	 mpushbutton.cpp \
+	 runtimetable.cpp \
 	 sectionmask.cpp \
 	 textedit/textedit.cpp \
 	 views/mdtable.cpp \
-    views/mdtabview.cpp \
-    basedataform.cpp \
-    delegates/nulldelegate.cpp \
-    mdsplashscreen.cpp \
-    mdplaintextedit.cpp \
-    runtimetable.cpp \
-    mdtableinfo.cpp \
-    headeralias.cpp \
-    datetimerangemask.cpp \
-    models/sqlrtm.cpp \
-    models/sfiltmdl.cpp \
-    filterwidget.cpp
+	 views/mdtabview.cpp \
 
 
 FORMS += \
 	 uis/dbconndlg.ui \
 	 uis/inpfrm.ui \
 	 uis/mainwindow.ui \
-	 uis/filterform.ui \
 	 uis/mdnotes.ui \
     uis/inpfrmTRANS.ui \
     uis/mdtable.ui
