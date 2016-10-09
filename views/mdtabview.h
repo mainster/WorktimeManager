@@ -45,9 +45,19 @@ class MdTabView : public QTableView {
 	Q_PROPERTY(QString sqlTableName READ sqlTableName WRITE setSqlTableName NOTIFY sqlTableNameChanged)
 
 public:
+	enum ModelType {
+		Model_Unknown = 0x00,
+		Model_SqlRtm = 0x01,
+		Model_SfiltMdl = 0x02,
+		Model_BaseClass = 0x04,
+	};
+	Q_ENUM(ModelType)
+
 	explicit MdTabView(SfiltMdl *proxyModel, QWidget *parent);
 	explicit MdTabView(const QString &tableName/* = QString()*/, QWidget *parent = 0);
 	~MdTabView() {}
+
+	ModelType mModelType;
 
 	void setSelectionMode(QAbstractItemView::SelectionMode mode) {
 		QTableView::setSelectionMode(mode);
@@ -71,6 +81,8 @@ public:
 	QAction *getActSubmit() const { return actSubmit; }
 	QAction *getActSumSelection() const { return actSumSelection; }
 
+	void setModel(QAbstractItemModel *model) Q_DECL_OVERRIDE;
+
 public slots:
 	QFont restoreFont();
 	void deleteRow();
@@ -92,7 +104,30 @@ public slots:
 		Q_ASSERT(qobject_cast<SqlRtm *>(model()));
 		return qobject_cast<SqlRtm *>(model());
 	}
-	bool clearRecords() {
+	SfiltMdl *sfiltMdlCast() {
+		Q_ASSERT(qobject_cast<SfiltMdl *>(model()));
+		return qobject_cast<SfiltMdl *>(model());
+	}
+	void initMsgBoxes() {
+		msgBoxSure.setIcon(QMessageBox::Warning);
+		msgBoxSure.setTextFormat(Qt::RichText);
+		msgBoxSure.setStandardButtons(QMessageBox::Cancel | QMessageBox::Yes);
+		msgBoxSure.setButtonText(QMessageBox::Cancel, tr("&Abbrechen"));
+		msgBoxSure.setButtonText(QMessageBox::Yes, tr("&Ja"));
+		msgBoxSure.setDefaultButton(QMessageBox::Cancel);
+	}
+
+	bool clearRecords(bool yesDoIt = false) {
+		if (! yesDoIt) {
+			msgBoxSure.setWindowTitle(tr("Alle SQL-Einträge löschen?!"));
+			msgBoxSure.setText(tr("Sollen wirklich alle Zeilen aus Tabelle \"%1\" gelöscht werden?\n"
+										 "Direkter Datenbank-Zugriff, <b>kein STRG+z möglich!</b>")
+									 .arg(Md::tableAlias[sqlTableName()]));
+
+			if (msgBoxSure.exec() != QMessageBox::Yes)
+				return false;
+		}
+
 		QSqlQuery q(DbController::db());
 		q.prepare(tr("DELETE FROM %1").arg(sqlTableName()));
 		q.exec();
@@ -107,6 +142,15 @@ public slots:
 		return true;
 	}
 	void onActDropTableTrigd() {
+		msgBoxSure.setWindowTitle(tr("Tabelle aus SQL-Datenbank löschen?!"));
+		msgBoxSure.setText(tr("Soll Tabelle \"%1\" wirklich aus der SQL-Datenbank "
+									 "gelöscht werden?\nDirekter Datenbank-Zugriff, "
+									 "<b>kein STRG+z möglich!</b>")
+												 .arg(Md::tableAlias[sqlTableName()]));
+
+		if (msgBoxSure.exec() != QMessageBox::Yes)
+			return;
+
 		DbController::dropTable(sqlTableName());
 	}
 	QList<QString> copy(bool overwriteClipboardBuffer = true);
@@ -138,6 +182,7 @@ protected slots:
 private:
 	QString				m_sqlTableName;
 	QActionGroup		*actGrStrategy, *actGrContext;
+	QMessageBox msgBoxSure;
 
 	QAction *actInsertRow, *actDeleteRow, *actFieldStrategy, *actRowStrategy,
 	*actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask,

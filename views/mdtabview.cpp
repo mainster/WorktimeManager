@@ -12,12 +12,12 @@ class SectionMask;
 //	MdTabView(QString(), parent);
 //}
 MdTabView::MdTabView(SfiltMdl *proxyModel, QWidget *parent)
-	: QTableView(parent) {
+	: QTableView(parent), mModelType(Model_Unknown) {
 	setModel(proxyModel);
 	MdTabView("PROXYMODEL", parent);
 }
 MdTabView::MdTabView(const QString &tableName, QWidget *parent)
-	: QTableView(parent) {
+	: QTableView(parent), mModelType(Model_Unknown) {
 
 	if (! tableName.contains("PROXYMODEL")) {
 		if (!tableName.isEmpty()) {
@@ -44,6 +44,8 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 
 	clipboard = qApp->clipboard();
 	restoreFont();
+
+	initMsgBoxes();
 
 	QTimer::singleShot(200, this, SLOT(restoreActionObjects()));
 	//	QTimer::singleShot(8000, this, SLOT(restoreActionObjects()));
@@ -247,19 +249,21 @@ void MdTabView::createForeignModel(const QString &tableName) {
 	 * Set the model to this's base class and hide the ID column.
 	 */
 	setModel(sqlRtm);
-	setSelectionMode(QAbstractItemView::ContiguousSelection);
+	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setEditTriggers( QAbstractItemView::DoubleClicked |
 						  QAbstractItemView::EditKeyPressed );
 
 	/*!
-	 * Sorting column and direction differs per sql table.
+	 * Sorting column and direction differs from sql table name.
 	 */
 	if (tableName.contains("worktime"))
 		sortByColumn(0, Qt::DescendingOrder);
 	else {
 		int k;
 		for (k = 0; k < model()->columnCount(); k++) {
-			QString colHead = sqlRtmCast()->headerData(k).toString();
+			QString colHead;
+			if (mModelType == MdTabView::Model_SqlRtm)
+				colHead = sqlRtmCast()->headerData(k).toString();
 
 			if (colHead.contains(tr("Name"), Qt::CaseSensitive) ||
 				 colHead.contains(tr("Nachname"), Qt::CaseSensitive) ||
@@ -292,6 +296,18 @@ void MdTabView::createForeignModel(const QString &tableName) {
 void MdTabView::refreshView() {
 	this->update();
 }
+void MdTabView::setModel(QAbstractItemModel *model) {
+	QTableView::setModel(model);
+
+	if (qobject_cast<SqlRtm *>(model))							mModelType = Model_SqlRtm;
+	else if (qobject_cast<SfiltMdl *>(model))					mModelType = Model_SfiltMdl;
+	else if (qobject_cast<QAbstractItemModel *>(model))	mModelType = Model_BaseClass;
+	else mModelType = Model_Unknown;
+
+	INFO << mModelType;
+
+}
+
 /* ======================================================================== */
 /*                           SQL record strategy                            */
 /* ======================================================================== */
@@ -344,7 +360,9 @@ void MdTabView::onActGrStrategyTrigd(QAction *sender) {
 		rtm->setEditStrategy(QSqlTableModel::OnManualSubmit);
 }
 void MdTabView::onActGrContextTrigd(QAction *sender) {
-	if (! static_cast<SqlRtm *>(model()))
+//	if (! static_cast<SqlRtm *>(model()))
+//		return;
+	if (mModelType != MdTabView::Model_SqlRtm)
 		return;
 
 	if ((sender != actSubmit) && (sender != actRevert) &&
@@ -353,7 +371,7 @@ void MdTabView::onActGrContextTrigd(QAction *sender) {
 		 (sender != actPaste) && (sender != actSumSelection))
 		qReturn("Bad sender detected!");
 
-	SqlRtm *rtm = static_cast<SqlRtm *>(model());
+	SqlRtm *rtm = sqlRtmCast();
 
 	if (sender == actSubmit)		rtm->submitAll();
 	if (sender == actRevert)		rtm->revertAll();
@@ -368,23 +386,21 @@ void MdTabView::onUpdateWriteActions() {
 	/*!
 	 * Check if there is a valid model set before calling update procedure.
 	 */
-
-	SqlRtm *rtm = static_cast<SqlRtm *>(model());
-	if (! rtm)	qReturn(tr("cast failed: SqlRtm *rtm = static_cast<SqlRtm *>( %1 );")
-							  .arg(model()->metaObject()->className()));
-
-	//	INFO << m_sqlTableName << tr("currentIndexIsValied:")
-	//		  << currentIndex().isValid();
+	if (mModelType == MdTabView::Model_SqlRtm)
+		if (! sqlRtmCast())
+			qReturn(tr("cast failed: SqlRtm *rtm = static_cast<SqlRtm *>( %1 );")
+					  .arg(model()->metaObject()->className()));
 
 	actInsertRow->setEnabled(currentIndex().isValid());
 	actDeleteRow->setEnabled(currentIndex().isValid());
 }
 void MdTabView::onSectionMoved(int logicalIdx, int oldVisualIdx, int newVisualIdx) {
 	Q_UNUSED(oldVisualIdx);
-	if (! sqlRtmCast())
-		CRIT << tr("ModelCast failed");
-	sqlRtmCast()->setSectionIdx(logicalIdx, newVisualIdx);
-	sqlRtmCast()->storeModel(sqlTableName());
+
+	if (mModelType == MdTabView::Model_SqlRtm) {
+		sqlRtmCast()->setSectionIdx(logicalIdx, newVisualIdx);
+		sqlRtmCast()->storeModel(sqlTableName());
+	}
 }
 /* ======================================================================== */
 /*                              Init methodes                               */
@@ -413,8 +429,9 @@ void MdTabView::restoreView() {
 }
 void MdTabView::restoreColumnOrderAndVisability() {
 	//!< Restore the models source members
-	if (! sqlRtmCast())
-		CRIT << tr("ModelCast failed");
+	if (mModelType != MdTabView::Model_SqlRtm)
+		return;
+
 	sqlRtmCast()->restoreModelSrcsFromIni(sqlTableName());
 
 	//!< restoreVisibleCols(); takes access into models column-show/hide source list
@@ -527,7 +544,8 @@ QList<QAction *> MdTabView::createActions() {
 void MdTabView::showEvent(QShowEvent *) {
 }
 void MdTabView::mouseDoubleClickEvent(QMouseEvent *e) {
-	Qt::KeyboardModifiers keyboardModifiers = QApplication::queryKeyboardModifiers();
+	Qt::KeyboardModifiers keyboardModifiers =
+			QApplication::queryKeyboardModifiers();
 
 	if (keyboardModifiers == Qt::ControlModifier) {
 		actSectionMask->trigger();
@@ -554,10 +572,8 @@ void MdTabView::mousePressEvent(QMouseEvent *e) {
 		e->accept();
 }
 void MdTabView::hideEvent(QHideEvent *) {
-	//	return; //@@@MDB
-	if (! sqlRtmCast())
-		qReturn("ModelCast failed");
-	sqlRtmCast()->storeModel(sqlTableName());
+	if (mModelType == MdTabView::Model_SqlRtm)
+		sqlRtmCast()->storeModel(sqlTableName());
 }
 void MdTabView::wheelEvent (QWheelEvent * event) {
 	/*!

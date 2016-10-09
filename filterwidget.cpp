@@ -10,7 +10,6 @@ const QString FilterWidget::SOURCE_GROUPBOX_TITLE_PREFIX = QString("Source model
 FilterWidget::FilterWidget(SourceTableType srcType, QList<MdTable *> allTbls,
 									QWidget *parent) : QWidget(parent),
 	mSourceTableType(srcType) {
-
 	mTbl = NULL;
 
 	/*!
@@ -20,16 +19,12 @@ FilterWidget::FilterWidget(SourceTableType srcType, QList<MdTable *> allTbls,
 	sourceLayout = new QGridLayout();
 	sourceGB =		new QGroupBox(tr("Source"));
 	sourceView =	new MdTabView(QString(), 0);
+
 	proxyModel =	new SfiltMdl(this);
 	proxyModel->setDynamicSortFilter(true);
-
-	if (srcType == FilterWidget::useWorktimeSource)
-		foreach (MdTable *tbl, allTbls)
-			if (tbl->sqlTableName().contains("worktime"))
-				setSourceTable(tbl);
-
 	proxyGB =		new QGroupBox(tr("Proxy"));
-	proxyView =		new MdTabView(proxyModel, 0);
+	//	proxyView =		new MdTabView(proxyModel, 0);
+	proxyView =		new MdTabView(QString(), 0);
 	proxyLayout =	new QGridLayout();
 
 	/*!
@@ -65,6 +60,11 @@ FilterWidget::FilterWidget(SourceTableType srcType, QList<MdTable *> allTbls,
 		de->setLocale(QLocale::German);
 		de->calendarWidget()->setLocale(QLocale::German);
 	}
+
+	if (srcType == FilterWidget::useWorktimeSource)
+		foreach (MdTable *tbl, allTbls)
+			if (tbl->sqlTableName().contains("worktime"))
+				setSourceTable(tbl);
 
 	/*!
 	 * Connect Signals/Slots.

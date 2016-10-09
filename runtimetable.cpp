@@ -113,7 +113,7 @@ bool RuntimeTable::recalcOvertime() {
 	/*!
 	 * Clear runtime table records.
 	 */
-	m_runtimeTv->clearRecords();
+	m_runtimeTv->clearRecords(true);
 	QSqlQuery q(DbController::db());
 
 	foreach (int ID, workerProxyMdls.keys()) {
