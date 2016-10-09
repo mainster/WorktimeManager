@@ -17,10 +17,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	notes.toDo		= new MDNotes(tr("toDo"), parent);
 	notes.features	= new MDNotes(tr("feature list"), parent);
 	richEditor		= new TextEdit(this);
-	filterForm		= new FilterForm(FilterForm::useSelectedSource,
-											  browser->mTabs.tblsNoPtr());
-	filterFormWkt	= new FilterForm(FilterForm::useWorktimeSource,
-											  browser->mTabs.tblsNoPtr());
+	filterForm		= new FilterWidget(FilterWidget::useSelectedSource,
+												 browser->mTabs.tblsNoPtr());
+	filterFormWkt	= new FilterWidget(FilterWidget::useWorktimeSource,
+												 browser->mTabs.tblsNoPtr());
 
 	browser->connectionWidget()->refresh();
 
@@ -244,25 +244,18 @@ void MainWindow::onActFilterWindowSource(bool) {
 	QAction *act = qobject_cast<QAction *>(sender());
 
 	if (act == actDoFiltSelectedTbl)
-		filterForm->setSourceTableType(act->data().value<FilterForm::SourceTableType>());
+		filterForm->setSourceTableType(act->data().value<FilterWidget::SourceTableType>());
 	if (act == actDoFiltWorktimeTbl)
-		filterFormWkt->setSourceTableType(act->data().value<FilterForm::SourceTableType>());
+		filterFormWkt->setSourceTableType(act->data().value<FilterWidget::SourceTableType>());
 }
 void MainWindow::onActFilterForm(bool b) {
 	if (! browser->mTabs.hasSelected())
 		qReturn("Evil error");
 
-	if (browser->mTabs.currentSelected()->sqlTableName().contains("worktime")) {
+	if (browser->mTabs.currentSelected()->sqlTableName().contains("worktime"))
 		filterFormWkt->setVisible(b);
-		if (b) {
-			FilterWidget *filterWidget = new FilterWidget();
-		}
-	}
 	else
 		filterForm->setVisible(b);
-
-	return;
-	filterForm->show();
 
 	//	if (filterForm->sourceTableFlg() == FilterForm::useSelectedSource) {
 	//		if (.currentSelected(true) == NULL)
@@ -543,8 +536,8 @@ void MainWindow::createActions() {
 	acts.clear();
 	acts << PONAM(actDoFiltSelectedTbl) << PONAM(actDoFiltWorktimeTbl);
 
-	actDoFiltSelectedTbl->setData(QVariant::fromValue(FilterForm::useSelectedSource));
-	actDoFiltWorktimeTbl->setData(QVariant::fromValue(FilterForm::useWorktimeSource));
+	actDoFiltSelectedTbl->setData(QVariant::fromValue(FilterWidget::useSelectedSource));
+	actDoFiltWorktimeTbl->setData(QVariant::fromValue(FilterWidget::useWorktimeSource));
 
 	foreach (QAction *act, acts)
 		actGrFilterWidg->addAction(act);

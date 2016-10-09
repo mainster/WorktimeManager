@@ -7,12 +7,26 @@ class SectionMask;
 /* ======================================================================== */
 /*                             MdTabView::MdTabView                         */
 /* ======================================================================== */
-MdTabView::MdTabView(QWidget *parent)
+//MdTabView::MdTabView(QWidget *parent)
+//	: QTableView(parent) {
+//	MdTabView(QString(), parent);
+//}
+MdTabView::MdTabView(SfiltMdl *proxyModel, QWidget *parent)
 	: QTableView(parent) {
-	MdTabView(QString(), parent);
+	setModel(proxyModel);
+	MdTabView("PROXYMODEL", parent);
 }
 MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	: QTableView(parent) {
+
+	if (! tableName.contains("PROXYMODEL")) {
+		if (!tableName.isEmpty()) {
+			createForeignModel(tableName);
+			setSqlTableName(tableName);
+		}
+		else
+			WARN << tr("No valid table name passed");
+	}
 
 	/*!
 	 * Create this classes QAction objects.
@@ -22,18 +36,13 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	setSortingEnabled( true );
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-	if (!tableName.isEmpty()) {
-		createForeignModel(tableName);
-		setSqlTableName(tableName);
-	}
-
 	setSizeAdjustPolicy(QTableView::AdjustToContents);
 	adjustSize();
 
 	setStyleSheet(StyleSheet_QTableView);
 	connect(horizontalHeader(), &QHeaderView::sectionMoved, this, &MdTabView::onSectionMoved);
 
-	clipbord = qApp->clipboard();
+	clipboard = qApp->clipboard();
 	restoreFont();
 
 	QTimer::singleShot(200, this, SLOT(restoreActionObjects()));
@@ -479,8 +488,8 @@ QList<QAction *> MdTabView::createActions() {
 	actPaste->setShortcut(QKeySequence("Ctrl+V"));
 	actSumSelection->setShortcut(QKeySequence("Ctrl+Shift+s"));
 	actCopy->setShortcutContext(Qt::WidgetShortcut);
-	actPaste->setShortcutContext(Qt::WidgetShortcut);
-	actSumSelection->setShortcutContext(Qt::WidgetShortcut);
+	actPaste->setShortcutContext(Qt::WindowShortcut);
+	actSumSelection->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 
 	foreach (QAction *act, acts2)
 		actGrContext->addAction(act);
@@ -592,10 +601,10 @@ QList<QString> MdTabView::copy(bool overwriteClipboardBuffer) {
 		fields << idx.data(Qt::DisplayRole).toString();
 
 	if (overwriteClipboardBuffer)
-		clipbord->setText(fields.join(' '));
+		clipboard->setText(fields.join(' '));
 	else
-		if (clipbord->text(QClipboard::Clipboard).isEmpty())
-			clipbord->setText(fields.join(' '));
+		if (clipboard->text(QClipboard::Clipboard).isEmpty())
+			clipboard->setText(fields.join(' '));
 
 	return fields;
 }
@@ -732,8 +741,6 @@ bool MdTabView::restoreActionObjects() {
 
 	return true;
 }
-
-
 void MdTabView::removeColumnsConfig() {
 	QSETTINGS;
 	config.remove(sqlTableName() + Md::k.centerCols);

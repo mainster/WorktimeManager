@@ -52,7 +52,7 @@
 #include "inpfrm.h"
 #include "mdstatebar.h"
 //#include "models.h"
-#include "filterform.h"
+//#include "filterform.h"
 #include "mdtable.h"
 #include "mdtabview.h"
 #include "connectionwidget.h"

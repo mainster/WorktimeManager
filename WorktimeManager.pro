@@ -52,7 +52,7 @@ HEADERS += \
 	 dbcontroller.h \
 	 delegates/sqlreldel.h \
 	 delegates/tabledelegate.h \
-	 filterform.h \
+#	 filterform.h \
 	 headers/locals.h \
 	 inpfrm.h \
 	 mainwindow.h \
@@ -90,7 +90,7 @@ SOURCES += \
 	 dbcontroller.cpp \
 	 delegates/sqlreldel.cpp \
 	 delegates/tabledelegate.cpp \
-	 filterform.cpp \
+#	 filterform.cpp \
 	 headers/locals.cpp \
 	 inpfrm.cpp \
 	 main.cpp \

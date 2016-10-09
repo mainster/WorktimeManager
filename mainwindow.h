@@ -14,21 +14,21 @@
 #include <QFile>
 #include <QFileInfo>
 
-#include "ui_dbconndlg.h"
 #include "browser.h"
 #include "connectionwidget.h"
 #include "dbconndlg.h"
+#include "dbcontroller.h"
+#include "filterwidget.h"
 #include "globals.h"
 #include "inpfrm.h"
 #include "locals.h"
+#include "mdmenu.h"
+#include "mdnotes.h"
 #include "mdstatebar.h"
 #include "tabledelegate.h"
-#include "types.h"
-#include "dbcontroller.h"
-#include "mdnotes.h"
-#include "mdmenu.h"
 #include "textedit.h"
-#include "filterwidget.h"
+#include "types.h"
+#include "ui_dbconndlg.h"
 
 namespace Ui {
 class MainWindow;
@@ -153,7 +153,8 @@ private:
 	Browser			*browser;
 	InpFrm			*inpFrm;
 	MDStateBar		*stateBar;
-	FilterForm		*filterForm, *filterFormWkt;
+//	FilterForm		*filterForm, *filterFormWkt;
+	FilterWidget	*filterForm, *filterFormWkt;
 	DbController	*mDbc;
 	TextEdit			*richEditor;
 	QMenu				*cfgMenu, *mBar;
@@ -174,7 +175,6 @@ private:
 	*actShowSqlQuery, *actSetAlterRowCol, *actSetGridColor, *actAutoFitTables,
 	*actFilterTable, *actFilterTableWindow, *actFilterForm, *actCfgInpFrmTabOrd,
 	*actDoFiltWorktimeTbl, *actDoFiltSelectedTbl, *actResetConfig;
-
 };
 
 /* ======================================================================== */

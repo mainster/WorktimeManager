@@ -29,6 +29,7 @@
 #include "connectionwidget.h"
 #include "dbcontroller.h"
 #include "sqlrtm.h"
+#include "sfiltmdl.h"
 #include "sectionmask.h"
 #include "datetimerangemask.h"
 #include "mdtableinfo.h"
@@ -44,8 +45,8 @@ class MdTabView : public QTableView {
 	Q_PROPERTY(QString sqlTableName READ sqlTableName WRITE setSqlTableName NOTIFY sqlTableNameChanged)
 
 public:
-	explicit MdTabView(QWidget *parent = 0);
-	explicit MdTabView(const QString &tableName = QString(), QWidget *parent = 0);
+	explicit MdTabView(SfiltMdl *proxyModel, QWidget *parent);
+	explicit MdTabView(const QString &tableName/* = QString()*/, QWidget *parent = 0);
 	~MdTabView() {}
 
 	void setSelectionMode(QAbstractItemView::SelectionMode mode) {
@@ -140,10 +141,11 @@ private:
 
 	QAction *actInsertRow, *actDeleteRow, *actFieldStrategy, *actRowStrategy,
 	*actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask,
-	*actDateTimeRngMsk, *actClearRecords, *actDropTable, *actCopy, *actPaste, *actSumSelection;
+	*actDateTimeRngMsk, *actClearRecords, *actDropTable, *actCopy, *actPaste,
+	*actSumSelection;
 
 	QMap<QString, QString> stylesheetPvs;
-	QClipboard *clipbord;
+	QClipboard *clipboard;
 
 #ifdef USE_QPOINTER
 	QPointer<SqlRtm> sqlRtm;

@@ -100,7 +100,7 @@ private:
 	QLabel *filterPatternLabel;
 	QLabel *fromLabel;
 	QLabel *toLabel;
-	QLineEdit *filtPattLE;
+	QLineEdit *filtPattLe;
 	QComboBox *filtSyntaxCB, *filtPattCb;
 	QDateEdit *fromDateEdit;
 	QDateEdit *toDateEdit;

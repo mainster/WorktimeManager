@@ -17,9 +17,9 @@ FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTbls, QWidge
 	sourceGB = ui->sourceGB;
 	filtCaseSensCB = ui->filtCaseSensCB;
 
-	filtPattLE = ui->filtPattLE;
+	filtPattLe = ui->filtPattLe;
 	filterPatternLabel = new QLabel(tr("&Filter pattern:"));
-	filterPatternLabel->setBuddy(filtPattLE);
+	filterPatternLabel->setBuddy(filtPattLe);
 
 	filtSyntaxCB = ui->filtSyntaxCB;
 	filtSyntaxCB->addItem(tr("Regular expression"), QRegExp::RegExp);
@@ -50,7 +50,7 @@ FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTbls, QWidge
 			}
 	}
 
-	connect(filtPattLE,     SIGNAL(textChanged(QString)),
+	connect(filtPattLe,     SIGNAL(textChanged(QString)),
 			  this,           SLOT(textFilterChanged()));
 	connect(filtSyntaxCB,   SIGNAL(currentIndexChanged(int)),
 			  this,           SLOT(textFilterChanged()));
@@ -157,7 +157,7 @@ void FilterForm::textFilterChanged() {
 			: Qt::CaseInsensitive;
 	config.setValue(objectName() + Md::k.filtCaseSensCB, caseSensitivity);
 
-	QRegExp regExp(filtPattLE->text(), caseSensitivity, syntax);
+	QRegExp regExp(filtPattLe->text(), caseSensitivity, syntax);
 	proxyModel->setFilterRegExp(regExp);
 	onProxyRowCountChanged(0, proxyModel->rowCount());
 }
@@ -184,7 +184,7 @@ void FilterForm::cbTextFilterChanged() {
 	config.setValue(objectName() + Md::k.filtCaseSensCB, caseSensitivity);
 
 
-	QRegExp regExp(filtPattLE->text(), caseSensitivity, syntax);
+	QRegExp regExp(filtPattLe->text(), caseSensitivity, syntax);
 	proxyModel->setFilterRegExp(regExp);
 
 	onProxyRowCountChanged(0, proxyModel->rowCount());

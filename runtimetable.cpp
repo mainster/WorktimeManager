@@ -117,7 +117,7 @@ bool RuntimeTable::recalcOvertime() {
 	QSqlQuery q(DbController::db());
 
 	foreach (int ID, workerProxyMdls.keys()) {
-		SfiltMdl *proxyModel = workerProxyMdls.value(ID);
+//		SfiltMdl *proxyModel = workerProxyMdls.value(ID);
 
 		q.clear();
 		q.prepare(tr("INSERT INTO runtime (%1) "
