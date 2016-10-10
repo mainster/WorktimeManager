@@ -6,12 +6,12 @@
 void SfiltMdl::setFilterMinDate(const QDate &date) {
 	m_minDate = date;
 	invalidateFilter();
-//	qDebug() << tr("min date:") << m_minDate.toString("dd.MM.yyyy");
+	//	qDebug() << tr("min date:") << m_minDate.toString("dd.MM.yyyy");
 }
 void SfiltMdl::setFilterMaxDate(const QDate &date) {
 	m_maxDate = date;
 	invalidateFilter();
-//	qDebug() << tr("max date:") << m_maxDate.toString("dd.MM.yyyy");
+	//	qDebug() << tr("max date:") << m_maxDate.toString("dd.MM.yyyy");
 }
 void SfiltMdl::setFilterID(const int ID) {
 	mID = ID;
@@ -23,28 +23,39 @@ void SfiltMdl::setFilterID(const int ID) {
 bool SfiltMdl::filterAcceptsRow(int srcRow, const QModelIndex &sourceParent) const {
 	if (mHeadIdxs->map.isEmpty())
 		return false;
-//	bReturn("Tryed to accept filter but headIdxs is empty!");
+
+	//	bReturn("Tryed to accept filter but headIdxs is empty!");
 
 	QModelIndex iDate = sourceModel()->index(
 								  srcRow, mHeadIdxs->map.value("Datum", -1), sourceParent);
 	if (! iDate.isValid())
-		iDate = sourceModel()->index(
-					  srcRow, mHeadIdxs->map.value("dat", -1), sourceParent);
+		iDate = sourceModel()->index(srcRow, mHeadIdxs->map.value("dat", -1), sourceParent);
 	QModelIndex iMita = sourceModel()->index(
 								  srcRow, mHeadIdxs->map.value("Mitarbeiter", -1), sourceParent);
 	QModelIndex iBesc = sourceModel()->index(
 								  srcRow, mHeadIdxs->map.value("Beschreibung", -1), sourceParent);
 	QModelIndex iPers = sourceModel()->index(
 								  srcRow, mHeadIdxs->map.value("PersonalNr", -1), sourceParent);
+	QModelIndex iCli = sourceModel()->index(
+								  srcRow, mHeadIdxs->map.value("Kunde, Name", -1), sourceParent);
 
 	/* ======================================================================== */
-	/*                       Try to filter for PersonalNr                       */
-	/*									Within a given date range								 */
+	/*                    If a filterID has been passed ...                     */
 	/* ======================================================================== */
 	if (filterID() > -1) {
-		if (iDate.isValid() && iPers.isValid())
+		/*!
+		 * Try to filter for PersonalNr within a given date range.
+		 */
+		if (iDate.isValid() && iPers.isValid()) {
 			return ((sourceModel()->data(iPers).toInt() == filterID()) ? true : false) &&
 					dateInRange(sourceModel()->data(iDate).toDate());
+		}
+		/*!
+		 * Try to filter for projects of a given client.
+		 */
+		if (iCli.isValid())
+			return (sourceModel()->data(iCli).toInt() == filterID())
+					? true : false;
 	}
 
 	/* ======================================================================== */
@@ -58,8 +69,8 @@ bool SfiltMdl::filterAcceptsRow(int srcRow, const QModelIndex &sourceParent) con
 	if (! iBesc.isValid()) s << tr("iBesc: invalid");
 	if (! iPers.isValid()) s << tr("iPers: invalid");
 
-//	if (! s.isEmpty())
-//		INFO << s.join(" ");
+	//	if (! s.isEmpty())
+	//		INFO << s.join(" ");
 
 	if (iDate.isValid() && iMita.isValid() && iBesc.isValid() && iPers.isValid())
 		return (sourceModel()->data(iMita).toString().contains(filterRegExp())	||	//< RegExp must match to field Mitarb...
@@ -77,8 +88,18 @@ bool SfiltMdl::filterAcceptsRow(int srcRow, const QModelIndex &sourceParent) con
 				  sourceModel()->data(iPers).toString().contains(filterRegExp())		||	//< ... or it must match to field Beschreibung...
 				  sourceModel()->data(iBesc).toString().contains(filterRegExp()));	//< ... or it must match to field PersonalNr...
 
+	if (! iDate.isValid() && iMita.isValid() && iBesc.isValid() && iPers.isValid())
+		return (sourceModel()->data(iMita).toString().contains(filterRegExp())	||	//< RegExp must match to field Mitarb...
+				  sourceModel()->data(iPers).toString().contains(filterRegExp())		||	//< ... or it must match to field Beschreibung...
+				  sourceModel()->data(iBesc).toString().contains(filterRegExp()));	//< ... or it must match to field PersonalNr...
+
+	if (iCli.isValid()) {
+		INFO << sourceModel()->data(iCli).toString().contains(filterRegExp());
+		return (sourceModel()->data(iCli).toString().contains(filterRegExp()));
+	}
+
 	return false;
-//	bReturn("Bad filter accepts row call!");
+	//	bReturn("Bad filter accepts row call!");
 }
 bool SfiltMdl::lessThan(const QModelIndex &left, const QModelIndex &right) const {
 	QVariant leftData = sourceModel()->data(left);
@@ -123,7 +144,9 @@ void SfiltMdl::setSourceModel(QAbstractItemModel *sourceModel) {
 	for (int k = 0; k < columnCount(QModelIndex()); k++)
 		mHeadIdxs->map[ headerData(k, Qt::Horizontal).toString() ] = k;
 
-//	INFO << columnCount(QModelIndex()) << mHeadIdxs;
+	INFO << mHeadIdxs->map;
+
+	//	INFO << columnCount(QModelIndex()) << mHeadIdxs;
 
 
 	//	/*!

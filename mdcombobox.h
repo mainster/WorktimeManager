@@ -139,7 +139,8 @@ protected:
 	virtual void focusInEvent(QFocusEvent *e) override {
 		if (isEditable())
 			lineEdit()->setSelection(1,3);
-		QObject::startTimer(0);
+		setEditable(true);
+		QObject::startTimer(1);
 		QComboBox::focusInEvent(e);
 	}
 

@@ -21,6 +21,7 @@
 #include "filterwidget.h"
 #include "globals.h"
 #include "inpfrm.h"
+#include "inpfrm4.h"
 #include "locals.h"
 #include "mdmenu.h"
 #include "mdnotes.h"
@@ -107,7 +108,7 @@ protected slots:
 	void onUnderConstrTrig();
 	void onCyclic();
 	void onResizerDlgTrig();
-	void onTestButtonClick(bool b);
+	void onTestButtonClick(bool);
 	bool restoreActionObjects();
 	void createActions();
 	void onActionGroupTrigd(QAction *sender);
@@ -152,6 +153,7 @@ private:
 	Ui::MainWindow *ui;
 	Browser			*browser;
 	InpFrm			*inpFrm;
+	InpFrm4			*inpFrm4;
 	MDStateBar		*stateBar;
 //	FilterForm		*filterForm, *filterFormWkt;
 	FilterWidget	*filterForm, *filterFormWkt;

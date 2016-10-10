@@ -131,6 +131,7 @@ void InpFrm::onInpFormUserCommitAlt() {
 	/** Find the greatest worktimID entry */
 	qStableSort(ints.begin(), ints.end());
 	int worktimID_max = ints.last();
+	Q_UNUSED(worktimID_max);
 
 	/*!
 	  * Find workerID based on InpFrm ui selections

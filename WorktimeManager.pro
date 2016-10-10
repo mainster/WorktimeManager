@@ -80,6 +80,7 @@ HEADERS += \
 	 textedit/textedit.h \
 	 views/mdtable.h \
 	 views/mdtabview.h \
+    inpfrm4.h
 
 
 SOURCES += \
@@ -118,6 +119,7 @@ SOURCES += \
 	 textedit/textedit.cpp \
 	 views/mdtable.cpp \
 	 views/mdtabview.cpp \
+    inpfrm4.cpp
 
 
 FORMS += \
@@ -126,6 +128,7 @@ FORMS += \
 	 uis/mainwindow.ui \
 	 uis/mdnotes.ui \
     uis/inpfrmTRANS.ui \
-    uis/mdtable.ui
+    uis/mdtable.ui \
+    uis/form.ui
 
 

@@ -146,13 +146,6 @@ FilterWidget::~FilterWidget() {
 	config.setValue(objectName() + Md::k.windowGeometry, saveGeometry());
 	//	delete ui;
 }
-void FilterWidget::setSourceView(MdTabView *table) {
-	//	sourceView->setModel(table->model());
-	//		INFO << acts;
-	//	if (! act)	qReturn("act is NULL");
-
-	//	addAction(act);
-}
 void FilterWidget::onFilterPatternTextChanged(/*const QString &text*/) {
 	QString text = filtPattLe->text();
 

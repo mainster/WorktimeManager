@@ -126,7 +126,7 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 }
 void Browser::exec() {
 	InpFrm *inpFrm = InpFrm::instance();
-	MdTabView *wktTv = mTabs.findByTableName(tr("worktime"), Qt::CaseInsensitive)->tv();
+//	MdTabView *wktTv = mTabs.findByTableName(tr("worktime"), Qt::CaseInsensitive)->tv();
 
 	INFO << inpFrm->getQueryText();
 //	QSqlQuery
@@ -254,6 +254,7 @@ void Browser::customMenuRequested(QPoint pos) {
 	menu->popup(mTabs.tblsNoPtr().first()->tv()->viewport()->mapToGlobal(pos));
 }
 void Browser::autofitRowCol(bool searchChildren) {
+	Q_UNUSED(searchChildren);
 	//	if (! searchChildren) {
 	//		foreach (MdTabView *tvc, mTabs.tvsNoPtr())
 	//			tvc->resizeRowsColsToContents();

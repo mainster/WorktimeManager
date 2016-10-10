@@ -189,5 +189,5 @@ INSERT INTO "runtime" (workerID, Jahressumme, Monatssumme, VonBis, Ueberstunden,
 INSERT INTO "runtime" (workerID, Jahressumme, Monatssumme, VonBis, Ueberstunden, Vorschuss, fehlID) VALUES (2, 25, 65, 705, 6.3, 300 , 1);
 INSERT INTO "runtime" (workerID, Jahressumme, Monatssumme, VonBis, Ueberstunden, Vorschuss, fehlID) VALUES (3, 27, 67, 707, 20.3, 0 , 1);
 
-INSERT INTO "worktime" (dat, workerID, prjID, hours) VALUES ('2015-07-02',  8,  5, 5.5);
-INSERT INTO "worktime" (dat, workerID, prjID, hours) VALUES ('2015-04-16',  9,  5, 5.5);
+INSERT INTO "worktime" (dat, workerID, prjID, hours) VALUES ('2015-07-02',  1,  5, 5.5);
+INSERT INTO "worktime" (dat, workerID, prjID, hours) VALUES ('2015-04-16',  1,  5, 5.5);

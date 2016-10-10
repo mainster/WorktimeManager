@@ -22,7 +22,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	filterFormWkt	= new FilterWidget(FilterWidget::useWorktimeSource,
 												 browser->mTabs.tblsNoPtr());
 
-
 	browser->connectionWidget()->refresh();
 
 	notes.toDo->hide();
@@ -116,12 +115,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 MainWindow::~MainWindow() {
 	delete ui;
 }
-void MainWindow::onTestButtonClick(bool b) {
-	MdComboBox *cbt = new MdComboBox();
-	cbt->setModel(browser->mTabs.findByTableName(tr("client"))->tv()->model());
-	cbt->setEditable(true);
-	cbt->setModelColumns(QList<short>() << 0 << 1 << 2);
-	cbt->show();
+void MainWindow::onTestButtonClick(bool /*b*/) {
+	inpFrm4			= new InpFrm4();
+	inpFrm4->show();
+//	InpBoxWdg *ibw = new InpBoxWdg();
+//	ibw->show();
 }
 void MainWindow::onResizerDlgTrig() {
 	bool ok;

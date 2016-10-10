@@ -9,7 +9,7 @@ void DateTimeRangeMask::onResult(QNetworkReply* reply) {
 		return;  // ...only in a blog post
 
 	QString data = (QString) reply->readAll();
-	data.remove(QRegularExpression("[\"\{\}]"));
+	data.remove(QRegularExpression("[\"\{\\}]"));
 	QStringList dataList = data.split(',');
 	//	QRegExp rx("[\\w\\u0-9\\-\\.\\s]+\\:[0-9-]+\\,");
 	//	int pos = 0;

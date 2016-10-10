@@ -47,8 +47,6 @@ public:
 	explicit FilterWidget(QWidget *parent = NULL);
 	~FilterWidget();
 
-	void setSourceView(MdTabView *table);
-
 public slots:
 	SourceTableType sourceTableType() const { return mSourceTableType; }
 	void setSourceTableType(SourceTableType sourceTable) {
