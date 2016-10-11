@@ -62,8 +62,10 @@ public:
 
 class Locals {
 public:
-	static QFileInfo SQL_DB_PATH;
-	static QString SQL_DRIVER;
+	static QFileInfo SQLITE_DB_PATH;
+	static QString MYSQL_DB_NAME;
+	static QString SQLITE_DRIVER;
+	static QString MYSQL_DRIVER;
 	static QStringList PROJECT_PATHS;
 	static const QString
 	browserStyleSheet,

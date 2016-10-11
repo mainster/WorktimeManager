@@ -8,6 +8,9 @@
 #include <QSqlDriver>
 #include <QSqlQuery>
 #include <QFileDialog>
+#include <QMessageBox>
+#include <QAbstractButton>
+#include <QPushButton>
 
 #include "connectionwidget.h"
 #include "locals.h"
@@ -42,7 +45,8 @@ public slots:
 	}
 
 protected slots:
-	void openDatabase(QString database);
+	void openDatabase(const QString &database,
+							const QString &driver = Locals::SQLITE_DRIVER);
 	void onDriverMessage(const QString &name);
 
 private:

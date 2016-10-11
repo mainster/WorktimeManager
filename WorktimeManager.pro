@@ -8,6 +8,9 @@ QT       += core gui sql widgets
 QT			+= network
 QT			+= script
 
+#unix:LIBS += -lpq
+#win32:LIBS += libpqdll.lib
+
 qtHaveModule(printsupport): QT += printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <QMessageBox>
-
+#include "locals.h"
 #include "ui_dbconndlg.h"
 
 class DbConnDlg: public QDialog

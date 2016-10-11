@@ -64,8 +64,7 @@ void MdTabView::createForeignModel(const QString &tableName) {
 	if (! sqlRtm.isNull())
 		delete sqlRtm.data();
 
-	sqlRtm = new SqlRtm(SqlRtm::srcNew, this,
-							  ConnectionWidget::instance()->currentDb());
+	sqlRtm = new SqlRtm(ConnectionWidget::instance()->currentDb(), this);
 	sqlRtm->setEditStrategy(QSqlTableModel::OnFieldChange);
 	/*!
 	 * Set the passed sql table name.
@@ -238,7 +237,6 @@ void MdTabView::createForeignModel(const QString &tableName) {
 			sqlRtm->setHeaderData(k, colData, Qt::Horizontal, Qt::EditRole);
 		}
 	}
-
 
 	/*!
 	 * Populate the model.

@@ -31,7 +31,7 @@ class MdComboBox : public QComboBox {
 
 public:
 	explicit MdComboBox(QWidget *parent = 0)
-		: QComboBox(parent) {
+		: QComboBox(parent), mShowPopups(false) {
 	}
 	~MdComboBox() {
 //		delete tv;
@@ -47,6 +47,7 @@ public:
 		if (! mShowPopups)
 			QComboBox::hidePopup();
 	}
+
 	void makePermanentView(bool onOff = true) {
 		if (onOff) {
 			tv = new QTableView(/*parent()*/);
@@ -67,15 +68,14 @@ public:
 		int colCount = model()->columnCount(QModelIndex()),
 				rowCount = model()->rowCount(QModelIndex());
 
-		auto biggest = std::max_element(columns.begin(), columns.end());
+		 QList<short int>::iterator biggest =
+				 std::max_element(columns.begin(), columns.end());
 
 		/*!
 		 * Check if vector columns contains invalid column values.
 		 */
 		if (colCount <= *biggest)
 			bReturn("Invalid column index found");
-
-//		INFO << rowCount << colCount;
 
 		/*!
 		 * Prepare QStringList object stringList which later can be used to create
@@ -84,9 +84,11 @@ public:
 		QStringList *stringList = new QStringList();
 		for (int r = 0; r < rowCount; r++) {
 			QStringList *row = new QStringList();
+
 			for (QList<short>::iterator cIt = columns.begin(); cIt != columns.end(); cIt++) {
 				*row << model()->data( model()->index(r, *cIt, QModelIndex()) ).toString();
 			}
+
 			*stringList << row->join(QString(", "));
 		}
 
@@ -97,12 +99,13 @@ public:
 		QList<QStringList *> userData;
 		for (int r = 0; r < rowCount; r++) {
 			userData.append( new QStringList() );
+
 			for (int c = 0; c < colCount; c++) {
-				*userData.last() << model()->data( model()->index(r, c, QModelIndex()) ).toString();
+				*userData.last() << model()->data(model()->index(r, c, QModelIndex())).toString();
 			}
 		}
 
-		setModel( new QStringListModel(*stringList) );
+		setModel( listMdl = new QStringListModel(*stringList) );
 
 		/*!
 		 * Set a new QStringListModel from stringList as model for the QComboBox object.
@@ -119,10 +122,12 @@ public:
 		}
 		*/
 
+#ifdef USE_COMPLETER
 		completer = new QCompleter(*stringList, this);
 		completer->setCaseSensitivity(Qt::CaseInsensitive);
 		completer->setFilterMode(Qt::MatchContains);
 		setCompleter(completer);
+#endif
 
 //		for (int r = 0; r < rowCount; r++) {
 //			INFO << model()->data( model()->index(r, 0, QModelIndex()), Qt::UserRole).toStringList();
@@ -154,6 +159,7 @@ private:
 	int timerId;
 	QTableView *tv;
 	QCompleter *completer;
+	QStringListModel *listMdl;
 };
 
 #endif // MDCOMBOBOX_H

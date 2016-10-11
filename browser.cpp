@@ -207,6 +207,7 @@ void Browser::onConWidgetTableActivated(const QString &sqlTableName) {
 
 }
 void Browser::reselectModels() {
+	INFO << tr("SqlRtm::recordChanged() emitted!");
 	foreach (MdTable *t, *mTabs.tbls())
 		qobject_cast<SqlRtm *>(t->tv()->model())->select();
 }

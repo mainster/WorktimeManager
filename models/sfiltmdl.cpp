@@ -94,7 +94,6 @@ bool SfiltMdl::filterAcceptsRow(int srcRow, const QModelIndex &sourceParent) con
 				  sourceModel()->data(iBesc).toString().contains(filterRegExp()));	//< ... or it must match to field PersonalNr...
 
 	if (iCli.isValid()) {
-		INFO << sourceModel()->data(iCli).toString().contains(filterRegExp());
 		return (sourceModel()->data(iCli).toString().contains(filterRegExp()));
 	}
 

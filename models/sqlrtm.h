@@ -1,16 +1,19 @@
 #ifndef SQLRTM_H
 #define SQLRTM_H
 
+#include <QtWidgets>
 #include <QObject>
 #include <QWidget>
 #include <QSqlRelationalTableModel>
 #include <QAbstractItemModel>
 #include <QAbstractTableModel>
 #include <QtCore>
+#include <QMessageBox>
 
 #include "debug.h"
 #include "globals.h"
 #include "types.h"
+
 
 /*!
  \brief Class declaration of an relational custom table model used as delegate.
@@ -42,12 +45,9 @@ public:
 	 * \param parent
 	 * \param db
 	 */
-	explicit SqlRtm(MdlSrc modelSource = srcNew,
-						 QObject *parent = 0,
-						 QSqlDatabase db = QSqlDatabase())
+	explicit SqlRtm(QSqlDatabase db = QSqlDatabase(), QObject *parent = 0)
 		: QSqlRelationalTableModel(parent, db) {
 
-		Q_UNUSED(modelSource);
 		connect (this, &SqlRtm::srcChanged, this, &SqlRtm::onSrcChanged);
 	}
 
@@ -149,6 +149,7 @@ public:
 	}
 
 	void onSrcChanged() {
+		INFO << tr("srcChanged() signal emitted");
 		setVisibleCols(mVisibleCols);
 		for (int k = 0; k< mSectionIdxs.length(); k++)
 			setSectionIdx(k, mSectionIdxs.at(k));
@@ -180,4 +181,7 @@ private:
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(SqlRtm::MdlSrcs)
 Q_DECLARE_METATYPE(SqlRtm::MdlSrc)
+
+
+
 #endif // SQLRTM_H

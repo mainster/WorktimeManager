@@ -18,14 +18,14 @@ DbConnDlg::DbConnDlg(QWidget *parent)
 	drivers.removeAll("QPSQL7");
 	drivers.removeAll("QTDS7");
 
-	if (!drivers.contains(Locals::SQL_DRIVER))
+	if (!drivers.contains(Locals::SQLITE_DRIVER))
 		ui.dbCheckBox->setEnabled(false);
 
 	ui.comboDriver->addItems(drivers);
 
 	QString dbNam = QFileDialog::getOpenFileName(
 							 this, tr("Open SQL database file"),
-							 Locals::SQL_DB_PATH.baseName(),
+							 Locals::SQLITE_DB_PATH.baseName(),
 							 tr("database files (*.db);;all files (*)"));
 
 	ui.editDatabase->setText(dbNam);

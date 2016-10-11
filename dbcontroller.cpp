@@ -14,33 +14,33 @@ DbController::DbController(QObject *parent) : QObject(parent) {
 	 * Check if config file contains key for sql path...
 	 */
 	if ((config.value(objectName() + Md::k.sqlDbFilePath, "").toString()).isEmpty())
-		Locals::SQL_DB_PATH.setFile(
+		Locals::SQLITE_DB_PATH.setFile(
 					QFileDialog::getOpenFileName(0, tr("Open sqlite database ..."),
 														  Locals::PROJECT_PATHS.at(0)));
 	else
 		/*!
 		 * Load SQL file path from ini.
 		 */
-		Locals::SQL_DB_PATH.setFile(
+		Locals::SQLITE_DB_PATH.setFile(
 					config.value(objectName() + Md::k.sqlDbFilePath, "").toString());
 
 	/*!
 	 * Validate SQL database path.
 	 */
-	if (! (Locals::SQL_DB_PATH.isFile() &&
-			 Locals::SQL_DB_PATH.isWritable() &&
-			 Locals::SQL_DB_PATH.isReadable()))
+	if (! (Locals::SQLITE_DB_PATH.isFile() &&
+			 Locals::SQLITE_DB_PATH.isWritable() &&
+			 Locals::SQLITE_DB_PATH.isReadable()))
 		qReturn("Bad sql database file!");
 
 	/*!
-	 * Open database pointed by Locals::SQL_DB_PATH.
+	 * Open database pointed by Locals::SQLITE_DB_PATH.
 	 */
-	openDatabase(Locals::SQL_DB_PATH.canonicalFilePath());
+	openDatabase(Locals::SQLITE_DB_PATH.canonicalFilePath());
 }
 QList<bool> DbController::getConnectionState(bool beQuiet) {
 	QList<bool> summary;
 
-	summary << mDb.isDriverAvailable(Locals::SQL_DRIVER)
+	summary << mDb.isDriverAvailable(Locals::SQLITE_DRIVER)
 			  << mDb.isOpen() << mDb.isOpenError() << mDb.isValid();
 
 	if (! beQuiet)		INFO << summary << mDb.connectionNames();
@@ -51,19 +51,19 @@ QList<bool> DbController::getConnectionState(bool beQuiet) {
 /* ======================================================================== */
 /*                               openDatabase                               */
 /* ======================================================================== */
-void DbController::openDatabase(QString database) {
+void DbController::openDatabase(const QString &database, const QString &driver) {
 	QSETTINGS;
 	/*!
 	 * Query platforms available SQL driver names.
 	 */
 	QStringList drivers = QSqlDatabase::drivers();
-	if (!drivers.contains(Locals::SQL_DRIVER))
+	if (!drivers.contains(Locals::SQLITE_DRIVER))
 		CRIT << tr("empty");
 
 	if (mDb.isOpen())
 		mDb.close();
 
-	mDb = QSqlDatabase::addDatabase(Locals::SQL_DRIVER);
+	mDb = QSqlDatabase::addDatabase(Locals::SQLITE_DRIVER);
 
 	/*!
 	 * Check if ini contains a custom sql database file path...
@@ -86,15 +86,41 @@ void DbController::openDatabase(QString database) {
 	 * Store current db path to ini file.
 	 */
 	config.setValue(objectName() + Md::k.sqlDbFilePath,
-						 Locals::SQL_DB_PATH.filePath());
+						 Locals::SQLITE_DB_PATH.filePath());
 	ConnectionWidget::instance()->refresh();
 }
 void DbController::onOpenDatabase() {
 	QSETTINGS;
-	Locals::SQL_DB_PATH.setFile(
-				QFileDialog::getOpenFileName(0, tr("Open sqlite database ..."),
-													  Locals::PROJECT_PATHS.at(0)));
-	openDatabase(Locals::SQL_DB_PATH.canonicalFilePath());
+//	QMessageBox messageBox();
+//	QAbstractButton *disconnectButton =
+//			messageBox.addButton(tr("Disconnect"), QMessageBox::ActionRole);
+
+//	messageBox.exec()
+//	if (messageBox.clickedButton() == disconnectButton) {
+//		 INFO << tr("disconn");
+//	}
+	QMessageBox msg;
+	msg.setWindowTitle(tr("Select SQL driver..."));
+	msg.setText(tr("SQLITE3 or MYSQL??"));
+	msg.setIcon(QMessageBox::Question);
+	QAbstractButton *btnSqlite = new QPushButton(tr("SQLITE3"));
+	QAbstractButton *btnMysql = new QPushButton(tr("MYSQL"));
+
+	msg.addButton(btnSqlite, QMessageBox::ActionRole);
+	msg.addButton(btnMysql, QMessageBox::ActionRole);
+	msg.exec();
+
+	if (msg.clickedButton() == btnSqlite) {
+		Locals::SQLITE_DB_PATH.setFile(
+					QFileDialog::getOpenFileName(0, tr("Open sqlite database ..."),
+														  Locals::PROJECT_PATHS.at(0)));
+		openDatabase(Locals::SQLITE_DB_PATH.canonicalFilePath(), Locals::SQLITE_DRIVER);
+		return;
+	}
+
+	if (msg.clickedButton() == btnMysql) {
+		openDatabase(Locals::MYSQL_DB_NAME, Locals::MYSQL_DRIVER);
+	}
 }
 void DbController::onDriverMessage (const QString& name) {
 	WARN << name;
@@ -103,8 +129,8 @@ bool DbController::addConnectionsByCmdline(QVariant args) {
 	QSqlError err;
 
 	foreach (QString s, args.toStringList()) {
-		QUrl url(Locals::SQL_DB_PATH.baseName(), QUrl::TolerantMode);
-		url.setScheme(Locals::SQL_DRIVER);
+		QUrl url(Locals::SQLITE_DB_PATH.baseName(), QUrl::TolerantMode);
+		url.setScheme(Locals::SQLITE_DRIVER);
 
 		if (!url.isValid()) {
 			qWarning("Invalid URL: %s", qPrintable(s));
@@ -115,12 +141,12 @@ bool DbController::addConnectionsByCmdline(QVariant args) {
 												url.scheme().toUpper(), url.path(), url.host(),
 												url.userName(), url.password(), url.port(-1))).type()) {
 
-			url = QUrl(Locals::SQL_DB_PATH.filePath(), QUrl::TolerantMode);
+			url = QUrl(Locals::SQLITE_DB_PATH.filePath(), QUrl::TolerantMode);
 			url.setScheme("QMYSQL");
 
 			QSqlError sqlErr = addConnection(
-						url.scheme().toUpper(), url.path(), url.host(),
-						url.userName(), url.password(), url.port(-1));
+										 url.scheme().toUpper(), url.path(), url.host(),
+										 url.userName(), url.password(), url.port(-1));
 			if (sqlErr.type() != QSqlError::NoError) {
 				bReturn(tr("Unable to open connection: %s")
 						  .arg(sqlErr.text()));
@@ -137,8 +163,8 @@ QSqlError DbController::addConnection( const QString &driver, const QString &dbN
 	QSqlError err;
 	/*QSqlDatabase db*/
 
-	mDb = QSqlDatabase::addDatabase( (driver.isEmpty()) ? Locals::SQL_DRIVER : driver );
-	mDb.setDatabaseName((dbName.isEmpty()) ? Locals::SQL_DB_PATH.filePath() : dbName );
+	mDb = QSqlDatabase::addDatabase( (driver.isEmpty()) ? Locals::SQLITE_DRIVER : driver );
+	mDb.setDatabaseName((dbName.isEmpty()) ? Locals::SQLITE_DB_PATH.filePath() : dbName );
 	mDb.setHostName(host);
 	mDb.setPort(port);
 
