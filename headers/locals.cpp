@@ -176,7 +176,4 @@ const QString Locals::browserStyleSheetv2 = QString(
 
 #define QFOLDINGEND }
 
-Locals::Locals()
-{
 
-}

@@ -62,6 +62,7 @@ public:
 
 class Locals {
 public:
+	Locals() { }
 	static QFileInfo SQLITE_DB_PATH;
 	static QString MYSQL_DB_NAME;
 	static QString SQLITE_DRIVER;
@@ -70,7 +71,6 @@ public:
 	static const QString
 	browserStyleSheet,
 	browserStyleSheetv2;
-	Locals();
 };
 
 #endif // LOCALS_H

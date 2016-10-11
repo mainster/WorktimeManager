@@ -12,6 +12,7 @@
 #include "dbcontroller.h"
 #include "debug.h"
 #include "globals.h"
+#include "locals.h"
 #include "headeralias.h"
 #include "sfiltmdl.h"
 #include "mdtableinfo.h"
