@@ -84,7 +84,8 @@ HEADERS += \
 	 textedit/textedit.h \
 	 views/mdtable.h \
 	 views/mdtabview.h \
-    inpfrm4.h
+    inpfrm4.h \
+    mdstringlistmodel.h
 
 
 SOURCES += \
@@ -123,7 +124,8 @@ SOURCES += \
 	 textedit/textedit.cpp \
 	 views/mdtable.cpp \
 	 views/mdtabview.cpp \
-    inpfrm4.cpp
+    inpfrm4.cpp \
+    mdstringlistmodel.cpp
 
 
 FORMS += \

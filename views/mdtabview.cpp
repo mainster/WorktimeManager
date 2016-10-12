@@ -136,6 +136,8 @@ void MdTabView::createForeignModel(const QString &tableName) {
 										 Md::headerAlias[ tr("%1/subID").arg(tableName) ]);
 			sqlRtm->setHeaderData(sqlRtm->fieldIndex("archID"),
 										 Md::headerAlias[ tr("%1/archID").arg(tableName) ]);
+			sqlRtm->setHeaderData(sqlRtm->fieldIndex("Nummer"),
+										 Md::headerAlias[ tr("%1/Nummer").arg(tableName) ]);
 
 			break;
 		}

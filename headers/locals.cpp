@@ -35,6 +35,7 @@ QMap<QString, QString> Md::tableAlias {
 
 QMap<QString, QString> Md::headerAlias {
 	{ "client/Nummer",	"Knd. #" },
+	{ "prj/Nummer",		"Prj. #" },
 	{ "Stundensatz",		"€/h" },
 	{ "dat",					"Datum" },
 	{ "hours",				"Std" },

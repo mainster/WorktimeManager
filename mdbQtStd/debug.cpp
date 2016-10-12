@@ -23,6 +23,9 @@ void mdMessageHandler(QtMsgType type, const QMessageLogContext &context,
 	QByteArray localTime = "";
 #endif
 
+	if (localMsg.isEmpty())
+		localMsg = QByteArray("EMPTY");
+
 	if (lastDbgMsg != msg) {
 		lastDbgMsg = msg;
 		switch (type) {
@@ -56,7 +59,7 @@ void mdMessageHandler(QtMsgType type, const QMessageLogContext &context,
 		}
 	}
 	else
-		fprintf(stderr, " \033[48;5;11mR\033[0m");
+		fprintf(stderr, "\033[48;5;11mR\033[0m");
 }
 
 

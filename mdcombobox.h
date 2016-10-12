@@ -24,20 +24,30 @@
 #define vReturn(msg)		do { WARN << QString(msg); return QVariant(); } while(0)
 #define milReturn(msg)	do { WARN << QString(msg); return QModelIndexList(); } while(0)
 
+//#define USE_COMPLETER
+
 
 class MdComboBox : public QComboBox {
 
 	Q_OBJECT
 
 public:
+#ifdef USE_COMPLETER
 	explicit MdComboBox(QWidget *parent = 0)
-		: QComboBox(parent), mShowPopups(false) {
+		: QComboBox(parent), listMdl(new QStringListModel()),
+		  mCompleter(new QCompleter(this)) {
 	}
-	~MdComboBox() {
-//		delete tv;
+#else
+	explicit MdComboBox(QWidget *parent = 0)
+		: QComboBox(parent), listMdl(new QStringListModel()) { }
+#endif
+	~MdComboBox() { }
+
+	virtual void setModel(QAbstractItemModel *inputModel) {
+		INFO << GN_BG(inputModel->metaObject()->className());
+
+		inputMdl = inputModel;
 	}
-
-
 	void setModelColumns(QList<short> columns) {
 		if (! static_cast<QSqlRelationalTableModel *>(model()))
 			qReturn("modle() should return a QSqlRelationalTableModel!!");
@@ -45,14 +55,21 @@ public:
 		mColCfg = columns;
 		refreshView();
 	}
+	QCompleter *getCompleter() const {
+#ifdef USE_COMPLETER
+		return mCompleter;
+#else
+		return QComboBox::completer();
+#endif
+	}
 
 public slots:
 	bool refreshView() {
-		int colCount = model()->columnCount(),
-				rowCount = model()->rowCount();
+		int colCount = inputMdl->columnCount(),
+				rowCount = inputMdl->rowCount();
 
-		 QList<short int>::iterator biggest =
-				 std::max_element(mColCfg.begin(), mColCfg.end());
+		QList<short int>::iterator biggest =
+				std::max_element(mColCfg.begin(), mColCfg.end());
 
 		/*!
 		 * Check if vector columns contains invalid column values.
@@ -69,7 +86,7 @@ public slots:
 			QStringList *row = new QStringList();
 
 			for (QList<short>::iterator cIt = mColCfg.begin(); cIt != mColCfg.end(); cIt++) {
-				*row << model()->data( model()->index(r, *cIt, QModelIndex()) ).toString();
+				*row << inputMdl->data( inputMdl->index(r, *cIt, QModelIndex()) ).toString();
 			}
 
 			*stringList << row->join(QString(", "));
@@ -84,11 +101,19 @@ public slots:
 			userData.append( new QStringList() );
 
 			for (int c = 0; c < colCount; c++) {
-				*userData.last() << model()->data(model()->index(r, c, QModelIndex())).toString();
+				*userData.last() << inputMdl->data(inputMdl->index(r, c, QModelIndex())).toString();
 			}
 		}
+		delete listMdl;
+		QComboBox::setModel( listMdl = new QStringListModel(*stringList) );
 
-		setModel( listMdl = new QStringListModel(*stringList) );
+#ifdef USE_COMPLETER
+		delete mCompleter;
+		mCompleter = new QCompleter(*stringList);
+		mCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+		mCompleter->setFilterMode(Qt::MatchContains);
+		setCompleter(mCompleter);
+#endif
 		return true;
 	}
 
@@ -106,16 +131,14 @@ protected:
 	}
 
 protected slots:
-	void onShowDropdownList(bool onOff) {
-		(onOff) ? showPopup() : hidePopup();
-	}
 
 private:
-	bool mShowPopups;
 	int timerId;
 	QTableView *tv;
 	QStringListModel *listMdl;
 	QList<short> mColCfg;
+	QCompleter *mCompleter;
+	QAbstractItemModel *inputMdl;
 };
 
 /*

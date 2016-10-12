@@ -72,31 +72,17 @@ void InpFrm4::onTextChanged(const QString &text) {
 	if (! senderCb->lineEdit()->selectedText().isEmpty())
 		INFO << tr("selected:") << senderCb->lineEdit()->selectedText();
 
-	prjProxy->setFilterRegExp(text);
-	inpBoxes.at(1)->cbx()->setModel(prjProxy);
+	if (! senderCb->currentText().isEmpty())
+#ifdef USE_COMPLETER
+		prjProxy->setFilterRegExp(text);
+#else
+	prjProxy->setFilterRegExp(senderCb->getCompleter()->completionPrefix());
+#endif
+	else
+		prjProxy->setFilterRegExp(QString());
+
 	inpBoxes.at(1)->cbx()->refreshView();
-	//	QString lText = text;
-
-	//	if (senderCb)
-	//		if (senderCb == inpBoxes.at(1)->cbx()) {
-	//			QString enteredText = lText.remove(senderCb->lineEdit()->selectedText());
-
-	//			prjProxy->setFilterRegExp(enteredText);
-	//			inpBoxes.at(1)->cbx()->setModel(prjProxy);
-	//			inpBoxes.at(1)->cbx()->refreshView();
-	//		}
 }
-
-/* ======================================================================== */
-/* ======================================================================== */
-/* ======================================================================== */
-/*                           InpBoxWdg::InpBoxWdg                           */
-/* ======================================================================== */
-
-
-
-
-
 
 
 
