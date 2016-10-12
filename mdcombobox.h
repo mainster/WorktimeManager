@@ -14,6 +14,7 @@
 
 #include "globals.h"
 #include "debug.h"
+#include "sfiltmdl.h"
 
 /*!
  * do-while() loop is a trick to let you define multi-statement macros and
@@ -31,36 +32,12 @@ class MdComboBox : public QComboBox {
 
 public:
 	explicit MdComboBox(QWidget *parent = 0)
-		: QComboBox(parent), mShowPopups(false) {
+		: QComboBox(parent) {
+		listMdl = new QStringListModel(this);
+		proxyMdl = new SfiltMdl(this);
 	}
-	~MdComboBox() {
-//		delete tv;
-	}
+	~MdComboBox() { }
 
-	void showPopup(bool holdOpen = false)  {
-		mShowPopups = holdOpen;
-		QComboBox::showPopup();
-		if (holdOpen)
-			this->setFocusPolicy(Qt::NoFocus);
-	}
-	void hidePopup() override {
-		if (! mShowPopups)
-			QComboBox::hidePopup();
-	}
-
-	void makePermanentView(bool onOff = true) {
-		if (onOff) {
-			tv = new QTableView(/*parent()*/);
-			INFO << QComboBox::modelColumn();
-			tv->setModel( QComboBox::model() );
-			QComboBox::setModelColumn(QComboBox::modelColumn());
-			tv->show();
-		}
-		else {
-			tv->hide();
-			delete tv;
-		}
-	}
 	bool setModelColumns(QList<short> columns) {
 		if (! static_cast<QSqlRelationalTableModel *>(model()))
 			bReturn("modle() should return a QSqlRelationalTableModel!!");
@@ -105,7 +82,9 @@ public:
 			}
 		}
 
-		setModel( listMdl = new QStringListModel(*stringList) );
+		listMdl->setStringList(*stringList);
+		proxyMdl->setSourceModel(listMdl);
+		setModel(proxyMdl);
 
 		/*!
 		 * Set a new QStringListModel from stringList as model for the QComboBox object.
@@ -128,11 +107,6 @@ public:
 		completer->setFilterMode(Qt::MatchContains);
 		setCompleter(completer);
 #endif
-
-//		for (int r = 0; r < rowCount; r++) {
-//			INFO << model()->data( model()->index(r, 0, QModelIndex()), Qt::UserRole).toStringList();
-//		}
-
 		return true;
 	}
 
@@ -150,16 +124,12 @@ protected:
 	}
 
 protected slots:
-	void onShowDropdownList(bool onOff) {
-		(onOff) ? showPopup() : hidePopup();
-	}
 
 private:
-	bool mShowPopups;
 	int timerId;
-	QTableView *tv;
-	QCompleter *completer;
-	QStringListModel *listMdl;
+	QCompleter			*completer;
+	QStringListModel	*listMdl;
+	SfiltMdl				*proxyMdl;
 };
 
 #endif // MDCOMBOBOX_H

@@ -20,48 +20,43 @@ void SfiltMdl::setFilterID(const int ID) {
 /* ======================================================================== */
 /*                             filterAcceptsRow                             */
 /* ======================================================================== */
-bool SfiltMdl::filterAcceptsRow(int srcRow, const QModelIndex &sourceParent) const {
-	if (mHeadIdxs->map.isEmpty())
-		return false;
-
+bool SfiltMdl::filterAcceptsRow(int srcRow, const QModelIndex &srcParent) const {
+	if (mHeadIdxs->map.isEmpty())		return false;
 	//	bReturn("Tryed to accept filter but headIdxs is empty!");
 
-	QModelIndex iDate = sourceModel()->index(
-								  srcRow, mHeadIdxs->map.value("Datum", -1), sourceParent);
-	if (! iDate.isValid())
-		iDate = sourceModel()->index(srcRow, mHeadIdxs->map.value("dat", -1), sourceParent);
-	QModelIndex iMita = sourceModel()->index(
-								  srcRow, mHeadIdxs->map.value("Mitarbeiter", -1), sourceParent);
-	QModelIndex iBesc = sourceModel()->index(
-								  srcRow, mHeadIdxs->map.value("Beschreibung", -1), sourceParent);
-	QModelIndex iPers = sourceModel()->index(
-								  srcRow, mHeadIdxs->map.value("PersonalNr", -1), sourceParent);
-	QModelIndex iCli = sourceModel()->index(
-								  srcRow, mHeadIdxs->map.value("Kunde, Name", -1), sourceParent);
+	QModelIndex iDate, iMita, iBesc, iPers, iCli, iPrj;
 
+	iDate = sourceModel()->index(srcRow, mHeadIdxs->map.value("Datum", -1), srcParent);
+	if (! iDate.isValid())
+		iDate = sourceModel()->index(srcRow, mHeadIdxs->map.value("dat", -1), srcParent);
+
+	iMita = sourceModel()->index(srcRow, mHeadIdxs->map.value("Mitarbeiter", -1), srcParent);
+	iBesc = sourceModel()->index(srcRow, mHeadIdxs->map.value("Beschreibung", -1), srcParent);
+	iPers = sourceModel()->index(srcRow, mHeadIdxs->map.value("PersonalNr", -1), srcParent);
+	iCli = sourceModel()->index(srcRow, mHeadIdxs->map.value("Kunde, Name", -1), srcParent);
+	iPrj = sourceModel()->index(srcRow, mHeadIdxs->map.value("Kunde, Name", -1), srcParent);
+
+//	INFONR << mHeadIdxs->map.keys();
 	/* ======================================================================== */
 	/*                    If a filterID has been passed ...                     */
 	/* ======================================================================== */
 	if (filterID() > -1) {
 		/*!
-		 * Try to filter for PersonalNr within a given date range.
+		 * Filter for PersonalNr within a given date range.
 		 */
 		if (iDate.isValid() && iPers.isValid()) {
-			return ((sourceModel()->data(iPers).toInt() == filterID()) ? true : false) &&
+			return ((sourceModel()->data( iPers ).toInt() == filterID()) ? true : false) &&
 					dateInRange(sourceModel()->data(iDate).toDate());
 		}
 		/*!
-		 * Try to filter for projects of a given client.
+		 * Filter for projects of a given client.
 		 */
 		if (iCli.isValid())
 			return (sourceModel()->data(iCli).toInt() == filterID())
 					? true : false;
 	}
 
-	/* ======================================================================== */
-	/*  Try to filter for Datum, Mitarb, Beschreibung (inside worktime table)   */
-	/* ======================================================================== */
-
+#ifdef DEBUG_VALIDITY
 	QStringList s;
 
 	if (! iDate.isValid()) s << tr("iDate: invalid");
@@ -69,33 +64,48 @@ bool SfiltMdl::filterAcceptsRow(int srcRow, const QModelIndex &sourceParent) con
 	if (! iBesc.isValid()) s << tr("iBesc: invalid");
 	if (! iPers.isValid()) s << tr("iPers: invalid");
 
-	//	if (! s.isEmpty())
-	//		INFO << s.join(" ");
+	if (! s.isEmpty())
+		INFO << s.join(" ");
+#endif
 
+	/* ======================================================================== */
+	/*  Try to filter for Datum, Mitarb, Beschreibung (inside worktime table)   */
+	/* ======================================================================== */
+	/*!
+	 * Filter expression implemented for sql table "runtime".
+	 */
 	if (iDate.isValid() && iMita.isValid() && iBesc.isValid() && iPers.isValid())
-		return (sourceModel()->data(iMita).toString().contains(filterRegExp())	||	//< RegExp must match to field Mitarb...
-				  sourceModel()->data(iPers).toString().contains(filterRegExp())		||	//< ... or it must match to field Beschreibung...
-				  sourceModel()->data(iBesc).toString().contains(filterRegExp()))	&&	//< ... or it must match to field PersonalNr...
+		return (sourceModel()->data( iMita ).toString().contains(filterRegExp())	||	//< RegExp must match to field Mitarb...
+				  sourceModel()->data( iPers ).toString().contains(filterRegExp())		||	//< ... or it must match to field Beschreibung...
+				  sourceModel()->data( iBesc ).toString().contains(filterRegExp()))	&&	//< ... or it must match to field PersonalNr...
 				dateInRange(sourceModel()->data(iDate).toDate());							//< ... but in all cases, it must be in date range.
-
+	/*!
+	 * Filter expression implemented for sql table "worktime".
+	 */
 	if (iDate.isValid() && iMita.isValid() && iBesc.isValid() /*&& iPers.isValid()*/)
-		return (sourceModel()->data(iMita).toString().contains(filterRegExp())	||	//< RegExp must match to field Mitarb...
-				  sourceModel()->data(iBesc).toString().contains(filterRegExp()))	&&	//< ... or it must match to field PersonalNr...
-				dateInRange(sourceModel()->data(iDate).toDate());							//< ... but in all cases, it must be in date range.
-
+		return (sourceModel()->data( iMita ).toString().contains(filterRegExp())	||
+				  sourceModel()->data( iBesc ).toString().contains(filterRegExp()))	&&
+				dateInRange(sourceModel()->data(iDate).toDate());
+	/*!
+	 * Filter expression implemented for sql table ????
+	 */
 	if (! iDate.isValid() && iMita.isValid() && iBesc.isValid() && iPers.isValid())
-		return (sourceModel()->data(iMita).toString().contains(filterRegExp())	||	//< RegExp must match to field Mitarb...
-				  sourceModel()->data(iPers).toString().contains(filterRegExp())		||	//< ... or it must match to field Beschreibung...
-				  sourceModel()->data(iBesc).toString().contains(filterRegExp()));	//< ... or it must match to field PersonalNr...
+		return (sourceModel()->data( iMita ).toString().contains(filterRegExp())	||
+				  sourceModel()->data( iPers ).toString().contains(filterRegExp())	||
+				  sourceModel()->data( iBesc ).toString().contains(filterRegExp()));
+	/*!
+	 * Filter expression implemented for MdComboBox's used QStringListModel-proxy:
+	 * In a model that holds all columns of sql table "prj", this expression should exclude
+	 * all rows where the client doesn't match the filterRegExp().
+	 */
+	if (! iDate.isValid() && ! iMita.isValid() && ! iPers.isValid() && iCli.isValid() && iPrj.isValid())
+		return (sourceModel()->data( iCli ).toString().contains(filterRegExp()));
 
-	if (! iDate.isValid() && iMita.isValid() && iBesc.isValid() && iPers.isValid())
-		return (sourceModel()->data(iMita).toString().contains(filterRegExp())	||	//< RegExp must match to field Mitarb...
-				  sourceModel()->data(iPers).toString().contains(filterRegExp())		||	//< ... or it must match to field Beschreibung...
-				  sourceModel()->data(iBesc).toString().contains(filterRegExp()));	//< ... or it must match to field PersonalNr...
-
-	if (iCli.isValid()) {
-		return (sourceModel()->data(iCli).toString().contains(filterRegExp()));
-	}
+	/*!
+	 * Filter expression implemented for ???
+	 */
+	if (iCli.isValid())
+		return (sourceModel()->data( iCli ).toString().contains(filterRegExp()));
 
 	return false;
 	//	bReturn("Bad filter accepts row call!");

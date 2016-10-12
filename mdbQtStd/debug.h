@@ -31,47 +31,35 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-//#include <qapplication.h>
+#include <QMessageLogContext>
 #include <QDebug>
 #include <QString>
 #include <QStringList>
 #include <stdio.h>
 #include <stdlib.h>
 #include <QTime>
+#include <QVariant>
 
-void messageHandler(QtMsgType type,
-						  const QMessageLogContext &context,
-						  const QString &msg);
+#if QT_VERSION < 0x050500
+#error "Bad QtVersion for debug purposes!"
+#endif
+
+void mdMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
 QString dbgFuncName(QString name);
 QString dbgFuncNameMdb(QString name);
 
-#if QT_VERSION >= 0x050500
-	#define Q_INFO	(qInfo().noquote() << dbgFuncName(Q_FUNC_INFO).toStdString().c_str() << ":" )
-#define INFO	(qInfo().noquote() << dbgFuncNameMdb(Q_FUNC_INFO).toStdString().c_str() << ":" )
-//#define INFOmdb	(qInfo().noquote() << dbgFuncNameMdb(Q_FUNC_INFO).toStdString().c_str() << ":" )
-	#define DEBUG	(qDebug().noquote() << dbgFuncName(Q_FUNC_INFO).toStdString().c_str() << ":" )
-#else
-	#define INFO	(qDebug().noquote() << dbgFuncName(Q_FUNC_INFO).toStdString().c_str() << ":" )
-#endif
-
-#define WARN	(qWarning().noquote() << dbgFuncNameMdb(Q_FUNC_INFO).toStdString().c_str() << ":" )
-
-#define CRIT	(qCritical().noquote() << dbgFuncNameMdb(Q_FUNC_INFO).toStdString().c_str() << ":" )
-
-#define FATAL(m)	(qFatal("%s : %s", dbgFuncName(Q_FUNC_INFO).toStdString().c_str(), \
-	QString(m).toStdString().c_str())), (void)0
-
-//#define TIC()	(Q_INFO << tr("tic 1: %1:%2").arg( QTime::currentTime().second() ).arg( QTime::currentTime().msec() ))
-
-//#define TOC()	(Q_INFO << tr("toc 1: %1:%2").arg( QTime::currentTime().second() ).arg( QTime::currentTime().msec() ))
+#define INFO (qInfo().noquote() << dbgFuncNameMdb(Q_FUNC_INFO) << QString(":"))
+#define WARN (qWarning().noquote() << dbgFuncNameMdb(Q_FUNC_INFO) << QString(":"))
+#define CRIT (qCritical().noquote() << dbgFuncNameMdb(Q_FUNC_INFO) << QString(":"))
 
 #define TIC TicToc::tic(tr("try 1"));
 #define TICs(s) TicToc::tic(tr(s));
 #define TOC TicToc::toc();
 
-
-
+/* ======================================================================== */
+/*                               class TicToc                               */
+/* ======================================================================== */
 class TicToc {
 
 public:
@@ -106,3 +94,27 @@ private:
 };
 
 #endif // DEBUG_H
+
+
+///* ======================================================================== */
+///*                     class DbgPrintOnlyNonEqualLines                      */
+///* ======================================================================== */
+//class DbgPrintOnlyNonEqualLines {
+//public:
+////	DbgPrintOnlyNonEqualLines() : QDebug(QtInfoMsg){ }
+
+//	void operator<<(const QVariant v) {
+//		if (! v.canConvert<QString>())
+//			return;
+
+//		if (v.toString() != mMsg) {
+//			qDebug().noquote() << QString("\033[48;5;10mINFO\033[0m ")
+//									 << v.toString()
+//									 << qPrintable(dbgFuncNameMdb(Q_FUNC_INFO)) << ":";
+//			mMsg = v.toString();
+//		}
+//	}
+
+//private:
+//	static QString mMsg;
+//};

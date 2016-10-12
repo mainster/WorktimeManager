@@ -2,35 +2,61 @@
 
 #define TIM_FORM	"hh:mm:ss.zzz"
 
-void messageHandler(QtMsgType type,
-						  const QMessageLogContext &context,
-						  const QString &msg) {
 
+/* ======================================================================== */
+/*                              messageHandler                              */
+/* ======================================================================== */
+/* in main.cpp:
+ *  qInstallMessageHandler(messageHandler);
+ */
+void mdMessageHandler(QtMsgType type, const QMessageLogContext &context,
+							 const QString &msg) {
 	Q_UNUSED(context);
+	static QString lastDbgMsg;
 
-	QByteArray localMsg = msg.toLocal8Bit();
-	QByteArray localTime = QTime::currentTime().toString(TIM_FORM).toLocal8Bit();
+	QByteArray localMsg = QString(msg).toLocal8Bit();
 
-	if (type == QtDebugMsg)
-		fprintf(stderr, "\033[48;5;6mDEBG\033[0m \033[38;5;240m[%s]\033[0m: %s\n",
-				  localTime.constData(), localMsg.constData());
+#ifdef PRINT_TIMESTAMP
+	QByteArray localTime = QString("\033[38;5;240m[%s]\033[0m ")
+								  .arg(QTime::currentTime().toString(TIM_FORM).toLocal8Bit());
+#else
+	QByteArray localTime = "";
+#endif
+
+	if (lastDbgMsg != msg) {
+		lastDbgMsg = msg;
+		switch (type) {
+			case QtDebugMsg:
+				fprintf(stderr, "\n\033[48;5;6mDEBG\033[0m %s%s ",
+						  localTime.constData(), localMsg.constData());
+				break;
 
 #if QT_VERSION >= 0x050500
-	if (type == QtInfoMsg)
-		fprintf(stderr, "\033[48;5;10mINFO\033[0m \033[38;5;240m[%s]\033[0m: %s\n",
-				  localTime.constData(), localMsg.constData());
+			case QtInfoMsg:
+				fprintf(stderr, "\n\033[48;5;10mINFO\033[0m %s%s ",
+						  localTime.constData(), localMsg.constData());
+				break;
 #endif
-	if (type == QtWarningMsg)
-		fprintf(stderr, "\033[48;5;11mWARN\033[0m \033[38;5;240m[%s]\033[0m: %s\n",
-				  localTime.constData(), localMsg.constData());
+			case QtWarningMsg:
+				fprintf(stderr, "\n\033[48;5;11mWARN\033[0m %s%s ",
+						  localTime.constData(), localMsg.constData());
+				break;
 
-	if (type == QtCriticalMsg)
-		fprintf(stderr, "\033[48;5;196mCRITICAL\033[0m \033[38;5;240m[%s]\033[0m: %s\n",
-				  localTime.constData(), localMsg.constData());
+			case QtCriticalMsg:
+				fprintf(stderr, "\n\033[48;5;196mCRITICAL\033[0m %s%s ",
+						  localTime.constData(), localMsg.constData());
+				break;
 
-	if (type == QtFatalMsg)
-		fprintf(stderr, "\033[48;5;196mFATAL\033[0m \033[38;5;240m[%s]\033[0m: %s\n",
-				  localTime.constData(), localMsg.constData());
+			case QtFatalMsg:
+				fprintf(stderr, "\n\033[48;5;196mFATAL\033[0m %s%s ",
+						  localTime.constData(), localMsg.constData());
+				abort();
+			default:
+				fprintf(stderr, "UNKNOWN MESSAGE TYPE");
+		}
+	}
+	else
+		fprintf(stderr, " \033[48;5;11mR\033[0m");
 }
 
 
@@ -48,43 +74,29 @@ QString stuff(QString s, int length, QChar sc = ' ') {
 	return s;
 }
 
-QString dbgFuncName(QString name) {
+// ###############################################################################################################
+// # Find nonprintable|none-printable|control chars by grep and display non-printables via cat		( 2016-10-12	02:28:03 )
+// ###############################################################################################################
+// find . -iname 'mdtabview\.h' -exec grep '[[:cntrl:]]' {} \; | cat -v -e -t
+// ###############################################################################################################
+// # Find the return value and methode/classname of a C/C++ project folder 		( 2016-10-12	02:25:44 )
+// ###############################################################################################################
+// arr=( $(find . -iname '*\.h' -exec grep -oE '^\s\w+ \w+' {} \; | awk '{print$1}' | sort -h | uniq) )
+// echo $(for ((i=0; i<${#arr[@]}; i++)); do echo ${#arr[i]}; done) | tr ' ' '\n' | sort -h | uniq
+// ###############################################################################################################
+// # Find the length of all class names of a C/C++ project folder 		( 2016-10-12	01:25:44 )
+// ###############################################################################################################
+// cd ~/CODES_local/qt_creator/worktimeManagerSubdirPrj/WorktimeManager
+// arr=( $(find . -iname '*\.h' -exec grep -oE '^class [^Q^\;\w]+' {} \; | awk '{print$2}' | uniq ) )
+// echo $(for ((i=0; i<${#arr[@]}; i++)); do echo ${#arr[i]}; done) | tr ' ' '\n' | sort -h | uniq
 
-	QString output;
-	QStringList classParts = name.split("::");
-	QStringList nameAndReturnType = classParts.first().split(" ");
+#define	RETURN_TYPE_LENGTH	12	//17
+#define	CLASS_NAME_LENGTH		19
+#define	METHODE_NAME_LENGTH	25 //32
 
-	QString returnType = ""; //ctor, dtor don't have return types
-	if(nameAndReturnType.count() > 1)
-		returnType = nameAndReturnType.first() + " ";
-	QString className = nameAndReturnType.last();
-
-	QStringList funcAndParamas = classParts.last().split("(");
-	funcAndParamas.last().chop(1);
-	QString functionName = funcAndParamas.first();
-	QStringList params = funcAndParamas.last().split(",");
-
-	output.append("\033[036m");
-	output.append(returnType);
-	output.append("\033[0m\033[32m");
-	output.append(className);
-	output.append("\033[0m::");
-	output.append("\033[34m");
-	output.append(functionName);
-	output.append("\033[0m(");
-
-	QStringList::const_iterator param;
-	for (param = params.begin(); param != params.constEnd(); ++param) {
-		if(param != params.begin()) {
-			output.append("\033[0m,");
-		}
-		output.append("\033[036m");
-		output.append((*param));
-	}
-	output.append("\033[0m)");
-	return output;
-}
-
+/* ======================================================================== */
+/*                              dbgFuncNameMdb                              */
+/* ======================================================================== */
 QString dbgFuncNameMdb(QString name) {
 	QString nameNoArg = name.mid(0, name.indexOf(QChar('(')));
 
@@ -98,7 +110,7 @@ QString dbgFuncNameMdb(QString name) {
 	QString className = nameAndReturnType.last();
 
 	QStringList funcAndParamas = classParts.last().split("(");
-	funcAndParamas.last().chop(1);
+	//	funcAndParamas.last().chop(1);
 	QString functionName = funcAndParamas.first();
 	QStringList params = funcAndParamas.last().split(",");
 
@@ -106,7 +118,7 @@ QString dbgFuncNameMdb(QString name) {
 		QString
 				c1a, returnType, c1b,
 				c2a, className,	c2b,
-				c3a, functionName,c3b;
+				c3a, methodeName,c3b;
 	} o_t;
 
 	o_t o;
@@ -118,14 +130,14 @@ QString dbgFuncNameMdb(QString name) {
 	}
 	else {
 		o.c1a			= "\033[51m";			// 0
-		o.returnType= QString("  CTOR");				// 1
+		o.returnType= QString("CTOR");				// 1
 		o.c1b			= "\033[0m";
 	}
 	o.c2a			= "\033[32m";
 	o.className	= className + QString("::");				// 3
 	o.c2b			= "\033[0m  ";
 	o.c3a			= "\033[34m";
-	o.functionName = functionName;			// 6
+	o.methodeName = functionName;			// 6
 	o.c3b			= "\033[0m ";
 	QStringList outl;
 
@@ -139,9 +151,9 @@ QString dbgFuncNameMdb(QString name) {
 	}
 	outl << "\033[0m)";
 
-	output.append(o.c1a + stuff(o.returnType, 12) + o.c1b +
-					  o.c2a + stuff(o.className, 12) + o.c2b +
-					  o.c3a + stuff(o.functionName, 15) + o.c3b + " ");
+	output.append(o.c1a + stuff(o.returnType, RETURN_TYPE_LENGTH) + o.c1b +
+					  o.c2a + stuff(o.className, CLASS_NAME_LENGTH) + o.c2b +
+					  o.c3a + stuff(o.methodeName, METHODE_NAME_LENGTH) + o.c3b + " ");
 
 	return output;
 }

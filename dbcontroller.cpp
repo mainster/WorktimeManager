@@ -51,14 +51,17 @@ QList<bool> DbController::getConnectionState(bool beQuiet) {
 /* ======================================================================== */
 /*                               openDatabase                               */
 /* ======================================================================== */
-void DbController::openDatabase(const QString &database, const QString &driver) {
+bool DbController::openDatabase(const QString &database, const QString &driver) {
 	QSETTINGS;
 	/*!
-	 * Query platforms available SQL driver names.
+	 * Query platforms available SQL drivers and compare requested driver name.
 	 */
-	QStringList drivers = QSqlDatabase::drivers();
-	if (!drivers.contains(Locals::SQLITE_DRIVER))
-		CRIT << tr("empty");
+	if (! QSqlDatabase::drivers().contains(driver)) {
+		QMessageBox::critical(0, tr("Critical error!"),
+									 tr("The requested SQL database driver %1 could not be found!")
+									 .arg(driver), QMessageBox::Ok, QMessageBox::Ok);
+		bReturn("The requested SQL database driver could not be found!");
+	}
 
 	if (mDb.isOpen())
 		mDb.close();
@@ -76,11 +79,11 @@ void DbController::openDatabase(const QString &database, const QString &driver) 
 	 * If no connection is available, try to open the SQL database
 	 */
 	if ((! mDb.open()) || QSqlDatabase::connectionNames().isEmpty())
-		qReturn("(! mDb.open())");
+		bReturn("(! mDb.open())");
 
 	if (! bool( connect((&mDb)->driver(),	SIGNAL(notification(QString)),
 							  this,				SLOT(onDriverMessage(QString)))))
-		qReturn("QObject::connect driver notification to error handler slot failed!");
+		bReturn("QObject::connect driver notification to it's error handler has failed!");
 
 	/*!
 	 * Store current db path to ini file.
@@ -88,6 +91,8 @@ void DbController::openDatabase(const QString &database, const QString &driver) 
 	config.setValue(objectName() + Md::k.sqlDbFilePath,
 						 Locals::SQLITE_DB_PATH.filePath());
 	ConnectionWidget::instance()->refresh();
+
+	return true;
 }
 void DbController::onOpenDatabase() {
 	QSETTINGS;

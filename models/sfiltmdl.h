@@ -9,11 +9,9 @@
 #include <QAbstractTableModel>
 #include <QtCore>
 
-#include "dbcontroller.h"
 #include "debug.h"
 #include "globals.h"
 #include "headeralias.h"
-#include "sfiltmdl.h"
 #include "mdtableinfo.h"
 #include "types.h"
 

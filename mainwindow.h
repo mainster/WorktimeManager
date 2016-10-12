@@ -20,8 +20,9 @@
 #include "dbcontroller.h"
 #include "filterwidget.h"
 #include "globals.h"
-#include "inpfrm.h"
+#include "debug.h"
 #include "inpfrm4.h"
+#include "inpfrm.h"
 #include "locals.h"
 #include "mdmenu.h"
 #include "mdnotes.h"
@@ -30,6 +31,7 @@
 #include "textedit.h"
 #include "types.h"
 #include "ui_dbconndlg.h"
+
 
 namespace Ui {
 class MainWindow;

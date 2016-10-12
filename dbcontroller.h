@@ -45,7 +45,7 @@ public slots:
 	}
 
 protected slots:
-	void openDatabase(const QString &database,
+	bool openDatabase(const QString &database,
 							const QString &driver = Locals::SQLITE_DRIVER);
 	void onDriverMessage(const QString &name);
 

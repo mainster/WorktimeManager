@@ -111,6 +111,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	timCyc->start();
 
 	QTimer::singleShot(50, this, SLOT(restoreActionObjects()));
+
+//	INFONR << QString("hallo 1");
+//	INFONR << QStringList() << "hallo 1" << "hallo2";
+//	INFONR << QDate::currentDate();
+//	INFONR << QDate::currentDate();
+
+	INFO << tr("test1");
+	INFO << tr("test2");
+	INFO << tr("test2");
+	INFO << tr("test2");
+	INFO << tr("test3");
+//	messageHandler(QtInfoMsg, QMessageLogContext(), s);
+//	messageHandler(QtCriticalMsg, QMessageLogContext(), s);
 }
 MainWindow::~MainWindow() {
 	delete ui;
