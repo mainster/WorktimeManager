@@ -153,7 +153,7 @@ void SfiltMdl::setSourceModel(QAbstractItemModel *sourceModel) {
 	for (int k = 0; k < columnCount(QModelIndex()); k++)
 		mHeadIdxs->map[ headerData(k, Qt::Horizontal).toString() ] = k;
 
-	INFO << mHeadIdxs->map;
+//	INFO << mHeadIdxs->map;
 
 	//	INFO << columnCount(QModelIndex()) << mHeadIdxs;
 

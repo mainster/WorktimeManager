@@ -181,6 +181,10 @@
 #define QT_MESSAGE_PATTERN_DEFAULT "%{if-category}%{category}: %{endif}%{message}"
 #define QT_MESSAGE_PATTERN_FILE_LINE "%{if-category}%{category}: %{endif}%{file}(%{line})%{message}"
 
+#define RED_BG(msg)	(QString("\033[48;5;196m%1\033[0m").arg(msg))
+#define YEL_BG(msg)	(QString("\033[48;5;11m%1\033[0m").arg(msg))
+#define GN_BG(msg)	(QString("\033[48;5;10m%1\033[0m").arg(msg))
+
 /*!
  * Maybe this forward declaration leads in problems so keep it in mind
  */

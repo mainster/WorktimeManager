@@ -65,7 +65,7 @@ class InpBoxWdg : public QGroupBox {
 public:
 	explicit InpBoxWdg(const QString &title = QString(),
 							 QWidget *parent = 0) : QGroupBox(parent) {
-		mCbx = new MdComboBox();
+		mCbx = new MdComboBoxV2();
 		mLbl = new QLabel(tr("spacer"));
 		mGl = new QGridLayout();
 		mTv = new MdTabView(QString());
@@ -85,7 +85,7 @@ public:
 		adjustSize();
 		setStyleSheet(mStylesheetInp4);
 	}
-	MdComboBox *cbx() const { return mCbx; }
+	MdComboBoxV2 *cbx() const { return mCbx; }
 	MdTabView *tv() const { return mTv; }
 
 	static const QString mStylesheetInp4;
@@ -114,7 +114,7 @@ protected slots:
 	}
 
 private:
-	MdComboBox	*mCbx;
+	MdComboBoxV2	*mCbx;
 	QLabel		*mLbl;
 	QGridLayout	*mGl;
 	MdTabView	*mTv;

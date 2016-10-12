@@ -225,11 +225,13 @@ void FilterWidget::sumSelection() {
 }
 void FilterWidget::restoreWidgetStates() {
 	QSETTINGS;
+#ifdef DBG_WIDGET_STATE
 	INFO << objectName() + Md::k.filtSyntaxCB;
 	INFO << config.value(objectName() + Md::k.filtSyntaxCB, 0).toInt();
 	INFO << config.value(objectName() + Md::k.minDateEdit, QDate::currentDate()).toDate();
 	INFO << config.value(objectName() + Md::k.maxDateEdit, QDate::currentDate()).toDate();
 	INFO << config.value(objectName() + Md::k.filtCaseSensCB, false).toBool();
+#endif
 
 	filtSyntaxCB->setCurrentIndex(config.value(objectName() + Md::k.filtSyntaxCB, 0).toInt());
 	fromDateEdit->setDate(config.value(objectName() + Md::k.minDateEdit,

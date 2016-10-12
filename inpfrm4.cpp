@@ -66,8 +66,9 @@ InpFrm4::InpFrm4(QWidget *parent) : QWidget(parent) {
 
 }
 
-void InpFrm4::onTextChanged(QString text) {
+void InpFrm4::onTextChanged(const QString text) {
 	prjProxy->setFilterRegExp(text);
+	inpBoxes.at(1)->cbx()->refreshListModel(text);
 }
 
 /* ======================================================================== */

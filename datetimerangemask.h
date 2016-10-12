@@ -48,7 +48,7 @@ public:
 		lblMinDate->setBuddy(deMinDate);
 		lblMaxDate->setBuddy(deMaxDate);
 
-		INFO << listCast<QDateEdit *>(findChildren<QDateEdit *>(QString(), Qt::FindDirectChildrenOnly));
+//		INFO << listCast<QDateEdit *>(findChildren<QDateEdit *>(QString(), Qt::FindDirectChildrenOnly));
 
 		foreach (QDateEdit *de, listCast<QDateEdit *>(
 						findChildren<QDateEdit *>(QString(), Qt::FindDirectChildrenOnly))) {
