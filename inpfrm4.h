@@ -41,7 +41,7 @@ public:
 protected:
 
 protected slots:
-	void onTextChanged(QString text);
+	void onTextChanged(const QString &text);
 private:
 	Browser					*browser;
 	SfiltMdl					*prjProxy;
@@ -93,6 +93,7 @@ public:
 		setTitle(table->sqlTableName());
 		mCbx->setModel(table->tv()->model());
 		mTv->setModel(table->tv()->model());
+		mTv->resizeRowsColsToContents();
 
 		connect(mTv->model(), &QAbstractItemModel::dataChanged,
 				  this, &InpBoxWdg::onTvModelDataChanged);

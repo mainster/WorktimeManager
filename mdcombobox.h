@@ -14,7 +14,6 @@
 
 #include "globals.h"
 #include "debug.h"
-#include "sfiltmdl.h"
 
 /*!
  * do-while() loop is a trick to let you define multi-statement macros and
@@ -32,21 +31,28 @@ class MdComboBox : public QComboBox {
 
 public:
 	explicit MdComboBox(QWidget *parent = 0)
-		: QComboBox(parent) {
-		listMdl = new QStringListModel(this);
-		proxyMdl = new SfiltMdl(this);
+		: QComboBox(parent), mShowPopups(false) {
 	}
-	~MdComboBox() { }
+	~MdComboBox() {
+//		delete tv;
+	}
 
-	bool setModelColumns(QList<short> columns) {
+
+	void setModelColumns(QList<short> columns) {
 		if (! static_cast<QSqlRelationalTableModel *>(model()))
-			bReturn("modle() should return a QSqlRelationalTableModel!!");
+			qReturn("modle() should return a QSqlRelationalTableModel!!");
 
-		int colCount = model()->columnCount(QModelIndex()),
-				rowCount = model()->rowCount(QModelIndex());
+		mColCfg = columns;
+		refreshView();
+	}
+
+public slots:
+	bool refreshView() {
+		int colCount = model()->columnCount(),
+				rowCount = model()->rowCount();
 
 		 QList<short int>::iterator biggest =
-				 std::max_element(columns.begin(), columns.end());
+				 std::max_element(mColCfg.begin(), mColCfg.end());
 
 		/*!
 		 * Check if vector columns contains invalid column values.
@@ -62,7 +68,7 @@ public:
 		for (int r = 0; r < rowCount; r++) {
 			QStringList *row = new QStringList();
 
-			for (QList<short>::iterator cIt = columns.begin(); cIt != columns.end(); cIt++) {
+			for (QList<short>::iterator cIt = mColCfg.begin(); cIt != mColCfg.end(); cIt++) {
 				*row << model()->data( model()->index(r, *cIt, QModelIndex()) ).toString();
 			}
 
@@ -82,31 +88,7 @@ public:
 			}
 		}
 
-		listMdl->setStringList(*stringList);
-		proxyMdl->setSourceModel(listMdl);
-		setModel(proxyMdl);
-
-		/*!
-		 * Set a new QStringListModel from stringList as model for the QComboBox object.
-		QList<QStringList *>::iterator it = userData.begin();
-		for (int r = 0; r < rowCount; r++) {
-			QVariant var;
-			var.setValue(**(it++));
-			INFO << var.toStringList();
-			INFO << model()->index(r, 0, QModelIndex()).isValid();
-			INFO << model()->setData( model()->index(r, 0, QModelIndex()), var, Qt::DisplayRole);
-
-			INFO << model()->index(r, 0, QModelIndex()).data(Qt::DisplayRole).toStringList();
-			INFO << model()->data( model()->index(r, 0, QModelIndex()), Qt::DisplayRole).toStringList();
-		}
-		*/
-
-#ifdef USE_COMPLETER
-		completer = new QCompleter(*stringList, this);
-		completer->setCaseSensitivity(Qt::CaseInsensitive);
-		completer->setFilterMode(Qt::MatchContains);
-		setCompleter(completer);
-#endif
+		setModel( listMdl = new QStringListModel(*stringList) );
 		return true;
 	}
 
@@ -124,12 +106,52 @@ protected:
 	}
 
 protected slots:
+	void onShowDropdownList(bool onOff) {
+		(onOff) ? showPopup() : hidePopup();
+	}
 
 private:
+	bool mShowPopups;
 	int timerId;
-	QCompleter			*completer;
-	QStringListModel	*listMdl;
-	SfiltMdl				*proxyMdl;
+	QTableView *tv;
+	QStringListModel *listMdl;
+	QList<short> mColCfg;
 };
+
+/*
+ *
+ * #ifdef USE_COMPLETER
+		completer = new QCompleter(*stringList, this);
+		completer->setCaseSensitivity(Qt::CaseInsensitive);
+		completer->setFilterMode(Qt::MatchContains);
+		setCompleter(completer);
+#endif
+
+
+void showPopup(bool holdOpen = false)  {
+	mShowPopups = holdOpen;
+	QComboBox::showPopup();
+	if (holdOpen)
+		this->setFocusPolicy(Qt::NoFocus);
+}
+void hidePopup() override {
+	if (! mShowPopups)
+		QComboBox::hidePopup();
+}
+
+void makePermanentView(bool onOff = true) {
+	if (onOff) {
+		tv = new QTableView();
+		INFO << QComboBox::modelColumn();
+		tv->setModel( QComboBox::model() );
+		QComboBox::setModelColumn(QComboBox::modelColumn());
+		tv->show();
+	}
+	else {
+		tv->hide();
+		delete tv;
+	}
+}
+*/
 
 #endif // MDCOMBOBOX_H

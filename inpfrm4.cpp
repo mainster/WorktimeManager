@@ -31,9 +31,9 @@ InpFrm4::InpFrm4(QWidget *parent) : QWidget(parent) {
 
 	prjProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-//	mapper = new QDataWidgetMapper();
-//	mapper->setModel(prjProxy);
-//	mapper->addMapping(inpBoxes.at(1)->cbx(),1,);
+	//	mapper = new QDataWidgetMapper();
+	//	mapper->setModel(prjProxy);
+	//	mapper->addMapping(inpBoxes.at(1)->cbx(),1,);
 
 
 	inpBoxes.at(0)->setTable(browser->mTabs.findByTableName(tr("client")));
@@ -44,20 +44,20 @@ InpFrm4::InpFrm4(QWidget *parent) : QWidget(parent) {
 	connect(inpBoxes.at(0)->cbx(), &MdComboBox::editTextChanged,
 			  this, &InpFrm4::onTextChanged);
 
-	inpBoxes.at(0)->cbx()->setModelColumns(QList<short>() << 1 << 2 << 3);
-	inpBoxes.at(1)->cbx()->setModelColumns(QList<short>() << 1 << 3 << 4);
-	inpBoxes.at(2)->cbx()->setModelColumns(QList<short>() << 1 << 2 << 3 << 4);
+	inpBoxes.at(0)->cbx()->setModelColumns(QList<short>() << 2 << 3 << 1);
+	inpBoxes.at(1)->cbx()->setModelColumns(QList<short>() << 1 << 3);
+	inpBoxes.at(2)->cbx()->setModelColumns(QList<short>() << 1 << 3 << 4);
 
 	QComboBox *cbxa = new QComboBox();
 	cbxa->setEditable(true);
 	cbxa->setModel(prjProxy);
 	cbxa->setModelColumn(2);
 
-	QHBoxLayout *vbl = new QHBoxLayout();
-	vbl->addWidget(inpBoxes.at(0));
-	vbl->addWidget(inpBoxes.at(1));
-	vbl->addWidget(inpBoxes.at(2));
-	vbl->addWidget(cbxa);
+	QGridLayout *vbl = new QGridLayout();
+	vbl->addWidget(inpBoxes.at(0), 0, 0);
+	vbl->addWidget(inpBoxes.at(1), 0, 1);
+	vbl->addWidget(inpBoxes.at(2), 0, 2);
+	vbl->addWidget(cbxa, 1, 0);
 
 	foreach (InpBoxWdg *w, inpBoxes)
 		emit w->doAdjustSize();
@@ -66,8 +66,25 @@ InpFrm4::InpFrm4(QWidget *parent) : QWidget(parent) {
 
 }
 
-void InpFrm4::onTextChanged(QString text) {
+void InpFrm4::onTextChanged(const QString &text) {
+	MdComboBox *senderCb = qobject_cast<MdComboBox *>(sender());
+
+	if (! senderCb->lineEdit()->selectedText().isEmpty())
+		INFO << tr("selected:") << senderCb->lineEdit()->selectedText();
+
 	prjProxy->setFilterRegExp(text);
+	inpBoxes.at(1)->cbx()->setModel(prjProxy);
+	inpBoxes.at(1)->cbx()->refreshView();
+	//	QString lText = text;
+
+	//	if (senderCb)
+	//		if (senderCb == inpBoxes.at(1)->cbx()) {
+	//			QString enteredText = lText.remove(senderCb->lineEdit()->selectedText());
+
+	//			prjProxy->setFilterRegExp(enteredText);
+	//			inpBoxes.at(1)->cbx()->setModel(prjProxy);
+	//			inpBoxes.at(1)->cbx()->refreshView();
+	//		}
 }
 
 /* ======================================================================== */
@@ -117,86 +134,86 @@ const QString InpBoxWdg::mStylesheetInp4 = QString(
 															 "	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
 															 "	stop: 0 #D3D3D3, stop: 0.4 #D8D8D8,"
 															 "	stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);"
-		"}"
-		"/* shift the text when the popup opens */"
-		"QComboBox:on, QDateEdit:on {"
-		"	padding-top: 3px;"
-		"	padding-left: 4px;"
-		"}"
-		"QComboBox::drop-down, QDateEdit::drop-down {"
-		"	subcontrol-origin: padding;"
-		"	subcontrol-position: top right;"
-		"	width: 15px;"
-		"	border-left-width: 1px;"
-		"	border-left-color: darkgray;"
-		"	border-left-style: solid; /* just a single line */"
-		"	border-top-right-radius: 3px; /* same radius as the QDateEdit */"
-		"	border-bottom-right-radius: 3px;"
-		"	color: rgb(70, 70, 70);"
-		"}"
-		"QComboBox::down-arrow, QDateEdit::down-arrow {"
-		"/*	image: url(://images/1downarrow13.png);*/"
-		"	image: url(""://sortdown"");"
-		"}"
-		"QComboBox::down-arrow:on, QDateEdit::down-arrow:on { /* shift the arrow when popup is open */"
-		"	top: 1px;"
-		"	left: 1px;"
-		"}"
-		"/* ----------------------------------------------------------------------------------------------- */"
-		"QGroupBox, QTextEdit {"
-		"	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
-		"	border: 2px solid rgb(140,140,140);"
-		"	border-radius: 5px;"
-		"	margin-top: 1ex; "
-		"}"
-		"QGroupBox {"
-		"	font: italic 10pt ""Arial"";"
-		"	color: rgb(55,55,55);"
-		"	font-weight: bold;"
-		"}"
-		"QGroupBox::title {"
-		"	subcontrol-origin: margin; "
-		"	subcontrol-position: top center; "
-		"	top: 1.2ex;"
-		"	padding: 0 8px"
-		"}"
-		""
-		"/* ----------------------------------------------------------------------------------------------- */"
-		"QLabel {"
-		"	color: rgb(70, 70, 70);"
-		"}"
-		"/* ----------------------------------------------------------------------------------------------- */"
-		"QDateEdit:!editable, QDateEdit::drop-down:editable {"
-		"	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-		"	stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,"
-		"	stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);"
-		"} "
-		"/* QDateEdit gets the ""on"" state when the popup is open */"
-		"QDateEdit:!editable:on, QDateEdit::drop-down:editable:on {"
-		"	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-		"	stop: 0 #D3D3D3, stop: 0.4 #D8D8D8,"
-		"	stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);"
-		"}"
-		"QDockWidget {"
-		"	border: 1px solid black;"
-		"	titlebar-close-icon: url(close.png);"
-		"	titlebar-normal-icon: url(undock.png);"
-		"}"
-		"QDockWidget::title {"
-		"	text-align: left; /* align the text to the left */"
-		"	background: rgb(148, 148, 148);"
-		"	padding-left: 5px;"
-		"}"
-		"QDockWidget::close-button, QDockWidget::float-button {"
-		"	border: 1px solid transparent;"
-		"	background: darkgray;"
-		"	padding: 0px;"
-		"}"
-		"QDockWidget::close-button:hover, QDockWidget::float-button:hover {"
-		"	background: gray;"
-		"}"
-		"QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {"
-		"	padding: 1px -1px -1px 1px;"
-		"}");
+															 "}"
+															 "/* shift the text when the popup opens */"
+															 "QComboBox:on, QDateEdit:on {"
+															 "	padding-top: 3px;"
+															 "	padding-left: 4px;"
+															 "}"
+															 "QComboBox::drop-down, QDateEdit::drop-down {"
+															 "	subcontrol-origin: padding;"
+															 "	subcontrol-position: top right;"
+															 "	width: 15px;"
+															 "	border-left-width: 1px;"
+															 "	border-left-color: darkgray;"
+															 "	border-left-style: solid; /* just a single line */"
+															 "	border-top-right-radius: 3px; /* same radius as the QDateEdit */"
+															 "	border-bottom-right-radius: 3px;"
+															 "	color: rgb(70, 70, 70);"
+															 "}"
+															 "QComboBox::down-arrow, QDateEdit::down-arrow {"
+															 "/*	image: url(://images/1downarrow13.png);*/"
+															 "	image: url(""://sortdown"");"
+															 "}"
+															 "QComboBox::down-arrow:on, QDateEdit::down-arrow:on { /* shift the arrow when popup is open */"
+															 "	top: 1px;"
+															 "	left: 1px;"
+															 "}"
+															 "/* ----------------------------------------------------------------------------------------------- */"
+															 "QGroupBox, QTextEdit {"
+															 "	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"
+															 "	border: 2px solid rgb(140,140,140);"
+															 "	border-radius: 5px;"
+															 "	margin-top: 1ex; "
+															 "}"
+															 "QGroupBox {"
+															 "	font: italic 10pt ""Arial"";"
+															 "	color: rgb(55,55,55);"
+															 "	font-weight: bold;"
+															 "}"
+															 "QGroupBox::title {"
+															 "	subcontrol-origin: margin; "
+															 "	subcontrol-position: top center; "
+															 "	top: 1.2ex;"
+															 "	padding: 0 8px"
+															 "}"
+															 ""
+															 "/* ----------------------------------------------------------------------------------------------- */"
+															 "QLabel {"
+															 "	color: rgb(70, 70, 70);"
+															 "}"
+															 "/* ----------------------------------------------------------------------------------------------- */"
+															 "QDateEdit:!editable, QDateEdit::drop-down:editable {"
+															 "	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+															 "	stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,"
+															 "	stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);"
+															 "} "
+															 "/* QDateEdit gets the ""on"" state when the popup is open */"
+															 "QDateEdit:!editable:on, QDateEdit::drop-down:editable:on {"
+															 "	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+															 "	stop: 0 #D3D3D3, stop: 0.4 #D8D8D8,"
+															 "	stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);"
+															 "}"
+															 "QDockWidget {"
+															 "	border: 1px solid black;"
+															 "	titlebar-close-icon: url(close.png);"
+															 "	titlebar-normal-icon: url(undock.png);"
+															 "}"
+															 "QDockWidget::title {"
+															 "	text-align: left; /* align the text to the left */"
+															 "	background: rgb(148, 148, 148);"
+															 "	padding-left: 5px;"
+															 "}"
+															 "QDockWidget::close-button, QDockWidget::float-button {"
+															 "	border: 1px solid transparent;"
+															 "	background: darkgray;"
+															 "	padding: 0px;"
+															 "}"
+															 "QDockWidget::close-button:hover, QDockWidget::float-button:hover {"
+															 "	background: gray;"
+															 "}"
+															 "QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {"
+															 "	padding: 1px -1px -1px 1px;"
+															 "}");
 
-		#define QFOLDINGEND }
+#define QFOLDINGEND }
