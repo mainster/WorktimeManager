@@ -6,4 +6,5 @@
 *.pro.user*
 *.db
 *.sql
+!sqlite/delBassoInitialDb_sheme_template.sql
 olddb/
