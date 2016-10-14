@@ -109,9 +109,12 @@ bool SfiltMdl::filterAcceptsRow(int srcRow, const QModelIndex &srcParent) const 
 	 * all rows where the client doesn't match the filterRegExp().
 	 */
 	if (! iDate.isValid() && ! iMita.isValid() && ! iPers.isValid() &&
-		 iCliNam.isValid() && iPrjNum.isValid()) {
+		 iBesc.isValid() && iCliNam.isValid() && iPrjNum.isValid()) {
 		INFO << tr("Filter expression implemented for MdComboBox's used QStringListModel-proxy");
 		return (sourceModel()->data( iCliNam ).toString().contains(filterRegExp()));
+//		return (sourceModel()->data( iBesc ).toString().contains(filterRegExp()) ||
+//				  sourceModel()->data( iCliNum ).toString().contains(filterRegExp()) ||
+//				  sourceModel()->data( iCliNam ).toString().contains(filterRegExp()));
 	}
 
 	/*!

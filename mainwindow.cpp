@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	browser		= new Browser(parent);
 	mDbc			= new DbController(this);
 	inpFrm		= new InpFrm(this);
+	inpFrm4		= new InpFrm4(QList<MdTable *>(), 0);
 	notes.toDo		= new MDNotes(tr("toDo"), parent);
 	notes.features	= new MDNotes(tr("feature list"), parent);
 	richEditor		= new TextEdit(this);
@@ -75,10 +76,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	setStatusBar( stateBar );
 	makeMenu();
 
-	QAction *actTest = new QAction(tr("test action"), this);
-	connect (actTest, &QAction::triggered, this, &MainWindow::onTestButtonClick);
-
-	menuBar()->addActions(QList<QAction *>() << actTest);
+//	QAction *actTest = new QAction(tr("test action"), this);
+//	connect (actTest, &QAction::triggered, this, &MainWindow::onTestButtonClick);
+//	menuBar()->addActions(QList<QAction *>() << actTest);
 
 	/*!
 	 * Connect the inpFrm's statusMessage signal to the statebar message slot
@@ -111,28 +111,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	timCyc->start();
 
 	QTimer::singleShot(50, this, SLOT(restoreActionObjects()));
-
-//	INFONR << QString("hallo 1");
-//	INFONR << QStringList() << "hallo 1" << "hallo2";
-//	INFONR << QDate::currentDate();
-//	INFONR << QDate::currentDate();
-
-	INFO << tr("test1");
-	INFO << tr("test2");
-	INFO << tr("test2");
-	INFO << tr("test2");
-	INFO << tr("test3");
-//	messageHandler(QtInfoMsg, QMessageLogContext(), s);
-//	messageHandler(QtCriticalMsg, QMessageLogContext(), s);
 }
 MainWindow::~MainWindow() {
 	delete ui;
 }
 void MainWindow::onTestButtonClick(bool /*b*/) {
-	inpFrm4			= new InpFrm4();
-	inpFrm4->show();
-//	InpBoxWdg *ibw = new InpBoxWdg();
-//	ibw->show();
+
 }
 void MainWindow::onResizerDlgTrig() {
 	bool ok;
@@ -472,6 +456,7 @@ void MainWindow::createActions() {
 	actExport = new QAction(QIcon(":/images/export-3.png"), tr("Exportieren"), this);
 	actBrowseSQL = new QAction(QIcon(":/images/database.png"), tr("Zeige SQL Tabellen"), this);
 	actInpForm = new QAction(QIcon(":/images/databaseSubmit.png"), tr("Eingabeform"), this);
+	actInpFormV4 = new QAction(QIcon(":/images/databaseInpFrmV4.png"), tr("Eingabeform v4"), this);
 	actShowTbl = new QAction(QIcon(":/images/databaseDelegate.png"), tr("ShowTbl"), this);
 	actDbModMaster = new QAction(QIcon(":/images/databaseConf.png"), tr("Stammdaten bearbeiten"), this);
 	actUnderConstr = new QAction(QIcon(":/images/underConstruct.svg"), tr("Under construction"), this);
@@ -486,7 +471,6 @@ void MainWindow::createActions() {
 	actGbStyleShtA = new QAction("actGbStyleShtA", this);
 	actGbSShtInpFrm = new QAction("actGbSShtInpFrm", this);
 	actFilterTable = new QAction("actFilterTable", this);
-	//	actFilterTableWindow = new QAction("actFilterTableWindow", this);
 	actSelFont = new QAction("Schriftfont", this);
 	actCyclicObjInfo = new QAction("Cyclic object info", this);
 	actResizerDlg = new QAction("Fenstergröße ändern", this);
@@ -510,9 +494,10 @@ void MainWindow::createActions() {
 
 	QList<QAction *> acts;
 	acts << PONAM(actNew) << PONAM(actOpen) << PONAM(actSave) << PONAM(actExport)
-		  << PONAM(actBrowseSQL) << PONAM(actInpForm) << PONAM(actShowTbl)
-		  << PONAM(actDbModMaster) <<  PONAM(actUnderConstr) << PONAM(actNotes)
-		  << PONAM(actNotes) << PONAM(actRichEdit) << PONAM(actClose);
+		  << PONAM(actBrowseSQL) << PONAM(actInpForm) << PONAM(actInpFormV4)
+		  << PONAM(actShowTbl) << PONAM(actDbModMaster) <<  PONAM(actUnderConstr)
+		  << PONAM(actNotes) << PONAM(actNotes) << PONAM(actRichEdit)
+		  << PONAM(actClose);
 
 	foreach (QAction *act, acts)
 		actGrTbMain->addAction(act);
@@ -577,6 +562,7 @@ void MainWindow::createActions() {
 	actNotes->setCheckable(true);
 	actRichEdit->setCheckable(true);
 	actInpForm->setCheckable(true);
+	actInpFormV4->setCheckable(true);
 	actShowTbl->setCheckable(true);
 	actDbModMaster->setCheckable(true);
 	actGbStyleShtA->setCheckable(true);
@@ -590,6 +576,7 @@ void MainWindow::createActions() {
 	actCyclicObjInfo->setShortcut	(QKeySequence("F2"));
 	actFilterForm->setShortcut		(QKeySequence("F3"));
 	actInpForm->setShortcut			(QKeySequence("F4"));
+	actInpFormV4->setShortcut			(QKeySequence("F4"));
 	actNotes->setShortcut			(QKeySequence("F5"));
 
 	actClose->setShortcut(			QKeySequence("Ctrl+Q"));
@@ -637,6 +624,8 @@ void MainWindow::createActions() {
 	actSetGridColor->setToolTip(tr("Farbe für das Tabellen-Raster auswählen."));
 	actInpForm->setToolTip(tr("Öffnet die <b>Eingabeform</b> um neue Einträge in die "
 									  "Arbeitszeitentabelle einzutragen."));
+	actInpFormV4->setToolTip(tr("Öffnet die <b>Eingabeform v4</b> um neue Einträge in die "
+									  "Arbeitszeitentabelle einzutragen."));
 	actDoFiltSelectedTbl->setToolTip(tr("Das Filter/Suchfenster wird auf die <b>aktuell "
 													"ausgewählte</b> Tabelle angewendet."));
 	actDoFiltWorktimeTbl->setToolTip(tr("Das Filter/Suchfenster wird <b>immer</b> auf die "
@@ -658,6 +647,7 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		connect(actNotes, &QAction::toggled, this, &MainWindow::onActNotesToggd);
 		connect(actRichEdit, &QAction::toggled, this, &MainWindow::onActRichTextToggd);
 		connect(actInpForm, &QAction::triggered, this, &MainWindow::onOpenCloseInpFrm);
+		connect(actInpFormV4, &QAction::triggered, this, &MainWindow::onOpenCloseInpFrm);
 		connect(actShowTbl, &QAction::triggered, this, &MainWindow::onTblOpen);
 		connect(actClose, &QAction::triggered, this, &MainWindow::onActCloseTrig);
 		connect(actGbStyleShtA, &QAction::triggered, this, &MainWindow::onMenuStyleShtATrig);
@@ -679,6 +669,7 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		 (receivers == connectAll)) {
 		connect(actAutoFitTables,	&QAction::triggered, browser, &Browser::autofitRowCol);
 		connect(browser, &Browser::stateMsg, stateBar, &MDStateBar::showMessage);
+		connect(inpFrm, &InpFrm::visibilityChanged, actInpForm, &QAction::setChecked);
 		connect(inpFrm, &InpFrm::visibilityChanged, actInpForm, &QAction::setChecked);
 		connect(browser, &Browser::visibilityChanged, actBrowseSQL, &QAction::setChecked);
 		connect(actShowSqlQuery, &QAction::toggled, inpFrm, &InpFrm::setQueryBoxVisible);

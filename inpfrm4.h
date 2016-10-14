@@ -17,6 +17,7 @@
 #include "sfiltmdl.h"
 #include "browser.h"
 #include "mdtabview.h"
+#include "mdtable.h"
 
 #include <QDataWidgetMapper>
 
@@ -28,28 +29,48 @@ class InpBoxWdg;
 class InpFrm4 : public QWidget {
 
 	Q_OBJECT
+	Q_PROPERTY(bool hasSrcTables READ hasSrcTables WRITE setHasSrcTables NOTIFY hasSrcTablesChanged)
 
 public:
-	explicit InpFrm4(QWidget *parent = 0);
+	explicit InpFrm4(const QList<MdTable *> tables = QList<MdTable *>(),
+						  QWidget *parent = 0);
 	static InpFrm4 *instance(QWidget *parent = 0) {
 		if (! mInst)
-			mInst = new InpFrm4(parent);
+			mInst = new InpFrm4(QList<MdTable *>(), parent);
 		return mInst;
 	}
-	~InpFrm4() {};
+	~InpFrm4() {
+		WIN_STORE(this);
+	}
 
+	void setSourceTables(QList<MdTable *> tables);
+
+	bool hasSrcTables() const { return mHasSrcTables; }
+	void setHasSrcTables(bool value) {
+		mHasSrcTables = value;
+		emit hasSrcTablesChanged(value);
+	}
+
+signals:
+	void hasSrcTablesChanged(bool value);
 protected:
+	void showEvent(QShowEvent *e);
+	void hideEvent(QHideEvent *e);
+	void closeEvent(QCloseEvent *e);
+	void keyPressEvent(QKeyEvent *e);
 
 protected slots:
 	void onTextChanged(const QString &text);
+
 private:
 	Browser					*browser;
 	SfiltMdl					*prjProxy;
 	SqlRtm					*sourceRtm;
 	static InpFrm4			*mInst;
 	QList<InpBoxWdg *>	inpBoxes;
-	QDataWidgetMapper *mapper;
-
+//	QDataWidgetMapper		*mapper;
+	QGridLayout				*vbl;
+	bool mHasSrcTables;
 };
 
 

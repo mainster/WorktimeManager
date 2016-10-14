@@ -83,7 +83,7 @@ QGroupBox, QTextEdit {
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
 	border: 2px solid rgb(140,140,140);
 	border-radius: 5px;
-	margin-top: 1ex; 
+	margin-top: 2ex; 
 }
 QGroupBox {
 	font: italic 10pt &quot;Arial&quot;;

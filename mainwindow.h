@@ -125,7 +125,18 @@ protected slots:
 
 private slots:
 	void onOpenCloseInpFrm(bool onOff) {
-		inpFrm->setVisible(onOff);
+		if (! qobject_cast<QAction *>(sender())) {
+			CRIT << tr("Bad sender() cast!");
+			return;
+		}
+		if (qobject_cast<QAction *>(sender()) == actInpForm)
+			inpFrm->setVisible(onOff);
+
+		if (qobject_cast<QAction *>(sender()) == actInpFormV4) {
+			if (! inpFrm4->hasSrcTables())
+				inpFrm4->setSourceTables(browser->mTabs.tblsNoPtr());
+			inpFrm4->setVisible(onOff);
+		}
 	}
 	void onTblOpen(bool) {
 		INFO << tr("I am an empty slot, use me!!!");
@@ -174,11 +185,12 @@ private:
 	QActionGroup *actGrTbMain, *actGrTbMenu, *actGrFilterWidg;
 
 	QAction *actNew, *actOpen, *actSave, *actExport, *actBrowseSQL, *actInpForm,
-	*actShowTbl, *actDbModMaster, *actClose, *actRichEdit, *actUnderConstr, *actNotes,
-	*actGbStyleShtA, *actGbSShtInpFrm, *actSelFont, *actCyclicObjInfo, *actResizerDlg,
-	*actShowSqlQuery, *actSetAlterRowCol, *actSetGridColor, *actAutoFitTables,
-	*actFilterTable, *actFilterTableWindow, *actFilterForm, *actCfgInpFrmTabOrd,
-	*actDoFiltWorktimeTbl, *actDoFiltSelectedTbl, *actResetConfig;
+	*actInpFormV4, *actShowTbl, *actDbModMaster, *actClose, *actRichEdit,
+	*actUnderConstr, *actNotes, *actGbStyleShtA, *actGbSShtInpFrm, *actSelFont,
+	*actCyclicObjInfo, *actResizerDlg, *actShowSqlQuery, *actSetAlterRowCol,
+	*actSetGridColor, *actAutoFitTables, *actFilterTable, *actFilterTableWindow,
+	*actFilterForm, *actCfgInpFrmTabOrd, *actDoFiltWorktimeTbl,
+	*actDoFiltSelectedTbl, *actResetConfig;
 };
 
 /* ======================================================================== */
