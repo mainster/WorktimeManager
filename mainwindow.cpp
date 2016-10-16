@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	browser		= new Browser(parent);
 	mDbc			= new DbController(this);
 	inpFrm		= new InpFrm(this);
-	inpFrm4		= new InpFrm4(QList<MdTable *>(), 0);
+	inpFrm4		= new InpFrm4(QList<MdTable *>(), parent);
 	notes.toDo		= new MDNotes(tr("toDo"), parent);
 	notes.features	= new MDNotes(tr("feature list"), parent);
 	richEditor		= new TextEdit(this);
@@ -113,6 +113,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	QTimer::singleShot(50, this, SLOT(restoreActionObjects()));
 }
 MainWindow::~MainWindow() {
+	delete inpFrm4;
 	delete ui;
 }
 void MainWindow::onTestButtonClick(bool /*b*/) {

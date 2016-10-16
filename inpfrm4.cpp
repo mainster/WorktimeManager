@@ -29,6 +29,9 @@ InpFrm4::InpFrm4(const QList<MdTable *> tables, QWidget *parent)
 	if (! tables.isEmpty())
 		setSourceTables(tables);
 
+	mCb = new QCheckBox(this);
+	mCb->setChecked(false);
+
 	connect(inpBoxes.at(0)->cbx(), &MdComboBox::editTextChanged,
 			  this, &InpFrm4::onTextChanged);
 
@@ -36,6 +39,7 @@ InpFrm4::InpFrm4(const QList<MdTable *> tables, QWidget *parent)
 	vbl->addWidget(inpBoxes.at(0), 0, 0);
 	vbl->addWidget(inpBoxes.at(1), 0, 1);
 	vbl->addWidget(inpBoxes.at(2), 0, 2);
+	vbl->addWidget(mCb, 1, 2, 1, 1);
 
 	foreach (InpBoxWdg *w, inpBoxes)
 		emit w->doAdjustSize();
@@ -54,14 +58,20 @@ void InpFrm4::onTextChanged(const QString &text) {
 
 	if (! senderCb->currentText().isEmpty()) {
 #ifdef USE_COMPLETER
-		prjProxy->setFilterRegExp(text);
+		prjProxy->setFilterFixedString(text);
 #else
-		Q_UNUSED(text);
-		prjProxy->setFilterRegExp(senderCb->getCompleter()->completionPrefix());
+//		Q_UNUSED(text);
+		INFO << tr("changed text: ") << GN_BG(text)
+			  << tr("completion prefix: ") << GN_BG(senderCb->getCompleter()->completionPrefix());
+		if (mCb->isChecked())
+			prjProxy->setFilterFixedString(senderCb->getCompleter()->completionPrefix());
+		else
+			prjProxy->setFilterFixedString(text);
+//		prjProxy->setFilterRegExp(text);
 #endif
 	}
 	else
-		prjProxy->setFilterRegExp(QString());
+		prjProxy->setFilterFixedString(QString());
 
 	inpBoxes.at(1)->cbx()->refreshView();
 }
@@ -101,6 +111,9 @@ void InpFrm4::setSourceTables(const QList<MdTable *> tables) {
 	inpBoxes.at(0)->cbx()->setModelColumns(QList<short>() << 2 << 3 << 1);
 	inpBoxes.at(1)->cbx()->setModelColumns(QList<short>() << 1 << 3);
 	inpBoxes.at(2)->cbx()->setModelColumns(QList<short>() << 1 << 3 << 4);
+
+//	foreach (InpBoxWdg *ibw, inpBoxes)
+//		ibw->cbx()->completer()->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
 
 	QComboBox *cbxa = new QComboBox(this);
 	cbxa->setEditable(true);

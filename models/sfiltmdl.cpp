@@ -37,7 +37,7 @@ bool SfiltMdl::filterAcceptsRow(int srcRow, const QModelIndex &srcParent) const 
 	iCliNum = sourceModel()->index(srcRow, mHeadIdxs->map.value(Md::headerAlias["client/Nummer"], -1), srcParent);
 	iPrjNum = sourceModel()->index(srcRow, mHeadIdxs->map.value(Md::headerAlias["prj/Nummer"], -1), srcParent);
 
-	QString tmp = mHeadIdxs->map.keys().join(' : ');
+	QString tmp = mHeadIdxs->map.keys().join(" : ");
 	/* ======================================================================== */
 	/*                    If a filterID has been passed ...                     */
 	/* ======================================================================== */

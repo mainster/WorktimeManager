@@ -9,6 +9,7 @@
 #endif
 #include <QtSql>
 
+#include <QtWidgets>
 #include <QModelIndex>
 #include "dbcontroller.h"
 #include "globals.h"
@@ -70,6 +71,7 @@ private:
 	QList<InpBoxWdg *>	inpBoxes;
 //	QDataWidgetMapper		*mapper;
 	QGridLayout				*vbl;
+	QCheckBox				*mCb;
 	bool mHasSrcTables;
 };
 
@@ -137,6 +139,7 @@ protected slots:
 
 private:
 	MdComboBox	*mCbx;
+	QCheckBox	*mCheck;
 	QLabel		*mLbl;
 	QGridLayout	*mGl;
 	MdTabView	*mTv;
