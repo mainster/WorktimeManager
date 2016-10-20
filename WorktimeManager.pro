@@ -85,7 +85,8 @@ HEADERS += \
 	 views/mdtable.h \
 	 views/mdtabview.h \
     inpfrm4.h \
-    mdstringlistmodel.h
+    mdstringlistmodel.h \
+    models/tbl2listmdl.h
 
 
 SOURCES += \
@@ -125,7 +126,8 @@ SOURCES += \
 	 views/mdtable.cpp \
 	 views/mdtabview.cpp \
     inpfrm4.cpp \
-    mdstringlistmodel.cpp
+    mdstringlistmodel.cpp \
+    models/tbl2listmdl.cpp
 
 
 FORMS += \

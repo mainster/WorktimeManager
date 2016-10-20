@@ -46,12 +46,16 @@ public:
 	};
 
 	BaseDataForm(int id, QTableView *tableView, QWidget *parent = 0);
+	~BaseDataForm() {
+		INFO << tr("close");
+	}
 
 	void done(int result);
 	virtual void reject() override;
 
 protected:
 	virtual void keyPressEvent(QKeyEvent *e) override;
+	virtual void showEvent(QShowEvent *) override;
 
 protected slots:
 //	void refreshMapper();

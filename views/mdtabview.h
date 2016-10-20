@@ -82,6 +82,7 @@ public:
 	QAction *getActSumSelection() const { return actSumSelection; }
 
 	void setModel(QAbstractItemModel *model) Q_DECL_OVERRIDE;
+	QMessageBox msgBoxSure;
 
 public slots:
 	QFont restoreFont();
@@ -179,7 +180,6 @@ protected slots:
 private:
 	QString				m_sqlTableName;
 	QActionGroup		*actGrStrategy, *actGrContext;
-	QMessageBox msgBoxSure;
 
 	QAction *actInsertRow, *actDeleteRow, *actFieldStrategy, *actRowStrategy,
 	*actManualStrategy,*actSubmit, *actRevert, *actSelect, *actSectionMask,

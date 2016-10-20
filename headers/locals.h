@@ -67,6 +67,7 @@ public:
 	static QString SQLITE_DRIVER;
 	static QString MYSQL_DRIVER;
 	static QStringList PROJECT_PATHS;
+	static const QList<QString> BASE_DATA_TABLE_NAMES;
 	static const QString
 	browserStyleSheet,
 	browserStyleSheetv2;

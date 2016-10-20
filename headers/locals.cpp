@@ -1,6 +1,16 @@
 #include "globals.h"
 #include "locals.h"
 
+const QList<QString> Locals::BASE_DATA_TABLE_NAMES {
+	QString("client"),
+			QString("prj"),
+			QString("fehlzeit"),
+			QString("arch"),
+			QString("sub"),
+			QString("worker"),
+			QString("grading")
+};
+
 struct Md::confKeys_t Md::k {
 	QString("/TabOrder"),
 	QString("/AlternateRowColEnabled"),

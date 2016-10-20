@@ -251,6 +251,7 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 
 	setFont(qobject_cast<MdTabView *>(m_tableView)->font());
 	setStyleSheet(STYLESHEET);
+	show();
 }
 void BaseDataForm::populateComboBoxes() {
 	foreach (QComboBox *cb, cbEditors)
@@ -383,15 +384,34 @@ void BaseDataForm::clearEditorBackgrounds() {
 	foreach (QWidget *w, allEditors)
 		Globals::setStylesheetProperty(w, "orangeBg", false);
 }
+void BaseDataForm::onTopButtonClicked(QAbstractButton *button) {
+	Q_UNUSED(button);
+	qobject_cast<SqlRtm *>(m_tableView->model())->revertAll();
+}
+/* ======================================================================== */
+/*                              Event handler                               */
+/* ======================================================================== */
 void BaseDataForm::keyPressEvent(QKeyEvent *e) {
 	if (e->key() == Qt::Key_F5) {
 		static_cast<SqlRtm *>(m_tableView->model())->select();
 		static_cast<SqlRtm *>(mapper->model())->select();
 	}
 }
-void BaseDataForm::onTopButtonClicked(QAbstractButton *button) {
-	Q_UNUSED(button);
-	qobject_cast<SqlRtm *>(m_tableView->model())->revertAll();
+void BaseDataForm::showEvent(QShowEvent *) {
+	/*!
+	 * Check if the selected table is one of the "base data tables" and warn
+	 * if it isn't!
+	 */
+	MdTabView *mdtv = qobject_cast<MdTabView *>(m_tableView);
+	if (! Locals::BASE_DATA_TABLE_NAMES.join(',').contains(mdtv->sqlTableName())) {
+		mdtv->msgBoxSure.setWindowTitle(tr("Stammdaten editieren!"));
+		mdtv->msgBoxSure.setText(
+					tr("Die Tabelle ""%1"" gehört <b>nicht</b> zu den Stammdaten der Datenbank.\n"
+						"Möchten Sie diese dennoch mit dem <b>Stammdaten-Editor</b> bearbeiten?")
+					.arg(Md::tableAlias[mdtv->sqlTableName()]));
+		if (mdtv->msgBoxSure.exec() != QMessageBox::Yes)
+			QTimer::singleShot(100, Qt::CoarseTimer, this, &BaseDataForm::reject);
+	}
 }
 
 #define QFOLDINGSTART {

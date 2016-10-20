@@ -89,7 +89,6 @@ void MdTable::onActBaseDataForm() {
 		qReturn("Cast failed!");
 
 	bdForm = new BaseDataForm(-1, tv(), 0);
-	bdForm->show();
 }
 void MdTable::onSqlTableNameChanged(const QString &sqlTableName) {
 	m_gb->setTitle(Md::tableAlias[ sqlTableName ]);
