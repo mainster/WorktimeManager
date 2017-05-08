@@ -104,6 +104,7 @@ public:
 	Qt::FocusOrderState getChangeFocusFlag() const;
 	void setChangeFocusFlag(const Qt::FocusOrderState &stateFlag);
 	bool setFocusOrder(QList<QWidget *> targets);
+	QList<QWidget *> filterForProperty(QList<QWidget *> list, const char *property);
 
 signals:
 	void changeFocusOrder(Qt::FocusOrderState state = Qt::FocusChange_init);
@@ -123,15 +124,15 @@ public slots:
 	void aButtonClick(bool);
 	void onInpFormChanges(int idx);
 	void onCbIndexChanged(const int index);
-
 	void onInpFormUserCommitAlt();
+
 protected:
 	virtual void keyPressEvent(QKeyEvent *) override;
 	virtual void resizeEvent(QResizeEvent *) override;
 	void connectActions();
 	void restoreTabOrder();
-
 	QList<QWidget *> getTabableWidgets();
+
 protected slots:
 	void onInpFormChanges(QDate date);
 	void onChangeFocusOrder(Qt::FocusOrderState state);

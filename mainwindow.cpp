@@ -175,7 +175,7 @@ void MainWindow::onUnderConstrTrig() {
 #define QFOLDINGEND }
 }
 void MainWindow::onCyclic() {
-	if (false) {
+	if (/* DISABLES CODE */ (false)) {
 		QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
 		QList<int> ba;
 		foreach (QAction *act, acts)
@@ -309,7 +309,7 @@ void MainWindow::showEvent(QShowEvent *e) {
 void MainWindow::hideEvent(QHideEvent *e) {
 	QWidget::hideEvent( e );
 }
-void MainWindow::closeEvent(QCloseEvent *e) {
+void MainWindow::closeEvent(QCloseEvent *) {
 	QSETTINGS;
 
 	/**** Safe current docking area of dock widgets

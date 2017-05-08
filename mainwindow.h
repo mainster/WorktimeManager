@@ -143,7 +143,7 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 	void showEvent(QShowEvent *e);
 	void hideEvent(QHideEvent *) override;
-	void closeEvent(QCloseEvent *e);
+	void closeEvent(QCloseEvent *);
 
 private:
 	void keyPressEvent(QKeyEvent *e);

@@ -256,11 +256,16 @@ void InpFrm::aButtonClick(bool) {
 		onInpFormUserCommitAlt();
 	}
 	if (pbSender == ui->btnUndo) {
+		/*!
+		 * Write all tab-able widget object names to config file.
+		 */
+		QList<QWidget *> tabOrderList = filterForProperty(
+					findChildren<QWidget *>(), "hasSqlMapper");
 
-		QList<QWidget *> targs =
-				QList<QWidget *>() << ui->datePicker << ui->leHrs << ui->btnOk << ui->cbPrj
-										 << ui->cbWorker << ui->cbClient;
-		setFocusOrder(targs);
+//		QList<QWidget *> targs =
+//				QList<QWidget *>() << ui->datePicker << ui->leHrs << ui->btnOk << ui->cbPrj
+//										 << ui->cbWorker << ui->cbClient;
+//		setFocusOrder(targs);
 
 	}
 	if (pbSender == ui->btnRedo) {
@@ -308,10 +313,10 @@ void InpFrm::onInpFormChanges(QDate date) {
 }
 void InpFrm::onSqlQuerysTextChanged() {
 	/**
-	  * Check if teSqlQuery hasFocus to determine if the textCHanged signal
-	  * was emitted in consequence of a Query restore (no new cb item) or
-	  * in cons. of an user text input/change
-	  */
+	 * Check if teSqlQuery hasFocus to determine if the textCHanged signal was
+	 * emitted in consequence of a Query restore (no new cb item) or in cons. of
+	 * an user text input/change
+	 */
 	if (! ui->teSqlQuerys->hasFocus())
 		return;
 
@@ -341,7 +346,24 @@ void InpFrm::onCbQueryIndexChaned(int idx) {
 	Q_UNUSED(idx);
 	ui->teSqlQuerys->setHtml( ui->cbQueryIdent->currentData().toString() );
 }
+void InpFrm::onDockLocationChanged(Qt::DockWidgetArea area) {
+	QSETTINGS;
+	config.setValue(objectName() + tr("/") + KEY_DOCKWIDGETAREA, (uint) area);
+
+}
+void InpFrm::onUndockEvent(bool isUndocked) {
+	if (isUndocked)
+		WIN_RESTORE(this);
+}
+/* ======================================================================== */
+/*                             Change tab order                             */
+/* ======================================================================== */
 void InpFrm::onChangeFocusOrder(Qt::FocusOrderState state) {
+	QList<QWidget *> targs =
+			QList<QWidget *>() << ui->datePicker << ui->leHrs << ui->btnOk << ui->cbPrj
+									 << ui->cbWorker << ui->cbClient;
+	setFocusOrder(targs);
+
 	/** Interrupt a running changeTabOrder process */
 	if ((mChangeFocusFlag == Qt::FocusChange_isRunning ||
 		  mChangeFocusFlag == Qt::FocusChange_rejected) &&
@@ -394,15 +416,13 @@ void InpFrm::restoreTabOrder() {
 	  * Check for valied tab order configuration data
 	  */
 	QSETTINGS;
-	QList<QWidget *> tabOrderList;
 
 	/*!
 	 * Write all tab-able widget object names to config file.
 	 */
-	tabOrderList = findChildren<QWidget *>();
-	foreach (QWidget *w, tabOrderList)
-		if (! w->property("hasSqlMapper").isValid())
-			tabOrderList.removeOne(w);
+	QList<QWidget *> tabOrderList = filterForProperty(
+				findChildren<QWidget *>(), "hasSqlMapper");
+
 	config.setValue(objectName() + Md::k.allTabableWidgets,
 						 listObjectNames<QWidget *>(tabOrderList)->join(','));
 
@@ -432,10 +452,10 @@ void InpFrm::restoreTabOrder() {
 }
 bool InpFrm::setFocusOrder(QList<QWidget *> targets) {
 	/*!
-	  * Request all child widgets from InpFrm and iterate through the QWidget list.
-	  * If (*it).property("hasSqlMapper")->isValied() returns false, remove current
-	  * widget from allTabable list.
-	  */
+	 * Request all child widgets from InpFrm and iterate through the QWidget list.
+	 * If (*it).property("hasSqlMapper")->isValied() returns false, remove current
+	 * widget from allTabable list.
+	 */
 
 	if ((targets.isEmpty()) ||
 		 (targets.length() > getTabableWidgets().length()))
@@ -491,15 +511,6 @@ Qt::FocusOrderState InpFrm::InpFrm::getChangeFocusFlag() const {
 void InpFrm::setChangeFocusFlag(const Qt::FocusOrderState &stateFlag) {
 	mChangeFocusFlag = stateFlag;
 }
-void InpFrm::onDockLocationChanged(Qt::DockWidgetArea area) {
-	QSETTINGS;
-	config.setValue(objectName() + tr("/") + KEY_DOCKWIDGETAREA, (uint) area);
-
-}
-void InpFrm::onUndockEvent(bool isUndocked) {
-	if (isUndocked)
-		WIN_RESTORE(this);
-}
 /* ======================================================================== */
 /*                             Event callbacks                              */
 /* ======================================================================== */
@@ -542,7 +553,10 @@ void InpFrm::keyPressEvent(QKeyEvent *e) {
 				INFO << tr("start singledshot");
 			}
 		}
-		else hide();
+		else {
+			mEscapeTrigger = false;
+			hide();
+		}
 	}
 	e->ignore();
 }
@@ -557,17 +571,28 @@ void InpFrm::initComboboxes() {
 	/*!
 	  * Initialize sql combobox list member mSqlCbs.
 	  */
-	mSqlCbs = findChildren<MdComboBox *>();
-	foreach (MdComboBox *cb, mSqlCbs) {
-		if (! cb->property("hasSqlMapper").isValid())
-			mSqlCbs.removeOne(cb);
-		else {
-			/*!
-				 * Install custom event filter object for SQL mapping purposes.
-				 */
-			cb->installEventFilter( new SqlEventFilter(this) );
-		}
-	}
+	mSqlCbs = listCast<MdComboBox *>(filterForProperty(
+				listCast<QWidget *>(findChildren<MdComboBox *>()), "hasSqlMapper"));
+	/*!
+	 * Install custom event filter object for SQL mapping purposes.
+	 */
+	foreach (MdComboBox *cb, mSqlCbs)
+		cb->installEventFilter( new SqlEventFilter(this) );
+
+//	foreach (MdComboBox *cb, mSqlCbs) {
+//		if (! cb->property("hasSqlMapper").isValid())
+//			mSqlCbs.removeOne(cb);
+//		else {
+//			if (! cb->property("hasSqlMapper").toBool())
+//				mSqlCbs.removeOne(cb);
+//			else {
+//				/*!
+//				 * Install custom event filter object for SQL mapping purposes.
+//				 */
+//				cb->installEventFilter( new SqlEventFilter(this) );
+//			}
+//		}
+//	}
 
 	/*!
 	  * Append field groups to model struct mModels
@@ -756,7 +781,26 @@ void InpFrm::restoreSqlQueryInputText() {
 										  configQ.value(str).toString());
 	}
 }
-
+/* ======================================================================== */
+/*                                 Helpers                                  */
+/* ======================================================================== */
+QList<QWidget *> InpFrm::filterForProperty(QList<QWidget *> list, const char* property) {
+	foreach (QWidget *w, list) {
+		if (! w->property(property).isValid())
+			list.removeOne(w);
+		else {
+			if (! w->property(property).toBool())
+				list.removeOne(w);
+			else {
+				/*!
+				 * Install custom event filter object for SQL mapping purposes.
+				 */
+				w->installEventFilter( new SqlEventFilter(this) );
+			}
+		}
+	}
+	return list;
+}
 #define QFOLDINGSTART {
 //void InpFrm::onInpFormUserCommitOLD() {
 //	QSqlQuery query;
