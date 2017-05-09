@@ -86,7 +86,9 @@ HEADERS += \
 	 views/mdtabview.h \
     inpfrm4.h \
     mdstringlistmodel.h \
-    models/tbl2listmdl.h
+    models/tbl2listmdl.h \
+    mdecombo.h \
+    inpfrm2.h
 
 
 SOURCES += \
@@ -127,7 +129,9 @@ SOURCES += \
 	 views/mdtabview.cpp \
     inpfrm4.cpp \
     mdstringlistmodel.cpp \
-    models/tbl2listmdl.cpp
+    models/tbl2listmdl.cpp \
+    mdecombo.cpp \
+    inpfrm2.cpp
 
 
 FORMS += \
@@ -137,6 +141,7 @@ FORMS += \
 	 uis/mdnotes.ui \
     uis/inpfrmTRANS.ui \
     uis/mdtable.ui \
-    uis/form.ui
+    uis/form.ui \
+    uis/inpfrm2.ui
 
 

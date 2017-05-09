@@ -174,8 +174,6 @@ void InpFrm4::keyPressEvent(QKeyEvent *e) {
 	QWidget::keyPressEvent(e);
 }
 
-
-
 #define QFOLDINGSTART {
 const QString InpBoxWdg::mStylesheetInp4 = QString(
 			"/* ----------------------------------------------------------------------------------------------- */"
@@ -293,3 +291,44 @@ const QString InpBoxWdg::mStylesheetInp4 = QString(
 			"}");
 
 #define QFOLDINGEND }
+
+
+InpBoxWdg::InpBoxWdg(const QString &title, QWidget *parent)
+	: QGroupBox(parent) {
+	mCbx = new MdComboBox();
+	mLbl = new QLabel(tr("spacer"));
+	mGl = new QGridLayout();
+	mTv = new MdTabView(QString());
+
+	mGl->addWidget(mCbx, 0, 1, 1, 1);
+	mGl->addWidget(mLbl, 1, 1, 1, 1);
+	mGl->addWidget(mTv, 2, 1, -1, 1);
+
+	mLbl->setAlignment(Qt::AlignCenter);
+	mLbl->setFrameShape(QFrame::Box);
+	mLbl->setMaximumHeight(30);
+	setLayout(mGl);
+	setTitle(title);
+
+	connect(this, &InpBoxWdg::doAdjustSize, this, &InpBoxWdg::onDoAdjustSize);
+
+	adjustSize();
+	setStyleSheet(mStylesheetInp4);
+}
+void InpBoxWdg::setTable(MdTable *table) {
+	setTitle(table->sqlTableName());
+	mCbx->setModel(table->tv()->model());
+	mTv->setModel(table->tv()->model());
+	mTv->resizeRowsColsToContents();
+
+	connect(mTv->model(), &QAbstractItemModel::dataChanged,
+			  this, &InpBoxWdg::onTvModelDataChanged);
+}
+void InpBoxWdg::onTvModelDataChanged(const QModelIndex,
+												 const QModelIndex,
+												 const QVector<int>) {
+	mCbx->setModel(mTv->model());
+}
+void InpBoxWdg::onDoAdjustSize() {
+	mCbx->adjustSize();
+}

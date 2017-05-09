@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	browser		= new Browser(parent);
 	mDbc			= new DbController(this);
 	inpFrm		= new InpFrm(this);
+	inpFrm2		= new InpFrm2(this);
 	inpFrm4		= new InpFrm4(QList<MdTable *>(), parent);
 	notes.toDo		= new MDNotes(tr("toDo"), parent);
 	notes.features	= new MDNotes(tr("feature list"), parent);
@@ -93,6 +94,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	 * Connect the inpFrm's statusMessage signal to the statebar message slot
 	 */
 	connect(inpFrm, &InpFrm::stateMessage, stateBar, &MDStateBar::showMessage);
+	connect(inpFrm2, &InpFrm2::stateMessage, stateBar, &MDStateBar::showMessage);
 
 	/*!
 	  * Connect InpFrm::newWorktimeRecord() to MdTable::update()
@@ -216,6 +218,7 @@ void MainWindow::onActCloseTrig() {
 	//    qApp->closeAllWindows();
 	browser->close();
 	inpFrm->close();
+	inpFrm2->close();
 	close();
 }
 void MainWindow::onActSaveTrig() {
@@ -430,7 +433,7 @@ bool MainWindow::restoreActionObjects() {
 	//			actShowSqlQuery->setChecked( false );
 	//		}
 	//		else {
-	//			inpFrm->setQueryBoxVisible( false );
+	//			<->setQueryBoxVisible( false );
 	//			actShowSqlQuery->setChecked( true );
 	//		}
 	//	}

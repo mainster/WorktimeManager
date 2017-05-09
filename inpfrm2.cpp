@@ -1,5 +1,5 @@
-#include "inpfrm.h"
-#include "ui_inpfrm.h"
+#include "inpfrm2.h"
+#include "ui_inpfrm2.h"
 
 #define QUERYPREFIX  tr("CUSTOM_QUERY_")
 #define NEWQUERY     tr("NewQuery")
@@ -11,13 +11,13 @@ class MdComboBox;
 /* ======================================================================== */
 /*                              InpFrm::InpFrm                              */
 /* ======================================================================== */
-InpFrm* InpFrm::inst = 0;
-InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
-	ui(new Ui::InpFrm), mEscapeTrigger(false) {
-	ui->setupUi(this);
+InpFrm2* InpFrm2::inst = 0;
+InpFrm2::InpFrm2(QWidget *parent) : QDockWidget(parent),
+	ui2(new Ui::InpFrm2), mEscapeTrigger(false) {
+	ui2->setupUi(this);
 	hide();	inst = this;
 
-	fixedHeights = InpFrm::fixedHeights_t(2 * FIXED_HEIGHT, FIXED_HEIGHT);
+	fixedHeights = InpFrm2::fixedHeights_t(2 * FIXED_HEIGHT, FIXED_HEIGHT);
 
 	QSETTINGS;
 	if (config.allKeys().join(',').contains( objectName() + tr("/fixedHeight") ))
@@ -30,9 +30,9 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 
 	connectActions();
 
-	ui->cbQueryIdent->setDuplicatesEnabled( false );
-	ui->datePicker->setDate(QDate::currentDate());
-	ui->gbSqlQuery->hide();
+	ui2->cbQueryIdent->setDuplicatesEnabled( false );
+	ui2->datePicker->setDate(QDate::currentDate());
+	ui2->gbSqlQuery->hide();
 	WIN_RESTORE(this);
 
 
@@ -97,7 +97,7 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 #endif
 #define QFOLDINGEND }
 }
-InpFrm::~InpFrm() {
+InpFrm2::~InpFrm2() {
 	WIN_STORE(this);
 
 	this->removeEventFilter(this);
@@ -105,9 +105,9 @@ InpFrm::~InpFrm() {
 	foreach (QWidget *w, mSqlCbs)
 		w->removeEventFilter(this);
 
-	delete ui;
+	delete ui2;
 }
-void InpFrm::onInpFormUserCommitAlt() {
+void InpFrm2::onInpFormUserCommitAlt() {
 	QSqlQuery query;
 	QString q;
 	bool ok = true;
@@ -136,7 +136,7 @@ void InpFrm::onInpFormUserCommitAlt() {
 	/*!
 	  * Find workerID based on InpFrm ui selections
 	  */
-	QStringList strList = ui->cbWorker->currentData(Qt::DisplayRole).toString().split(tr(", "));
+	QStringList strList = ui2->cbWorker->currentData(Qt::DisplayRole).toString().split(tr(", "));
 	q = QString("SELECT workerID FROM worker WHERE Nachname = \"%1\" AND PersonalNr = %2")
 		 .arg( strList.at(0)).arg( strList.at(2) );
 	query.exec( q );
@@ -158,7 +158,7 @@ void InpFrm::onInpFormUserCommitAlt() {
 	/*!
 	  * Find prjID based on InpFrm ui selections.
 	  */
-	strList = ui->cbPrj->currentData(Qt::DisplayRole).toString().split(tr(", "));
+	strList = ui2->cbPrj->currentData(Qt::DisplayRole).toString().split(tr(", "));
 	q = QString("SELECT prjID FROM prj WHERE Kurzform = \"%1\" AND Nummer = %2")
 		 .arg(strList.at(0)).arg(strList.at(1));
 	query.exec( q );
@@ -183,10 +183,10 @@ void InpFrm::onInpFormUserCommitAlt() {
 					  "VALUES (:dat, :workerID, :prjID, :hours)");
 
 	//	query.bindValue(":worktimID",   -1);
-	query.bindValue(":dat",         ui->datePicker->date().toString("yyyy-MM-dd"));
+	query.bindValue(":dat",         ui2->datePicker->date().toString("yyyy-MM-dd"));
 	query.bindValue(":workerID",    workerID);
 	query.bindValue(":prjID",       prjID);
-	query.bindValue(":hours",       ui->leHrs->text().toInt());
+	query.bindValue(":hours",       ui2->leHrs->text().toInt());
 	query.exec();
 	if (query.lastError().type() != QSqlError::NoError) {
 		QMessageBox::warning(this, "Fehler bei SQL Query",
@@ -201,14 +201,14 @@ void InpFrm::onInpFormUserCommitAlt() {
 	INFO << query.lastQuery();
 
 }
-void InpFrm::onInpFormUserCommit() {
+void InpFrm2::onInpFormUserCommit() {
 	QSqlQuery query;
 	QString q;
 
 	/*!
 	  * Find workerID based on InpFrm ui selections
 	  */
-	QStringList strList = ui->cbWorker->currentData(Qt::DisplayRole).toString().split(tr(", "));
+	QStringList strList = ui2->cbWorker->currentData(Qt::DisplayRole).toString().split(tr(", "));
 	q = QString("SELECT workerID FROM worker WHERE Nachname = \"%1\" AND PersonalNr = %2")
 		 .arg( strList.at(0)).arg( strList.at(2) );
 	query.exec( q );
@@ -220,7 +220,7 @@ void InpFrm::onInpFormUserCommit() {
 	/*!
 	  * Find prjID based on InpFrm ui selections.
 	  */
-	strList = ui->cbPrj->currentData(Qt::DisplayRole).toString().split(tr(", "));
+	strList = ui2->cbPrj->currentData(Qt::DisplayRole).toString().split(tr(", "));
 	q = QString("SELECT prjID FROM prj WHERE Kurzform = \"%1\" AND Nummer = %2")
 		 .arg(strList.at(0)).arg(strList.at(1));
 	query.exec( q );
@@ -236,10 +236,10 @@ void InpFrm::onInpFormUserCommit() {
 	query.clear();
 	query.prepare("INSERT INTO worktime (dat, workerID, prjID, hours) "
 					  "VALUES (:dat, :workerID, :prjID, :hours)");
-	query.bindValue(":dat",         ui->datePicker->date().toString("yyyy-MM-dd"));
+	query.bindValue(":dat",         ui2->datePicker->date().toString("yyyy-MM-dd"));
 	query.bindValue(":workerID",    workerID);
 	query.bindValue(":prjID",       prjID);
-	query.bindValue(":hours",       ui->leHrs->text().toInt());
+	query.bindValue(":hours",       ui2->leHrs->text().toInt());
 	query.exec();
 
 	if (query.lastError().type() != QSqlError::NoError) {
@@ -252,7 +252,7 @@ void InpFrm::onInpFormUserCommit() {
 	emit newWorktimeRecord();
 	Browser::instance()->mTabs.findByTableName(tr("worktime"))->tv()->reset();
 }
-void InpFrm::onCbIndexChanged(const int index) {
+void InpFrm2::onCbIndexChanged(const int index) {
 	MdComboBox *cbSender = qobject_cast<MdComboBox *>(QObject::sender());
 
 	INFO  << cbSender << cbSender->currentText() << index << cbSender->currentIndex();
@@ -262,19 +262,19 @@ void InpFrm::onCbIndexChanged(const int index) {
 	  * have to find the correct record within the SQL table "prj" and set the row
 	  * to be viewed via ui->lblPrj.
 	  */
-	if (cbSender == ui->cbPrj) {
+	if (cbSender == ui2->cbPrj) {
 		return;
 	}
-	if (cbSender == ui->cbClient) {
+	if (cbSender == ui2->cbClient) {
 
 		return;
 	}
-	if (cbSender == ui->cbWorker) {
+	if (cbSender == ui2->cbWorker) {
 
 		return;
 	}
 }
-void InpFrm::aButtonClick(bool) {
+void InpFrm2::aButtonClick(bool) {
 	QPushButton *pbSender = qobject_cast<QPushButton *>(QObject::sender());
 	QList<QWidget *> ws;
 	/*
@@ -291,32 +291,32 @@ void InpFrm::aButtonClick(bool) {
 
 	 setFocusOrder( ws );
 */
-	if (pbSender == ui->btnSaveQuery) { /*saveSqlQueryInputText();*/ return; }
-	if (pbSender == ui->btnRestoreQuery) { /*restoreSqlQueryInputText();*/ return; }
-	if (pbSender == ui->btnSubmitQuery) {
+	if (pbSender == ui2->btnSaveQuery) { /*saveSqlQueryInputText();*/ return; }
+	if (pbSender == ui2->btnRestoreQuery) { /*restoreSqlQueryInputText();*/ return; }
+	if (pbSender == ui2->btnSubmitQuery) {
 		//		Browser::instance()->exec();
 		Browser::instance()->execCustomQuery();
 	}
-	if (pbSender == ui->btnClear) {
+	if (pbSender == ui2->btnClear) {
 		//		foreach (MdComboBox *mcbx, QList<MdComboBox*>(listCast<MdComboBox*,QComboBox*>(mSqlCbs))) {
 		//			mcbx->makePermanentView(true);
 		//		}
 		onInpFormUserCommit();
 
 	}
-	if (pbSender == ui->btnOk) {
+	if (pbSender == ui2->btnOk) {
 		onInpFormUserCommitAlt();
 	}
-	if (pbSender == ui->btnUndo) {
+	if (pbSender == ui2->btnUndo) {
 
 
 		QList<QWidget *> targs =
-				QList<QWidget *>() << ui->datePicker << ui->leHrs << ui->btnOk << ui->cbPrj
-										 << ui->cbWorker << ui->cbClient;
+				QList<QWidget *>() << ui2->datePicker << ui2->leHrs << ui2->btnOk << ui2->cbPrj
+										 << ui2->cbWorker << ui2->cbClient;
 		setFocusOrder(targs);
 
 	}
-	if (pbSender == ui->btnRedo) {
+	if (pbSender == ui2->btnRedo) {
 		//		Browser *browser = Browser::instance();
 		//		browser->on_connectionWidget_metaDataRequested("prj");
 
@@ -332,7 +332,7 @@ void InpFrm::aButtonClick(bool) {
 			  << mModels.at(IDX_PROJECT).tableModel->columnCount(mix);
 	}
 }
-QList<QWidget *> InpFrm::getTabableWidgets() {
+QList<QWidget *> InpFrm2::getTabableWidgets() {
 	QList<QWidget *> inpWids;
 
 	inpWids << listCast<QWidget*>(findChildren<QComboBox *>(QRegularExpression("cb*")));
@@ -351,50 +351,50 @@ QList<QWidget *> InpFrm::getTabableWidgets() {
 
 	return inpWids;
 }
-void InpFrm::onInpFormChanges(int idx) {
+void InpFrm2::onInpFormChanges(int idx) {
 	Q_UNUSED(idx);
 	//   INFO << idx;
 }
-void InpFrm::onInpFormChanges(QDate date) {
+void InpFrm2::onInpFormChanges(QDate date) {
 	Q_UNUSED(date);
 	//   INFO << date;
 }
-void InpFrm::onSqlQuerysTextChanged() {
+void InpFrm2::onSqlQuerysTextChanged() {
 	/**
 	  * Check if teSqlQuery hasFocus to determine if the textCHanged signal
 	  * was emitted in consequence of a Query restore (no new cb item) or
 	  * in cons. of an user text input/change
 	  */
-	if (! ui->teSqlQuerys->hasFocus())
+	if (! ui2->teSqlQuerys->hasFocus())
 		return;
 
 	/**
 	  * generate new item only if there is no "New query" item at 0.
 	  * If there is already a "New query" item, update item data only.
 	  */
-	if (! ui->cbQueryIdent->itemText(0).contains(NEWQUERY))
-		ui->cbQueryIdent->insertItem(0, NEWQUERY,
-											  ui->teSqlQuerys->toHtml());
+	if (! ui2->cbQueryIdent->itemText(0).contains(NEWQUERY))
+		ui2->cbQueryIdent->insertItem(0, NEWQUERY,
+											  ui2->teSqlQuerys->toHtml());
 	else
-		ui->cbQueryIdent->setItemData(0, ui->teSqlQuerys->toHtml());
+		ui2->cbQueryIdent->setItemData(0, ui2->teSqlQuerys->toHtml());
 
-	ui->cbQueryIdent->setCurrentIndex(0);
+	ui2->cbQueryIdent->setCurrentIndex(0);
 }
-void InpFrm::setQueryBoxVisible(bool visible) {
-	ui->gbSqlQuery->setVisible( visible );
+void InpFrm2::setQueryBoxVisible(bool visible) {
+	ui2->gbSqlQuery->setVisible( visible );
 	if (visible) {
 		setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		ui->teSqlQuerys->setFocusPolicy(Qt::ClickFocus);
+		ui2->teSqlQuerys->setFocusPolicy(Qt::ClickFocus);
 		setMaximumHeight( fixedHeights.sqlQueryVisible );
 		return;
 	}
 	setFixedHeight( fixedHeights.sqlQueryInvisible );
 }
-void InpFrm::onCbQueryIndexChaned(int idx) {
+void InpFrm2::onCbQueryIndexChaned(int idx) {
 	Q_UNUSED(idx);
-	ui->teSqlQuerys->setHtml( ui->cbQueryIdent->currentData().toString() );
+	ui2->teSqlQuerys->setHtml( ui2->cbQueryIdent->currentData().toString() );
 }
-void InpFrm::onChangeFocusOrder(Qt::FocusOrderState state) {
+void InpFrm2::onChangeFocusOrder(Qt::FocusOrderState state) {
 	/** Interrupt a running changeTabOrder process */
 	if ((mChangeFocusFlag == Qt::FocusChange_isRunning ||
 		  mChangeFocusFlag == Qt::FocusChange_rejected) &&
@@ -442,7 +442,7 @@ void InpFrm::onChangeFocusOrder(Qt::FocusOrderState state) {
 	//	return;
 
 }
-void InpFrm::restoreTabOrder() {
+void InpFrm2::restoreTabOrder() {
 	/*!
 	  * Check for valied tab order configuration data
 	  */
@@ -488,7 +488,7 @@ void InpFrm::restoreTabOrder() {
 
 	/* ======================================================================== */
 }
-bool InpFrm::setFocusOrder(QList<QWidget *> targets) {
+bool InpFrm2::setFocusOrder(QList<QWidget *> targets) {
 	/*!
 	  * Request all child widgets from InpFrm and iterate through the QWidget list.
 	  * If (*it).property("hasSqlMapper")->isValied() returns false, remove current
@@ -543,34 +543,34 @@ bool InpFrm::setFocusOrder(QList<QWidget *> targets) {
 
 	return true;
 }
-Qt::FocusOrderState InpFrm::InpFrm::getChangeFocusFlag() const {
+Qt::FocusOrderState InpFrm2::InpFrm2::getChangeFocusFlag() const {
 	return mChangeFocusFlag;
 }
-void InpFrm::setChangeFocusFlag(const Qt::FocusOrderState &stateFlag) {
+void InpFrm2::setChangeFocusFlag(const Qt::FocusOrderState &stateFlag) {
 	mChangeFocusFlag = stateFlag;
 }
-void InpFrm::onDockLocationChanged(Qt::DockWidgetArea area) {
+void InpFrm2::onDockLocationChanged(Qt::DockWidgetArea area) {
 	QSETTINGS;
 	config.setValue(objectName() + tr("/") + KEY_DOCKWIDGETAREA, (uint) area);
 
 }
-void InpFrm::onUndockEvent(bool isUndocked) {
+void InpFrm2::onUndockEvent(bool isUndocked) {
 	if (isUndocked)
 		WIN_RESTORE(this);
 }
 /* ======================================================================== */
 /*                             Event callbacks                              */
 /* ======================================================================== */
-void InpFrm::showEvent(QShowEvent *) {
+void InpFrm2::showEvent(QShowEvent *) {
 	update();
 	updateGeometry();
 	mEscapeTrigger = false;
 	//	mapCbTableProxy();
 }
-void InpFrm::hideEvent(QShowEvent *) {
+void InpFrm2::hideEvent(QShowEvent *) {
 
 }
-void InpFrm::closeEvent(QCloseEvent *) {
+void InpFrm2::closeEvent(QCloseEvent *) {
 	QSETTINGS;
 
 	//	if (dock)
@@ -578,13 +578,13 @@ void InpFrm::closeEvent(QCloseEvent *) {
 	\*/
 	WIN_STORE(this);
 }
-void InpFrm::keyPressEvent(QKeyEvent *e) {
+void InpFrm2::keyPressEvent(QKeyEvent *e) {
 	/**
 	  * If key press event for "Enter" is detected, emit a btnOk Clicked()
 	  * signal to access onBtnOkClicked()
 	  */
 	if (e->key() == Qt::Key_Enter) {
-		emit ui->btnOk->clicked();
+		emit ui2->btnOk->clicked();
 		e->accept();
 		return;
 	}
@@ -604,35 +604,35 @@ void InpFrm::keyPressEvent(QKeyEvent *e) {
 	}
 	e->ignore();
 }
-void InpFrm::resizeEvent(QResizeEvent *) {
+void InpFrm2::resizeEvent(QResizeEvent *) {
 	//	if (isFloating())
 	//		WIN_STORE(this);
 }
 /* ======================================================================== */
 /*									    Init methodes										    */
 /* ======================================================================== */
-void InpFrm::textFilterChanged1() {
+void InpFrm2::textFilterChanged1() {
 	int i = 0;
 	 QRegExp regExp(mFiltEdits.at(i)->text(),
 						 mFiltEdits.at(i)->caseSensitivity(),
 						 mFiltEdits.at(i)->patternSyntax());
 	 mProxys[i]->setFilterRegExp(regExp);
 }
-void InpFrm::textFilterChanged2() {
+void InpFrm2::textFilterChanged2() {
 	int i = 1;
 	 QRegExp regExp(mFiltEdits.at(i)->text(),
 						 mFiltEdits.at(i)->caseSensitivity(),
 						 mFiltEdits.at(i)->patternSyntax());
 	 mProxys[i]->setFilterRegExp(regExp);
 }
-void InpFrm::textFilterChanged3() {
+void InpFrm2::textFilterChanged3() {
 	int i = 2;
 	 QRegExp regExp(mFiltEdits.at(i)->text(),
 						 mFiltEdits.at(i)->caseSensitivity(),
 						 mFiltEdits.at(i)->patternSyntax());
 	mProxys[i]->setFilterRegExp(regExp);
 }
-void InpFrm::initListViews(void) {
+void InpFrm2::initListViews(void) {
 //	QList<QWidget *> ws = findChildren<QWidget *>();
 
 //	foreach (QWidget *w, ws) {
@@ -641,7 +641,7 @@ void InpFrm::initListViews(void) {
 //	}
 
 	QList<QGroupBox *> gbs = QList<QGroupBox *>()
-			<< ui->gboxPrj	<< ui->gboxClient	<< ui->gboxWorker;
+			<< ui2->gboxPrj	<< ui2->gboxClient	<< ui2->gboxWorker;
 
 	QFrame frm1;
 
@@ -666,15 +666,15 @@ void InpFrm::initListViews(void) {
 	frm1.setParent(this);
 	frm1.show();
 
-	connect(mFiltEdits.at(0), &FilterEdit::filterChanged, this, &InpFrm::textFilterChanged1);
-	connect(mFiltEdits.at(0), &FilterEdit::textChanged, this, &InpFrm::textFilterChanged1);
-	mTblWids[0]->setModel(ui->gboxPrj->findChild<MdComboBox *>()->model());
-	connect(mFiltEdits.at(1), &FilterEdit::filterChanged, this, &InpFrm::textFilterChanged2);
-	connect(mFiltEdits.at(1), &FilterEdit::textChanged, this, &InpFrm::textFilterChanged2);
-	mTblWids[1]->setModel(ui->gboxClient->findChild<MdComboBox *>()->model());
-	connect(mFiltEdits.at(2), &FilterEdit::filterChanged, this, &InpFrm::textFilterChanged3);
-	connect(mFiltEdits.at(2), &FilterEdit::textChanged, this, &InpFrm::textFilterChanged3);
-	mTblWids[2]->setModel(ui->gboxWorker->findChild<MdComboBox *>()->model());
+	connect(mFiltEdits.at(0), &FilterEdit::filterChanged, this, &InpFrm2::textFilterChanged1);
+	connect(mFiltEdits.at(0), &FilterEdit::textChanged, this, &InpFrm2::textFilterChanged1);
+	mTblWids[0]->setModel(ui2->gboxPrj->findChild<MdComboBox *>()->model());
+	connect(mFiltEdits.at(1), &FilterEdit::filterChanged, this, &InpFrm2::textFilterChanged2);
+	connect(mFiltEdits.at(1), &FilterEdit::textChanged, this, &InpFrm2::textFilterChanged2);
+	mTblWids[1]->setModel(ui2->gboxClient->findChild<MdComboBox *>()->model());
+	connect(mFiltEdits.at(2), &FilterEdit::filterChanged, this, &InpFrm2::textFilterChanged3);
+	connect(mFiltEdits.at(2), &FilterEdit::textChanged, this, &InpFrm2::textFilterChanged3);
+	mTblWids[2]->setModel(ui2->gboxWorker->findChild<MdComboBox *>()->model());
 
 
 
@@ -688,7 +688,7 @@ void InpFrm::initListViews(void) {
 //	}
 }
 
-void InpFrm::initComboboxes() {
+void InpFrm2::initComboboxes() {
 	/*!
 	  * Initialize sql combobox list member mSqlCbs.
 	  */
@@ -718,9 +718,9 @@ void InpFrm::initComboboxes() {
 	/*!
 	  * Append field groups to model struct mModels
 	  */
-	mModels << fieldGroup_t(tr("prj"), ui->cbPrj)
-			  << fieldGroup_t(tr("client"), ui->cbClient)
-			  << fieldGroup_t(tr("worker"), ui->cbWorker);
+	mModels << fieldGroup_t(tr("prj"), ui2->cbPrj)
+			  << fieldGroup_t(tr("client"), ui2->cbClient)
+			  << fieldGroup_t(tr("worker"), ui2->cbWorker);
 
 	/*!
 	 * Set foreign key relations.
@@ -758,47 +758,47 @@ void InpFrm::initComboboxes() {
 	idx << mModels[IDX_PROJECT].tableModel->fieldIndex("Kurzform")
 		 << mModels[IDX_PROJECT].tableModel->fieldIndex("Nummer");
 	//	INFO << idx;
-	ui->cbPrj->setModelColumns(idx);
+	ui2->cbPrj->setModelColumns(idx);
 
 	idx.clear();
 	idx << mModels[IDX_CLIENT].tableModel->fieldIndex("Kurzform")
 		 << mModels[IDX_CLIENT].tableModel->fieldIndex("Nummer");
 	//	INFO << idx;
-	ui->cbClient->setModelColumns(idx);
+	ui2->cbClient->setModelColumns(idx);
 
 	idx.clear();
 	idx << mModels[IDX_WORKER].tableModel->fieldIndex("Nachname")
 		 << mModels[IDX_WORKER].tableModel->fieldIndex("Vorname")
 		 << mModels[IDX_WORKER].tableModel->fieldIndex("PersonalNr");
 	//	INFO << idx;
-	ui->cbWorker->setModelColumns(idx);
+	ui2->cbWorker->setModelColumns(idx);
 
-	connect(ui->cbPrj, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
-	connect(ui->cbClient, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
-	connect(ui->cbWorker, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
+	connect(ui2->cbPrj, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
+	connect(ui2->cbClient, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
+	connect(ui2->cbWorker, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
 
 	//	ui->cbPrj->setModelColumns(QList<quint8>() << 1 << 5);
 	//	ui->cbClient->setModelColumns(QList<quint8>() << 1 << 3);
 	//	ui->cbWorker->setModelColumns(QList<quint8>() << 1 << 2);
 
 }
-QString InpFrm::getQueryText() const {
-	return ui->teSqlQuerys->toPlainText();
+QString InpFrm2::getQueryText() const {
+	return ui2->teSqlQuerys->toPlainText();
 }
-void InpFrm::connectActions() {
+void InpFrm2::connectActions() {
 
-	connect(ui->datePicker,         SIGNAL(dateChanged(QDate)),
+	connect(ui2->datePicker,         SIGNAL(dateChanged(QDate)),
 			  this,                   SLOT(onInpFormChanges(QDate)));
-	connect(ui->sbID,               SIGNAL(valueChanged(int)),
+	connect(ui2->sbID,               SIGNAL(valueChanged(int)),
 			  this,                   SLOT(onInpFormChanges(int)));
-	connect(ui->teSqlQuerys,        SIGNAL(textChanged()),
+	connect(ui2->teSqlQuerys,        SIGNAL(textChanged()),
 			  this,                   SLOT(onSqlQuerysTextChanged()));
-	connect(ui->cbQueryIdent,       SIGNAL(currentIndexChanged(int)),
+	connect(ui2->cbQueryIdent,       SIGNAL(currentIndexChanged(int)),
 			  this,                   SLOT(onCbQueryIndexChaned(int)));
 
-	connect(this, &InpFrm::changeFocusOrder, this, &InpFrm::onChangeFocusOrder);
-	connect(this, &InpFrm::dockLocationChanged, this, &InpFrm::onDockLocationChanged);
-	connect(this, &InpFrm::topLevelChanged, this, &InpFrm::onUndockEvent);
+	connect(this, &InpFrm2::changeFocusOrder, this, &InpFrm2::onChangeFocusOrder);
+	connect(this, &InpFrm2::dockLocationChanged, this, &InpFrm2::onDockLocationChanged);
+	connect(this, &InpFrm2::topLevelChanged, this, &InpFrm2::onUndockEvent);
 
 	QList<QComboBox*> cbs = findChildren<QComboBox *>();
 	QList<QPushButton*> pbs = findChildren<QPushButton *>();
@@ -808,20 +808,20 @@ void InpFrm::connectActions() {
 
 	foreach (QPushButton *pb, pbs) {
 		if (pb->objectName() == tr("btnSaveQuery")) {
-			connect(pb, &QPushButton::clicked, this, &InpFrm::saveSqlQueryInputText);
+			connect(pb, &QPushButton::clicked, this, &InpFrm2::saveSqlQueryInputText);
 			continue;
 		}
 
 		if (pb->objectName() == tr("btnRestoreQuery")) {
-			connect(pb, &QPushButton::clicked, this, &InpFrm::restoreSqlQueryInputText);
+			connect(pb, &QPushButton::clicked, this, &InpFrm2::restoreSqlQueryInputText);
 			continue;
 		}
 
-		if (! (bool)connect(pb, &QPushButton::clicked, this, &InpFrm::aButtonClick))
+		if (! (bool)connect(pb, &QPushButton::clicked, this, &InpFrm2::aButtonClick))
 			CRIT << tr("connect(..) returned false or button %1").arg(pb->objectName());
 	}
 }
-void InpFrm::saveSqlQueryInputText() {
+void InpFrm2::saveSqlQueryInputText() {
 	/**
  * Different SQL query commands could be saved in config file. A unique query
  * command identifier string could be set. All custom query cmds becomes
@@ -857,16 +857,16 @@ void InpFrm::saveSqlQueryInputText() {
 
 	/** Save contens of query textbox to config "customQuerys" */
 	configQ.setValue(objectName() + "/" + newID,
-						  ui->teSqlQuerys->toHtml());
+						  ui2->teSqlQuerys->toHtml());
 
 	config.setValue(objectName() + "/" + newID + "_plain",
-						 ui->teSqlQuerys->toPlainText());
+						 ui2->teSqlQuerys->toPlainText());
 
-	if (ui->cbQueryIdent->itemText(0).contains(NEWQUERY))
-		ui->cbQueryIdent->removeItem(0);
+	if (ui2->cbQueryIdent->itemText(0).contains(NEWQUERY))
+		ui2->cbQueryIdent->removeItem(0);
 
 	//	mapCbTableProxy();
-	ui->cbQueryIdent->setCurrentText(newID /*+ "_HTML"*/);
+	ui2->cbQueryIdent->setCurrentText(newID /*+ "_HTML"*/);
 
 	/**
 	  * If newID contains a substring indicating a WORKTIME table join query has
@@ -883,29 +883,29 @@ void InpFrm::saveSqlQueryInputText() {
 		configQ.setValue(objectName() + "/default_worktime_query", newID);
 
 		config.setValue(objectName() + "/default_worktime_query_plain",
-							 ui->teSqlQuerys->toPlainText());
+							 ui2->teSqlQuerys->toPlainText());
 	}
 
 }
-void InpFrm::restoreSqlQueryInputText() {
+void InpFrm2::restoreSqlQueryInputText() {
 	QSETTINGS_QUERYS;
 	QStringList customQueryID;
 
-	ui->cbQueryIdent->clear();
+	ui2->cbQueryIdent->clear();
 
 	/*!
 	  * Set CUSTOM_QUERY_COMMANDS combo box items
 	  */
 	foreach (QString str, configQ.allKeys()) {
 		customQueryID << str.split('/').at(1);
-		ui->cbQueryIdent->addItem(customQueryID.last(),
+		ui2->cbQueryIdent->addItem(customQueryID.last(),
 										  configQ.value(str).toString());
 	}
 }
 /* ======================================================================== */
 /*                                 Helpers                                  */
 /* ======================================================================== */
-QList<QWidget *> InpFrm::filterForProperty(
+QList<QWidget *> InpFrm2::filterForProperty(
 		QList<QWidget *> list, const char* property) {
 	foreach (QWidget *w, list) {
 		if (! w->property(property).isValid())

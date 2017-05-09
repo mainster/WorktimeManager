@@ -16,6 +16,7 @@
 #include "mdtable.h"
 #include "mdtabview.h"
 #include "sfiltmdl.h"
+#include <QComboBox>
 
 namespace Ui {
 	class FilterWidget;
@@ -160,7 +161,7 @@ class CustFilterWindow : public QWidget {
 
  private:
 	MySortFilterProxyModel *proxyModel;
-
+	QComboBox *cbx;
 	QGroupBox *sourceGroupBox;
 	QGroupBox *proxyGroupBox;
 	QTreeView *sourceView;

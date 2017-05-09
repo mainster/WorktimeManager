@@ -1,5 +1,5 @@
-#ifndef INPFRM_H
-#define INPFRM_H
+#ifndef INPFRM2_H
+#define INPFRM2_H
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000
@@ -26,18 +26,18 @@
 class FilterEdit;
 
 namespace Ui {
-class InpFrm;
+class InpFrm2;
 }
-namespace Qt {
-enum FocusOrderState {
-	FocusChange_none,
-	FocusChange_init,
-	FocusChange_isRunning,
-	FocusChange_done,
-	FocusChange_rejected,
-};
-Q_ENUMS(FocusOrderState)
-}
+//namespace Qt {
+//enum FocusOrderState {
+//	FocusChange_none,
+//	FocusChange_init,
+//	FocusChange_isRunning,
+//	FocusChange_done,
+//	FocusChange_rejected,
+//};
+//Q_ENUMS(FocusOrderState)
+//}
 
 #define MAX_TAB_ORDER_WIDGETS		8
 
@@ -53,7 +53,7 @@ Q_ENUMS(FocusOrderState)
 /* ======================================================================== */
 /*                               class InpFrm                               */
 /* ======================================================================== */
-class InpFrm : public QDockWidget {
+class InpFrm2 : public QDockWidget {
 
 	Q_OBJECT
 //	Q_PROPERTY(TvSelectors tvSelector READ tvSelector WRITE setTvSelector NOTIFY tvSelectorChanged)
@@ -100,13 +100,13 @@ public:
 		QList<QWidget *> mNext;
 	} mTabOrder;
 
-	explicit InpFrm(QWidget *parent = 0);
-	static InpFrm *instance(QWidget *parent = 0x00) {
+	explicit InpFrm2(QWidget *parent = 0);
+	static InpFrm2 *instance(QWidget *parent = 0x00) {
 		if(inst == 0)
-			inst = new InpFrm(parent);
+			inst = new InpFrm2(parent);
 		return inst;
 	}
-	~InpFrm();
+	~InpFrm2();
 
 	void setQueryBoxVisible(bool visible);
 	void onInpFormUserCommit();
@@ -158,8 +158,8 @@ protected slots:
 private slots:
 
 private:
-	Ui::InpFrm						*ui;
-	static InpFrm					*inst;
+	Ui::InpFrm2						*ui2;
+	static InpFrm2					*inst;
 	int								workerIdx, projIdx;
 	MDStateBar						*stateBar;
 	QDateEdit						*de;

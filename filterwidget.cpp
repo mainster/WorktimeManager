@@ -401,73 +401,73 @@ void FilterWidget::keyPressEvent(QKeyEvent *e) {
 /* ======================================================================== */
 /* ======================================================================== */
 FilterEdit::FilterEdit(QWidget *parent)
-	 : QLineEdit(parent)
-	 , m_patternGroup(new QActionGroup(this))
+	: QLineEdit(parent)
+	, m_patternGroup(new QActionGroup(this))
 {
-	 setClearButtonEnabled(true);
-	 connect(this, &QLineEdit::textChanged, this, &FilterEdit::filterChanged);
+	setClearButtonEnabled(true);
+	connect(this, &QLineEdit::textChanged, this, &FilterEdit::filterChanged);
 
-	 QMenu *menu = new QMenu(this);
-	 m_caseSensitivityAction = menu->addAction(tr("Case Sensitive"));
-	 m_caseSensitivityAction->setCheckable(true);
-	 connect(m_caseSensitivityAction, &QAction::toggled, this, &FilterEdit::filterChanged);
+	QMenu *menu = new QMenu(this);
+	m_caseSensitivityAction = menu->addAction(tr("Case Sensitive"));
+	m_caseSensitivityAction->setCheckable(true);
+	connect(m_caseSensitivityAction, &QAction::toggled, this, &FilterEdit::filterChanged);
 
-	 menu->addSeparator();
-	 m_patternGroup->setExclusive(true);
-	 QAction *patternAction = menu->addAction("Fixed String");
-	 patternAction->setData(QVariant(int(QRegExp::FixedString)));
-	 patternAction->setCheckable(true);
-	 patternAction->setChecked(true);
-	 m_patternGroup->addAction(patternAction);
-	 patternAction = menu->addAction("Regular Expression");
-	 patternAction->setCheckable(true);
-	 patternAction->setData(QVariant(int(QRegExp::RegExp2)));
-	 m_patternGroup->addAction(patternAction);
-	 patternAction = menu->addAction("Wildcard");
-	 patternAction->setCheckable(true);
-	 patternAction->setData(QVariant(int(QRegExp::Wildcard)));
-	 m_patternGroup->addAction(patternAction);
-	 connect(m_patternGroup, &QActionGroup::triggered, this, &FilterEdit::filterChanged);
+	menu->addSeparator();
+	m_patternGroup->setExclusive(true);
+	QAction *patternAction = menu->addAction("Fixed String");
+	patternAction->setData(QVariant(int(QRegExp::FixedString)));
+	patternAction->setCheckable(true);
+	patternAction->setChecked(true);
+	m_patternGroup->addAction(patternAction);
+	patternAction = menu->addAction("Regular Expression");
+	patternAction->setCheckable(true);
+	patternAction->setData(QVariant(int(QRegExp::RegExp2)));
+	m_patternGroup->addAction(patternAction);
+	patternAction = menu->addAction("Wildcard");
+	patternAction->setCheckable(true);
+	patternAction->setData(QVariant(int(QRegExp::Wildcard)));
+	m_patternGroup->addAction(patternAction);
+	connect(m_patternGroup, &QActionGroup::triggered, this, &FilterEdit::filterChanged);
 
-	 const QIcon icon = QIcon(QPixmap(":/images/find.png"));
-	 QToolButton *optionsButton = new QToolButton;
+	const QIcon icon = QIcon(QPixmap(":/images/find.png"));
+	QToolButton *optionsButton = new QToolButton;
 #ifndef QT_NO_CURSOR
-	 optionsButton->setCursor(Qt::ArrowCursor);
+	optionsButton->setCursor(Qt::ArrowCursor);
 #endif
-	 optionsButton->setFocusPolicy(Qt::NoFocus);
-	 optionsButton->setStyleSheet("* { border: none; }");
-	 optionsButton->setIcon(icon);
-	 optionsButton->setMenu(menu);
-	 optionsButton->setPopupMode(QToolButton::InstantPopup);
+	optionsButton->setFocusPolicy(Qt::NoFocus);
+	optionsButton->setStyleSheet("* { border: none; }");
+	optionsButton->setIcon(icon);
+	optionsButton->setMenu(menu);
+	optionsButton->setPopupMode(QToolButton::InstantPopup);
 
-	 QWidgetAction *optionsAction = new QWidgetAction(this);
-	 optionsAction->setDefaultWidget(optionsButton);
-	 addAction(optionsAction, QLineEdit::LeadingPosition);
+	QWidgetAction *optionsAction = new QWidgetAction(this);
+	optionsAction->setDefaultWidget(optionsButton);
+	addAction(optionsAction, QLineEdit::LeadingPosition);
 }
 Qt::CaseSensitivity FilterEdit::caseSensitivity() const
 {
-	 return m_caseSensitivityAction->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive;
+	return m_caseSensitivityAction->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive;
 }
 void FilterEdit::setCaseSensitivity(Qt::CaseSensitivity cs)
 {
-	 m_caseSensitivityAction->setChecked(cs == Qt::CaseSensitive);
+	m_caseSensitivityAction->setChecked(cs == Qt::CaseSensitive);
 }
 static inline QRegExp::PatternSyntax patternSyntaxFromAction(const QAction *a)
 {
-	 return static_cast<QRegExp::PatternSyntax>(a->data().toInt());
+	return static_cast<QRegExp::PatternSyntax>(a->data().toInt());
 }
 QRegExp::PatternSyntax FilterEdit::patternSyntax() const
 {
-	 return patternSyntaxFromAction(m_patternGroup->checkedAction());
+	return patternSyntaxFromAction(m_patternGroup->checkedAction());
 }
 void FilterEdit::setPatternSyntax(QRegExp::PatternSyntax s)
 {
-	 foreach (QAction *a, m_patternGroup->actions()) {
-		  if (patternSyntaxFromAction(a) == s) {
-				a->setChecked(true);
-				break;
-		  }
-	 }
+	foreach (QAction *a, m_patternGroup->actions()) {
+		if (patternSyntaxFromAction(a) == s) {
+			a->setChecked(true);
+			break;
+		}
+	}
 }
 
 
@@ -478,86 +478,91 @@ void FilterEdit::setPatternSyntax(QRegExp::PatternSyntax s)
 
 CustFilterWindow::CustFilterWindow()
 {
-	 proxyModel = new MySortFilterProxyModel(this);
+	proxyModel = new MySortFilterProxyModel(this);
 
-	 sourceView = new QTreeView;
-	 sourceView->setRootIsDecorated(false);
-	 sourceView->setAlternatingRowColors(true);
+	sourceView = new QTreeView;
+	sourceView->setRootIsDecorated(false);
+	sourceView->setAlternatingRowColors(true);
 
-	 QHBoxLayout *sourceLayout = new QHBoxLayout;
+	QHBoxLayout *sourceLayout = new QHBoxLayout;
 
-	 sourceLayout->addWidget(sourceView);
-	 sourceGroupBox = new QGroupBox(tr("Original Model"));
-	 sourceGroupBox->setLayout(sourceLayout);
+	sourceLayout->addWidget(sourceView);
+	sourceGroupBox = new QGroupBox(tr("Original Model"));
+	sourceGroupBox->setLayout(sourceLayout);
 
-	 filterEdit = new FilterEdit();
-	 filterEdit->setText("Grace|Sports");
-	 connect(filterEdit, &FilterEdit::filterChanged,
-				this, &CustFilterWindow::textFilterChanged);
+	filterEdit = new FilterEdit();
+	filterEdit->setText("Grace|Sports");
+	connect(filterEdit, &FilterEdit::filterChanged,
+			  this, &CustFilterWindow::textFilterChanged);
 
-	 filterPatternLabel = new QLabel(tr("&Filter pattern:"));
-	 filterPatternLabel->setBuddy(filterEdit);
+	filterPatternLabel = new QLabel(tr("&Filter pattern:"));
+	filterPatternLabel->setBuddy(filterEdit);
 
-	 fromDateEdit = new QDateEdit;
-	 fromDateEdit->setDate(QDate(1970, 01, 01));
-	 fromLabel = new QLabel(tr("F&rom:"));
-	 fromLabel->setBuddy(fromDateEdit);
+	fromDateEdit = new QDateEdit;
+	fromDateEdit->setDate(QDate(1970, 01, 01));
+	fromLabel = new QLabel(tr("F&rom:"));
+	fromLabel->setBuddy(fromDateEdit);
 
-	 toDateEdit = new QDateEdit;
-	 toDateEdit->setDate(QDate(2099, 12, 31));
-	 toLabel = new QLabel(tr("&To:"));
-	 toLabel->setBuddy(toDateEdit);
+	toDateEdit = new QDateEdit;
+	toDateEdit->setDate(QDate(2099, 12, 31));
+	toLabel = new QLabel(tr("&To:"));
+	toLabel->setBuddy(toDateEdit);
 
-	 connect(filterEdit, &QLineEdit::textChanged,
-				this, &CustFilterWindow::textFilterChanged);
-	 connect(fromDateEdit, &QDateTimeEdit::dateChanged,
-				this, &CustFilterWindow::dateFilterChanged);
-	 connect(toDateEdit, &QDateTimeEdit::dateChanged,
-				this, &CustFilterWindow::dateFilterChanged);
+	connect(filterEdit, &QLineEdit::textChanged,
+			  this, &CustFilterWindow::textFilterChanged);
+	connect(fromDateEdit, &QDateTimeEdit::dateChanged,
+			  this, &CustFilterWindow::dateFilterChanged);
+	connect(toDateEdit, &QDateTimeEdit::dateChanged,
+			  this, &CustFilterWindow::dateFilterChanged);
 
-	 proxyView = new QTreeView;
-	 proxyView->setRootIsDecorated(false);
-	 proxyView->setAlternatingRowColors(true);
-	 proxyView->setModel(proxyModel);
-	 proxyView->setSortingEnabled(true);
-	 proxyView->sortByColumn(1, Qt::AscendingOrder);
+	proxyView = new QTreeView;
+	proxyView->setRootIsDecorated(false);
+	proxyView->setAlternatingRowColors(true);
+	proxyView->setModel(proxyModel);
+	proxyView->setSortingEnabled(true);
+	proxyView->sortByColumn(1, Qt::AscendingOrder);
 
-	 QGridLayout *proxyLayout = new QGridLayout;
-	 proxyLayout->addWidget(proxyView, 0, 0, 1, 3);
-	 proxyLayout->addWidget(filterPatternLabel, 1, 0);
-	 proxyLayout->addWidget(filterEdit, 1, 1);
-	 proxyLayout->addWidget(fromLabel, 3, 0);
-	 proxyLayout->addWidget(fromDateEdit, 3, 1, 1, 2);
-	 proxyLayout->addWidget(toLabel, 4, 0);
-	 proxyLayout->addWidget(toDateEdit, 4, 1, 1, 2);
+	cbx = new QComboBox;
+	cbx->setModel(proxyModel);
 
-	 proxyGroupBox = new QGroupBox(tr("Sorted/Filtered Model"));
-	 proxyGroupBox->setLayout(proxyLayout);
-	 //! [5]
 
-	 //! [6]
-	 QVBoxLayout *mainLayout = new QVBoxLayout;
-	 mainLayout->addWidget(sourceGroupBox);
-	 mainLayout->addWidget(proxyGroupBox);
-	 setLayout(mainLayout);
+	QGridLayout *proxyLayout = new QGridLayout;
+	proxyLayout->addWidget(proxyView, 0, 0, 1, 3);
+	proxyLayout->addWidget(filterPatternLabel, 1, 0);
+	proxyLayout->addWidget(filterEdit, 1, 1);
+	proxyLayout->addWidget(fromLabel, 3, 0);
+	proxyLayout->addWidget(fromDateEdit, 3, 1, 1, 2);
+	proxyLayout->addWidget(toLabel, 4, 0);
+	proxyLayout->addWidget(toDateEdit, 4, 1, 1, 2);
+	proxyLayout->addWidget(cbx, 5, 1, 1, 2);
 
-	 setWindowTitle(tr("Custom Sort/Filter Model"));
-	 resize(500, 450);
+	proxyGroupBox = new QGroupBox(tr("Sorted/Filtered Model"));
+	proxyGroupBox->setLayout(proxyLayout);
+	//! [5]
+
+	//! [6]
+	QVBoxLayout *mainLayout = new QVBoxLayout;
+	mainLayout->addWidget(sourceGroupBox);
+	mainLayout->addWidget(proxyGroupBox);
+	setLayout(mainLayout);
+
+	setWindowTitle(tr("Custom Sort/Filter Model"));
+	resize(500, 450);
 }
 void CustFilterWindow::setSourceModel(QAbstractItemModel *model)
 {
-	 proxyModel->setSourceModel(model);
-	 sourceView->setModel(model);
+	proxyModel->setSourceModel(model);
+	sourceView->setModel(model);
 }
 void CustFilterWindow::textFilterChanged()
 {
-	 QRegExp regExp(filterEdit->text(),
-						 filterEdit->caseSensitivity(),
-						 filterEdit->patternSyntax());
-	 proxyModel->setFilterRegExp(regExp);
+	QRegExp regExp(filterEdit->text(),
+						filterEdit->caseSensitivity(),
+						filterEdit->patternSyntax());
+	proxyModel->setFilterRegExp(regExp);
 }
 void CustFilterWindow::dateFilterChanged()
 {
-	 proxyModel->setFilterMinimumDate(fromDateEdit->date());
-	 proxyModel->setFilterMaximumDate(toDateEdit->date());
+	proxyModel->setFilterMinimumDate(fromDateEdit->date());
+	proxyModel->setFilterMaximumDate(toDateEdit->date());
 }

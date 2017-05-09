@@ -23,6 +23,7 @@
 #include "debug.h"
 #include "inpfrm4.h"
 #include "inpfrm.h"
+#include "inpfrm2.h"
 #include "locals.h"
 #include "mdmenu.h"
 #include "mdnotes.h"
@@ -129,8 +130,10 @@ private slots:
 			CRIT << tr("Bad sender() cast!");
 			return;
 		}
-		if (qobject_cast<QAction *>(sender()) == actInpForm)
+		if (qobject_cast<QAction *>(sender()) == actInpForm) {
 			inpFrm->setVisible(onOff);
+			inpFrm2->setVisible(onOff);
+		}
 
 		if (qobject_cast<QAction *>(sender()) == actInpFormV4) {
 			if (! inpFrm4->hasSrcTables())
@@ -166,6 +169,7 @@ private:
 	Ui::MainWindow *ui;
 	Browser			*browser;
 	InpFrm			*inpFrm;
+	InpFrm2			*inpFrm2;
 	InpFrm4			*inpFrm4;
 	MDStateBar		*stateBar;
 //	FilterForm		*filterForm, *filterFormWkt;
