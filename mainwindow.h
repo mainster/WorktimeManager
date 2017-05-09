@@ -176,6 +176,8 @@ private:
 	QWidget			*wid, *mCentralWidget;
 	QTimer			*timCyc;
 
+	CustFilterWindow *custFilterWindow;
+
 	struct notes_t {
 		MDNotes *toDo,
 		*comments,

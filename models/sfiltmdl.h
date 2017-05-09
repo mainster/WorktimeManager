@@ -24,7 +24,7 @@ class SfiltMdl : public QSortFilterProxyModel {
 
 	Q_OBJECT
 
-public:
+ public:
 	explicit SfiltMdl(QObject *parent = 0)
 		: QSortFilterProxyModel(parent), mID(-1), mHeadIdxs(new HeaderAlias()) {	}
 	explicit SfiltMdl(const SfiltMdl &others, QObject *parent = 0)
@@ -35,25 +35,33 @@ public:
 	}
 	~SfiltMdl() { }
 
-	QDate filterMinimumDate() const { return m_minDate; }
+	QDate filterMinimumDate() const {
+		return m_minDate;
+	}
 	void setFilterMinDate(const QDate &date);
 
-	QDate filterMaximumDate() const { return m_maxDate; }
+	QDate filterMaximumDate() const {
+		return m_maxDate;
+	}
 	void setFilterMaxDate(const QDate &date);
 
 	void setFilterID(const int ID);
-	int filterID() const { return mID; }
+	int filterID() const {
+		return mID;
+	}
 
 	virtual void setSourceModel(QAbstractItemModel *sourceModel) override;
 
-//	QPointer<HeaderAlias> headIdxs() const { return mHeadIdxs; }
-	HeaderAlias *headIdxs() const { return mHeadIdxs; }
+	//	QPointer<HeaderAlias> headIdxs() const { return mHeadIdxs; }
+	HeaderAlias *headIdxs() const {
+		return mHeadIdxs;
+	}
 
-protected:
+ protected:
 	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 	bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 
-private:
+ private:
 	bool dateInRange(const QDate &date) const;
 	QDate m_minDate;
 	QDate m_maxDate;
@@ -61,10 +69,43 @@ private:
 	QList<MdTableInfo::TableInfo_column_t> mTableInfo;
 	QString mSqlTableName;
 
-//	QPointer<HeaderAlias> mHeadIdxs;
+	//	QPointer<HeaderAlias> mHeadIdxs;
 	HeaderAlias *mHeadIdxs;
-//	QMap<QString , int> headIdxs;
+	//	QMap<QString , int> headIdxs;
 
+};
+
+
+/* ======================================================================== */
+/*                       class MySortFilterProxyModel                       */
+/* ======================================================================== */
+class MySortFilterProxyModel : public QSortFilterProxyModel {
+	Q_OBJECT
+
+ public:
+	MySortFilterProxyModel(QObject *parent = 0);
+
+	QDate filterMinimumDate() const {
+		return minDate;
+	}
+	void setFilterMinimumDate(const QDate &date);
+
+	QDate filterMaximumDate() const {
+		return maxDate;
+	}
+	void setFilterMaximumDate(const QDate &date);
+
+ protected:
+	bool filterAcceptsRow(int sourceRow,
+								 const QModelIndex &sourceParent) const Q_DECL_OVERRIDE;
+	bool lessThan(const QModelIndex &left,
+					  const QModelIndex &right) const Q_DECL_OVERRIDE;
+
+ private:
+	bool dateInRange(const QDate &date) const;
+
+	QDate minDate;
+	QDate maxDate;
 };
 
 #endif

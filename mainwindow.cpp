@@ -22,6 +22,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 												 browser->mTabs.tblsNoPtr());
 	filterFormWkt	= new FilterWidget(FilterWidget::useWorktimeSource,
 												 browser->mTabs.tblsNoPtr());
+	custFilterWindow = new CustFilterWindow();
+
+	QSqlTableModel *model = new QSqlTableModel(0, mDbc->db());
+	model->setTable("worker");
+	model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+	model->select();
+	custFilterWindow->setSourceModel(model);
+	custFilterWindow->show();
 
 	browser->connectionWidget()->refresh();
 
