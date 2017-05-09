@@ -104,6 +104,8 @@ public:
 	Qt::FocusOrderState getChangeFocusFlag() const;
 	void setChangeFocusFlag(const Qt::FocusOrderState &stateFlag);
 	bool setFocusOrder(QList<QWidget *> targets);
+	QList<QWidget *> filterForProperty(
+			QList<QWidget *> list, const char *property);
 
 signals:
 	void changeFocusOrder(Qt::FocusOrderState state = Qt::FocusChange_init);

@@ -446,15 +446,20 @@ void InpFrm::restoreTabOrder() {
 	  * Check for valied tab order configuration data
 	  */
 	QSETTINGS;
-	QList<QWidget *> tabOrderList;
 
 	/*!
 	 * Write all tab-able widget object names to config file.
 	 */
-	tabOrderList = findChildren<QWidget *>();
-	foreach (QWidget *w, tabOrderList)
-		if (! w->property("hasSqlMapper").isValid())
-			tabOrderList.removeOne(w);
+	QList<QWidget *> tabOrderList = filterForProperty(
+				findChildren<QWidget *>(), "hasSqlMapper");
+	setFocusOrder(tabOrderList);
+
+	//	QList<QWidget *> tabOrderList;
+//	tabOrderList = findChildren<QWidget *>();
+//	foreach (QWidget *w, tabOrderList)
+//		if (! w->property("hasSqlMapper").isValid())
+//			tabOrderList.removeOne(w);
+
 	config.setValue(objectName() + Md::k.allTabableWidgets,
 						 listObjectNames<QWidget *>(tabOrderList)->join(','));
 
@@ -609,17 +614,28 @@ void InpFrm::initComboboxes() {
 	/*!
 	  * Initialize sql combobox list member mSqlCbs.
 	  */
-	mSqlCbs = findChildren<MdComboBox *>();
-	foreach (MdComboBox *cb, mSqlCbs) {
-		if (! cb->property("hasSqlMapper").isValid())
-			mSqlCbs.removeOne(cb);
-		else {
-			/*!
-			 * Install custom event filter object for SQL mapping purposes.
-			 */
-			cb->installEventFilter( new SqlEventFilter(this) );
-		}
-	}
+	mSqlCbs = listCast<MdComboBox *>(filterForProperty(
+				listCast<QWidget *>(findChildren<MdComboBox *>()), "hasSqlMapper"));
+	/*!
+	 * Install custom event filter object for SQL mapping purposes.
+	 */
+	foreach (MdComboBox *cb, mSqlCbs)
+		cb->installEventFilter( new SqlEventFilter(this) );
+
+//	/*!
+//	  * Initialize sql combobox list member mSqlCbs.
+//	  */
+//	mSqlCbs = findChildren<MdComboBox *>();
+//	foreach (MdComboBox *cb, mSqlCbs) {
+//		if (! cb->property("hasSqlMapper").isValid())
+//			mSqlCbs.removeOne(cb);
+//		else {
+//			/*!
+//			 * Install custom event filter object for SQL mapping purposes.
+//			 */
+//			cb->installEventFilter( new SqlEventFilter(this) );
+//		}
+//	}
 
 	/*!
 	  * Append field groups to model struct mModels
@@ -807,6 +823,27 @@ void InpFrm::restoreSqlQueryInputText() {
 		ui->cbQueryIdent->addItem(customQueryID.last(),
 										  configQ.value(str).toString());
 	}
+}
+/* ======================================================================== */
+/*                                 Helpers                                  */
+/* ======================================================================== */
+QList<QWidget *> InpFrm::filterForProperty(
+		QList<QWidget *> list, const char* property) {
+	foreach (QWidget *w, list) {
+		if (! w->property(property).isValid())
+			list.removeOne(w);
+		else {
+			if (! w->property(property).toBool())
+				list.removeOne(w);
+			else {
+				/*!
+				 * Install custom event filter object for SQL mapping purposes.
+				 */
+				w->installEventFilter( new SqlEventFilter(this) );
+			}
+		}
+	}
+	return list;
 }
 
 #define QFOLDINGSTART {
