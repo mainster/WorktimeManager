@@ -21,7 +21,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 											  browser->mTabs.tblsNoPtr());
 	filterFormWkt	= new FilterForm(FilterForm::useWorktimeSource,
 											  browser->mTabs.tblsNoPtr());
+	filterWindow	= new FilterWindow();
 
+	QSqlTableModel *model = new QSqlTableModel(0, mDbc->db());
+	model->setTable("worker");
+	model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+	model->select();
+	filterWindow->setSourceModel(model);
+	filterWindow->show();
+
+//	filterWidget = new FilterWidget;
+//	filterWidget->setText("Grace|Sports");
+//	connect(filterWidget, &FilterWidget::filterChanged, this, &MainWindow::te ::textFilterChanged);
+
+//	filterWidget->v
 
 	browser->connectionWidget()->refresh();
 

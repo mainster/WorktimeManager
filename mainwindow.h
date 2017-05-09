@@ -28,9 +28,11 @@
 #include "mdnotes.h"
 #include "mdmenu.h"
 #include "textedit.h"
+#include "filterwidget.h"
+#include "filterwindow.h"
 
 namespace Ui {
-class MainWindow;
+	class MainWindow;
 }
 
 class ConnectionWidget;
@@ -48,7 +50,7 @@ class MainWindow : public QMainWindow {
 	Q_OBJECT
 	//	Q_PROPERTY(bool cyclicObjInfo READ cyclicObjInfo WRITE setCyclicObjInfo NOTIFY cyclicObjInfoChanged)
 
-public:
+ public:
 	/*!
 	 * Enumerations for actionConnection methodes
 	 */
@@ -64,21 +66,21 @@ public:
 	explicit MainWindow(QWidget *parent = 0);
 	~MainWindow();
 
-signals:
+ signals:
 
-public slots:
+ public slots:
 	void initDocks();
 	void about() {
 		QMessageBox::about
-				(this, tr("About"),
-				 tr("The SQL Browser demonstration shows how a data browser"
-					 "can be used to visualize the results of SQL statements"
-					 "on a live database"));
+		(this, tr("About"),
+		 tr("The SQL Browser demonstration shows how a data browser"
+			 "can be used to visualize the results of SQL statements"
+			 "on a live database"));
 	}
 	void connectActions(ConnectReceiver receivers = connectThis);
 	void setVisibleFake(QObject *);
 
-protected slots:
+ protected slots:
 	void makeMenu();
 	void onActCfgInpFrmTabOrdTrig() {
 		emit inpFrm->changeFocusOrder(Qt::FocusChange_init);
@@ -119,7 +121,7 @@ protected slots:
 	void onActFilterForm(bool b);
 	void onSomeHasBeenSelected(bool hasSelected);
 
-private slots:
+ private slots:
 	void onOpenCloseInpFrm(bool onOff) {
 		inpFrm->setVisible(onOff);
 	}
@@ -129,8 +131,9 @@ private slots:
 	void onActCloseTrig();
 	void onStyleSheetTrig();
 
-protected:
-	void setStyleSheet(const QString& styleSheet) {
+
+ protected:
+	void setStyleSheet(const QString &styleSheet) {
 #ifdef SET_STYLESHEETS
 		QWidget::setStyleSheet( styleSheet );
 		style()->unpolish(this);
@@ -140,13 +143,13 @@ protected:
 		Q_UNUSED(styleSheet);
 #endif
 	}
-	bool eventFilter(QObject *obj, QEvent *event);
-	void showEvent(QShowEvent *e);
+	bool eventFilter(QObject *obj, QEvent *event) override;
+	void showEvent(QShowEvent *e) override;
 	void hideEvent(QHideEvent *) override;
-	void closeEvent(QCloseEvent *);
+	void closeEvent(QCloseEvent *) override;
 
-private:
-	void keyPressEvent(QKeyEvent *e);
+ private:
+	void keyPressEvent(QKeyEvent *e) override;
 
 	Ui::MainWindow *ui;
 	Browser			*browser;
@@ -159,21 +162,24 @@ private:
 	QWidget			*wid, *mCentralWidget;
 	QTimer			*timCyc;
 
+	FilterWindow *filterWindow;
 
 	struct notes_t {
 		MDNotes *toDo,
-		*comments,
-		*features;
+				  *comments,
+				  *features;
 	} notes;
 
 	QActionGroup *actGrTbMain, *actGrTbMenu, *actGrFilterWidg;
 
 	QAction *actNew, *actOpen, *actSave, *actExport, *actBrowseSQL, *actInpForm,
-	*actShowTbl, *actDbModMaster, *actClose, *actRichEdit, *actUnderConstr, *actNotes,
-	*actGbStyleShtA, *actGbSShtInpFrm, *actSelFont, *actCyclicObjInfo, *actResizerDlg,
-	*actShowSqlQuery, *actSetAlterRowCol, *actSetGridColor, *actAutoFitTables,
-	*actFilterTable, *actFilterTableWindow, *actFilterForm, *actCfgInpFrmTabOrd,
-	*actDoFiltWorktimeTbl, *actDoFiltSelectedTbl, *actResetConfig;
+			  *actShowTbl, *actDbModMaster, *actClose, *actRichEdit, *actUnderConstr,
+			  *actNotes,
+			  *actGbStyleShtA, *actGbSShtInpFrm, *actSelFont, *actCyclicObjInfo,
+			  *actResizerDlg,
+			  *actShowSqlQuery, *actSetAlterRowCol, *actSetGridColor, *actAutoFitTables,
+			  *actFilterTable, *actFilterTableWindow, *actFilterForm, *actCfgInpFrmTabOrd,
+			  *actDoFiltWorktimeTbl, *actDoFiltSelectedTbl, *actResetConfig;
 
 };
 
@@ -185,18 +191,19 @@ class StaticSignal : public QObject {
 
 	Q_OBJECT
 
-public:
+ public:
 	static StaticSignal *instance(QObject *parent = 0) {
 		if (inst == 0)
 			return new StaticSignal(parent);
+
 		return inst;
 	}
 	~StaticSignal() { }
 
-signals:
+ signals:
 	void showDropdownViews(bool onOff);
 
-private:
+ private:
 	StaticSignal(QObject *parent)
 		: QObject(parent) {
 		inst = this;

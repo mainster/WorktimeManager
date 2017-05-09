@@ -151,9 +151,11 @@ public:
 		}
 		MdTable *findByTableName(QString tableName,
 										 Qt::CaseSensitivity sensitivity = Qt::CaseInsensitive) {
-			foreach (MdTable *mdt, mTbls)
+			foreach (MdTable *mdt, mTbls) {
+				INFO << mdt->sqlTableName();
 				if (mdt->sqlTableName().contains(tableName, sensitivity))
 					return mdt;
+			}
 
 			return NULL;
 		}

@@ -40,6 +40,7 @@ FilterForm::FilterForm(SourceTableType srcType, QList<MdTable *> allTbls, QWidge
 
 	//!< Model instances
 	//!
+
 	proxyModel = new SfiltMdl(this);
 	proxyModel->setDynamicSortFilter(true);
 

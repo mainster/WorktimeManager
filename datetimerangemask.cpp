@@ -8,8 +8,8 @@ void DateTimeRangeMask::onResult(QNetworkReply* reply) {
 	if (reply->error() != QNetworkReply::NoError)
 		return;  // ...only in a blog post
 
-	QString data = (QString) reply->readAll();
-	data.remove(QRegularExpression("[\"\{\}]"));
+	QString data = reply->readAll().toStdString().c_str();
+	data.remove(QRegularExpression("[\\\"\\{\\}]"));
 	QStringList dataList = data.split(',');
 	//	QRegExp rx("[\\w\\u0-9\\-\\.\\s]+\\:[0-9-]+\\,");
 	//	int pos = 0;

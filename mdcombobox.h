@@ -30,9 +30,7 @@ class MdComboBox : public QComboBox {
 	Q_OBJECT
 
 public:
-	explicit MdComboBox(QWidget *parent = 0)
-		: QComboBox(parent) {
-	}
+	explicit MdComboBox(QWidget *parent = 0) : QComboBox(parent) { }
 	~MdComboBox() {
 //		delete tv;
 	}

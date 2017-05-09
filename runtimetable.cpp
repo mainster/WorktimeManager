@@ -11,10 +11,12 @@ bool RuntimeTable::recalcOvertime() {
 	/* ======================================================================== */
 	/*                        Query a ColumnSchema list                         */
 	/* ======================================================================== */
-	worktimeColumnInfos = MdTableInfo::queryInfo(qobject_cast<MdTabView *>(
-																	m_worktimeTv)->sqlTableName(), DbController::db());
-	runtimeColumnInfos = MdTableInfo::queryInfo(qobject_cast<MdTabView *>(
-																  m_runtimeTv)->sqlTableName(), DbController::db());
+	worktimeColumnInfos =
+			MdTableInfo::queryInfo(qobject_cast<MdTabView *>(m_worktimeTv)
+											->sqlTableName(), DbController::db());
+	runtimeColumnInfos =
+			MdTableInfo::queryInfo(qobject_cast<MdTabView *>(m_runtimeTv)
+										  ->sqlTableName(), DbController::db());
 
 	/*!
 	 * Query worker records.
@@ -52,11 +54,11 @@ bool RuntimeTable::recalcOvertime() {
 
 		workerProxyMdls[workerID]->setFilterMinimumDate(DateTimeRangeMask::getMinDate());
 		workerProxyMdls[workerID]->setFilterMaximumDate(DateTimeRangeMask::getMaxDate());
-//		DateTimeRangeMask *dateTimeRngMsk = DateTimeRangeMask::inst();
-//		if (dateTimeRngMsk) {
-//			workerProxyMdls[workerID]->setFilterMinimumDate(dateTimeRngMsk->getDeMinDate()->date());
-//			workerProxyMdls[workerID]->setFilterMaximumDate(dateTimeRngMsk->getDeMaxDate()->date());
-//		}
+		//		DateTimeRangeMask *dateTimeRngMsk = DateTimeRangeMask::inst();
+		//		if (dateTimeRngMsk) {
+		//			workerProxyMdls[workerID]->setFilterMinimumDate(dateTimeRngMsk->getDeMinDate()->date());
+		//			workerProxyMdls[workerID]->setFilterMaximumDate(dateTimeRngMsk->getDeMaxDate()->date());
+		//		}
 	}
 
 	//	#define	DEBUG_FILTER_MODEL

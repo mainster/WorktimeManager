@@ -46,7 +46,7 @@ Browser::Browser(QWidget *parent) : QWidget(parent) {
 	}
 
 	emit stateMsg(tr("Browser Ready."));
-	QTimer::singleShot(50, this, SLOT(restoreUi()));
+	QTimer::singleShot(150, this, SLOT(restoreUi()));
 }
 Browser::~Browser() {
 	INFO << tr("close browser!");

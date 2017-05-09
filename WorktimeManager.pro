@@ -79,7 +79,9 @@ HEADERS += \
     runtimetable.h \
     mdtableinfo.h \
     headeralias.h \
-    datetimerangemask.h
+    datetimerangemask.h \
+    filterwidget.h \
+    filterwindow.h
 
 
 SOURCES += \
@@ -117,7 +119,9 @@ SOURCES += \
     runtimetable.cpp \
     mdtableinfo.cpp \
     headeralias.cpp \
-    datetimerangemask.cpp
+    datetimerangemask.cpp \
+    filterwidget.cpp \
+    filterwindow.cpp
 
 
 FORMS += \

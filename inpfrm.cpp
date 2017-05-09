@@ -261,6 +261,7 @@ void InpFrm::aButtonClick(bool) {
 		 */
 		QList<QWidget *> tabOrderList = filterForProperty(
 					findChildren<QWidget *>(), "hasSqlMapper");
+		setFocusOrder(tabOrderList);
 
 //		QList<QWidget *> targs =
 //				QList<QWidget *>() << ui->datePicker << ui->leHrs << ui->btnOk << ui->cbPrj
@@ -456,7 +457,6 @@ bool InpFrm::setFocusOrder(QList<QWidget *> targets) {
 	 * If (*it).property("hasSqlMapper")->isValied() returns false, remove current
 	 * widget from allTabable list.
 	 */
-
 	if ((targets.isEmpty()) ||
 		 (targets.length() > getTabableWidgets().length()))
 		bReturn("Wrong size of focusOrder list parameter");
