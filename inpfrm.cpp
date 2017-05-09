@@ -309,6 +309,7 @@ void InpFrm::aButtonClick(bool) {
 	}
 	if (pbSender == ui->btnUndo) {
 
+
 		QList<QWidget *> targs =
 				QList<QWidget *>() << ui->datePicker << ui->leHrs << ui->btnOk << ui->cbPrj
 										 << ui->cbWorker << ui->cbClient;

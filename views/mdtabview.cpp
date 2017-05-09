@@ -4,13 +4,10 @@ class Browser;
 class SectionMask;
 
 #define USE_TABLE_UI
+
 /* ======================================================================== */
 /*                             MdTabView::MdTabView                         */
 /* ======================================================================== */
-//MdTabView::MdTabView(QWidget *parent)
-//	: QTableView(parent) {
-//	MdTabView(QString(), parent);
-//}
 MdTabView::MdTabView(SfiltMdl *proxyModel, QWidget *parent)
 	: QTableView(parent), mModelType(Model_Unknown) {
 	setModel(proxyModel);
@@ -24,8 +21,8 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 			createForeignModel(tableName);
 			setSqlTableName(tableName);
 		}
-//		else
-//			WARN << tr("No valid table name passed");
+		//		else
+		//			WARN << tr("No valid table name passed");
 	}
 
 	/*!
@@ -34,13 +31,14 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	addActions( createActions() );
 	setContextMenuPolicy(Qt::ActionsContextMenu);
 	setSortingEnabled( true );
-	setSelectionMode(QAbstractItemView::ExtendedSelection);
+	setSelectionMode(QAbstractItemView::MultiSelection);
 
 	setSizeAdjustPolicy(QTableView::AdjustToContents);
 	adjustSize();
 
 	setStyleSheet(StyleSheet_QTableView);
-	connect(horizontalHeader(), &QHeaderView::sectionMoved, this, &MdTabView::onSectionMoved);
+	connect(horizontalHeader(), &QHeaderView::sectionMoved,
+			  this, &MdTabView::onSectionMoved);
 
 	clipboard = qApp->clipboard();
 	restoreFont();
@@ -306,7 +304,6 @@ void MdTabView::setModel(QAbstractItemModel *model) {
 	INFO << mModelType;
 
 }
-
 /* ======================================================================== */
 /*                           SQL record strategy                            */
 /* ======================================================================== */
@@ -365,10 +362,10 @@ void MdTabView::onActGrContextTrigd(QAction *sender) {
 		 (sender != actPaste) && (sender != actSumSelection))
 		qReturn("Bad sender detected!");
 
-	if (sender == actInsertRow)	insertRow();
-	if (sender == actDeleteRow)	deleteRow();
-	if (sender == actCopy)			copy();
-	if (sender == actPaste)			paste();
+	if (sender == actInsertRow)		insertRow();
+	if (sender == actDeleteRow)		deleteRow();
+	if (sender == actCopy)				copy();
+	if (sender == actPaste)				paste();
 	if (sender == actSumSelection)	sumSelection();
 
 	if (mModelType != MdTabView::Model_SqlRtm)
@@ -601,6 +598,9 @@ void MdTabView::wheelEvent (QWheelEvent * event) {
 
 	event->accept();
 }
+void MdTabView::focusOutEvent(QFocusEvent *) {
+	clearSelection();
+}
 /* ======================================================================== */
 /*                             Callback handler                             */
 /* ======================================================================== */
@@ -658,6 +658,7 @@ void MdTabView::sumSelection() {
 		sum += v;
 
 	INFO << sum;
+	emit sumOfSelection(QVariant::fromValue(sum), "sum");
 }
 /* ======================================================================== */
 /*                             Helper methodes                              */
@@ -719,7 +720,7 @@ void MdTabView::resizeRowsColsToContents() {
 	setVisible( true );
 }
 void MdTabView::setColumnHidden(const int column, const bool hide) {
-	setColumnHidden(column, hide);
+	QTableView::setColumnHidden(column, hide);
 }
 void MdTabView::storeActionState(QAction *sender) {
 	QSETTINGS;
@@ -760,6 +761,12 @@ bool MdTabView::restoreActionObjects() {
 
 	return true;
 }
+void MdTabView::selectionChanged(const QItemSelection &selected,
+											const QItemSelection &deselected) {
+	Q_UNUSED(selected);
+	Q_UNUSED(deselected);
+	sumSelection();
+}
 void MdTabView::removeColumnsConfig() {
 	QSETTINGS;
 	config.remove(sqlTableName() + Md::k.centerCols);
@@ -780,32 +787,34 @@ void MdTabView::resetColumnsDefaultPos(bool allVisible) {
 
 #define QFOLDINGSTART {
 const QString MdTabView::StyleSheet_QTableView = QString(
-																	 "QTableView {"
-																	 "	margin-top: 1ex; "
-																	 "	background-color: white;"
-																	 " 	border-radius: 5px;"
-																	 "	border: 0px solid;"
-																	 "	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));"
-																	 "	border-left-color: rgba(105,105,105,255);"
-																	 "	border-right-color: rgba(105,105,105,205);"
-																	 "	border-bottom-color: rgba(105,105,105,205);"
-																	 " } [selected=true] {"
-																	 "	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); "
-																	 "}"
-																	 "QHeaderView::section {"
-																	 "     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
-																	 "                                       stop:    0 #616161, stop: 0.5 #505050,"
-																	 "                                       stop: 0.6 #434343, stop:    1 #656565);"
-																	 "     color: white;"
-																	 "     padding-left: 4px;"
-																	 "     padding-right: 4px;"
-																	 "     padding-top: 2px;"
-																	 "     padding-bottom: 2px;"
-																	 "     border: 1px solid #6c6c6c;"
-																	 "}"
-																	 " QHeaderView::section:checked {"
-																	 "     background-color: rgb(31, 94, 233);"
-																	 "}"
-																	 );
+			"QTableView {"
+			"	margin-top: 1ex; "
+			"	background-color: white;"
+			" 	border-radius: 5px;"
+			"	border: 0px solid;"
+			"	border-top-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0.10 rgba(82, 82, 82, 255), stop:1 rgba(169, 169, 169,20));"
+			"	border-left-color: rgba(105,105,105,255);"
+			"	border-right-color: rgba(105,105,105,205);"
+			"	border-bottom-color: rgba(105,105,105,205);"
+			" } [selected=true] {"
+			"	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #C0C0C0, stop: 1 #FFFFFF); "
+			"}"
+			"QHeaderView::section {"
+			"     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+			"                                       stop:    0 #616161, stop: 0.5 #505050,"
+			"                                       stop: 0.6 #434343, stop:    1 #656565);"
+			"     color: white;"
+			"     padding-left: 4px;"
+			"     padding-right: 4px;"
+			"     padding-top: 2px;"
+			"     padding-bottom: 2px;"
+			"     border: 1px solid #6c6c6c;"
+			"}"
+			" QHeaderView::section:checked {"
+			"     background-color: rgb(31, 94, 233);"
+			"}"
+			);
 #define QFOLDINGEND }
+
+
 

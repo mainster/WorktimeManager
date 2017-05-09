@@ -77,9 +77,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	/* ======================================================================== */
 	/*                             stateBar config                              */
 	/* ======================================================================== */
-	stateBar->setSlInfoAlign(Qt::AlignCenter);
-	stateBar->setClockAlign(Qt::AlignCenter);
-	stateBar->setClockVisible(true);
+//	stateBar->setSlInfoAlign(Qt::AlignCenter);
+//	stateBar->setClockAlign(Qt::AlignCenter);
+//	stateBar->setSelSumAlign(Qt::AlignCenter);
+//	stateBar->setClockVisible(true);
 
 	setStatusBar( stateBar );
 	makeMenu();
@@ -96,9 +97,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 	/*!
 	  * Connect InpFrm::newWorktimeRecord() to MdTable::update()
 	  */
-	foreach (MdTable *tbl, browser->mTabs.tblsNoPtr())
+	foreach (MdTable *tbl, browser->mTabs.tblsNoPtr()) {
 		connect(inpFrm, &InpFrm::newWorktimeRecord, tbl->tv(), &MdTabView::refreshView);
-
+		connect(tbl->tv(), &MdTabView::sumOfSelection, stateBar, &MDStateBar::showInSlot);
+	}
 	/**** Restore mainWindow geometry and window state
 	\*/
 	WIN_RESTORE(this);
@@ -153,7 +155,9 @@ void MainWindow::onMenuStyleShtATrig(bool b) {
 	}
 }
 void MainWindow::onUnderConstrTrig() {
+//	myLineEdit->setProperty("urgent", true); myLineEdit->style()->unpolish(myLineEdit); myLineEdit->style()->polish(myLineEdit);
 
+	return;
 	browser->mTabs.tva->tv()->setColumnHidden(0, true);
 	browser->mTabs.tva->tv()->setColumnHidden(2, false);
 	browser->mTabs.tva->tv()->setColumnHidden(3, true);

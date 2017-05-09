@@ -36,7 +36,6 @@ MdTable::MdTable(const QString &tvObjName, const QString &tableName,
 	connect(m_tv->getActDateTimeRngMsk(), &QAction::toggled, this, &MdTable::onActDateTimeRngMsk);
 	connect(m_tv, &MdTabView::sqlTableNameChanged, this, &MdTable::onSqlTableNameChanged);
 	connect(actBaseDataForm, &QAction::triggered, this, &MdTable::onActBaseDataForm);
-
 	clearSelected();
 	show();
 }
@@ -74,10 +73,12 @@ void MdTable::onActSectionMask(bool sectionMask) {
 void MdTable::onActDateTimeRngMsk(bool actDateTimeRngMsk) {
 	if (! actDateTimeRngMsk) {
 //		mDateTimeRngMsk->close();
-		delete mDateTimeRngMsk;
+		if (mDateTimeRngMsk != NULL)
+			delete mDateTimeRngMsk;
 	}
 	else {
-		if (tv()->sqlTableName().contains("runtime", Qt::CaseInsensitive)) {
+		if ((tv()->sqlTableName().contains("runtime", Qt::CaseInsensitive)) ||
+			 (tv()->sqlTableName().contains("worktime", Qt::CaseInsensitive))) {
 			mDateTimeRngMsk = new DateTimeRangeMask(this);
 			m_gb->layout()->addWidget(mDateTimeRngMsk);
 		}

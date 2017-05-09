@@ -5,6 +5,7 @@
 #include <QString>
 #include "types.h"
 
+
 QString Globals::ddgbStyleShtA = "QGroupBox {"
 											"background-color: qlineargradient("
 											"x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);"

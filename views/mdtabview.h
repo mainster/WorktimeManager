@@ -34,11 +34,11 @@
 #include "datetimerangemask.h"
 #include "mdtableinfo.h"
 
-/* ======================================================================== */
-/*                              class MdTabView                               */
-/* ======================================================================== */
 #define SET_STYLESHEETS
 
+/* ======================================================================== */
+/*                             class MdTabView                              */
+/* ======================================================================== */
 class MdTabView : public QTableView {
 
 	Q_OBJECT
@@ -53,6 +53,9 @@ public:
 	};
 	Q_ENUM(ModelType)
 
+	/* ======================================================================== */
+	/*                           MdTabView::MdTabView                           */
+	/* ======================================================================== */
 	explicit MdTabView(SfiltMdl *proxyModel, QWidget *parent);
 	explicit MdTabView(const QString &tableName/* = QString()*/, QWidget *parent = 0);
 	~MdTabView() {}
@@ -69,7 +72,6 @@ public:
 	/* ======================================================================== */
 	/*                            Getters / Setters                             */
 	/* ======================================================================== */
-	//	MdTabView *tv() const;
 	QString &sqlTableName()		{ return m_sqlTableName; }
 	void setSqlTableName(const QString &name);
 	SqlRtm *clearMdlSrces();
@@ -160,15 +162,17 @@ public slots:
 signals:
 	void sqlTableNameChanged(const QString &name);
 	void viewportMouseButtonPress(MdTabView *sender);
+	void sumOfSelection(const QVariant sum, const char *slot);
 
 protected:
 	QList<QAction *> createActions();
 	virtual void showEvent(QShowEvent *) override;
 	virtual void mouseDoubleClickEvent(QMouseEvent *e) override;
-	void hideEvent(QHideEvent *);
+	void hideEvent(QHideEvent *) override;
+	void wheelEvent(QWheelEvent *event) override;
+	void mousePressEvent(QMouseEvent *e) override;
+	void focusOutEvent(QFocusEvent *) override;
 	void restoreColumnOrderAndVisability2();
-	void wheelEvent(QWheelEvent *event);
-	void mousePressEvent(QMouseEvent *e);
 	void refreshStylesheet(QString stylesheet = QString());
 
 protected slots:
@@ -176,6 +180,10 @@ protected slots:
 	void onActGrContextTrigd(QAction *sender);
 	void storeActionState(QAction *sender);
 	bool restoreActionObjects();
+	void selectionChanged(const QItemSelection &selected,
+								 const QItemSelection &deselected) override;
+
+private slots:
 
 private:
 	QString				m_sqlTableName;
@@ -195,6 +203,7 @@ private:
 	SqlRtm *sqlRtm;
 #endif
 	static const QString	StyleSheet_QTableView;
+
 };
 
 
