@@ -111,6 +111,7 @@ public:
 	void setQueryBoxVisible(bool visible);
 	Qt::FocusOrderState getChangeFocusFlag() const;
 	void setChangeFocusFlag(const Qt::FocusOrderState &stateFlag);
+	bool setFocusOrderSIMPLE(QList<QWidget *> focusOrderList);
 	bool setFocusOrder(QList<QWidget *> targets);
 	QList<QWidget *> filterForProperty(
 			QList<QWidget *> list, const char *property);

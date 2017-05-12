@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
 	browser		= new Browser(parent);
 	mDbc			= new DbController(this);
 	inpFrm		= new InpFrm(this);
-	inpFrm2		= new InpFrm2(this);
+//	inpFrm2		= new InpFrm2(this);
 	inpFrm4		= new InpFrm4(QList<MdTable *>(), parent);
 	notes.toDo		= new MDNotes(tr("toDo"), parent);
 	notes.features	= new MDNotes(tr("feature list"), parent);
@@ -211,8 +211,8 @@ void MainWindow::onCyclic() {
 void MainWindow::onActCloseTrig() {
 	//    qApp->closeAllWindows();
 	browser->close();
-	inpFrm->close();
-	inpFrm2->close();
+	if (inpFrm != NULL) inpFrm->close();
+	if (inpFrm2 != NULL) inpFrm2->close();
 	close();
 }
 void MainWindow::onActSaveTrig() {
@@ -327,7 +327,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	/**** Safe current docking area of dock widgets
 	\*/
 	config.setValue(inpFrm->objectName() + tr("/") + KEY_DOCKWIDGETAREA,
-						 (uint)dockWidgetArea(inpFrm));
+						 static_cast<uint>(dockWidgetArea(inpFrm)));
 
 	/**** Write splitter sizes to config
 	\*/

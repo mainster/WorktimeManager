@@ -46,7 +46,7 @@ void mdMessageHandler(QtMsgType type, const QMessageLogContext &context,
 				break;
 
 			case QtCriticalMsg:
-				fprintf(stderr, "\n\033[48;5;196mCRITICAL\033[0m %s%s ",
+				fprintf(stderr, "\n\033[48;5;196mCRIT\033[0m %s%s ",
 						  localTime.constData(), localMsg.constData());
 				break;
 

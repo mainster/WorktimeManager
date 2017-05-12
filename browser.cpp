@@ -117,6 +117,8 @@ void Browser::requeryWorktimeTableView(QString nonDefaulQuery) {
 							  queryModel->query().numRowsAffected()));
 
 	mTabs.tvl1->tv()->resizeRowsColsToContents();
+	query.finish();
+	queryModel->clear();
 	//	tvResp->setVisible( false );
 	//	tvResp->resizeColumnsToContents();
 	//	tvResp->resizeRowsToContents();
@@ -150,6 +152,7 @@ void Browser::exec() {
 	//	tvq->resizeColumnsToContents();
 	//	tvq->resizeRowsToContents();
 	//	tvq->setVisible( true );
+	model->clear();
 
 	mTabs.tvl1->tv()->resizeRowsColsToContents();
 	emit updateWriteActions();
@@ -185,6 +188,8 @@ void Browser::execCustomQuery() {
 	qtv->setSortingEnabled( true );
 
 	//	qtv->parentWidget()->resizeRowsColsToContents();
+	model->clear();
+
 	emit updateWriteActions();
 }
 void Browser::loadClipboard(const QString &buff) {

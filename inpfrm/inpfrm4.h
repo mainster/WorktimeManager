@@ -41,9 +41,7 @@ public:
 			mInst = new InpFrm4(QList<MdTable *>(), parent);
 		return mInst;
 	}
-	~InpFrm4() {
-		WIN_STORE(this);
-	}
+	~InpFrm4() { WIN_STORE(this); }
 
 	void setSourceTables(QList<MdTable *> tables);
 	bool hasSrcTables() const { return mHasSrcTables; }
@@ -77,8 +75,6 @@ private:
 };
 
 
-/* ======================================================================== */
-/* ======================================================================== */
 /* ======================================================================== */
 /*                             class InpBoxWdg                              */
 /* ======================================================================== */

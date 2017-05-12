@@ -4,9 +4,11 @@
 #include <QWidget>
 #include <QTreeWidget>
 #include <QSqlDatabase>
+#include <QDialogButtonBox>
+#include <QObject>
 
 #include "globals.h"
-#include <QObject>
+#include "dbcontroller.h"
 
 QT_FORWARD_DECLARE_CLASS(QTreeWidget)
 QT_FORWARD_DECLARE_CLASS(QTreeWidgetItem)
@@ -44,6 +46,7 @@ public slots:
 	}
 
 private slots:
+	void removeTable();
 	void setDetails(QString &details) {
 		m_details = details;
 		emit detailesChanged(m_details);
@@ -53,7 +56,8 @@ private:
 	static ConnectionWidget *inst;
 	void setActive(QTreeWidgetItem *);
 	QTreeWidget *tree;
-	QAction *metaDataAction;
+	QAction *metaDataAction, *refreshAction, *removeAction;
+	QDialogButtonBox *buttonBox;
 	QString activeDb;
 	QString m_details;
 };

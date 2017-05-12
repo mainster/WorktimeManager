@@ -135,9 +135,11 @@ public slots:
 
 		if (q.lastError().type() != QSqlError::NoError) {
 			INFO << q.lastError().text();
+			q.finish();
 			return false;
 		}
 
+		q.finish();
 		return true;
 	}
 	void onActDropTableTrigd() {

@@ -315,6 +315,7 @@ void BaseDataForm::addNew() {
 			->widget()->setFocus();
 
 	mapper->submit();
+	q.finish();
 
 	m_rowCountChanged = true;
 	//	Browser *browser = Browser::instance();

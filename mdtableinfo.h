@@ -48,6 +48,7 @@ public:
 			tableColumn.pk			= query.value(query.record().indexOf("pk")).toInt();
 			tableInfo << tableColumn;
 		}
+		query.finish();
 		return tableInfo;
 	}
 

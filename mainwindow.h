@@ -132,7 +132,8 @@ private slots:
 		}
 		if (qobject_cast<QAction *>(sender()) == actInpForm) {
 			inpFrm->setVisible(onOff);
-			inpFrm2->setVisible(onOff);
+			if (inpFrm2 != NULL)
+				inpFrm2->setVisible(onOff);
 		}
 
 		if (qobject_cast<QAction *>(sender()) == actInpFormV4) {

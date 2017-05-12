@@ -1,36 +1,3 @@
-/****************************************************************************
-**
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
-**
-** This file is part of the demonstration applications of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:LGPL21$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia. For licensing terms and
-** conditions see http://qt.digia.com/licensing. For further information
-** use the contact form at http://qt.digia.com/contact-us.
-**
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights. These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
-
 #include "connectionwidget.h"
 //#include "eventmon.h"
 
@@ -46,12 +13,16 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent) {
 	tree->setObjectName(QLatin1String("tree"));
 	tree->setHeaderLabels(QStringList(tr("database")));
 	tree->header()->setSectionResizeMode(QHeaderView::Stretch);
-	QAction *refreshAction = new QAction(tr("Refresh"), tree);
+	refreshAction = new QAction(tr("Refresh"), tree);
 	metaDataAction = new QAction(tr("Show Schema"), tree);
+	removeAction = new QAction(tr("Delete Table"), tree);
 	connect(refreshAction, SIGNAL(triggered()), SLOT(refresh()));
 	connect(metaDataAction, SIGNAL(triggered()), SLOT(showMetaData()));
+	connect(removeAction, &QAction::triggered, this, &ConnectionWidget::removeTable);
+
 	tree->addAction(refreshAction);
 	tree->addAction(metaDataAction);
+	tree->addAction(removeAction);
 	tree->setContextMenuPolicy(Qt::ActionsContextMenu);
 
 	layout->addWidget(tree);
@@ -82,6 +53,46 @@ static QList<QString *> qDBCaption(const QSqlDatabase &db) {
 	}
 
 	return str;
+}
+void ConnectionWidget::removeTable() {
+//	buttonBox = new QDialogButtonBox(
+//				QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+
+//	connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+//	connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+	QMessageBox msgBox;
+	msgBox.setText("Remove SQL table action");
+	msgBox.setInformativeText("Are you sure to DROP sql table from sql database?");
+	msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+	msgBox.setDefaultButton(QMessageBox::Cancel);
+
+	QRegExp rx("\\[(.*)\\]");
+	int idx = rx.indexIn(tree->currentItem()->text(0));
+	QString tableName = rx.capturedTexts().at(1);
+	int ret = msgBox.exec();
+
+	if (ret == QMessageBox::Yes) {
+		if (tableName.isEmpty())
+			qReturn("Failure while query table name via QRegExp \\[(.*)\\]");
+
+		INFO << tr("Remove table %1 accepted!").arg(tableName);
+		DbController::dropTable(tableName);
+		return;
+
+		QSqlQuery *query = new QSqlQuery(tr("DROP table %1").arg(tableName));
+		if (! query->exec()) {
+			CRIT << tr("SQL query failure detected: %1").arg(query->lastQuery());
+			CRIT << tr("Last query: %1").arg(query->lastError().text());
+		}
+
+//		QSqlQuery query(currentDb());
+//		if (! query.exec(tr("DROP TABLE %1").arg(tableName)))
+//			WARN << query.lastError();
+		refresh();
+	}
+	else
+		qReturn(tr("Remove table %1 rejected!").arg(tableName));
+
 }
 void ConnectionWidget::refresh() {
 	tree->clear();

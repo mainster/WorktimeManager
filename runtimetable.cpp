@@ -170,9 +170,9 @@ bool RuntimeTable::recalcOvertime() {
 	 * Clear runtime table records.
 	 */
 	m_runtimeTv->clearRecords(true);
-	QSqlQuery q(DbController::db());
 
 	foreach (int PN, workerPnId.keys()) {
+		QSqlQuery q(DbController::db());
 		q.clear();
 		q.prepare(tr("INSERT INTO runtime (%1) "
 						 "VALUES (:ID, :YEAR, :MONTH, :RANGE, 0, 0, 1)")

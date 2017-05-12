@@ -32,17 +32,7 @@ public slots:
 									const QString &passwd = "", int port = -1);
 	bool addConnectionsByCmdline(QVariant args);
 	void onOpenDatabase();
-	static void dropTable(const QString &tableName) {
-		QSqlQuery q(db());
-		q.prepare(tr("DROP TABLE %1").arg(tableName));
-		q.exec();
-
-		if (q.lastError().type() != QSqlError::NoError) {
-			INFO << q.lastError().text();
-		}
-
-		ConnectionWidget::instance()->refresh();
-	}
+	static void dropTable(const QString &tableName);
 
 protected slots:
 	bool openDatabase(const QString &database,

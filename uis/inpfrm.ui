@@ -205,6 +205,9 @@ QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
              <bold>true</bold>
             </font>
            </property>
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
@@ -221,7 +224,7 @@ QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
             <bool>false</bool>
            </property>
            <property name="hasSqlMapper" stdset="0">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -310,6 +313,9 @@ color: ;
              <bold>true</bold>
             </font>
            </property>
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="maximumDate">
             <date>
              <year>2050</year>
@@ -334,7 +340,7 @@ color: ;
             <bool>false</bool>
            </property>
            <property name="hasSqlMapper" stdset="0">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -419,6 +425,9 @@ color: ;
              <height>30</height>
             </size>
            </property>
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="styleSheet">
             <string notr="true"/>
            </property>
@@ -444,7 +453,7 @@ color: ;
             <bool>false</bool>
            </property>
            <property name="hasSqlMapper" stdset="0">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -535,6 +544,9 @@ color: ;
              <height>30</height>
             </size>
            </property>
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="editable">
             <bool>true</bool>
            </property>
@@ -557,7 +569,7 @@ color: ;
             <bool>false</bool>
            </property>
            <property name="hasSqlMapper" stdset="0">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -620,6 +632,9 @@ color: ;
              <height>30</height>
             </size>
            </property>
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="editable">
             <bool>true</bool>
            </property>
@@ -642,7 +657,7 @@ color: ;
             <bool>false</bool>
            </property>
            <property name="hasSqlMapper" stdset="0">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -733,11 +748,14 @@ color: ;
              <height>30</height>
             </size>
            </property>
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="hasFocus" stdset="0">
             <bool>false</bool>
            </property>
            <property name="hasSqlMapper" stdset="0">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -745,6 +763,9 @@ color: ;
           <layout class="QVBoxLayout" name="rbLayVert">
            <item>
             <widget class="QRadioButton" name="rbKrank">
+             <property name="focusPolicy">
+              <enum>Qt::StrongFocus</enum>
+             </property>
              <property name="text">
               <string>Krank</string>
              </property>
@@ -755,6 +776,9 @@ color: ;
            </item>
            <item>
             <widget class="QRadioButton" name="rbKrank_2">
+             <property name="focusPolicy">
+              <enum>Qt::StrongFocus</enum>
+             </property>
              <property name="text">
               <string>Neu</string>
              </property>
@@ -793,6 +817,9 @@ color: ;
             <height>27</height>
            </size>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
           <property name="layoutDirection">
            <enum>Qt::RightToLeft</enum>
           </property>
@@ -823,6 +850,9 @@ color: ;
             <width>85</width>
             <height>27</height>
            </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
           </property>
           <property name="layoutDirection">
            <enum>Qt::RightToLeft</enum>
@@ -855,6 +885,9 @@ color: ;
             <height>27</height>
            </size>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
           <property name="layoutDirection">
            <enum>Qt::RightToLeft</enum>
           </property>
@@ -885,6 +918,9 @@ color: ;
             <width>85</width>
             <height>27</height>
            </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
           </property>
           <property name="layoutDirection">
            <enum>Qt::RightToLeft</enum>
@@ -1160,7 +1196,7 @@ QGroupBox::indicator:unchecked {
   <customwidget>
    <class>MdComboBox</class>
    <extends>QComboBox</extends>
-   <header>mdcombobox.h</header>
+   <header location="global">mdcombobox.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

@@ -39,7 +39,15 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 	setFixedHeight(fixedHeights.sqlQueryInvisible);
 	initComboboxes();
 
-	restoreTabOrder();
+//	restoreTabOrder();
+	QList<QWidget *> tabOrderList;
+	foreach (const QString s,
+				config.value( objectName() + Md::k.focusOrder).toString().split(','))
+		tabOrderList << findChildren<QWidget *>(s);
+	INFO << tr("Tab order list loaded from config:")
+		  << listObjectNames<QWidget *>(tabOrderList);
+	setFocusOrderSIMPLE(tabOrderList);
+
 	baseProxy = NULL;
 
 	//	ui->gboxWorker->hide();
@@ -200,6 +208,7 @@ void InpFrm::onInpFormUserCommitAlt() {
 	//    Browser::inst
 	emit newWorktimeRecord();
 	INFO << query.lastQuery();
+	query.finish();
 
 }
 void InpFrm::onInpFormUserCommit() {
@@ -310,18 +319,18 @@ void InpFrm::aButtonClick(bool) {
 		if (baseProxy)
 			return;
 
-		baseCb = new QComboBox();
-		baseProxy = new MySortFilterProxyModel(baseCb);
-		proxyView = new QTreeView();
-		proxyView->setRootIsDecorated(false);
-		proxyView->setAlternatingRowColors(true);
-		proxyView->setModel(proxyModel);
-		proxyView->setSortingEnabled(true);
-		baseProxy->setSourceModel(model);
-		sourceView->setModel(model);
+//		baseCb = new QComboBox();
+//		baseProxy = new MySortFilterProxyModel(baseCb);
+//		proxyView = new QTreeView();
+//		proxyView->setRootIsDecorated(false);
+//		proxyView->setAlternatingRowColors(true);
+//		proxyView->setModel(baseProxy);
+//		proxyView->setSortingEnabled(true);
+//		baseProxy->setSourceModel(model);
+//		sourceView->setModel(model);
 
-		baseCb->setModel(baseProxy);
-		baseCb->show();
+//		baseCb->setModel(baseProxy);
+//		baseCb->show();
 
 	}
 	if (pbSender == ui->btnOk) {
@@ -333,7 +342,7 @@ void InpFrm::aButtonClick(bool) {
 		QList<QWidget *> targs =
 				QList<QWidget *>() << ui->datePicker << ui->leHrs << ui->btnOk << ui->cbPrj
 										 << ui->cbWorker << ui->cbClient;
-		setFocusOrder(targs);
+//		setFocusOrder(targs);
 
 	}
 	if (pbSender == ui->btnRedo) {
@@ -422,7 +431,22 @@ void InpFrm::onChangeFocusOrder(Qt::FocusOrderState state) {
 	//	return;
 
 }
+bool InpFrm::setFocusOrderSIMPLE(QList<QWidget *> focusOrderList) {
+	foreach (QWidget *w, focusOrderList)
+		w->setFocusPolicy(Qt::StrongFocus);
+
+	while (focusOrderList.count() >= 2) {
+		INFO << tr("Set Focus: %1\t->\t%2")
+				  .arg(focusOrderList.at(0)->objectName())
+				  .arg(focusOrderList.at(1)->objectName());
+		QWidget::setTabOrder(focusOrderList.at(0), focusOrderList.at(1));
+		focusOrderList.removeFirst();
+	}
+	return true;
+}
 bool InpFrm::setFocusOrder(QList<QWidget *> targets) {
+	CRIT << tr("This method is stale!");
+	return false;
 	/*!
 	  * Request all child widgets from InpFrm and iterate through the QWidget list.
 	  * If (*it).property("hasSqlMapper")->isValied() returns false, remove current
@@ -484,6 +508,11 @@ void InpFrm::setChangeFocusFlag(const Qt::FocusOrderState &stateFlag) {
 	mChangeFocusFlag = stateFlag;
 }
 void InpFrm::restoreTabOrder() {
+
+	CRIT << tr("This method is stale!");
+	return;
+
+
 	/*!
 	  * Check for valied tab order configuration data
 	  */
@@ -494,13 +523,6 @@ void InpFrm::restoreTabOrder() {
 	 */
 	QList<QWidget *> tabOrderList = filterForProperty(
 				findChildren<QWidget *>(), "hasSqlMapper");
-	setFocusOrder(tabOrderList);
-
-	//	QList<QWidget *> tabOrderList;
-//	tabOrderList = findChildren<QWidget *>();
-//	foreach (QWidget *w, tabOrderList)
-//		if (! w->property("hasSqlMapper").isValid())
-//			tabOrderList.removeOne(w);
 
 	config.setValue(objectName() + Md::k.allTabableWidgets,
 						 listObjectNames<QWidget *>(tabOrderList)->join(','));
@@ -508,18 +530,20 @@ void InpFrm::restoreTabOrder() {
 	if (config.allKeys().join(',').contains(objectName() + Md::k.focusOrder)) {
 		emit stateMessage(tr("Valied tab order configuration found!"), 4000);
 
+		INFO << config.value( objectName() + Md::k.focusOrder).toString().split(',');
 		foreach (const QString s, config.value(
 						objectName() + Md::k.focusOrder).toString().split(','))
 			tabOrderList << findChildren<QWidget *>(s);
+		setFocusOrder(tabOrderList/* << tabOrderList.first() */);
 	}
 	else {
 		/*!
 		 * Use the "all tab-able" list from methode entrance
 		 */
-		INFO << tr("NO valied tab order configuration found!");
+		WARN << tr("NO valied tab order configuration found!");
+		setFocusOrder(tabOrderList);
 	}
 	/* ======================================================================== */
-	setFocusOrder(tabOrderList/* << tabOrderList.first() */);
 
 	//	for (int k = 0; k< (tabOrderList.length() - 1); k++) {
 	//		setTabOrder(tabOrderList.at(k), tabOrderList.at(k+1));
