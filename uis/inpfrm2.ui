@@ -406,7 +406,7 @@ color: ;
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="MdComboBox" name="cbPrj">
+          <widget class="QComboBox" name="cbPrj">
            <property name="minimumSize">
             <size>
              <width>53</width>
@@ -522,7 +522,7 @@ color: ;
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="MdComboBox" name="cbClient">
+          <widget class="QComboBox" name="cbClient">
            <property name="minimumSize">
             <size>
              <width>53</width>
@@ -607,7 +607,7 @@ color: ;
           <number>8</number>
          </property>
          <item row="0" column="0">
-          <widget class="MdComboBox" name="cbWorker">
+          <widget class="QComboBox" name="cbWorker">
            <property name="minimumSize">
             <size>
              <width>53</width>
@@ -1156,13 +1156,6 @@ QGroupBox::indicator:unchecked {
    </layout>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>MdComboBox</class>
-   <extends>QComboBox</extends>
-   <header>mdcombobox.h</header>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>datePicker</tabstop>
   <tabstop>sbID</tabstop>

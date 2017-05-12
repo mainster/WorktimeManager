@@ -32,7 +32,7 @@
 #include "textedit.h"
 #include "types.h"
 #include "ui_dbconndlg.h"
-
+#include "basicsortfilt.h"
 
 namespace Ui {
 class MainWindow;
@@ -180,7 +180,8 @@ private:
 	QWidget			*wid, *mCentralWidget;
 	QTimer			*timCyc;
 
-	CustFilterWindow *custFilterWindow;
+//	CustFilterWindow *custFilterWindow;
+	BasicSortFilt	*bsFilt;
 
 	struct notes_t {
 		MDNotes *toDo,

@@ -30,10 +30,9 @@
 #include "dbcontroller.h"
 #include "sqlrtm.h"
 #include "sfiltmdl.h"
-#include "sectionmask.h"
 #include "datetimerangemask.h"
 #include "mdtableinfo.h"
-
+#include "sectionmask.h"
 #define SET_STYLESHEETS
 
 /* ======================================================================== */
@@ -61,7 +60,6 @@ public:
 	~MdTabView() {}
 
 	ModelType mModelType;
-
 	void setSelectionMode(QAbstractItemView::SelectionMode mode) {
 		QTableView::setSelectionMode(mode);
 	}
@@ -82,7 +80,6 @@ public:
 	QPointer<SqlRtm> getSqlRtm() const { return sqlRtm; }
 	QAction *getActSubmit() const { return actSubmit; }
 	QAction *getActSumSelection() const { return actSumSelection; }
-
 	void setModel(QAbstractItemModel *model) Q_DECL_OVERRIDE;
 	QMessageBox msgBoxSure;
 

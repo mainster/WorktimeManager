@@ -199,9 +199,6 @@ void SfiltMdl::setSourceModel(QAbstractItemModel *sourceModel) {
 }
 
 
-
-
-
 MySortFilterProxyModel::MySortFilterProxyModel(QObject *parent)
 	: QSortFilterProxyModel(parent) {
 }

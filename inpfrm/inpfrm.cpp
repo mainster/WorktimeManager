@@ -40,6 +40,7 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 	initComboboxes();
 
 	restoreTabOrder();
+	baseProxy = NULL;
 
 	//	ui->gboxWorker->hide();
 	/* ======================================================================== */
@@ -274,6 +275,10 @@ void InpFrm::onCbIndexChanged(const int index) {
 		return;
 	}
 }
+void InpFrm::onCbQueryIndexChaned(int idx) {
+	Q_UNUSED(idx);
+	ui->teSqlQuerys->setHtml( ui->cbQueryIdent->currentData().toString() );
+}
 void InpFrm::aButtonClick(bool) {
 	QPushButton *pbSender = qobject_cast<QPushButton *>(QObject::sender());
 	QList<QWidget *> ws;
@@ -301,7 +306,22 @@ void InpFrm::aButtonClick(bool) {
 		//		foreach (MdComboBox *mcbx, QList<MdComboBox*>(listCast<MdComboBox*,QComboBox*>(mSqlCbs))) {
 		//			mcbx->makePermanentView(true);
 		//		}
-		onInpFormUserCommit();
+//		onInpFormUserCommit();
+		if (baseProxy)
+			return;
+
+		baseCb = new QComboBox();
+		baseProxy = new MySortFilterProxyModel(baseCb);
+		proxyView = new QTreeView();
+		proxyView->setRootIsDecorated(false);
+		proxyView->setAlternatingRowColors(true);
+		proxyView->setModel(proxyModel);
+		proxyView->setSortingEnabled(true);
+		baseProxy->setSourceModel(model);
+		sourceView->setModel(model);
+
+		baseCb->setModel(baseProxy);
+		baseCb->show();
 
 	}
 	if (pbSender == ui->btnOk) {
@@ -351,49 +371,9 @@ QList<QWidget *> InpFrm::getTabableWidgets() {
 
 	return inpWids;
 }
-void InpFrm::onInpFormChanges(int idx) {
-	Q_UNUSED(idx);
-	//   INFO << idx;
-}
-void InpFrm::onInpFormChanges(QDate date) {
-	Q_UNUSED(date);
-	//   INFO << date;
-}
-void InpFrm::onSqlQuerysTextChanged() {
-	/**
-	  * Check if teSqlQuery hasFocus to determine if the textCHanged signal
-	  * was emitted in consequence of a Query restore (no new cb item) or
-	  * in cons. of an user text input/change
-	  */
-	if (! ui->teSqlQuerys->hasFocus())
-		return;
-
-	/**
-	  * generate new item only if there is no "New query" item at 0.
-	  * If there is already a "New query" item, update item data only.
-	  */
-	if (! ui->cbQueryIdent->itemText(0).contains(NEWQUERY))
-		ui->cbQueryIdent->insertItem(0, NEWQUERY,
-											  ui->teSqlQuerys->toHtml());
-	else
-		ui->cbQueryIdent->setItemData(0, ui->teSqlQuerys->toHtml());
-
-	ui->cbQueryIdent->setCurrentIndex(0);
-}
-void InpFrm::setQueryBoxVisible(bool visible) {
-	ui->gbSqlQuery->setVisible( visible );
-	if (visible) {
-		setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		ui->teSqlQuerys->setFocusPolicy(Qt::ClickFocus);
-		setMaximumHeight( fixedHeights.sqlQueryVisible );
-		return;
-	}
-	setFixedHeight( fixedHeights.sqlQueryInvisible );
-}
-void InpFrm::onCbQueryIndexChaned(int idx) {
-	Q_UNUSED(idx);
-	ui->teSqlQuerys->setHtml( ui->cbQueryIdent->currentData().toString() );
-}
+/* ======================================================================== */
+/*                               Focus order                                */
+/* ======================================================================== */
 void InpFrm::onChangeFocusOrder(Qt::FocusOrderState state) {
 	/** Interrupt a running changeTabOrder process */
 	if ((mChangeFocusFlag == Qt::FocusChange_isRunning ||
@@ -441,52 +421,6 @@ void InpFrm::onChangeFocusOrder(Qt::FocusOrderState state) {
 
 	//	return;
 
-}
-void InpFrm::restoreTabOrder() {
-	/*!
-	  * Check for valied tab order configuration data
-	  */
-	QSETTINGS;
-
-	/*!
-	 * Write all tab-able widget object names to config file.
-	 */
-	QList<QWidget *> tabOrderList = filterForProperty(
-				findChildren<QWidget *>(), "hasSqlMapper");
-	setFocusOrder(tabOrderList);
-
-	//	QList<QWidget *> tabOrderList;
-//	tabOrderList = findChildren<QWidget *>();
-//	foreach (QWidget *w, tabOrderList)
-//		if (! w->property("hasSqlMapper").isValid())
-//			tabOrderList.removeOne(w);
-
-	config.setValue(objectName() + Md::k.allTabableWidgets,
-						 listObjectNames<QWidget *>(tabOrderList)->join(','));
-
-	if (config.allKeys().join(',').contains(objectName() + Md::k.focusOrder)) {
-		emit stateMessage(tr("Valied tab order configuration found!"), 4000);
-
-		foreach (const QString s, config.value(
-						objectName() + Md::k.focusOrder).toString().split(','))
-			tabOrderList << findChildren<QWidget *>(s);
-	}
-	else {
-		/*!
-		 * Use the "all tab-able" list from methode entrance
-		 */
-		INFO << tr("NO valied tab order configuration found!");
-	}
-	/* ======================================================================== */
-	setFocusOrder(tabOrderList/* << tabOrderList.first() */);
-
-	//	for (int k = 0; k< (tabOrderList.length() - 1); k++) {
-	//		setTabOrder(tabOrderList.at(k), tabOrderList.at(k+1));
-	//		INFO << tr("setTabOrder([%1]").arg(k) << tabOrderList.at(k)->objectName()
-	//		     << tr(",[%1]").arg(k+1) << tabOrderList.at(k+1)->objectName();
-	//	}
-
-	/* ======================================================================== */
 }
 bool InpFrm::setFocusOrder(QList<QWidget *> targets) {
 	/*!
@@ -549,14 +483,51 @@ Qt::FocusOrderState InpFrm::InpFrm::getChangeFocusFlag() const {
 void InpFrm::setChangeFocusFlag(const Qt::FocusOrderState &stateFlag) {
 	mChangeFocusFlag = stateFlag;
 }
-void InpFrm::onDockLocationChanged(Qt::DockWidgetArea area) {
+void InpFrm::restoreTabOrder() {
+	/*!
+	  * Check for valied tab order configuration data
+	  */
 	QSETTINGS;
-	config.setValue(objectName() + tr("/") + KEY_DOCKWIDGETAREA, (uint) area);
 
-}
-void InpFrm::onUndockEvent(bool isUndocked) {
-	if (isUndocked)
-		WIN_RESTORE(this);
+	/*!
+	 * Write all tab-able widget object names to config file.
+	 */
+	QList<QWidget *> tabOrderList = filterForProperty(
+				findChildren<QWidget *>(), "hasSqlMapper");
+	setFocusOrder(tabOrderList);
+
+	//	QList<QWidget *> tabOrderList;
+//	tabOrderList = findChildren<QWidget *>();
+//	foreach (QWidget *w, tabOrderList)
+//		if (! w->property("hasSqlMapper").isValid())
+//			tabOrderList.removeOne(w);
+
+	config.setValue(objectName() + Md::k.allTabableWidgets,
+						 listObjectNames<QWidget *>(tabOrderList)->join(','));
+
+	if (config.allKeys().join(',').contains(objectName() + Md::k.focusOrder)) {
+		emit stateMessage(tr("Valied tab order configuration found!"), 4000);
+
+		foreach (const QString s, config.value(
+						objectName() + Md::k.focusOrder).toString().split(','))
+			tabOrderList << findChildren<QWidget *>(s);
+	}
+	else {
+		/*!
+		 * Use the "all tab-able" list from methode entrance
+		 */
+		INFO << tr("NO valied tab order configuration found!");
+	}
+	/* ======================================================================== */
+	setFocusOrder(tabOrderList/* << tabOrderList.first() */);
+
+	//	for (int k = 0; k< (tabOrderList.length() - 1); k++) {
+	//		setTabOrder(tabOrderList.at(k), tabOrderList.at(k+1));
+	//		INFO << tr("setTabOrder([%1]").arg(k) << tabOrderList.at(k)->objectName()
+	//		     << tr(",[%1]").arg(k+1) << tabOrderList.at(k+1)->objectName();
+	//	}
+
+	/* ======================================================================== */
 }
 /* ======================================================================== */
 /*                             Event callbacks                              */
@@ -611,83 +582,6 @@ void InpFrm::resizeEvent(QResizeEvent *) {
 /* ======================================================================== */
 /*									    Init methodes										    */
 /* ======================================================================== */
-void InpFrm::textFilterChanged1() {
-	int i = 0;
-	 QRegExp regExp(mFiltEdits.at(i)->text(),
-						 mFiltEdits.at(i)->caseSensitivity(),
-						 mFiltEdits.at(i)->patternSyntax());
-	 mProxys[i]->setFilterRegExp(regExp);
-}
-void InpFrm::textFilterChanged2() {
-	int i = 1;
-	 QRegExp regExp(mFiltEdits.at(i)->text(),
-						 mFiltEdits.at(i)->caseSensitivity(),
-						 mFiltEdits.at(i)->patternSyntax());
-	 mProxys[i]->setFilterRegExp(regExp);
-}
-void InpFrm::textFilterChanged3() {
-	int i = 2;
-	 QRegExp regExp(mFiltEdits.at(i)->text(),
-						 mFiltEdits.at(i)->caseSensitivity(),
-						 mFiltEdits.at(i)->patternSyntax());
-	mProxys[i]->setFilterRegExp(regExp);
-}
-void InpFrm::initListViews(void) {
-//	QList<QWidget *> ws = findChildren<QWidget *>();
-
-//	foreach (QWidget *w, ws) {
-//		INFO << w->objectName() << w->sizePolicy();
-//		w->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-//	}
-
-	QList<QGroupBox *> gbs = QList<QGroupBox *>()
-			<< ui->gboxPrj	<< ui->gboxClient	<< ui->gboxWorker;
-
-	QFrame frm1;
-
-	QGridLayout *gl = new QGridLayout();
-
-	int rr = 0;
-	foreach (QGroupBox *gb, gbs) {
-		mTblWids.append(new QTableView(gb));
-		mProxys.append(new MySortFilterProxyModel(this));
-		mFiltEdits.append(new FilterEdit());
-		mFiltEdits.last()->setText("Grace|Sports");
-
-		gl->addWidget(mTblWids.last(), 0, rr, Qt::AlignCenter);
-		gl->addWidget(mFiltEdits.last(), 1, rr++, Qt::AlignCenter);
-		mTblWids.last()->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-		mTblWids.last()->show();
-		mFiltEdits.last()->show();
-	}
-
-	frm1.setLayout(gl);
-	frm1.setFixedSize(QSize(400, 300));
-	frm1.setParent(this);
-	frm1.show();
-
-	connect(mFiltEdits.at(0), &FilterEdit::filterChanged, this, &InpFrm::textFilterChanged1);
-	connect(mFiltEdits.at(0), &FilterEdit::textChanged, this, &InpFrm::textFilterChanged1);
-	mTblWids[0]->setModel(ui->gboxPrj->findChild<MdComboBox *>()->model());
-	connect(mFiltEdits.at(1), &FilterEdit::filterChanged, this, &InpFrm::textFilterChanged2);
-	connect(mFiltEdits.at(1), &FilterEdit::textChanged, this, &InpFrm::textFilterChanged2);
-	mTblWids[1]->setModel(ui->gboxClient->findChild<MdComboBox *>()->model());
-	connect(mFiltEdits.at(2), &FilterEdit::filterChanged, this, &InpFrm::textFilterChanged3);
-	connect(mFiltEdits.at(2), &FilterEdit::textChanged, this, &InpFrm::textFilterChanged3);
-	mTblWids[2]->setModel(ui->gboxWorker->findChild<MdComboBox *>()->model());
-
-
-
-//		mTblWids.append(new QTableWidget(ws.at(k)));
-//		mTblWids.last()->setModel(ws.at(k)->model());
-//		QGridLayout *gl = new QGridLayout(ws.at(k));
-//		gl->addWidget(ws.at(k));
-//		gl->addWidget(mTblWids.last());
-//		ws[k]->setLayout(gl);
-//		mTblWids.last()->show();
-//	}
-}
-
 void InpFrm::initComboboxes() {
 	/*!
 	  * Initialize sql combobox list member mSqlCbs.
@@ -787,24 +681,18 @@ QString InpFrm::getQueryText() const {
 }
 void InpFrm::connectActions() {
 
-	connect(ui->datePicker,         SIGNAL(dateChanged(QDate)),
-			  this,                   SLOT(onInpFormChanges(QDate)));
-	connect(ui->sbID,               SIGNAL(valueChanged(int)),
-			  this,                   SLOT(onInpFormChanges(int)));
-	connect(ui->teSqlQuerys,        SIGNAL(textChanged()),
-			  this,                   SLOT(onSqlQuerysTextChanged()));
-	connect(ui->cbQueryIdent,       SIGNAL(currentIndexChanged(int)),
-			  this,                   SLOT(onCbQueryIndexChaned(int)));
-
 	connect(this, &InpFrm::changeFocusOrder, this, &InpFrm::onChangeFocusOrder);
 	connect(this, &InpFrm::dockLocationChanged, this, &InpFrm::onDockLocationChanged);
 	connect(this, &InpFrm::topLevelChanged, this, &InpFrm::onUndockEvent);
 
+	connect(ui->teSqlQuerys, SIGNAL(textChanged()), this, SLOT(onSqlQuerysTextChanged()));
+	connect(ui->cbQueryIdent, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbQueryIndexChaned(int)));
+
 	QList<QComboBox*> cbs = findChildren<QComboBox *>();
 	QList<QPushButton*> pbs = findChildren<QPushButton *>();
 
-	foreach (QComboBox *cb, cbs)
-		connect(cb, SIGNAL(currentIndexChanged(int)), this, SLOT(onInpFormChanges(int)));
+//	foreach (QComboBox *cb, cbs)
+//		connect(cb, &QComboBox::currentIndexChanged, this, &InpFrm::onInpFormChanges));
 
 	foreach (QPushButton *pb, pbs) {
 		if (pb->objectName() == tr("btnSaveQuery")) {
@@ -905,6 +793,36 @@ void InpFrm::restoreSqlQueryInputText() {
 /* ======================================================================== */
 /*                                 Helpers                                  */
 /* ======================================================================== */
+void InpFrm::onSqlQuerysTextChanged() {
+	/**
+	  * Check if teSqlQuery hasFocus to determine if the textCHanged signal
+	  * was emitted in consequence of a Query restore (no new cb item) or
+	  * in cons. of an user text input/change
+	  */
+	if (! ui->teSqlQuerys->hasFocus())
+		return;
+
+	/**
+	  * generate new item only if there is no "New query" item at 0.
+	  * If there is already a "New query" item, update item data only.
+	  */
+	if (! ui->cbQueryIdent->itemText(0).contains(NEWQUERY))
+		ui->cbQueryIdent->insertItem(0, NEWQUERY,
+											  ui->teSqlQuerys->toHtml());
+	else
+		ui->cbQueryIdent->setItemData(0, ui->teSqlQuerys->toHtml());
+
+	ui->cbQueryIdent->setCurrentIndex(0);
+}
+void InpFrm::onDockLocationChanged(Qt::DockWidgetArea area) {
+	QSETTINGS;
+	config.setValue(objectName() + tr("/") + KEY_DOCKWIDGETAREA, (uint) area);
+
+}
+void InpFrm::onUndockEvent(bool isUndocked) {
+	if (isUndocked)
+		WIN_RESTORE(this);
+}
 QList<QWidget *> InpFrm::filterForProperty(
 		QList<QWidget *> list, const char* property) {
 	foreach (QWidget *w, list) {
@@ -922,6 +840,16 @@ QList<QWidget *> InpFrm::filterForProperty(
 		}
 	}
 	return list;
+}
+void InpFrm::setQueryBoxVisible(bool visible) {
+	ui->gbSqlQuery->setVisible( visible );
+	if (visible) {
+		setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		ui->teSqlQuerys->setFocusPolicy(Qt::ClickFocus);
+		setMaximumHeight( fixedHeights.sqlQueryVisible );
+		return;
+	}
+	setFixedHeight( fixedHeights.sqlQueryInvisible );
 }
 
 #define QFOLDINGSTART {

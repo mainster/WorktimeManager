@@ -401,9 +401,7 @@ void FilterWidget::keyPressEvent(QKeyEvent *e) {
 /* ======================================================================== */
 /* ======================================================================== */
 FilterEdit::FilterEdit(QWidget *parent)
-	: QLineEdit(parent)
-	, m_patternGroup(new QActionGroup(this))
-{
+	: QLineEdit(parent), m_patternGroup(new QActionGroup(this)) {
 	setClearButtonEnabled(true);
 	connect(this, &QLineEdit::textChanged, this, &FilterEdit::filterChanged);
 
@@ -476,8 +474,7 @@ void FilterEdit::setPatternSyntax(QRegExp::PatternSyntax s)
 /* ======================================================================== */
 /* ======================================================================== */
 
-CustFilterWindow::CustFilterWindow()
-{
+CustFilterWindow::CustFilterWindow() {
 	proxyModel = new MySortFilterProxyModel(this);
 
 	sourceView = new QTreeView;

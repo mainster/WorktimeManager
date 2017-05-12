@@ -688,6 +688,12 @@ void InpFrm2::initListViews(void) {
 //	}
 }
 
+void InpFrm2::onCbLineEditChanged(void) {
+	QLineEdit *le = qobject_cast<QLineEdit *>(QObject::sender());
+	if (le)
+		INFO << le->parent()->objectName() << le->parentWidget()->objectName();
+}
+
 void InpFrm2::initComboboxes() {
 	/*!
 	  * Initialize sql combobox list member mSqlCbs.
@@ -699,21 +705,6 @@ void InpFrm2::initComboboxes() {
 	 */
 	foreach (MdComboBox *cb, mSqlCbs)
 		cb->installEventFilter( new SqlEventFilter(this) );
-
-//	/*!
-//	  * Initialize sql combobox list member mSqlCbs.
-//	  */
-//	mSqlCbs = findChildren<MdComboBox *>();
-//	foreach (MdComboBox *cb, mSqlCbs) {
-//		if (! cb->property("hasSqlMapper").isValid())
-//			mSqlCbs.removeOne(cb);
-//		else {
-//			/*!
-//			 * Install custom event filter object for SQL mapping purposes.
-//			 */
-//			cb->installEventFilter( new SqlEventFilter(this) );
-//		}
-//	}
 
 	/*!
 	  * Append field groups to model struct mModels
@@ -758,24 +749,28 @@ void InpFrm2::initComboboxes() {
 	idx << mModels[IDX_PROJECT].tableModel->fieldIndex("Kurzform")
 		 << mModels[IDX_PROJECT].tableModel->fieldIndex("Nummer");
 	//	INFO << idx;
-	ui2->cbPrj->setModelColumns(idx);
+	ui2->cbPrj->setModelColumn/*s*/(idx.at(0));
 
 	idx.clear();
 	idx << mModels[IDX_CLIENT].tableModel->fieldIndex("Kurzform")
 		 << mModels[IDX_CLIENT].tableModel->fieldIndex("Nummer");
 	//	INFO << idx;
-	ui2->cbClient->setModelColumns(idx);
+	ui2->cbClient->setModelColumn/*s*/(idx.at(0));
 
 	idx.clear();
 	idx << mModels[IDX_WORKER].tableModel->fieldIndex("Nachname")
 		 << mModels[IDX_WORKER].tableModel->fieldIndex("Vorname")
 		 << mModels[IDX_WORKER].tableModel->fieldIndex("PersonalNr");
 	//	INFO << idx;
-	ui2->cbWorker->setModelColumns(idx);
+	ui2->cbWorker->setModelColumn/*s*/(idx.at(0));
 
 	connect(ui2->cbPrj, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
 	connect(ui2->cbClient, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
 	connect(ui2->cbWorker, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));
+
+	connect(ui2->cbPrj->lineEdit(), &QLineEdit::textChanged, this, &InpFrm2::onCbLineEditChanged);
+	connect(ui2->cbClient->lineEdit(), &QLineEdit::textChanged, this, &InpFrm2::onCbLineEditChanged);
+	connect(ui2->cbWorker->lineEdit(), &QLineEdit::textChanged, this, &InpFrm2::onCbLineEditChanged);
 
 	//	ui->cbPrj->setModelColumns(QList<quint8>() << 1 << 5);
 	//	ui->cbClient->setModelColumns(QList<quint8>() << 1 << 3);

@@ -1,5 +1,5 @@
-#ifndef INPFRM2_H
-#define INPFRM2_H
+#ifndef INPFRM_H
+#define INPFRM_H
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000
@@ -16,7 +16,7 @@
 #include "browser.h"
 #include "qpair.h"
 #include <QTableView>
-#include "filterwidget.h"
+#include "filter/filterwidget.h"
 #include <QRegExp>
 #include "sfiltmdl.h"
 #include <QGroupBox>
@@ -26,18 +26,18 @@
 class FilterEdit;
 
 namespace Ui {
-class InpFrm2;
+class InpFrm;
 }
-//namespace Qt {
-//enum FocusOrderState {
-//	FocusChange_none,
-//	FocusChange_init,
-//	FocusChange_isRunning,
-//	FocusChange_done,
-//	FocusChange_rejected,
-//};
-//Q_ENUMS(FocusOrderState)
-//}
+namespace Qt {
+enum FocusOrderState {
+	FocusChange_none,
+	FocusChange_init,
+	FocusChange_isRunning,
+	FocusChange_done,
+	FocusChange_rejected,
+};
+Q_ENUMS(FocusOrderState)
+}
 
 #define MAX_TAB_ORDER_WIDGETS		8
 
@@ -53,7 +53,7 @@ class InpFrm2;
 /* ======================================================================== */
 /*                               class InpFrm                               */
 /* ======================================================================== */
-class InpFrm2 : public QDockWidget {
+class InpFrm : public QDockWidget {
 
 	Q_OBJECT
 //	Q_PROPERTY(TvSelectors tvSelector READ tvSelector WRITE setTvSelector NOTIFY tvSelectorChanged)
@@ -100,23 +100,22 @@ public:
 		QList<QWidget *> mNext;
 	} mTabOrder;
 
-	explicit InpFrm2(QWidget *parent = 0);
-	static InpFrm2 *instance(QWidget *parent = 0x00) {
+	explicit InpFrm(QWidget *parent = 0);
+	static InpFrm *instance(QWidget *parent = 0x00) {
 		if(inst == 0)
-			inst = new InpFrm2(parent);
+			inst = new InpFrm(parent);
 		return inst;
 	}
-	~InpFrm2();
+	~InpFrm();
 
 	void setQueryBoxVisible(bool visible);
-	void onInpFormUserCommit();
 	Qt::FocusOrderState getChangeFocusFlag() const;
 	void setChangeFocusFlag(const Qt::FocusOrderState &stateFlag);
 	bool setFocusOrder(QList<QWidget *> targets);
 	QList<QWidget *> filterForProperty(
 			QList<QWidget *> list, const char *property);
-
 	void initListViews();
+
 signals:
 	void changeFocusOrder(Qt::FocusOrderState state = Qt::FocusChange_init);
 	void stateMessage(const QString msg, const int option);
@@ -130,15 +129,12 @@ public slots:
 	void saveSqlQueryInputText();
 	void restoreSqlQueryInputText();
 	void onSqlQuerysTextChanged();
+	void onInpFormUserCommit();
+	void onInpFormUserCommitAlt();
 	void onCbQueryIndexChaned(int idx);
 	void showEvent(QShowEvent *);
 	void aButtonClick(bool);
-	void onInpFormChanges(int idx);
 	void onCbIndexChanged(const int index);
-	void onInpFormUserCommitAlt();
-	void textFilterChanged1();
-	void textFilterChanged2();
-	void textFilterChanged3();
 
 protected:
 	virtual void keyPressEvent(QKeyEvent *) override;
@@ -148,7 +144,6 @@ protected:
 
 	QList<QWidget *> getTabableWidgets();
 protected slots:
-	void onInpFormChanges(QDate date);
 	void onChangeFocusOrder(Qt::FocusOrderState state);
 	void hideEvent(QShowEvent *);
 	void closeEvent(QCloseEvent *) override;
@@ -158,8 +153,8 @@ protected slots:
 private slots:
 
 private:
-	Ui::InpFrm2						*ui2;
-	static InpFrm2					*inst;
+	Ui::InpFrm						*ui;
+	static InpFrm					*inst;
 	int								workerIdx, projIdx;
 	MDStateBar						*stateBar;
 	QDateEdit						*de;
@@ -167,9 +162,9 @@ private:
 	QVector<QRadioButton*>		rbv;
 	QList<MdComboBox *>			mSqlCbs;
 
-	QList<QTableView *>			mTblWids;
-	QList<MySortFilterProxyModel *> mProxys;
-	QList<FilterEdit *>			mFiltEdits;
+	MySortFilterProxyModel		*baseProxy;
+	QComboBox						*baseCb;
+	QTreeView						*proxyView;
 
 	QSqlQuery						query;
 	QStringList						tblLst;
