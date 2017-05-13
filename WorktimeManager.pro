@@ -83,7 +83,6 @@ HEADERS += \
 	filter/filterwidget.h \
 	headers/headeralias.h \
 	headers/locals.h \
-	inpfrm/inpfrm2.h \
 	inpfrm/inpfrm4.h \
 	inpfrm/inpfrm.h \
 	mainwindow.h \
@@ -126,7 +125,6 @@ SOURCES += \
 	filter/filterwidget.cpp \
 	headers/headeralias.cpp \
 	headers/locals.cpp \
-	inpfrm/inpfrm2.cpp \
 	inpfrm/inpfrm4.cpp \
 	inpfrm/inpfrm.cpp \
 	main.cpp \

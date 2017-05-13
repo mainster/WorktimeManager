@@ -52,27 +52,40 @@ InpFrm4::InpFrm4(const QList<MdTable *> tables, QWidget *parent)
 }
 void InpFrm4::onTextChanged(const QString &text) {
 	MdComboBox *senderCb = qobject_cast<MdComboBox *>(sender());
+	if (! senderCb) {
+		CRIT << tr("Cast failed!");
+		return;
+	}
 
 	if (! senderCb->lineEdit()->selectedText().isEmpty())
 		INFO << tr("selected:") << senderCb->lineEdit()->selectedText();
 
+	/**
+	 * If textChange signal emitted with a completer string filled into the lineedit,
+	 * or if user has entered a comma, the "text" argument couldn't be used as valid
+	 * filter String...
+	 */
 	if (! senderCb->currentText().isEmpty()) {
 #ifdef USE_COMPLETER
 		prjProxy->setFilterFixedString(text);
+
 #else
-//		Q_UNUSED(text);
+		Q_UNUSED(text);
 		INFO << tr("changed text: ") << GN_BG(text)
 			  << tr("completion prefix: ") << GN_BG(senderCb->getCompleter()->completionPrefix());
 		if (mCb->isChecked())
 			prjProxy->setFilterFixedString(senderCb->getCompleter()->completionPrefix());
 		else
 			prjProxy->setFilterFixedString(text);
-//		prjProxy->setFilterRegExp(text);
+		prjProxy->setFilterRegExp(text);
 #endif
 	}
 	else
 		prjProxy->setFilterFixedString(QString());
 
+	/**
+	 * TODO:	Maybe emit a doRefresh() for all InpBoxWdg?!
+	 */
 	inpBoxes.at(1)->cbx()->refreshView();
 }
 void InpFrm4::setSourceTables(const QList<MdTable *> tables) {
@@ -293,6 +306,9 @@ const QString InpBoxWdg::mStylesheetInp4 = QString(
 #define QFOLDINGEND }
 
 
+/* ======================================================================== */
+/*                           InpBoxWdg::InpBoxWdg                           */
+/* ======================================================================== */
 InpBoxWdg::InpBoxWdg(const QString &title, QWidget *parent)
 	: QGroupBox(parent) {
 	mCbx = new MdComboBox();
@@ -316,6 +332,7 @@ InpBoxWdg::InpBoxWdg(const QString &title, QWidget *parent)
 	setStyleSheet(mStylesheetInp4);
 }
 void InpBoxWdg::setTable(MdTable *table) {
+	INFO << table->sqlTableName();
 	setTitle(table->sqlTableName());
 	mCbx->setModel(table->tv()->model());
 	mTv->setModel(table->tv()->model());

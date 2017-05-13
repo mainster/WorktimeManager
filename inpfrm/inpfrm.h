@@ -163,7 +163,7 @@ private:
 	QVector<QRadioButton*>		rbv;
 	QList<MdComboBox *>			mSqlCbs;
 
-	MySortFilterProxyModel		*baseProxy;
+//	MySortFilterProxyModel		*baseProxy;
 	QComboBox						*baseCb;
 	QTreeView						*proxyView;
 

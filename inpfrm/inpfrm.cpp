@@ -48,7 +48,7 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 		  << listObjectNames<QWidget *>(tabOrderList);
 	setFocusOrderSIMPLE(tabOrderList);
 
-	baseProxy = NULL;
+//	baseProxy = NULL;
 
 	//	ui->gboxWorker->hide();
 	/* ======================================================================== */
@@ -312,26 +312,6 @@ void InpFrm::aButtonClick(bool) {
 		Browser::instance()->execCustomQuery();
 	}
 	if (pbSender == ui->btnClear) {
-		//		foreach (MdComboBox *mcbx, QList<MdComboBox*>(listCast<MdComboBox*,QComboBox*>(mSqlCbs))) {
-		//			mcbx->makePermanentView(true);
-		//		}
-//		onInpFormUserCommit();
-		if (baseProxy)
-			return;
-
-//		baseCb = new QComboBox();
-//		baseProxy = new MySortFilterProxyModel(baseCb);
-//		proxyView = new QTreeView();
-//		proxyView->setRootIsDecorated(false);
-//		proxyView->setAlternatingRowColors(true);
-//		proxyView->setModel(baseProxy);
-//		proxyView->setSortingEnabled(true);
-//		baseProxy->setSourceModel(model);
-//		sourceView->setModel(model);
-
-//		baseCb->setModel(baseProxy);
-//		baseCb->show();
-
 	}
 	if (pbSender == ui->btnOk) {
 		onInpFormUserCommitAlt();
