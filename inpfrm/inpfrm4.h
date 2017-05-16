@@ -22,6 +22,7 @@
 #include "mdtable.h"
 
 #include <QDataWidgetMapper>
+#include <QCompleter>
 
 class InpBoxWdg;
 
@@ -68,10 +69,9 @@ private:
 	SqlRtm					*sourceRtm;
 	static InpFrm4			*mInst;
 	QList<InpBoxWdg *>	inpBoxes;
-//	QDataWidgetMapper		*mapper;
 	QGridLayout				*vbl;
 	QCheckBox				*mCb;
-	bool mHasSrcTables;
+	bool						mHasSrcTables;
 };
 
 
@@ -93,8 +93,6 @@ public:
 signals:
 	void doAdjustSize();
 	void textChanged(QString s);
-
-protected:
 
 protected slots:
 	void onDoAdjustSize();

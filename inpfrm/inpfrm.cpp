@@ -640,35 +640,32 @@ void InpFrm::initComboboxes() {
 		field.comboBox->setModel(field.proxyModel);
 	}
 
-	QList<QString> list;
 	foreach (fieldGroup_t field, mModels) {
-		list.clear();
+		QList<QString> list;
 		list << tr("Table: %1").arg(field.tableModel->tableName());
 		for (int k = 0; k < field.tableModel->columnCount(QModelIndex()); k++)
 			list << field.tableModel->record().fieldName(k);
-		//		INFO << list;
+		INFO << list;
 	}
+
 	/*!
 	  * Select the model columns which should be transformed into string list model and
 	  * used for comboboxes dropdown menu.
 	  */
 	QList<short> idx;
-	idx << mModels[IDX_PROJECT].tableModel->fieldIndex("Kurzform")
-		 << mModels[IDX_PROJECT].tableModel->fieldIndex("Nummer");
-	//	INFO << idx;
+	idx << static_cast<short>(mModels[IDX_PROJECT].tableModel->fieldIndex("Kurzform"))
+		 << static_cast<short>(mModels[IDX_PROJECT].tableModel->fieldIndex("Nummer"));
 	ui->cbPrj->setModelColumns(idx);
 
 	idx.clear();
-	idx << mModels[IDX_CLIENT].tableModel->fieldIndex("Kurzform")
-		 << mModels[IDX_CLIENT].tableModel->fieldIndex("Nummer");
-	//	INFO << idx;
+	idx << static_cast<short>(mModels[IDX_CLIENT].tableModel->fieldIndex("Kurzform"))
+		 << static_cast<short>(mModels[IDX_CLIENT].tableModel->fieldIndex("Nummer"));
 	ui->cbClient->setModelColumns(idx);
 
 	idx.clear();
-	idx << mModels[IDX_WORKER].tableModel->fieldIndex("Nachname")
-		 << mModels[IDX_WORKER].tableModel->fieldIndex("Vorname")
-		 << mModels[IDX_WORKER].tableModel->fieldIndex("PersonalNr");
-	//	INFO << idx;
+	idx << static_cast<short>(mModels[IDX_WORKER].tableModel->fieldIndex("Nachname"))
+		 << static_cast<short>(mModels[IDX_WORKER].tableModel->fieldIndex("Vorname"))
+		 << static_cast<short>(mModels[IDX_WORKER].tableModel->fieldIndex("PersonalNr"));
 	ui->cbWorker->setModelColumns(idx);
 
 	connect(ui->cbPrj, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIndexChanged(int)));

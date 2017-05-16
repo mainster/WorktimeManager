@@ -23,7 +23,6 @@
 #include "debug.h"
 #include "inpfrm4.h"
 #include "inpfrm.h"
-#include "inpfrm2.h"
 #include "locals.h"
 #include "mdmenu.h"
 #include "mdnotes.h"
@@ -132,8 +131,6 @@ private slots:
 		}
 		if (qobject_cast<QAction *>(sender()) == actInpForm) {
 			inpFrm->setVisible(onOff);
-			if (inpFrm2 != NULL)
-				inpFrm2->setVisible(onOff);
 		}
 
 		if (qobject_cast<QAction *>(sender()) == actInpFormV4) {
@@ -170,18 +167,14 @@ private:
 	Ui::MainWindow *ui;
 	Browser			*browser;
 	InpFrm			*inpFrm;
-	InpFrm2			*inpFrm2;
 	InpFrm4			*inpFrm4;
 	MDStateBar		*stateBar;
-//	FilterForm		*filterForm, *filterFormWkt;
 	FilterWidget	*filterForm, *filterFormWkt;
 	DbController	*mDbc;
 	TextEdit			*richEditor;
 	QMenu				*cfgMenu, *mBar;
 	QWidget			*wid, *mCentralWidget;
 	QTimer			*timCyc;
-
-//	CustFilterWindow *custFilterWindow;
 	BasicSortFilt	*bsFilt;
 
 	struct notes_t {

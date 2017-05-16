@@ -88,7 +88,6 @@ MainWindow::MainWindow(QWidget *parent)
 	 * Connect the inpFrm's statusMessage signal to the statebar message slot
 	 */
 	connect(inpFrm, &InpFrm::stateMessage, stateBar, &MDStateBar::showMessage);
-	connect(inpFrm2, &InpFrm2::stateMessage, stateBar, &MDStateBar::showMessage);
 
 	/*!
 	  * Connect InpFrm::newWorktimeRecord() to MdTable::update()
@@ -212,7 +211,6 @@ void MainWindow::onActCloseTrig() {
 	//    qApp->closeAllWindows();
 	browser->close();
 	if (inpFrm != NULL) inpFrm->close();
-	if (inpFrm2 != NULL) inpFrm2->close();
 	close();
 }
 void MainWindow::onActSaveTrig() {

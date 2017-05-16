@@ -108,7 +108,8 @@ HEADERS += \
 	views/mdcombobox.h \
 	views/mdecombo.h \
 	views/mdtable.h \
-	views/mdtabview.h
+	views/mdtabview.h \
+    mdcompleter.h
 
 
 SOURCES += \
@@ -151,7 +152,8 @@ SOURCES += \
 	views/mdcombobox.cpp \
 	views/mdecombo.cpp \
 	views/mdtable.cpp \
-	views/mdtabview.cpp
+	views/mdtabview.cpp \
+    mdcompleter.cpp
 
 
 

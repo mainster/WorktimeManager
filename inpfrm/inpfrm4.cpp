@@ -1,6 +1,5 @@
 #include "inpfrm4.h"
 
-
 InpFrm4 *InpFrm4::mInst = 0;
 
 /* ======================================================================== */
@@ -49,6 +48,7 @@ InpFrm4::InpFrm4(const QList<MdTable *> tables, QWidget *parent)
 
 	WIN_RESTORE(this);
 
+
 }
 void InpFrm4::onTextChanged(const QString &text) {
 	MdComboBox *senderCb = qobject_cast<MdComboBox *>(sender());
@@ -59,6 +59,9 @@ void InpFrm4::onTextChanged(const QString &text) {
 
 	if (! senderCb->lineEdit()->selectedText().isEmpty())
 		INFO << tr("selected:") << senderCb->lineEdit()->selectedText();
+
+	INFO << tr("QCompleter::currentCompleteion(): %1")
+			  .arg(senderCb->completer()->currentCompletion());
 
 	/**
 	 * If textChange signal emitted with a completer string filled into the lineedit,
@@ -103,14 +106,16 @@ void InpFrm4::setSourceTables(const QList<MdTable *> tables) {
 	}
 
 	foreach (MdTable *mdt, tables) {
-		if (mdt->sqlTableName() == tr("client"))
+		if (mdt->sqlTableName() == tr("client")) {
 			inpBoxes.at(0)->setTable(mdt);
+		}
 
 		if (mdt->sqlTableName() == tr("prj")) {
 			prjProxy->setSourceModel(mdt->tv()->model());
 			prjProxy->invalidate();
 			inpBoxes.at(1)->cbx()->setModel(prjProxy);
 			inpBoxes.at(1)->tv()->setModel(prjProxy);
+			inpBoxes.at(1)->setTitle(mdt->sqlTableName());
 		}
 
 		if (mdt->sqlTableName() == tr("worker"))
@@ -326,6 +331,10 @@ InpBoxWdg::InpBoxWdg(const QString &title, QWidget *parent)
 	setLayout(mGl);
 	setTitle(title);
 
+	QCompleter *completer = new QCompleter(this);
+	completer->setCaseSensitivity(Qt::CaseInsensitive);
+	completer->setFilterMode(Qt::MatchContains);
+	mCbx->setCompleter(completer);
 	connect(this, &InpBoxWdg::doAdjustSize, this, &InpBoxWdg::onDoAdjustSize);
 
 	adjustSize();
@@ -338,11 +347,13 @@ void InpBoxWdg::setTable(MdTable *table) {
 	mTv->setModel(table->tv()->model());
 	mTv->resizeRowsColsToContents();
 
+	/**
+	 * TODO: Is writeable a must have?
+	 */
 	connect(mTv->model(), &QAbstractItemModel::dataChanged,
 			  this, &InpBoxWdg::onTvModelDataChanged);
 }
-void InpBoxWdg::onTvModelDataChanged(const QModelIndex,
-												 const QModelIndex,
+void InpBoxWdg::onTvModelDataChanged(const QModelIndex, const QModelIndex,
 												 const QVector<int>) {
 	mCbx->setModel(mTv->model());
 }
