@@ -90,6 +90,11 @@ void MDStateBar::showInSlot(const QVariant var, const char *slot) {
 		return;
 	}
 
+	if (var.canConvert(QMetaType::QString)) {
+		m_slotMap[slot].setText(var.toString());
+		return;
+	}
+
 	INFO << tr("Can not decode QVariant message !!!");
 }
 void MDStateBar::sumFontWeightNormal() {

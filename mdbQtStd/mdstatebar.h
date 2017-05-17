@@ -102,7 +102,7 @@ public:
 public slots:
 	void showError(const QString s, const int timeout = 0);
 	void showMessage2sec(const QString &s);
-	void showMessage(const QString s, const int timeout);
+	void showMessage(const QString s, const int timeout = 0);
 	void showInfo(const QString s, const int timeout);
 	void showInfo(QString &s) {
 		showInfo(s, 0);
