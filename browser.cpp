@@ -287,8 +287,6 @@ void Browser::autofitRowCol(bool searchChildren) {
 	//		tvc->resizeRowsColsToContents();
 }
 void Browser::onCyclic() {
-
-
 }
 void Browser::onTvSelectorChanged() {
 	/*! Notify signal via proberty class */

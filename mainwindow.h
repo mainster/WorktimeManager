@@ -32,6 +32,7 @@
 #include "types.h"
 #include "ui_dbconndlg.h"
 #include "basicsortfilt.h"
+#include "form.h"
 
 namespace Ui {
 class MainWindow;
@@ -156,13 +157,14 @@ protected:
 		Q_UNUSED(styleSheet);
 #endif
 	}
-	bool eventFilter(QObject *obj, QEvent *event);
-	void showEvent(QShowEvent *e);
+	bool eventFilter(QObject *obj, QEvent *e) override;
+	void showEvent(QShowEvent *e) override;
 	void hideEvent(QHideEvent *) override;
-	void closeEvent(QCloseEvent *e);
+	void closeEvent(QCloseEvent *e) override;
+	void timerEvent(QTimerEvent *) override;
 
 private:
-	void keyPressEvent(QKeyEvent *e);
+	void keyPressEvent(QKeyEvent *e) override;
 
 	Ui::MainWindow *ui;
 	Browser			*browser;
@@ -176,6 +178,8 @@ private:
 	QWidget			*wid, *mCentralWidget;
 	QTimer			*timCyc;
 	BasicSortFilt	*bsFilt;
+	Form				*form;
+	bool				mQuitArmed;
 
 	struct notes_t {
 		MDNotes *toDo,
@@ -192,6 +196,7 @@ private:
 	*actSetGridColor, *actAutoFitTables, *actFilterTable, *actFilterTableWindow,
 	*actFilterForm, *actCfgInpFrmTabOrd, *actDoFiltWorktimeTbl,
 	*actDoFiltSelectedTbl, *actResetConfig;
+
 };
 
 /* ======================================================================== */

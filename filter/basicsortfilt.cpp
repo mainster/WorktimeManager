@@ -3,11 +3,12 @@
 #include "basicsortfilt.h"
 
 BasicSortFilt::BasicSortFilt(QWidget *parent)
-	: proxyModel(new QSortFilterProxyModel()) {
+	: QWidget(parent), proxyModel(new QSortFilterProxyModel()) {
 
 	createUi(proxyModel);
 	connectUi();
 //	setSourceModel(createMailModel(parent));
+	setAttribute(Qt::WA_DeleteOnClose);
 	show();
 }
 
@@ -78,6 +79,7 @@ void BasicSortFilt::createUi(QSortFilterProxyModel *proxyModel) {
 	filterPatternLineEdit->setText("Andy|Grace");
 	filterCaseSensitivityCheckBox->setChecked(true);
 	sortCaseSensitivityCheckBox->setChecked(true);
+
 }
 void BasicSortFilt::connectUi(void) {
 

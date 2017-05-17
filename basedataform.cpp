@@ -14,24 +14,48 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	/* ======================================================================== */
 	/*                          Create button objects                           */
 	/* ======================================================================== */
-	btnFirst = new QPushButton(tr("<<"));
-	btnPrevious = new QPushButton(tr("< &zurück"));
-	btnNext = new QPushButton(tr("&vor >"));
-	btnLast = new QPushButton(tr(">>"));
+	btnFirst = new QPushButton(tr("&<<"), this);
+	btnPrev = new QPushButton(tr("< &zurück"), this);
+	btnNext = new QPushButton(tr("&vor >"), this);
+	btnLast = new QPushButton(tr("&>>"), this);
 
-	btnAdd = new QPushButton(tr("&Hinzufügen"));
-	btnDelete = new QPushButton(tr("&Löschen"));
-	btnSave = new QPushButton(tr("&Anwenden"));
-	btnClose = new QPushButton(tr("A&bbruch"));
+	btnAdd = new QPushButton(tr("&Neu"), this);
+	btnChange = new QPushButton(tr("&Ändern"), this);
+	btnDelete = new QPushButton(tr("&Löschen"), this);
+	btnOk = new QPushButton(tr("&Ok"), this);
+	btnCancel = new QPushButton(tr("A&bbruch"), this);
 
 	btnFirst->setFixedWidth(30);
 	btnLast->setFixedWidth(30);
 
-	buttonBox = new QDialogButtonBox;
-	buttonBox->addButton(btnAdd, QDialogButtonBox::ResetRole);
-	buttonBox->addButton(btnDelete, QDialogButtonBox::ActionRole);
-	buttonBox->addButton(btnSave, QDialogButtonBox::ApplyRole);
-	buttonBox->addButton(btnClose, QDialogButtonBox::RejectRole);
+	taskBtnBox = new QDialogButtonBox();
+	taskBtnBox->addButton(btnAdd, QDialogButtonBox::ActionRole);
+	taskBtnBox->addButton(btnChange, QDialogButtonBox::ActionRole);
+	taskBtnBox->addButton(btnDelete, QDialogButtonBox::ActionRole);
+	taskBtnBox->addButton(btnOk, QDialogButtonBox::ApplyRole);
+	taskBtnBox->addButton(btnCancel, QDialogButtonBox::RejectRole);
+
+	/* ======================================================================== */
+	/*                      Create button and main layout                       */
+	/* ======================================================================== */
+	QHBoxLayout *topButtonLayout = new QHBoxLayout;
+	topButtonLayout->setContentsMargins(20, 0, 20, 5);
+	topButtonLayout->addStretch();
+	topButtonLayout->addWidget(btnFirst);
+	topButtonLayout->addWidget(btnPrev);
+	topButtonLayout->addWidget(btnNext);
+	topButtonLayout->addWidget(btnLast);
+	topButtonLayout->addStretch();
+
+	QGridLayout *mainLayout = new QGridLayout;
+	int gridRow = 0;
+	mainLayout->addLayout(topButtonLayout, gridRow++, 0, 1, 2);
+
+	topButtonGroup = new QButtonGroup(this);
+	topButtonGroup->addButton(btnFirst);
+	topButtonGroup->addButton(btnPrev);
+	topButtonGroup->addButton(btnNext);
+	topButtonGroup->addButton(btnLast);
 
 	/* ======================================================================== */
 	/*                             Set table model                              */
@@ -45,26 +69,10 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	mapper->setItemDelegate(new NullDelegate(this));
 
 	/* ======================================================================== */
-	/*                        Query a ColumnSchema list                         */
+	/*                          Query table Schema                              */
 	/* ======================================================================== */
 	tableSchema = MdTableInfo::querySchema(qobject_cast<MdTabView *>(m_tableView)
 														->sqlTableName(), DbController::db());
-
-	/* ======================================================================== */
-	/*                      Create button and main layout                       */
-	/* ======================================================================== */
-	QHBoxLayout *topButtonLayout = new QHBoxLayout;
-	topButtonLayout->setContentsMargins(20, 0, 20, 5);
-	topButtonLayout->addStretch();
-	topButtonLayout->addWidget(btnFirst);
-	topButtonLayout->addWidget(btnPrevious);
-	topButtonLayout->addWidget(btnNext);
-	topButtonLayout->addWidget(btnLast);
-	topButtonLayout->addStretch();
-
-	QGridLayout *mainLayout = new QGridLayout;
-	int gridRow = 0;
-	mainLayout->addLayout(topButtonLayout, gridRow++, 0, 1, 2);
 
 	/* ======================================================================== */
 	/*                          Create editor widgets                           */
@@ -224,11 +232,15 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	else
 		mapper->toFirst();
 
-	topButtonGroup = new QButtonGroup(this);
-	topButtonGroup->addButton(btnFirst);
-	topButtonGroup->addButton(btnPrevious);
-	topButtonGroup->addButton(btnNext);
-	topButtonGroup->addButton(btnLast);
+	setEditorStates(false);
+	btnOk->setEnabled(false);
+
+	stateBar = new QStatusBar(this);
+	mainLayout->addWidget(taskBtnBox, gridRow++, 0, 1, 2);
+	mainLayout->addWidget(stateBar, gridRow++, 0, 1, 2);
+
+	setLayout(mainLayout);
+	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
 	/* ======================================================================== */
 	/*                          Connect button signals                          */
@@ -236,22 +248,16 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	connect(topButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)),
 			  this,				SLOT(onTopButtonClicked(QAbstractButton*)));
 
-	connect(btnFirst,		&QPushButton::clicked, mapper, &QDataWidgetMapper::toFirst);
-	connect(btnPrevious, &QPushButton::clicked, mapper, &QDataWidgetMapper::toPrevious);
-	connect(btnNext,		&QPushButton::clicked, mapper, &QDataWidgetMapper::toNext);
-	connect(btnLast,		&QPushButton::clicked, mapper, &QDataWidgetMapper::toLast);
+	connect(btnFirst,	&QPushButton::clicked, mapper, &QDataWidgetMapper::toFirst);
+	connect(btnPrev,	&QPushButton::clicked, mapper, &QDataWidgetMapper::toPrevious);
+	connect(btnNext,	&QPushButton::clicked, mapper, &QDataWidgetMapper::toNext);
+	connect(btnLast,	&QPushButton::clicked, mapper, &QDataWidgetMapper::toLast);
 
-	connect(btnAdd,		&QPushButton::clicked, this, &BaseDataForm::addNew);
-	connect(btnDelete,	&QPushButton::clicked, this, &BaseDataForm::deleteCurrent);
-	connect(btnSave,		&QPushButton::clicked, this, &BaseDataForm::saveCurrent);
-	connect(btnClose,		&QPushButton::clicked, this, &BaseDataForm::reject);
-
-	stateBar = new QStatusBar(this);
-	mainLayout->addWidget(buttonBox, gridRow++, 0, 1, 2);
-	mainLayout->addWidget(stateBar, gridRow++, 0, 1, 2);
-
-	setLayout(mainLayout);
-	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+	connect(btnAdd,	&QPushButton::clicked, this, &BaseDataForm::addNew);
+	connect(btnChange,&QPushButton::clicked, this, &BaseDataForm::change);
+	connect(btnDelete,&QPushButton::clicked, this, &BaseDataForm::deleteCurrent);
+	connect(btnOk,		&QPushButton::clicked, this, &BaseDataForm::saveCurrent);
+	connect(btnCancel,&QPushButton::clicked, this, &BaseDataForm::reject);
 
 	(id == -1) ? btnNext->setFocus() : leEditors.first()->setFocus();
 
@@ -277,7 +283,7 @@ void BaseDataForm::onTextEdited(const QString &text) {
 			return;
 	}
 
-	btnSave->setEnabled(true);
+	btnOk->setEnabled(true);
 }
 QString BaseDataForm::getEditorText(QWidget *editor) {
 	if (qobject_cast<QLineEdit *>(editor))
@@ -309,12 +315,12 @@ void BaseDataForm::addNew() {
 	 * Disable some buttons
 	 */
 	disableButtons();
-	enableButtons(QList<QPushButton *>() /*<< btnSave*/ << btnClose);
-
+	enableButtons(QList<QPushButton *>() << btnOk << btnCancel);
+	setEditorStates(true);
 	clearResetEditors();
 
 	/*!
-	 * Insert new table row before current index.
+	 * Insert new table row after current index.
 	 */
 	int row = mapper->currentIndex() + 1;
 	tableModel->insertRow(row);
@@ -348,6 +354,21 @@ void BaseDataForm::addNew() {
 
 	m_rowCountChanged = true;
 }
+void BaseDataForm::change() {
+	/*!
+	 * Revert all uncommited changes of active table.
+	 */
+	qobject_cast<SqlRtm *>(m_tableView->model())->revertAll();
+
+	/*!
+	 * Disable some buttons
+	 */
+	disableButtons();
+	enableButtons(QList<QPushButton *>() << btnOk << btnCancel);
+	setEditorStates(true);
+
+
+}
 void BaseDataForm::deleteCurrent() {
 	int row = mapper->currentIndex();
 	tableModel->removeRow(row);
@@ -356,7 +377,7 @@ void BaseDataForm::deleteCurrent() {
 	//	mapper->setCurrentIndex(qMin(row, tableModel->rowCount() - 1));
 }
 void BaseDataForm::saveCurrent() {
-	int mapperIndex = mapper->currentIndex();
+//	int mapperIndex = mapper->currentIndex();
 	mapper->submit();
 
 	/*!
@@ -366,20 +387,7 @@ void BaseDataForm::saveCurrent() {
 	foreach (QWidget *w, allEditors) {
 		QString editorText;
 
-		if (qobject_cast<QLineEdit *>(w))
-			editorText = qobject_cast<QLineEdit *>(w)->text();
-		else {
-			if (qobject_cast<QComboBox *>(w))
-				editorText = qobject_cast<QComboBox *>(w)->currentText();
-			else {
-				if (qobject_cast<MdPlainTextEdit *>(w))
-					editorText = qobject_cast<MdPlainTextEdit *>(w)->toPlainText();
-				else {
-					INFO << tr("Class:") << w->metaObject()->className();
-					Q_ASSERT(0);
-				}
-			}
-		}
+		editorText = getEditorText(w);
 
 		if (w->property(Md::sqlConstraints.notNull).toBool()) {
 			/*!
@@ -480,13 +488,13 @@ void BaseDataForm::clearEditorBackgrounds() {
 	foreach (QWidget *w, allEditors)
 		Globals::setStylesheetProperty(w, "orangeBg", false);
 }
-void BaseDataForm::clearResetEditors(QList<QWidget *> editorList) {
-	if (editorList.isEmpty())
-		editorList = allEditors;
+void BaseDataForm::clearResetEditors(QList<QWidget *> editors) {
+	if (editors.isEmpty())
+		editors = allEditors;
 	/*!
 	 * Reset all editor values.
 	 */
-	foreach(QWidget *w, editorList) {
+	foreach(QWidget *w, editors) {
 		if (qobject_cast<QLineEdit *>(w)) {
 			qobject_cast<QLineEdit *>(w)->clear();
 			continue;
@@ -512,23 +520,30 @@ void BaseDataForm::disableButtons(QList<QPushButton *> btnList) {
 	if (btnList.isEmpty())
 		btnList = this->findChildren<QPushButton *>();
 
-	setButtonsState(btnList, false);
+	setButtonStates(btnList, false);
 }
 void BaseDataForm::disableButtons(QButtonGroup *btnGroup) {
-	setButtonsState(listCast<QPushButton *>(btnGroup->buttons()), false);
+	setButtonStates(listCast<QPushButton *>(btnGroup->buttons()), false);
 }
 void BaseDataForm::enableButtons(QList<QPushButton *> btnList) {
 	if (btnList.isEmpty())
 		btnList = this->findChildren<QPushButton *>();
 
-	setButtonsState(btnList, true);
+	setButtonStates(btnList, true);
 }
 void BaseDataForm::enableButtons(QButtonGroup *btnGroup) {
-	setButtonsState(listCast<QPushButton *>(btnGroup->buttons()), true);
+	setButtonStates(listCast<QPushButton *>(btnGroup->buttons()), true);
 }
-void BaseDataForm::setButtonsState(QList<QPushButton *> btnList, bool state) {
+void BaseDataForm::setButtonStates(QList<QPushButton *> btnList, bool state) {
 	foreach (QPushButton *btn, btnList)
 		btn->setEnabled(state);
+}
+void BaseDataForm::setEditorStates(bool state, QList<QWidget *> editors) {
+	if (editors.isEmpty())
+		editors = allEditors;
+
+	foreach (QWidget *w, editors)
+		w->setEnabled(state);
 }
 /* ======================================================================== */
 /*                              Event handler                               */
@@ -543,26 +558,12 @@ void BaseDataForm::keyPressEvent(QKeyEvent *e) {
 		QDialog::reject();
 	}
 	if (e->key() == Qt::Key_F4) {
-		QList<QString> tblNames;
-		bool ok;
-
-		QSqlQuery q("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;");
-
-		while (q.next())
-			tblNames << q.value(0).toString();
-
-		QString tblName = QInputDialog::getText(
-					this, tr("Table name"), tr("Enter sql table name"),
-					QLineEdit::Normal, tr("test or client or ..."), &ok);
-
-		if (! (ok && tblNames.contains(tblName)))
-			return;
-		q.exec(tr("SELECT sql FROM sqlite_master where name='%1';").arg(tblName));
-
-		while (q.next()) {
-			QList<QString> colums;
-			colums << q.value(0).toString().split("\n");
-			INFO << colums;
+		INFO << allEditors.at(0)->isEnabled();
+		if (allEditors.at(0)->isEnabled())
+			setEditorStates(false);
+		else {
+			setEditorStates(true);
+			allEditors.at(2)->repaint();
 		}
 	}
 }
@@ -588,12 +589,13 @@ const QString BaseDataForm::STYLESHEET =
 		QString("/* ----------------------------------------------------------------------------------------------- */"
 				  "QComboBox, QLineEdit, QSpinBox, QDateEdit {	"
 				  "	border:					1px solid gray;"
-				  //				  "	background-color: rgb(255, 255, 255);"
+				  "	background-color:		rgb(255, 255, 255);"
 				  "	color:					rgb(70, 70, 70);"
 				  "}  [orangeBg=true] {"
-				  "	background-color:		rgb(255, 217, 137);"
-				  "}	[enabled=""false""] {"
-				  "	color:					rgb(120, 120, 120);"
+				  "	background-color:		rgb(255, 100, 100);"
+				  "}  [enabled=true] {"
+				  "	background-color:		rgb(255, 255, 255);"
+				  "}  [enabled=false] {"
 				  "	background-color:		rgb(214, 214, 214);"
 				  "}"
 				  "/* ----------------------------------------------------------------------------------------------- */"

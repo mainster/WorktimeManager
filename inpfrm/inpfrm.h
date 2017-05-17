@@ -50,17 +50,13 @@ Q_ENUMS(FocusOrderState)
 #define	IDX_CONTRACOTR		3
 
 #define KEY_DOCKWIDGETAREA	QString("DockWidgetArea")
+
 /* ======================================================================== */
 /*                               class InpFrm                               */
 /* ======================================================================== */
 class InpFrm : public QDockWidget {
 
 	Q_OBJECT
-//	Q_PROPERTY(TvSelectors tvSelector READ tvSelector WRITE setTvSelector NOTIFY tvSelectorChanged)
-
-//public slots:
-//	TvSelectors tvSelector() const { return m_tvSelector; }
-//	void setTvSelector(TvSelectors tvSelector) { m_tvSelector = tvSelector; }
 
 public:
 	struct fieldGroup_t {
@@ -79,9 +75,7 @@ public:
 		QDataWidgetMapper *widgetMapper;
 		MdComboBox *comboBox;
 	};
-
 	QList<fieldGroup_t> mModels;
-
 
 	struct /*mTabOrder_t*/ {
 	public:
@@ -133,23 +127,24 @@ public slots:
 	void onInpFormUserCommit();
 	void onInpFormUserCommitAlt();
 	void onCbQueryIndexChaned(int idx);
-	void showEvent(QShowEvent *);
 	void aButtonClick(bool);
 	void onCbIndexChanged(const int index);
 
 protected:
+	virtual void showEvent(QShowEvent *) override;
+	virtual void hideEvent(QHideEvent *) override;
+	virtual void closeEvent(QCloseEvent *) override;
 	virtual void keyPressEvent(QKeyEvent *) override;
 	virtual void resizeEvent(QResizeEvent *) override;
 	void connectActions();
 	void restoreTabOrder();
-
 	QList<QWidget *> getTabableWidgets();
+
 protected slots:
 	void onChangeFocusOrder(Qt::FocusOrderState state);
-	void hideEvent(QShowEvent *);
-	void closeEvent(QCloseEvent *) override;
-	void onUndockEvent(bool isUndocked);
 	void onDockLocationChanged(Qt::DockWidgetArea area);
+	void onUndockEvent(bool isUndocked);
+	void onTextEditChanged();
 
 private slots:
 
@@ -162,14 +157,11 @@ private:
 	QDialog							*dlg;
 	QVector<QRadioButton*>		rbv;
 	QList<MdComboBox *>			mSqlCbs;
-
-//	MySortFilterProxyModel		*baseProxy;
 	QComboBox						*baseCb;
 	QTreeView						*proxyView;
-
 	QSqlQuery						query;
 	QStringList						tblLst;
-	QTextEdit						*gbSqlQuery;
+	QTextEdit						*gbSqlQuery, *txtEdit;
 	Qt::FocusOrderState			mChangeFocusFlag;
 	bool								mEscapeTrigger;
 

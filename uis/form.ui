@@ -2,12 +2,15 @@
 <ui version="4.0">
  <class>Form</class>
  <widget class="QWidget" name="Form">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>315</width>
-    <height>136</height>
+    <height>140</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,25 +22,15 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QComboBox" name="comboBox">
-     <property name="minimumSize">
-      <size>
-       <width>161</width>
-       <height>33</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>161</width>
-       <height>33</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QLabel" name="label">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -58,6 +51,45 @@
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="lineEdit">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QComboBox" name="cbx">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>33</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>161</width>
+       <height>33</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="lineEdit_2">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
     </widget>
    </item>

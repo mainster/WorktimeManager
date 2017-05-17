@@ -4,7 +4,7 @@
 #define	ON_CYCLIC_INTERVAL_MS	250
 
 MainWindow::MainWindow(QWidget *parent)
-	: QMainWindow(parent), ui(new Ui::MainWindow) {
+	: QMainWindow(parent), ui(new Ui::MainWindow), mQuitArmed(false) {
 	ui->setupUi(this);
 
 	QSETTINGS;
@@ -23,9 +23,10 @@ MainWindow::MainWindow(QWidget *parent)
 												 browser->mTabs.tblsNoPtr());
 	filterFormWkt	= new FilterWidget(FilterWidget::useWorktimeSource,
 												 browser->mTabs.tblsNoPtr());
+	bsFilt			= new BasicSortFilt(0);
 
-	bsFilt		= new BasicSortFilt(this);
-
+	form = new Form();
+	form->show();
 
 	browser->connectionWidget()->refresh();
 	notes.toDo->hide();
@@ -186,7 +187,7 @@ void MainWindow::onUnderConstrTrig() {
 #define QFOLDINGEND }
 }
 void MainWindow::onCyclic() {
-	if (false) {
+	if (/* DISABLES CODE */ (false)) {
 		QList<QAction *> acts = findChildren<QAction *>(QRegularExpression("act*"));
 		QList<int> ba;
 		foreach (QAction *act, acts)
@@ -285,8 +286,8 @@ void MainWindow::onSomeHasBeenSelected(bool hasSelected) {
 /* ======================================================================== */
 /*                              Event handler                               */
 /* ======================================================================== */
-bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
-	QMouseEvent *mouseEv = static_cast<QMouseEvent *>(event);
+bool MainWindow::eventFilter(QObject *obj, QEvent *e) {
+	QMouseEvent *mouseEv = static_cast<QMouseEvent *>(e);
 	if (mouseEv) {
 		INFO << tr("mouseEv << mouseEv->type()") << mouseEv << mouseEv->type();
 		if (obj->objectName().contains(tr("manuBar")))
@@ -309,7 +310,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
 		return QObject::eventFilter(obj, event);
 	}
 #endif
-	return QObject::eventFilter(obj, event);
+	return QObject::eventFilter(obj, e);
 }
 void MainWindow::showEvent(QShowEvent *e) {
 	QWidget::showEvent( e );
@@ -359,16 +360,38 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 			w->close();
 	}
 
+	qApp->quit();
 //	QWidget::closeEvent(e);
 }
 void MainWindow::keyPressEvent(QKeyEvent *e) {
 	if (e->key() == Qt::Key_Escape) {
-		emit browser->clearSelections();
-		emit browser->someHasBeenSelected(false);
+		/*!
+		 * Check if any MdTabView is selected
+		 */
+		foreach (MdTable *tbl, browser->mTabs.tblsNoPtr())
+			if (tbl->isSelected()) {
+				emit browser->clearSelections();
+				emit browser->someHasBeenSelected(false);
+				e->accept();
+				return;
+			}
+
+		if (mQuitArmed)
+			MainWindow::close();
+		else {
+			mQuitArmed = true;
+			stateBar->showMessage(QString("Hit \"ESC\" again to quit")
+										 .arg(windowTitle()));
+			QWidget::startTimer(1500, Qt::PreciseTimer);
+		}
 		e->accept();
 		return;
 	}
 	QWidget::keyPressEvent(e);
+}
+void MainWindow::timerEvent(QTimerEvent *) {
+	mQuitArmed = false;
+	stateBar->clearMessage();
 }
 /* ======================================================================== */
 /*									    Init methodes										    */
@@ -581,14 +604,13 @@ void MainWindow::createActions() {
 	actDoFiltWorktimeTbl->setCheckable(true);
 	actCyclicObjInfo->setCheckable(true);
 
-	actCyclicObjInfo->setShortcut	(QKeySequence("F2"));
 	actFilterForm->setShortcut		(QKeySequence("F3"));
 	actInpForm->setShortcut			(QKeySequence("F4"));
-	actInpFormV4->setShortcut			(QKeySequence("F4"));
+	actInpFormV4->setShortcut		(QKeySequence("F4"));
 	actNotes->setShortcut			(QKeySequence("F5"));
-
-	actClose->setShortcut(			QKeySequence("Ctrl+Q"));
-	actAutoFitTables->setShortcut(QKeySequence("Ctrl+Alt+A"));
+	actCyclicObjInfo->setShortcut	(QKeySequence("F6"));
+	actClose->setShortcut			(QKeySequence("Ctrl+Q"));
+	actAutoFitTables->setShortcut	(QKeySequence("Ctrl+Alt+A"));
 
 //	actRichEdit->setShortcuts(		QList<QKeySequence>()
 //											<< QKeySequence("Ctrl+E")
@@ -615,29 +637,19 @@ void MainWindow::createActions() {
 	actOpen->setToolTip(tr("Open an existing file"));
 	actSave->setToolTip(tr("Save the document"));
 	actExport->setToolTip(tr("Export dataset to document"));
-	actBrowseSQL->setToolTip(tr("Öffnet alle Tabellen der SQL Datenbank mit "
-										 "<b>Lesezugriff</b>."));
+	actBrowseSQL->setToolTip(tr("Öffnet alle Tabellen der SQL Datenbank mit " "<b>Lesezugriff</b>."));
 	actShowTbl->setToolTip(tr("Open work time database table"));
-	actDbModMaster->setToolTip(tr("<b>Bearbeiten</b> der Datenbank-<b>Stammdaten</b>.\n"
-											"Zum Anlegen/ändern von Projekten, Mitarbeitern oder "
-											"Kunden."));
+	actDbModMaster->setToolTip(tr("<b>Bearbeiten</b> der Datenbank-<b>Stammdaten</b>.\n" "Zum Anlegen/ändern von Projekten, Mitarbeitern oder " "Kunden."));
 	actClose->setToolTip(tr("Alle Fenster schließen und Programm beenden."));
-	actNotes->setToolTip(tr("Öffnet den <b>Notiz</b> Block. Programmfehler, "
-									"änderungswünsche\noder sonstige Kommentare an den "
-									"Programmierer, \nsollten hier notiert werden!"));
+	actNotes->setToolTip(tr("Öffnet den <b>Notiz</b> Block. Programmfehler, " "änderungswünsche\noder sonstige Kommentare an den " "Programmierer, \nsollten hier notiert werden!"));
 	actResizerDlg->setToolTip(tr("Resize MainWindow to x"));
-	actShowSqlQuery->setToolTip(tr("Hide or show the input field to submit manuall "
-											 "SQL querys thru database driver backend"));
+	actShowSqlQuery->setToolTip(tr("Hide or show the input field to submit manuall " "SQL querys thru database driver backend"));
 	actSetAlterRowCol->setToolTip(tr("Farbe für alternierenden Zeilenhintergund auswählen."));
 	actSetGridColor->setToolTip(tr("Farbe für das Tabellen-Raster auswählen."));
-	actInpForm->setToolTip(tr("Öffnet die <b>Eingabeform</b> um neue Einträge in die "
-									  "Arbeitszeitentabelle einzutragen."));
-	actInpFormV4->setToolTip(tr("Öffnet die <b>Eingabeform v4</b> um neue Einträge in die "
-									  "Arbeitszeitentabelle einzutragen."));
-	actDoFiltSelectedTbl->setToolTip(tr("Das Filter/Suchfenster wird auf die <b>aktuell "
-													"ausgewählte</b> Tabelle angewendet."));
-	actDoFiltWorktimeTbl->setToolTip(tr("Das Filter/Suchfenster wird <b>immer</b> auf die "
-													"<b>Arbeitszeit</b>-Tabelle angewendet."));
+	actInpForm->setToolTip(tr("Öffnet die <b>Eingabeform</b> um neue Einträge in die " "Arbeitszeitentabelle einzutragen."));
+	actInpFormV4->setToolTip(tr("Öffnet die <b>Eingabeform v4</b> um neue Einträge in die " "Arbeitszeitentabelle einzutragen."));
+	actDoFiltSelectedTbl->setToolTip(tr("Das Filter/Suchfenster wird auf die <b>aktuell " "ausgewählte</b> Tabelle angewendet."));
+	actDoFiltWorktimeTbl->setToolTip(tr("Das Filter/Suchfenster wird <b>immer</b> auf die " "<b>Arbeitszeit</b>-Tabelle angewendet."));
 	actRichEdit->setToolTip(tr("Öffnet einen Rich Text Editor."));
 
 
@@ -657,7 +669,7 @@ void MainWindow::connectActions(ConnectReceiver receivers) {
 		connect(actInpForm, &QAction::triggered, this, &MainWindow::onOpenCloseInpFrm);
 		connect(actInpFormV4, &QAction::triggered, this, &MainWindow::onOpenCloseInpFrm);
 		connect(actShowTbl, &QAction::triggered, this, &MainWindow::onTblOpen);
-		connect(actClose, &QAction::triggered, this, &MainWindow::onActCloseTrig);
+		connect(actClose, &QAction::triggered, this, &MainWindow::close);
 		connect(actGbStyleShtA, &QAction::triggered, this, &MainWindow::onMenuStyleShtATrig);
 		connect(actGbSShtInpFrm, &QAction::triggered, this, &MainWindow::onMenuStyleShtInpFrmTrig);
 		connect(actExport, &QAction::triggered, this, &MainWindow::onActExportTrig);
@@ -775,3 +787,5 @@ void MainWindow::setVisibleFake(QObject *) {
 void MainWindow::initDocks() {
 
 }
+
+

@@ -232,7 +232,6 @@ signals:
 	 * \brief someHasBeenSelected signal was emitted if some table view has been selected.
 	 */
 	void someHasBeenSelected(bool hasSelected);
-
 	void sqlTableDataChanged();
 
 public slots:
@@ -275,8 +274,8 @@ protected slots:
 	bool restoreActionObjects();
 	void onTblGbMouseClicked(MdTable *sender);
 	void onTvViewPortMouseClicked(MdTabView *sender);
-
 	void onActCalcRuntime();
+
 private:
 	static Browser		*inst;
 	ConnectionWidget	*mConnectionWidget;

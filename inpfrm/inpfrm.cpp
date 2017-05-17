@@ -29,12 +29,14 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 				config.value(objectName() + tr("/fixedHeightQuery")).toInt();
 
 	connectActions();
+	txtEdit = new QTextEdit();
+	txtEdit->hide();
+	connect(txtEdit, &QTextEdit::textChanged, this, &InpFrm::onTextEditChanged);
 
 	ui->cbQueryIdent->setDuplicatesEnabled( false );
 	ui->datePicker->setDate(QDate::currentDate());
 	ui->gbSqlQuery->hide();
 	WIN_RESTORE(this);
-
 
 	setFixedHeight(fixedHeights.sqlQueryInvisible);
 	initComboboxes();
@@ -363,6 +365,12 @@ QList<QWidget *> InpFrm::getTabableWidgets() {
 /* ======================================================================== */
 /*                               Focus order                                */
 /* ======================================================================== */
+void InpFrm::onTextEditChanged() {
+	if (txtEdit->toPlainText().contains("<DONE>")) {
+		Globals::setStylesheet(this, txtEdit->toPlainText().remove("\n<DONE>"));
+		txtEdit->hide();
+	}
+}
 void InpFrm::onChangeFocusOrder(Qt::FocusOrderState state) {
 	/** Interrupt a running changeTabOrder process */
 	if ((mChangeFocusFlag == Qt::FocusChange_isRunning ||
@@ -542,7 +550,7 @@ void InpFrm::showEvent(QShowEvent *) {
 	mEscapeTrigger = false;
 	//	mapCbTableProxy();
 }
-void InpFrm::hideEvent(QShowEvent *) {
+void InpFrm::hideEvent(QHideEvent *) {
 
 }
 void InpFrm::closeEvent(QCloseEvent *) {
@@ -554,15 +562,12 @@ void InpFrm::closeEvent(QCloseEvent *) {
 	WIN_STORE(this);
 }
 void InpFrm::keyPressEvent(QKeyEvent *e) {
-	/**
+	/*!
 	  * If key press event for "Enter" is detected, emit a btnOk Clicked()
 	  * signal to access onBtnOkClicked()
 	  */
-	if (e->key() == Qt::Key_Enter) {
+	if (e->key() == Qt::Key_Enter)
 		emit ui->btnOk->clicked();
-		e->accept();
-		return;
-	}
 
 	/*!
 	  * First escape key press event resets the current InpFrm widget focus to initial.
@@ -575,9 +580,22 @@ void InpFrm::keyPressEvent(QKeyEvent *e) {
 				INFO << tr("start singledshot");
 			}
 		}
-		else hide();
+		else
+			hide();
 	}
-	e->ignore();
+
+	if (e->key() == Qt::Key_F2) {
+		txtEdit->clear();
+		txtEdit->insertPlainText(QDockWidget::styleSheet());
+		txtEdit->show();
+	}
+
+	if ((e->key() == Qt::Key_Enter) ||
+		 (e->key() == Qt::Key_Escape) ||
+		 (e->key() == Qt::Key_F2))
+		e->accept();
+	else
+		e->ignore();
 }
 void InpFrm::resizeEvent(QResizeEvent *) {
 	//	if (isFloating())

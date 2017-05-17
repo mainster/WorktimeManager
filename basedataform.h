@@ -56,8 +56,8 @@ public:
 protected:
 	virtual void keyPressEvent(QKeyEvent *e) override;
 	virtual void showEvent(QShowEvent *) override;
-
 	QString getEditorText(QWidget *editor);
+
 protected slots:
 //	void refreshMapper();
 	void populateComboBoxes();
@@ -65,6 +65,7 @@ protected slots:
 
 private slots:
 	void addNew();
+	void change();
 	void deleteCurrent();
 	void saveCurrent();
 	void onCyclic();
@@ -72,8 +73,9 @@ private slots:
 	void onTopButtonClicked(QAbstractButton *button);
 
 private:
-	void clearResetEditors(QList<QWidget *> editorList = QList<QWidget *>());
-	void setButtonsState(QList<QPushButton *> btnList, bool state);
+	void setEditorStates(bool state, QList<QWidget *> editors = QList<QWidget *>());
+	void clearResetEditors(QList<QWidget *> editors = QList<QWidget *>());
+	void setButtonStates(QList<QPushButton *> btnList, bool state);
 	void disableButtons(QList<QPushButton *> btnList = QList<QPushButton *>());
 	void disableButtons(QButtonGroup *btnGroup);
 	void enableButtons(QList<QPushButton *> btnList = QList<QPushButton *>());
@@ -95,12 +97,12 @@ private:
 	QLineEdit *lePrimaryKey;
 
 	QButtonGroup *topButtonGroup;
-	QPushButton *btnFirst, *btnPrevious, *btnNext, *btnLast, *btnAdd,
-	*btnDelete, *btnClose, *btnSave;
+	QPushButton *btnFirst, *btnPrev, *btnNext, *btnLast, *btnAdd, *btnChange,
+	*btnDelete, *btnCancel, *btnOk;
 
 	QStatusBar *stateBar;
 
-	QDialogButtonBox *buttonBox;
+	QDialogButtonBox *taskBtnBox;
 	static const QString STYLESHEET, MSG_MANDATORY_EDITOR;
 
 	bool m_rowCountChanged;
