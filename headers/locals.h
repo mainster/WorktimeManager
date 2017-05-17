@@ -36,6 +36,14 @@ public:
 		filtSyntaxCB;
 	} k;
 
+	/*!
+	 * Lookup-table which holds SQL constraint strings.
+	 */
+	static struct SqlConstraints_t {
+		const char *notNull;
+		const char *unique;
+	} sqlConstraints;
+
 	static QString unAliasTableName(const QString maybeAliasedTable) {
 		/*!
 		 * Test table for alias extension and get sqlTableName if alias extension is used.
@@ -59,6 +67,8 @@ public:
 	 */
 	static QMap<QString, QString> headerAlias;
 };
+
+Q_ENUMS(SqlConstraint)
 
 class Locals {
 public:

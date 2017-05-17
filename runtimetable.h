@@ -61,8 +61,8 @@ private:
 	 */
 	QMap<int, WorktimeSum_t> worktimeSums;
 
-	QList<MdTableInfo::TableInfo_column_t> worktimeColumnInfos;
-	QList<MdTableInfo::TableInfo_column_t> runtimeColumnInfos;
+	QList<MdTableInfo::Column_t> worktimeColumnInfos;
+	QList<MdTableInfo::Column_t> runtimeColumnInfos;
 
 
 	static const QString OVERTIME_TABLE_NAME;

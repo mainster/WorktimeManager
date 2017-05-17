@@ -50,16 +50,18 @@ public:
 		INFO << tr("close");
 	}
 
-	void done(int result);
+	virtual void done(int result) override;
 	virtual void reject() override;
 
 protected:
 	virtual void keyPressEvent(QKeyEvent *e) override;
 	virtual void showEvent(QShowEvent *) override;
 
+	QString getEditorText(QWidget *editor);
 protected slots:
 //	void refreshMapper();
 	void populateComboBoxes();
+	void onTextEdited(const QString &text);
 
 private slots:
 	void addNew();
@@ -67,14 +69,21 @@ private slots:
 	void saveCurrent();
 	void onCyclic();
 	void clearEditorBackgrounds();
-
 	void onTopButtonClicked(QAbstractButton *button);
 
 private:
+	void clearResetEditors(QList<QWidget *> editorList = QList<QWidget *>());
+	void setButtonsState(QList<QPushButton *> btnList, bool state);
+	void disableButtons(QList<QPushButton *> btnList = QList<QPushButton *>());
+	void disableButtons(QButtonGroup *btnGroup);
+	void enableButtons(QList<QPushButton *> btnList = QList<QPushButton *>());
+	void enableButtons(QButtonGroup *btnGroup);
+
 	QTableView *m_tableView;
 	QSqlRelationalTableModel *tableModel;
 //	SqlRtmWithNoneEntry *tableModel;
 	QDataWidgetMapper *mapper;
+	QList<MdTableInfo::Column_t> tableSchema;
 
 	QList<QComboBox *> cbEditors;
 	QList<QLineEdit *> leEditors;
@@ -86,8 +95,8 @@ private:
 	QLineEdit *lePrimaryKey;
 
 	QButtonGroup *topButtonGroup;
-	QPushButton *firstButton, *previousButton, *nextButton, *lastButton, *addButton,
-	*deleteButton, *closeButton, *saveButton;
+	QPushButton *btnFirst, *btnPrevious, *btnNext, *btnLast, *btnAdd,
+	*btnDelete, *btnClose, *btnSave;
 
 	QStatusBar *stateBar;
 

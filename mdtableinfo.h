@@ -9,6 +9,7 @@
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
 #include <QSqlRecord>
+#include "locals.h"
 
 class MdTableInfo : public QTableView {
 
@@ -16,39 +17,55 @@ class MdTableInfo : public QTableView {
 
 public:
 	/*!
-	 * \brief The TableInfo_column_t struct
+	 * @brief The Column_t struct
 	 */
-	static struct TableInfo_column_t {
+	typedef struct {
 		int cid;
 		QString name;
 		QString type;
 		bool notnull;
+		bool unique;
 		QVariant defaultVal;
 		int pk;
-	} TableInfo_column;
-
+	} Column_t;
 
 	explicit MdTableInfo(QWidget *parent) : QTableView(parent) { }
 	~MdTableInfo() {}
 
-	static QList<TableInfo_column_t> queryInfo(const QString &tableName,
-															 QSqlDatabase db) {
-		static QList<TableInfo_column_t> tableInfo;
-		tableInfo.clear();
+	static QList<Column_t> querySchema(const QString &tableName, QSqlDatabase db) {
+		QList<Column_t> tableInfo;
 
-		QSqlQuery query(tr("PRAGMA table_info('%1')").arg(tableName), db);
+		QStringList columns;
+		QSqlQuery q(tr("SELECT sql FROM sqlite_master where name='%1'")
+						.arg(tableName), db);
 
-		while (query.next()) {
-			TableInfo_column_t tableColumn;
-			tableColumn.cid			= query.value(query.record().indexOf("cid")).toInt();
-			tableColumn.name			= query.value(query.record().indexOf("name")).toString();
-			tableColumn.type			= query.value(query.record().indexOf("type")).toString();
-			tableColumn.notnull		= query.value(query.record().indexOf("notnull")).toBool();
-			tableColumn.defaultVal = query.value(query.record().indexOf("dflt_value"));
-			tableColumn.pk			= query.value(query.record().indexOf("pk")).toInt();
+		if (q.next())
+			columns << q.value(0).toString().split("\n");
+
+		q.exec(tr("PRAGMA table_info('%1')").arg(tableName));
+
+		while (q.next()) {
+			Column_t tableColumn;
+			tableColumn.cid			= q.value(q.record().indexOf("cid")).toInt();
+			tableColumn.name			= q.value(q.record().indexOf("name")).toString();
+			tableColumn.type			= q.value(q.record().indexOf("type")).toString();
+			tableColumn.notnull		= q.value(q.record().indexOf("notnull")).toBool();
+			tableColumn.defaultVal	= q.value(q.record().indexOf("dflt_value"));
+			tableColumn.pk				= q.value(q.record().indexOf("pk")).toInt();
+
+			tableColumn.unique = false;
+			foreach (QString s, columns) {
+				if (s.contains(tableColumn.name, Qt::CaseInsensitive) &&
+					 s.contains(Md::sqlConstraints.unique, Qt::CaseInsensitive)) {
+					tableColumn.unique = true;
+					break;
+				}
+			}
+
 			tableInfo << tableColumn;
 		}
-		query.finish();
+		q.finish();
+
 		return tableInfo;
 	}
 

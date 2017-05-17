@@ -191,7 +191,7 @@ void SfiltMdl::setSourceModel(QAbstractItemModel *sourceModel) {
 
 	//	columnIndexes.insert(sourceModel->
 	//	field
-	//	foreach (MdTableInfo::TableInfo_column_t ti, mTableInfo)
+	//	foreach (MdTableInfo::Column_t ti, mTableInfo)
 	//		if (ti.name.contains("datum"), Qt::CaseInsensitive)
 	//			INFO << mSqlTableName << ti;
 

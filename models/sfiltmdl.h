@@ -66,7 +66,7 @@ class SfiltMdl : public QSortFilterProxyModel {
 	QDate m_minDate;
 	QDate m_maxDate;
 	int	mID;
-	QList<MdTableInfo::TableInfo_column_t> mTableInfo;
+	QList<MdTableInfo::Column_t> mTableInfo;
 	QString mSqlTableName;
 
 	//	QPointer<HeaderAlias> mHeadIdxs;

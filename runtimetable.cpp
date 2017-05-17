@@ -10,9 +10,9 @@ bool RuntimeTable::recalcOvertime() {
 	/*!
 	 * Query a ColumnSchema list.
 	 */
-	worktimeColumnInfos = MdTableInfo::queryInfo(qobject_cast<MdTabView *>(
+	worktimeColumnInfos = MdTableInfo::querySchema(qobject_cast<MdTabView *>(
 																	m_worktimeTv)->sqlTableName(), DbController::db());
-	runtimeColumnInfos = MdTableInfo::queryInfo(qobject_cast<MdTabView *>(
+	runtimeColumnInfos = MdTableInfo::querySchema(qobject_cast<MdTabView *>(
 																  m_runtimeTv)->sqlTableName(), DbController::db());
 	/*!
 	 * Query worktime and worker records.
@@ -162,7 +162,7 @@ bool RuntimeTable::recalcOvertime() {
 #define QFOLDINGEND }
 
 	QList<QString> columns;
-	foreach (MdTableInfo::TableInfo_column_t ti, runtimeColumnInfos)
+	foreach (MdTableInfo::Column_t ti, runtimeColumnInfos)
 		columns << ti.name;
 	columns.removeFirst();
 

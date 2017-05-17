@@ -9,28 +9,29 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	setObjectName(tr("BaseDataForm_%1")
 					  .arg(qobject_cast<MdTabView *>(tableView)->sqlTableName()));
 	QSETTINGS;
+	tableView->sortByColumn(0,Qt::DescendingOrder);
 
 	/* ======================================================================== */
 	/*                          Create button objects                           */
 	/* ======================================================================== */
-	firstButton = new QPushButton(tr("<<"));
-	previousButton = new QPushButton(tr("< &zurück"));
-	nextButton = new QPushButton(tr("&vor >"));
-	lastButton = new QPushButton(tr(">>"));
+	btnFirst = new QPushButton(tr("<<"));
+	btnPrevious = new QPushButton(tr("< &zurück"));
+	btnNext = new QPushButton(tr("&vor >"));
+	btnLast = new QPushButton(tr(">>"));
 
-	addButton = new QPushButton(tr("&Hinzufügen"));
-	deleteButton = new QPushButton(tr("&Löschen"));
-	saveButton = new QPushButton(tr("&Anwenden"));
-	closeButton = new QPushButton(tr("A&bbruch"));
+	btnAdd = new QPushButton(tr("&Hinzufügen"));
+	btnDelete = new QPushButton(tr("&Löschen"));
+	btnSave = new QPushButton(tr("&Anwenden"));
+	btnClose = new QPushButton(tr("A&bbruch"));
 
-	firstButton->setFixedWidth(30);
-	lastButton->setFixedWidth(30);
+	btnFirst->setFixedWidth(30);
+	btnLast->setFixedWidth(30);
 
 	buttonBox = new QDialogButtonBox;
-	buttonBox->addButton(addButton, QDialogButtonBox::ResetRole);
-	buttonBox->addButton(deleteButton, QDialogButtonBox::ActionRole);
-	buttonBox->addButton(saveButton, QDialogButtonBox::ApplyRole);
-	buttonBox->addButton(closeButton, QDialogButtonBox::RejectRole);
+	buttonBox->addButton(btnAdd, QDialogButtonBox::ResetRole);
+	buttonBox->addButton(btnDelete, QDialogButtonBox::ActionRole);
+	buttonBox->addButton(btnSave, QDialogButtonBox::ApplyRole);
+	buttonBox->addButton(btnClose, QDialogButtonBox::RejectRole);
 
 	/* ======================================================================== */
 	/*                             Set table model                              */
@@ -40,17 +41,14 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 
 	mapper = new QDataWidgetMapper(this);
 	mapper->setModel(tableModel);
-	//	mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
-	//		mapper->setItemDelegate(new QSqlRelationalDelegate(this));
 	mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
 	mapper->setItemDelegate(new NullDelegate(this));
 
 	/* ======================================================================== */
 	/*                        Query a ColumnSchema list                         */
 	/* ======================================================================== */
-	QList<MdTableInfo::TableInfo_column_t> columnSchemas;
-	columnSchemas = MdTableInfo::queryInfo(qobject_cast<MdTabView *>(m_tableView)
-								->sqlTableName(), DbController::db());
+	tableSchema = MdTableInfo::querySchema(qobject_cast<MdTabView *>(m_tableView)
+														->sqlTableName(), DbController::db());
 
 	/* ======================================================================== */
 	/*                      Create button and main layout                       */
@@ -58,18 +56,24 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 	QHBoxLayout *topButtonLayout = new QHBoxLayout;
 	topButtonLayout->setContentsMargins(20, 0, 20, 5);
 	topButtonLayout->addStretch();
-	topButtonLayout->addWidget(firstButton);
-	topButtonLayout->addWidget(previousButton);
-	topButtonLayout->addWidget(nextButton);
-	topButtonLayout->addWidget(lastButton);
+	topButtonLayout->addWidget(btnFirst);
+	topButtonLayout->addWidget(btnPrevious);
+	topButtonLayout->addWidget(btnNext);
+	topButtonLayout->addWidget(btnLast);
 	topButtonLayout->addStretch();
 
 	QGridLayout *mainLayout = new QGridLayout;
 	int gridRow = 0;
 	mainLayout->addLayout(topButtonLayout, gridRow++, 0, 1, 2);
 
+	/* ======================================================================== */
+	/*                          Create editor widgets                           */
+	/* ======================================================================== */
 	int k = 0;
-	foreach (MdTableInfo::TableInfo_column_t cs, columnSchemas) {
+	foreach (MdTableInfo::Column_t colSchema, tableSchema) {
+		INFO << tr("tableModel->headerData(k, Qt::Horizontal):")
+			  << tableModel->headerData(k, Qt::Horizontal).toString();
+
 		/*!
 		 * Check current table for some foreign key and create a QComboBox.
 		 */
@@ -81,33 +85,16 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 					  .arg(rtm->tableName())
 					  .arg(tableModel->headerData(k, Qt::Horizontal).toString());
 #endif
+			/*!
+			 * Create foreign combobox editor and a label widget
+			 */
 			lblEditors << new QLabel(tableModel->headerData(k, Qt::Horizontal).toString());
 			cbEditors << new QComboBox(this);
 			allEditors << qobject_cast<QWidget *>(cbEditors.last());
 			cbEditors.last()->setModel(rtm);
-			cbEditors.last()->setEditable(true);
+			cbEditors.last()->setEditable(false);
 
-			//			cbEditors.last()
-
-//			if (lblEditors.last()->text().contains(tr("Name")))
-//				cbEditors.last()->setProperty("modelColumn", rtm->fieldIndex("Name"));
-//			else {
-//				if (lblEditors.last()->text().contains(tr("Einstufung")))
-//					cbEditors.last()->setProperty("modelColumn", rtm->fieldIndex("Einstufung"));
-//				else
-//					cbEditors.last()->setProperty("modelColumn", 0);
-//			}
-
-//			if (lblEditors.last()->text().contains(tr("Name"))) {
-//				INFO << tableModel->headerData(k, Qt::Horizontal, Qt::DisplayRole).toString();
-//				INFO << cs.name;
-//				cbEditors.last()->setProperty("modelColumn", rtm->fieldIndex(
-//															lblEditors.last()->text()));
-//			}
-
-			if (cs.name.contains(tr("ID"))) {
-				INFO << tableModel->headerData(k, Qt::Horizontal, Qt::DisplayRole).toString();
-				INFO << cs.name;
+			if (colSchema.name.contains(tr("ID"))) {
 				if (rtm->fieldIndex("Name") < 0) {
 					/*!
 					 * No field named  "Name" found.
@@ -116,16 +103,19 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 				}
 				else
 					cbEditors.last()->setProperty("modelColumn", rtm->fieldIndex("Name"));
-
 			}
 			populateComboBoxes();
 		}
 		else {
-			lblEditors << new QLabel(cs.name);
+			lblEditors << new QLabel(colSchema.name);
 
 			if (lblEditors.last()->text().contains("beschreibung", Qt::CaseInsensitive) ||
 				 lblEditors.last()->text().contains("anschrift", Qt::CaseInsensitive) ||
 				 lblEditors.last()->text().contains("adresse", Qt::CaseInsensitive)) {
+
+				/*!
+				 * Editor for "beschreibung", "anschrift" or "adresse"
+				 */
 				teEditors << new MdPlainTextEdit(this);
 				allEditors << qobject_cast<QWidget *>(teEditors.last());
 				teEditors.last()->setWordWrapMode(QTextOption::WordWrap);
@@ -141,40 +131,43 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 				leEditors << new QLineEdit(this);
 				allEditors << qobject_cast<QWidget *>(leEditors.last());
 
+				connect(leEditors.last(),	&QLineEdit::textEdited,
+						  this,					&BaseDataForm::onTextEdited);
+
 				/*!
-			 * Check if current ColumnSchema holds the primary key.
-			 */
-				if (cs.pk) {
+				 * Check if current ColumnSchema holds the primary key.
+				 */
+				if (colSchema.pk) {
 					leEditors.last()->setEnabled(false);
 					leEditors.last()->setProperty("primaryKey", true);
 					lePrimaryKey = leEditors.last();
 				}
 				else {
-					if (cs.type.contains(tr("INT"))) {
+					if (colSchema.type.contains(tr("INT"))) {
 						/*!
-				 * Check if a config value has been stored in settings ini.
-				 */
-						int upperValue = config.value(objectName() + tr("/%1").arg(cs.name),
+						 * Check if a config value has been stored in settings ini.
+						 */
+						int upperValue = config.value(objectName() + tr("/%1").arg(colSchema.name),
 																INT_VALIDATOR_UPPER).toInt();
 
 						if (upperValue != INT_VALIDATOR_UPPER)
 							INFO << config.fileName() << tr("has validator INT value for: %1 = %2")
-									  .arg(objectName() + tr("/%1").arg(cs.name))
+									  .arg(objectName() + tr("/%1").arg(colSchema.name))
 									  .arg(upperValue);
 
 						leEditors.last()->setValidator(new QIntValidator(0, upperValue, this));
 					}
 
-					if (cs.type.contains(tr("REAL"))) {
+					if (colSchema.type.contains(tr("REAL"))) {
 						/*!
-				 * Check if a config value has been stored in settings ini.
-				 */
-						qreal upperValue = config.value(objectName() + tr("/%1").arg(cs.name),
+						 * Check if a config value has been stored in settings ini.
+						 */
+						qreal upperValue = config.value(objectName() + tr("/%1").arg(colSchema.name),
 																  REAL_VALIDATOR_UPPER).toReal();
 
 						if (upperValue != REAL_VALIDATOR_UPPER)
 							INFO << config.fileName() << tr("has validator REAL value for: %1 = %2")
-									  .arg(objectName() + tr("/%1").arg(cs.name))
+									  .arg(objectName() + tr("/%1").arg(colSchema.name))
 									  .arg(upperValue);
 
 						QDoubleValidator *dv = new QDoubleValidator(0, upperValue, 2, this);
@@ -185,23 +178,41 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 			}
 		}
 
+		/*!
+		 * Set editor buddy
+		 */
 		lblEditors.last()->setBuddy(allEditors.last());
+
+		/*!
+		 * Set editor buddys object name equal to it's label text
+		 */
+		allEditors.last()->setObjectName(lblEditors.last()->text());
 		mapper->addMapping(allEditors.last(), k);
-		//		dataMaps << new DataMap(allEditors.last(), k);
+
 		mainLayout->addWidget(lblEditors.last(), gridRow, 0);
 		mainLayout->addWidget(allEditors.last(), gridRow++, 1, 1, 1);
 
-		if (cs.notnull || cs.pk) {
+		/*!
+		 * Place a "red star" if mandatory editor
+		 */
+		if (colSchema.notnull || colSchema.pk) {
 			lblEditors.last()->setText(lblEditors.last()->text() +
 												tr("<span style='color:#ff0000;'>*</span>"));
 			lblEditors.last()->setTextFormat(Qt::RichText);
-			allEditors.last()->setProperty("notnull", true);
 		}
+
+		/*!
+		 * Set SQL constraints as editor propertys
+		 */
+		allEditors.last()->setProperty(Md::sqlConstraints.notNull, colSchema.notnull);
+		allEditors.last()->setProperty(Md::sqlConstraints.unique, colSchema.unique);
+
 		k++;
 	}
 
-	//	refreshMapper();
-
+	/*!
+	 * Set mapper index
+	 */
 	if (id != -1)
 		for (int row = 0; row < tableModel->rowCount(); ++row) {
 			QSqlRecord record = tableModel->record(row);
@@ -214,36 +225,35 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 		mapper->toFirst();
 
 	topButtonGroup = new QButtonGroup(this);
-	topButtonGroup->addButton(firstButton);
-	topButtonGroup->addButton(previousButton);
-	topButtonGroup->addButton(nextButton);
-	topButtonGroup->addButton(lastButton);
+	topButtonGroup->addButton(btnFirst);
+	topButtonGroup->addButton(btnPrevious);
+	topButtonGroup->addButton(btnNext);
+	topButtonGroup->addButton(btnLast);
 
+	/* ======================================================================== */
+	/*                          Connect button signals                          */
+	/* ======================================================================== */
 	connect(topButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)),
 			  this,				SLOT(onTopButtonClicked(QAbstractButton*)));
 
-	connect(firstButton,		&QPushButton::clicked, mapper, &QDataWidgetMapper::toFirst);
-	connect(previousButton, &QPushButton::clicked, mapper, &QDataWidgetMapper::toPrevious);
-	connect(nextButton,		&QPushButton::clicked, mapper, &QDataWidgetMapper::toNext);
-	connect(lastButton,		&QPushButton::clicked, mapper, &QDataWidgetMapper::toLast);
+	connect(btnFirst,		&QPushButton::clicked, mapper, &QDataWidgetMapper::toFirst);
+	connect(btnPrevious, &QPushButton::clicked, mapper, &QDataWidgetMapper::toPrevious);
+	connect(btnNext,		&QPushButton::clicked, mapper, &QDataWidgetMapper::toNext);
+	connect(btnLast,		&QPushButton::clicked, mapper, &QDataWidgetMapper::toLast);
 
-	connect(addButton,		&QPushButton::clicked, this, &BaseDataForm::addNew);
-	connect(deleteButton,	&QPushButton::clicked, this, &BaseDataForm::deleteCurrent);
-	connect(saveButton,		&QPushButton::clicked, this, &BaseDataForm::saveCurrent);
-	connect(closeButton,		&QPushButton::clicked, this, &BaseDataForm::reject);
+	connect(btnAdd,		&QPushButton::clicked, this, &BaseDataForm::addNew);
+	connect(btnDelete,	&QPushButton::clicked, this, &BaseDataForm::deleteCurrent);
+	connect(btnSave,		&QPushButton::clicked, this, &BaseDataForm::saveCurrent);
+	connect(btnClose,		&QPushButton::clicked, this, &BaseDataForm::reject);
 
 	stateBar = new QStatusBar(this);
 	mainLayout->addWidget(buttonBox, gridRow++, 0, 1, 2);
 	mainLayout->addWidget(stateBar, gridRow++, 0, 1, 2);
 
-	//	mainLayout->setRowMinimumHeight(6, 10);
-	//		mainLayout->setRowStretch(6, 1);
-	//		mainLayout->setColumnStretch(2, 1);
 	setLayout(mainLayout);
+	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-	(id == -1)
-			? nextButton->setFocus()
-			: leEditors.first()->setFocus();
+	(id == -1) ? btnNext->setFocus() : leEditors.first()->setFocus();
 
 	setWindowTitle(tr("Stammdaten bearbeiten: %1")
 						.arg(Md::tableAlias[ qobject_cast<MdTabView *>(
@@ -251,38 +261,57 @@ BaseDataForm::BaseDataForm(int id, QTableView *tableView, QWidget *parent)
 
 	setFont(qobject_cast<MdTabView *>(m_tableView)->font());
 	setStyleSheet(STYLESHEET);
+	setAttribute(Qt::WA_DeleteOnClose);
 	show();
+}
+void BaseDataForm::onTextEdited(const QString &text) {
+	if (text.isEmpty())
+		return;
+	/*!
+	 * Check if all mandatory (e.g. NotNull) editors has non-empty values
+	 */
+	foreach (QWidget *w, allEditors) {
+		if (! w->property(Md::sqlConstraints.notNull).toBool())
+			continue;
+		if (getEditorText(w).isEmpty())
+			return;
+	}
+
+	btnSave->setEnabled(true);
+}
+QString BaseDataForm::getEditorText(QWidget *editor) {
+	if (qobject_cast<QLineEdit *>(editor))
+		return qobject_cast<QLineEdit *>(editor)->text();
+	else {
+		if (qobject_cast<QComboBox *>(editor))
+			return qobject_cast<QComboBox *>(editor)->currentText();
+		else {
+			if (qobject_cast<MdPlainTextEdit *>(editor))
+				return qobject_cast<MdPlainTextEdit *>(editor)->toPlainText();
+			else {
+				INFO << tr("Class:") << editor->metaObject()->className();
+				Q_ASSERT(0);
+			}
+		}
+	}
 }
 void BaseDataForm::populateComboBoxes() {
 	foreach (QComboBox *cb, cbEditors)
 		cb->setModelColumn(cb->property("modelColumn").toInt());
 }
-void BaseDataForm::onCyclic() {
-	//	qobject_cast<SqlRtm *>(tableModel)->select();
-}
 void BaseDataForm::addNew() {
+	/*!
+	 * Revert all uncommited changes of active table.
+	 */
 	qobject_cast<SqlRtm *>(m_tableView->model())->revertAll();
 
 	/*!
-	 * Reset all editor values.
+	 * Disable some buttons
 	 */
-	foreach(QWidget *w, allEditors) {
-		if (qobject_cast<QLineEdit *>(w)) {
-			qobject_cast<QLineEdit *>(w)->clear();
-			continue;
-		}
-		if (qobject_cast<QTextEdit *>(w)) {
-			qobject_cast<QTextEdit *>(w)->clear();
-			continue;
-		}
-		if (qobject_cast<QPlainTextEdit *>(w)) {
-			qobject_cast<QPlainTextEdit *>(w)->clear();
-			continue;
-		}
-	}
+	disableButtons();
+	enableButtons(QList<QPushButton *>() /*<< btnSave*/ << btnClose);
 
-	foreach(QComboBox *cb, cbEditors)
-		cb->setCurrentIndex(0);
+	clearResetEditors();
 
 	/*!
 	 * Insert new table row before current index.
@@ -318,8 +347,6 @@ void BaseDataForm::addNew() {
 	q.finish();
 
 	m_rowCountChanged = true;
-	//	Browser *browser = Browser::instance();
-	//	emit browser->sqlTableDataChanged();
 }
 void BaseDataForm::deleteCurrent() {
 	int row = mapper->currentIndex();
@@ -330,45 +357,100 @@ void BaseDataForm::deleteCurrent() {
 }
 void BaseDataForm::saveCurrent() {
 	int mapperIndex = mapper->currentIndex();
-
 	mapper->submit();
-	QList<QWidget *> allEditors = QList<QWidget *>()
-											<< listCast<QWidget *>(leEditors)
-											<< listCast<QWidget *>(cbEditors);
+
 	/*!
 	 * Check all "notnull" marked editors to be NOT NULL. If some editor has invalied
 	 * data, highlight it and do not invoke model()->submitALL;
 	 */
 	foreach (QWidget *w, allEditors) {
-		if (w->property("notnull").toBool()) {
-			QString editorText;
+		QString editorText;
 
-			if (qobject_cast<QLineEdit *>(w))
-				editorText = qobject_cast<QLineEdit *>(w)->text();
+		if (qobject_cast<QLineEdit *>(w))
+			editorText = qobject_cast<QLineEdit *>(w)->text();
+		else {
+			if (qobject_cast<QComboBox *>(w))
+				editorText = qobject_cast<QComboBox *>(w)->currentText();
 			else {
-				if (qobject_cast<QComboBox *>(w))
-					editorText = qobject_cast<QComboBox *>(w)->currentText();
-				else
+				if (qobject_cast<MdPlainTextEdit *>(w))
+					editorText = qobject_cast<MdPlainTextEdit *>(w)->toPlainText();
+				else {
+					INFO << tr("Class:") << w->metaObject()->className();
 					Q_ASSERT(0);
+				}
 			}
+		}
 
+		if (w->property(Md::sqlConstraints.notNull).toBool()) {
+			/*!
+			 * Highlight, break and return if editor text is empty
+			 */
 			if (editorText.isEmpty()) {
 				stateBar->showMessage(MSG_MANDATORY_EDITOR);
 				Globals::setStylesheetProperty(w, "orangeBg", true);
 				return;
 			}
 		}
-	}
-	static_cast<SqlRtm *>(m_tableView->model())->submitAll();
-	//	refreshMapper();
-	populateComboBoxes();
 
-	if (! m_rowCountChanged)
-		mapper->setCurrentIndex(mapperIndex);
-	else {
-		m_rowCountChanged = false;
-		mapper->toLast();
+		if (w->property(Md::sqlConstraints.unique).toBool()) {
+			/*!
+			 * Check editor value uniqueness.
+			 */
+			QSqlQuery q(tr("SELECT %2 from %1")
+					.arg(qobject_cast<MdTabView *>(m_tableView)->sqlTableName())
+					.arg(w->objectName()));
+
+			QList<int> intValues;
+			QList<QString> strValues;
+			bool ok;
+
+			while (q.next()) {
+				if (q.value(0).canConvert<int>()) {
+					intValues << q.value(0).toInt(&ok);
+					if (! ok)
+						intValues.removeLast();
+					continue;
+				}
+
+				if (q.value(0).canConvert<QString>()) {
+					strValues << q.value(0).toString();
+					continue;
+				}
+
+				INFO << RED_BG("QVariant conversion to \"int\" failed!");
+			}
+			if (! intValues.isEmpty())	{
+				editorText.toInt(&ok);
+				if (ok) {
+					if (intValues.contains(editorText.toInt()))
+						Globals::setStylesheetProperty(w, "orangeBg", true);
+				}
+				else {
+					INFO << RED_BG("intValues list is not empty but editorText.toInt(&ok) "
+										"returns invalied conversion");
+				}
+			}
+			if (! strValues.isEmpty()){
+				if (strValues.contains(editorText))
+					Globals::setStylesheetProperty(w, "orangeBg", true);
+			}
+		}
 	}
+
+	/*!
+	 * Submit all if all editor values are valid!
+	 */
+	if (static_cast<SqlRtm *>(m_tableView->model())->submitAll()) {
+		enableButtons();
+		populateComboBoxes();
+	}
+
+//	if (! m_rowCountChanged)
+//		mapper->setCurrentIndex(mapperIndex);
+//	else {
+//		m_rowCountChanged = false;
+//		mapper->toLast();
+//	}
 }
 void BaseDataForm::done(int result) {
 	QDialog::done(result);
@@ -376,18 +458,77 @@ void BaseDataForm::done(int result) {
 void BaseDataForm::reject() {
 	mapper->revert();
 	static_cast<SqlRtm *>(m_tableView->model())->revertAll();
+
+	/*!
+	 * Enable all buttons
+	 */
+	enableButtons();
+
 	QDialog::reject();
-}
-void BaseDataForm::clearEditorBackgrounds() {
-	QList<QWidget *> allEditors = QList<QWidget *>()
-											<< listCast<QWidget *>(leEditors)
-											<< listCast<QWidget *>(cbEditors);
-	foreach (QWidget *w, allEditors)
-		Globals::setStylesheetProperty(w, "orangeBg", false);
 }
 void BaseDataForm::onTopButtonClicked(QAbstractButton *button) {
 	Q_UNUSED(button);
 	qobject_cast<SqlRtm *>(m_tableView->model())->revertAll();
+}
+void BaseDataForm::onCyclic() {
+	//	qobject_cast<SqlRtm *>(tableModel)->select();
+}
+/* ======================================================================== */
+/*                                 Helpers                                  */
+/* ======================================================================== */
+void BaseDataForm::clearEditorBackgrounds() {
+	foreach (QWidget *w, allEditors)
+		Globals::setStylesheetProperty(w, "orangeBg", false);
+}
+void BaseDataForm::clearResetEditors(QList<QWidget *> editorList) {
+	if (editorList.isEmpty())
+		editorList = allEditors;
+	/*!
+	 * Reset all editor values.
+	 */
+	foreach(QWidget *w, editorList) {
+		if (qobject_cast<QLineEdit *>(w)) {
+			qobject_cast<QLineEdit *>(w)->clear();
+			continue;
+		}
+		if (qobject_cast<QTextEdit *>(w)) {
+			qobject_cast<QTextEdit *>(w)->clear();
+			continue;
+		}
+		if (qobject_cast<QPlainTextEdit *>(w)) {
+			qobject_cast<QPlainTextEdit *>(w)->clear();
+			continue;
+		}
+		if (qobject_cast<QComboBox *>(w)) {
+			qobject_cast<QComboBox *>(w)->setCurrentIndex(0);
+			continue;
+		}
+	}
+}
+/* ======================================================================== */
+/*                               Button state                               */
+/* ======================================================================== */
+void BaseDataForm::disableButtons(QList<QPushButton *> btnList) {
+	if (btnList.isEmpty())
+		btnList = this->findChildren<QPushButton *>();
+
+	setButtonsState(btnList, false);
+}
+void BaseDataForm::disableButtons(QButtonGroup *btnGroup) {
+	setButtonsState(listCast<QPushButton *>(btnGroup->buttons()), false);
+}
+void BaseDataForm::enableButtons(QList<QPushButton *> btnList) {
+	if (btnList.isEmpty())
+		btnList = this->findChildren<QPushButton *>();
+
+	setButtonsState(btnList, true);
+}
+void BaseDataForm::enableButtons(QButtonGroup *btnGroup) {
+	setButtonsState(listCast<QPushButton *>(btnGroup->buttons()), true);
+}
+void BaseDataForm::setButtonsState(QList<QPushButton *> btnList, bool state) {
+	foreach (QPushButton *btn, btnList)
+		btn->setEnabled(state);
 }
 /* ======================================================================== */
 /*                              Event handler                               */
@@ -396,6 +537,33 @@ void BaseDataForm::keyPressEvent(QKeyEvent *e) {
 	if (e->key() == Qt::Key_F5) {
 		static_cast<SqlRtm *>(m_tableView->model())->select();
 		static_cast<SqlRtm *>(mapper->model())->select();
+		return;
+	}
+	if (e->key() == Qt::Key_Escape) {
+		QDialog::reject();
+	}
+	if (e->key() == Qt::Key_F4) {
+		QList<QString> tblNames;
+		bool ok;
+
+		QSqlQuery q("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;");
+
+		while (q.next())
+			tblNames << q.value(0).toString();
+
+		QString tblName = QInputDialog::getText(
+					this, tr("Table name"), tr("Enter sql table name"),
+					QLineEdit::Normal, tr("test or client or ..."), &ok);
+
+		if (! (ok && tblNames.contains(tblName)))
+			return;
+		q.exec(tr("SELECT sql FROM sqlite_master where name='%1';").arg(tblName));
+
+		while (q.next()) {
+			QList<QString> colums;
+			colums << q.value(0).toString().split("\n");
+			INFO << colums;
+		}
 	}
 }
 void BaseDataForm::showEvent(QShowEvent *) {

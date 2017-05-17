@@ -31,6 +31,12 @@ struct Md::confKeys_t Md::k {
 	QString("/FiltSyntaxComboBox")
 };
 
+struct Md::SqlConstraints_t Md::sqlConstraints {
+	"NOT NULL",
+	"UNIQUE",
+};
+
+
 QMap<QString, QString> Md::tableAlias {
 	{ "client",		"Kunden" },
 	{ "prj",			"Projekte" },

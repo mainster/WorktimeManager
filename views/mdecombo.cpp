@@ -4,6 +4,7 @@
 
 
 MdECombo::MdECombo(QWidget *parent) {
+	Q_UNUSED(parent);
 //	QSqlTableModel *relModel = m_rtModel->relationModel(typeIndex);
 //	m_cbx->setModel(relModel);
 //	m_cbx->setModelColumn(relModel->fieldIndex("description"));

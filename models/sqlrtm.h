@@ -159,9 +159,10 @@ public:
 		mVisibleCols.clear();
 		mSectionIdxs.clear();
 	}
-	void submitAll() {
-		QSqlRelationalTableModel::submitAll();
+	bool submitAll() {
+		bool retVal = QSqlRelationalTableModel::submitAll();
 		emit recordChanged();
+		return retVal;
 	}
 
 signals:
