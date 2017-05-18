@@ -156,7 +156,8 @@ QList<QString> *listObjectNames (QList<T> /*&*/ts/*, const QString methodeName*/
 
 template<class T>
 QString listToString(QList<T> list, int fieldwidth = 1, int base = 10,
-							QChar fillChar = '0', char joinSep = "", bool appendLength = true) {
+							QChar fillChar = '0', QChar joinSep = QChar(),
+							bool appendLength = true) {
 	QStringList s;
 	foreach (T t, list) {
 		s << QString("%1").arg(t, fieldwidth, base, fillChar);

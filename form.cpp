@@ -15,6 +15,7 @@ Form::Form(QWidget *parent) : QWidget(parent),
 							<< tr("menu")
 							<< tr("item")
 							<< tr("Ende"));
+
 }
 
 Form::~Form() {

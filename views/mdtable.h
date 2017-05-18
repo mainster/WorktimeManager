@@ -49,16 +49,17 @@ signals:
 
 public slots:
 	void onSqlTableNameChanged(const QString &sqlTableName);
-
 	void onAction();
+
 protected slots:
 	void onActSectionMask(bool sectionMask);
 	void onActDateTimeRngMsk(bool actDateTimeRngMsk);
 	void onActBaseDataForm();
 
 protected:
+	virtual void resizeEvent(QResizeEvent *e);
+	virtual bool eventFilter(QObject *obj, QEvent *e);
 	const static QString StyleSheet_QGroupBox;
-	bool eventFilter(QObject *obj, QEvent *e);
 
 private:
 	QGroupBox	*m_gb;

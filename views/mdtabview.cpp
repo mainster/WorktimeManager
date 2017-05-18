@@ -32,6 +32,7 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	setContextMenuPolicy(Qt::ActionsContextMenu);
 	setSortingEnabled( true );
 	setSelectionMode(QAbstractItemView::MultiSelection);
+//	QTableView::horizontalHeader()->setStretchLastSection(true);
 
 	setSizeAdjustPolicy(QTableView::AdjustToContents);
 	adjustSize();
@@ -815,6 +816,3 @@ const QString MdTabView::StyleSheet_QTableView = QString(
 			"}"
 			);
 #define QFOLDINGEND }
-
-
-

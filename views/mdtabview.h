@@ -162,6 +162,8 @@ signals:
 	void sqlTableNameChanged(const QString &name);
 	void viewportMouseButtonPress(MdTabView *sender);
 	void sumOfSelection(const QVariant sum, const char *slot);
+	void resized(const QSize size);
+	void geometry(const QSize size);
 
 protected:
 	QList<QAction *> createActions();
@@ -202,7 +204,6 @@ private:
 	SqlRtm *sqlRtm;
 #endif
 	static const QString	StyleSheet_QTableView;
-
 };
 
 

@@ -38,6 +38,14 @@ class BaseDataForm : public QDialog {
 	Q_OBJECT
 
 public:
+	enum ActiveTask {
+		TaskNone = 0x01,
+		TaskNew = 0x02,
+		TaskModify = 0x04,
+		TaskDelete = 0x08,
+	};
+	Q_DECLARE_FLAGS(ActiveTasks, ActiveTask)
+
 	struct DataMap {
 		DataMap(QWidget *widget, const int column)
 			: w(widget), column(column) { }
@@ -65,7 +73,7 @@ protected slots:
 
 private slots:
 	void addNew();
-	void change();
+	void modify();
 	void deleteCurrent();
 	void saveCurrent();
 	void onCyclic();
@@ -74,12 +82,13 @@ private slots:
 
 private:
 	void setEditorStates(bool state, QList<QWidget *> editors = QList<QWidget *>());
+	void setButtonStates(bool state, QList<QPushButton *> btnList = QList<QPushButton *>());
 	void clearResetEditors(QList<QWidget *> editors = QList<QWidget *>());
-	void setButtonStates(QList<QPushButton *> btnList, bool state);
 	void disableButtons(QList<QPushButton *> btnList = QList<QPushButton *>());
 	void disableButtons(QButtonGroup *btnGroup);
 	void enableButtons(QList<QPushButton *> btnList = QList<QPushButton *>());
 	void enableButtons(QButtonGroup *btnGroup);
+	void createUi();
 
 	QTableView *m_tableView;
 	QSqlRelationalTableModel *tableModel;
@@ -96,17 +105,23 @@ private:
 	QList<QLabel *> lblEditors;
 	QLineEdit *lePrimaryKey;
 
-	QButtonGroup *topButtonGroup;
+	QButtonGroup *topBtnGrp, *botBtnGrp;
 	QPushButton *btnFirst, *btnPrev, *btnNext, *btnLast, *btnAdd, *btnChange,
 	*btnDelete, *btnCancel, *btnOk;
 
 	QStatusBar *stateBar;
 
 	QDialogButtonBox *taskBtnBox;
-	static const QString STYLESHEET, MSG_MANDATORY_EDITOR;
+	static const QString
+	STYLESHEET,
+	STYLESHEET_SMALL,
+	MSG_MANDATORY_EDITOR;
 
 	bool m_rowCountChanged;
+	ActiveTasks m_activeTask;
 
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(BaseDataForm::ActiveTasks)
 
 #endif

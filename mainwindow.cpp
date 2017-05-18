@@ -3,6 +3,9 @@
 
 #define	ON_CYCLIC_INTERVAL_MS	250
 
+/* ======================================================================== */
+/*                          MainWindow::MainWindow                          */
+/* ======================================================================== */
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent), ui(new Ui::MainWindow), mQuitArmed(false) {
 	ui->setupUi(this);
@@ -606,7 +609,7 @@ void MainWindow::createActions() {
 
 	actFilterForm->setShortcut		(QKeySequence("F3"));
 	actInpForm->setShortcut			(QKeySequence("F4"));
-	actInpFormV4->setShortcut		(QKeySequence("F4"));
+//	actInpFormV4->setShortcut		(QKeySequence("F4"));
 	actNotes->setShortcut			(QKeySequence("F5"));
 	actCyclicObjInfo->setShortcut	(QKeySequence("F6"));
 	actClose->setShortcut			(QKeySequence("Ctrl+Q"));

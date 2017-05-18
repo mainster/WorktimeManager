@@ -36,6 +36,8 @@ MdTable::MdTable(const QString &tvObjName, const QString &tableName,
 	connect(m_tv->getActDateTimeRngMsk(), &QAction::toggled, this, &MdTable::onActDateTimeRngMsk);
 	connect(m_tv, &MdTabView::sqlTableNameChanged, this, &MdTable::onSqlTableNameChanged);
 	connect(actBaseDataForm, &QAction::triggered, this, &MdTable::onActBaseDataForm);
+//	connect(m_tv, &MdTabView::resized, m_tv,
+//			  static_cast<void (QTableView::*)(const QSize &)>(&QTableView::setFixedSize));
 	clearSelected();
 	show();
 }
@@ -119,6 +121,11 @@ bool MdTable::eventFilter(QObject *obj, QEvent *event) {
 	}
 	return QObject::eventFilter(obj, event);
 }
+void MdTable::resizeEvent(QResizeEvent *e) {
+//	m_gb->setFixedSize(e->size());
+	INFO << e->size();
+}
+
 #define QFOLDINGSTART {
 const QString MdTable::StyleSheet_QGroupBox = QString(
 																 "QGroupBox::title {"
@@ -157,3 +164,4 @@ const QString MdTable::StyleSheet_QGroupBox = QString(
 																 "}"
 																 );
 #define QFOLDINGEND }
+

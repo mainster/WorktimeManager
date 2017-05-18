@@ -13,6 +13,7 @@ public:
 		: QAbstractListModel(parent), mColCfg(QList<short>() << 1 << 2) {}
 
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override {
+		Q_UNUSED(parent);
 		return createIndex(row, column);
 	}
 	QModelIndex parent(const QModelIndex &index) const override {

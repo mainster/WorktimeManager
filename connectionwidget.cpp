@@ -67,7 +67,7 @@ void ConnectionWidget::removeTable() {
 	msgBox.setDefaultButton(QMessageBox::Cancel);
 
 	QRegExp rx("\\[(.*)\\]");
-	int idx = rx.indexIn(tree->currentItem()->text(0));
+//	int idx = rx.indexIn(tree->currentItem()->text(0));
 	QString tableName = rx.capturedTexts().at(1);
 	int ret = msgBox.exec();
 
@@ -79,16 +79,16 @@ void ConnectionWidget::removeTable() {
 		DbController::dropTable(tableName);
 		return;
 
-		QSqlQuery *query = new QSqlQuery(tr("DROP table %1").arg(tableName));
-		if (! query->exec()) {
-			CRIT << tr("SQL query failure detected: %1").arg(query->lastQuery());
-			CRIT << tr("Last query: %1").arg(query->lastError().text());
-		}
+//		QSqlQuery *query = new QSqlQuery(tr("DROP table %1").arg(tableName));
+//		if (! query->exec()) {
+//			CRIT << tr("SQL query failure detected: %1").arg(query->lastQuery());
+//			CRIT << tr("Last query: %1").arg(query->lastError().text());
+//		}
 
 //		QSqlQuery query(currentDb());
 //		if (! query.exec(tr("DROP TABLE %1").arg(tableName)))
 //			WARN << query.lastError();
-		refresh();
+//		refresh();
 	}
 	else
 		qReturn(tr("Remove table %1 rejected!").arg(tableName));

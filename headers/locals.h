@@ -8,7 +8,7 @@
 
 //#define USE_QPOINTER
 
-const QChar MathSymbolSquereRoot(0x221A);
+const QChar MathSymbolSquareRoot(0x221A);
 const QChar MathSymbolPi(0x03A0);
 const QChar MathSymbolDelta(0x0394);
 const QChar MathSymbolSigma(0x03A3);
