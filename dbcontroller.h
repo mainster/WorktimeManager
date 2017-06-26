@@ -35,8 +35,7 @@ public slots:
 	static void dropTable(const QString &tableName);
 
 protected slots:
-	bool openDatabase(const QString &database,
-							const QString &driver = Locals::SQLITE_DRIVER);
+	bool openDatabase(const QString &database, const QString &driver = Locals::SQLITE_DRIVER);
 	void onDriverMessage(const QString &name);
 
 private:

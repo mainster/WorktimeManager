@@ -1,13 +1,12 @@
 #include "mdcombobox.h"
 
 
-MdComboBox::MdComboBox(QWidget *parent)
-	: QComboBox(parent),
-	  listMdl(new QStringListModel()),
-	  mCompleter(new QCompleter(this)) {}
+MdComboBox::MdComboBox(QWidget *parent) : QComboBox(parent),
+	  listMdl(new QStringListModel()), mCompleter(new QCompleter(this)) {}
 
 void MdComboBox::setModel(QAbstractItemModel *inputModel) {
-	INFO << GN_BG(inputModel->metaObject()->className());
+	if (! static_cast<QSqlRelationalTableModel *>(inputModel))
+		qReturn("model() should return a QSqlRelationalTableModel!!");
 	inputMdl = inputModel;
 }
 void MdComboBox::setModelColumns(QList<short> columns) {

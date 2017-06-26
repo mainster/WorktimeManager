@@ -106,16 +106,16 @@ void InpFrm4::setSourceTables(const QList<MdTable *> tables) {
 	}
 
 	foreach (MdTable *mdt, tables) {
-		if (mdt->sqlTableName() == tr("client")) {
-			inpBoxes.at(0)->setTable(mdt);
-		}
-
 		if (mdt->sqlTableName() == tr("prj")) {
 			prjProxy->setSourceModel(mdt->tv()->model());
 			prjProxy->invalidate();
-			inpBoxes.at(1)->cbx()->setModel(prjProxy);
-			inpBoxes.at(1)->tv()->setModel(prjProxy);
-			inpBoxes.at(1)->setTitle(mdt->sqlTableName());
+			inpBoxes.at(0)->cbx()->setModel(prjProxy);
+			inpBoxes.at(0)->tv()->setModel(prjProxy);
+			inpBoxes.at(0)->setTitle(mdt->sqlTableName());
+		}
+
+		if (mdt->sqlTableName() == tr("client")) {
+			inpBoxes.at(1)->setTable(mdt);
 		}
 
 		if (mdt->sqlTableName() == tr("worker"))
