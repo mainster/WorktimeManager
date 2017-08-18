@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>401</width>
-    <height>380</height>
+    <width>733</width>
+    <height>467</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,9 +26,6 @@
    <string notr="true"/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="6" column="1">
-    <widget class="QTableView" name="tableView"/>
-   </item>
    <item row="4" column="0">
     <widget class="QLabel" name="label">
      <property name="enabled">
@@ -124,6 +121,9 @@
       </size>
      </property>
     </widget>
+   </item>
+   <item row="6" column="0" colspan="2">
+    <widget class="QTreeView" name="treeView"/>
    </item>
   </layout>
  </widget>

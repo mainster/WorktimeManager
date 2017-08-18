@@ -127,7 +127,6 @@ void DbController::onOpenDatabase() {
 		openDatabase(Locals::MYSQL_DB_NAME, Locals::MYSQL_DRIVER);
 	}
 }
-
 void DbController::dropTable(const QString &tableName) {
 	QSqlQuery q(db());
 	q.prepare(tr("DROP TABLE %1").arg(tableName));
