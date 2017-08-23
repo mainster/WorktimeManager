@@ -21,7 +21,7 @@ class Form : public QWidget {
 
 public:
 	explicit Form(QWidget *parent = 0);
-	~Form() { delete ui; }
+	~Form() { /*delete ui;*/ }
 
 private slots:
 	void onEditDone();

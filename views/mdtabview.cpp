@@ -32,7 +32,7 @@ MdTabView::MdTabView(const QString &tableName, QWidget *parent)
 	setContextMenuPolicy(Qt::ActionsContextMenu);
 	setSortingEnabled( true );
 	setSelectionMode(QAbstractItemView::MultiSelection);
-//	QTableView::horizontalHeader()->setStretchLastSection(true);
+	//	QTableView::horizontalHeader()->setStretchLastSection(true);
 
 	setSizeAdjustPolicy(QTableView::AdjustToContents);
 	adjustSize();
@@ -104,11 +104,11 @@ void MdTabView::createForeignModel(const QString &tableName) {
 			sqlRtm->setRelation(colPrj, QSqlRelation("prj", "prjID", "Beschreibung"));
 
 			//!< Set the localized header captions
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("worktimID"), tr("ID"));
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("dat"), Md::headerAlias[ "dat" ]);
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("hours"), Md::headerAlias[ "hours" ]);
-			sqlRtm->setHeaderData(colEmp, Md::headerAlias[ "workerID" ]);
-			sqlRtm->setHeaderData(colPrj, tr("Beschreibung"));
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("worktimID"), tr("ID"));
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("dat"), Md::headerAlias[ "dat" ]);
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("hours"), Md::headerAlias[ "hours" ]);
+			sqlRtm->setHHeaderData(colEmp, Md::headerAlias[ "workerID" ]);
+			sqlRtm->setHHeaderData(colPrj, tr("Beschreibung"));
 
 			break;
 		}
@@ -128,15 +128,15 @@ void MdTabView::createForeignModel(const QString &tableName) {
 			sqlRtm->setRelation(colArch, QSqlRelation("arch", "archID", "Name"));
 
 			//!< Set the localized header captions
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("prjID"), tr("ID"));
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("clientID"),
-										 Md::headerAlias[ tr("%1/clientID").arg(tableName) ]);
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("subID"),
-										 Md::headerAlias[ tr("%1/subID").arg(tableName) ]);
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("archID"),
-										 Md::headerAlias[ tr("%1/archID").arg(tableName) ]);
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("Nummer"),
-										 Md::headerAlias[ tr("%1/Nummer").arg(tableName) ]);
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("prjID"), tr("ID"));
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("clientID"),
+										  Md::headerAlias[ tr("%1/clientID").arg(tableName) ]);
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("subID"),
+										  Md::headerAlias[ tr("%1/subID").arg(tableName) ]);
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("archID"),
+										  Md::headerAlias[ tr("%1/archID").arg(tableName) ]);
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("Nummer"),
+										  Md::headerAlias[ tr("%1/Nummer").arg(tableName) ]);
 
 			break;
 		}
@@ -151,13 +151,13 @@ void MdTabView::createForeignModel(const QString &tableName) {
 			sqlRtm->setRelation(colGrading, QSqlRelation("grading", "gradingID", "Einstufung"));
 
 			//!< Set the localized header captions
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("workerID"), tr("ID"));
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("PersonalNr"),
-										 Md::headerAlias[ "PersonalNr" ]);
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("Stundensatz"),
-										 Md::headerAlias[ "Stundensatz" ]);
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("Wochenstunden"),
-										 Md::headerAlias[ "Wochenstunden" ]);
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("workerID"), tr("ID"));
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("PersonalNr"),
+										  Md::headerAlias[ "PersonalNr" ]);
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("Stundensatz"),
+										  Md::headerAlias[ "Stundensatz" ]);
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("Wochenstunden"),
+										  Md::headerAlias[ "Wochenstunden" ]);
 
 			break;
 		}
@@ -166,9 +166,9 @@ void MdTabView::createForeignModel(const QString &tableName) {
 		/* --------------------------------------------------------- */
 		if (tableName.contains("client", Qt::CaseInsensitive)) {
 			//!< Set the localized header captions
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("clientID"), tr("ID"));
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("Nummer"),
-										 Md::headerAlias[ tr("%1/Nummer").arg(tableName) ]);
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("clientID"), tr("ID"));
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("Nummer"),
+										  Md::headerAlias[ tr("%1/Nummer").arg(tableName) ]);
 
 			break;
 		}
@@ -177,7 +177,7 @@ void MdTabView::createForeignModel(const QString &tableName) {
 		/* --------------------------------------------------------- */
 		if (tableName.contains("fehlzeit", Qt::CaseInsensitive)) {
 			//!< Set the localized header captions
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("fehlID"), tr("ID"));
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("fehlID"), tr("ID"));
 
 			break;
 		}
@@ -186,7 +186,7 @@ void MdTabView::createForeignModel(const QString &tableName) {
 		/* --------------------------------------------------------- */
 		if (tableName.contains("arch", Qt::CaseInsensitive)) {
 			//!< Set the localized header captions
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("archID"), tr("ID"));
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("archID"), tr("ID"));
 
 			break;
 		}
@@ -195,7 +195,7 @@ void MdTabView::createForeignModel(const QString &tableName) {
 		/* --------------------------------------------------------- */
 		if (tableName.contains("grading", Qt::CaseInsensitive)) {
 			//!< Set the localized header captions
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("gradingID"), tr("ID"));
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("gradingID"), tr("ID"));
 
 			break;
 		}
@@ -212,9 +212,9 @@ void MdTabView::createForeignModel(const QString &tableName) {
 			sqlRtm->setRelation(colFehl, QSqlRelation("fehlzeit", "fehlID", "Grund"));
 
 			//!< Set the localized header captions
-			sqlRtm->setHeaderData(sqlRtm->fieldIndex("runtimeID"), tr("ID"));
-			sqlRtm->setHeaderData(colEmp, Md::headerAlias[ "workerID" ]);
-			sqlRtm->setHeaderData(colFehl, Md::headerAlias[ "fehlID" ]);
+			sqlRtm->setHHeaderData(sqlRtm->fieldIndex("runtimeID"), tr("ID"));
+			sqlRtm->setHHeaderData(colEmp, Md::headerAlias[ "workerID" ]);
+			sqlRtm->setHHeaderData(colFehl, Md::headerAlias[ "fehlID" ]);
 
 
 			break;
@@ -235,7 +235,7 @@ void MdTabView::createForeignModel(const QString &tableName) {
 		QString colData = sqlRtm->headerData(k).toString();
 		if (colData.contains("summe", Qt::CaseInsensitive)) {
 			colData.replace("summe", tr("-%1").arg(MathSymbolSigma));
-			sqlRtm->setHeaderData(k, colData, Qt::Horizontal, Qt::EditRole);
+			sqlRtm->setHeaderData(k, Qt::Horizontal, colData, Qt::EditRole);
 		}
 	}
 

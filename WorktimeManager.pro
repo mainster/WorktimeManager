@@ -101,7 +101,7 @@ HEADERS += \
 	models/mdstringlistmodel.h \
 	models/sfiltmdl.h \
 	models/sqlrtm.h \
-	models/tbl2listmdl.h \
+#	models/tbl2listmdl.h \
 	mpushbutton.h \
 	runtimetable.h \
 	textedit/textedit.h \
@@ -110,7 +110,7 @@ HEADERS += \
 	views/mdtable.h \
 	views/mdtabview.h \
 	mdcompleter.h \
-    form.h
+	form.h
 
 
 SOURCES += \
@@ -146,7 +146,7 @@ SOURCES += \
 	models/mdstringlistmodel.cpp \
 	models/sfiltmdl.cpp \
 	models/sqlrtm.cpp \
-	models/tbl2listmdl.cpp \
+#	models/tbl2listmdl.cpp \
 	mpushbutton.cpp \
 	runtimetable.cpp \
 	textedit/textedit.cpp \
@@ -155,7 +155,7 @@ SOURCES += \
 	views/mdtable.cpp \
 	views/mdtabview.cpp \
 	mdcompleter.cpp \
-    form.cpp
+	form.cpp
 
 
 

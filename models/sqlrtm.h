@@ -87,13 +87,12 @@ public:
 		return QSqlTableModel::data(idx, role);
 	}
 	virtual QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal,
-										 int role = Qt::DisplayRole) const {
+										 int role = Qt::DisplayRole) const override {
 		return QSqlRelationalTableModel::headerData(section, orientation, role);
 	}
-	virtual void setHeaderData(int section, const QVariant &value,
-										Qt::Orientation orientation = Qt::Horizontal,
-										int role = Qt::DisplayRole) {
-		QSqlRelationalTableModel::setHeaderData(section, orientation, value, role);
+	virtual bool setHHeaderData(int section, const QVariant &value) {
+		return QSqlRelationalTableModel::setHeaderData(section, Qt::Horizontal,
+																	  value, Qt::DisplayRole);
 	}
 
 	void storeModel(const QString &sqlTableName) {

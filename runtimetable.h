@@ -2,7 +2,7 @@
 #define RUNTIMETABLE_H
 
 #include <QObject>
-#include <QSql>
+#include <QtSql>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QSqlQueryModel>

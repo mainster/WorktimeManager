@@ -266,8 +266,8 @@ protected slots:
 	bool restoreUi();
 	void showEvent(QShowEvent *e) override;
 	void hideEvent(QHideEvent *e) override;
-	bool eventFilter(QObject *obj, QEvent *e);
-	void closeEvent(QCloseEvent *e);
+	bool eventFilter(QObject *obj, QEvent *e) override;
+	void closeEvent(QCloseEvent *e) override;
 	void onTvSelectorChanged();
 	void onActGroupTrigd(QAction *action);
 	void storeActionState(QAction *sender);

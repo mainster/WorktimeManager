@@ -188,7 +188,7 @@
 /*!
  * Maybe this forward declaration leads in problems so keep it in mind
  */
-struct ItemStyle;
+class ItemStyle;
 struct uID_t;
 
 /* ======================================================================== */

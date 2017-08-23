@@ -29,6 +29,7 @@ namespace Ui {
 class InpFrm;
 }
 namespace Qt {
+Q_NAMESPACE
 enum FocusOrderState {
 	FocusChange_none,
 	FocusChange_init,
@@ -38,7 +39,6 @@ enum FocusOrderState {
 };
 Q_ENUMS(FocusOrderState)
 }
-
 #define MAX_TAB_ORDER_WIDGETS		8
 
 /*!

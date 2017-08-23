@@ -2,7 +2,7 @@
 #define DBCONTROLLER_H
 
 #include <QObject>
-#include <QSql>
+#include <QtSql>
 #include <QSqlError>
 #include <QSqlDatabase>
 #include <QSqlDriver>

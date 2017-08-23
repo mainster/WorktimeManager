@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QTableView>
-#include <QSql>
+#include <QtSql>
 #include <QSqlQuery>
 #include <QSqlQueryModel>
 #include <QSqlTableModel>

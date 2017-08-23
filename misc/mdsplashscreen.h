@@ -18,7 +18,7 @@ protected:
 	virtual void mousePressEvent(QMouseEvent *) override;
 
 private:
-	virtual void paintEvent(QPaintEvent* e);
+	virtual void paintEvent(QPaintEvent* e) override;
 
 	QPixmap itsPixmap;
 	QString itsMessage;
