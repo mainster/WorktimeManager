@@ -21,41 +21,13 @@ class Form : public QWidget {
 
 public:
 	explicit Form(QWidget *parent = 0);
-	~Form();
+	~Form() { /*delete ui;*/ }
 
 private slots:
-	void onEditDone() {
-		if (txtEdit->toPlainText().contains("<DONE>")) {
-			QString ss = txtEdit->toPlainText().remove("\n<DONE>");
-			INFO << ss;
-			Globals::setStylesheet(this, ss);
-			txtEdit->hide();
-		}
-	}
+	void onEditDone();
 
 protected:
-	void keyPressEvent(QKeyEvent *e) override {
-		if (e->key() == Qt::Key_Escape) {
-			QWidget::close();
-			e->accept();
-			return;
-		}
-		if (e->key() == Qt::Key_F4) {
-			foreach (QWidget *w, findChildren<QWidget *>())
-				w->setEnabled(!w->isEnabled());
-
-			e->accept();
-			return;
-		}
-		if (e->key() == Qt::Key_F2) {
-			txtEdit->clear();
-			txtEdit->insertPlainText(QWidget::styleSheet());
-			txtEdit->show();
-			e->accept();
-			return;
-		}
-		QWidget::keyPressEvent(e);
-	}
+	void keyPressEvent(QKeyEvent *e) override;
 
 private:
 	Ui::Form		*ui;

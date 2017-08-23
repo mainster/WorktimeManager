@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1307</width>
-    <height>381</height>
+    <width>1305</width>
+    <height>379</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -137,7 +137,7 @@ QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
 </string>
   </property>
   <property name="windowTitle">
-   <string>Eingabeform</string>
+   <string>E&amp;ingabeform</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -767,7 +767,7 @@ color: ;
               <enum>Qt::StrongFocus</enum>
              </property>
              <property name="text">
-              <string>Krank</string>
+              <string>&amp;Krank</string>
              </property>
              <property name="hasFocus" stdset="0">
               <bool>false</bool>
@@ -990,7 +990,7 @@ QGroupBox::indicator:unchecked {
 </string>
       </property>
       <property name="title">
-       <string>SQL Query</string>
+       <string>SQL &amp;Query</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
