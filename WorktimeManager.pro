@@ -4,25 +4,24 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql widgets
-QT			+= network
-QT			+= script
+QT += core gui sql widgets
+QT += network
+QT += script
+QT += printsupport
 
 #unix:LIBS += -lpq
 #win32:LIBS += libpqdll.lib
+#qtHaveModule(printsupport):
+#QMAKE_CXX = ccache g++
 
-qtHaveModule(printsupport): QT += printsupport
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 TARGET = WorktimeManager
-#QMAKE_CXX = ccache g++
 TEMPLATE = app
 CONFIG+=c++11
 INCLUDEPATH += mdbQtStd
-
 DEFINES +=	USE_QPOINTER \
-				NO_SPLASH_SCREEN \
+		NO_SPLASH_SCREEN \
 
 DISTFILES += \
 	 NOTES \
