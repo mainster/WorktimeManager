@@ -506,6 +506,7 @@ MdMenu *Browser::menuBarElement() {
 	MdMenu *tvCountMenu = browsMenu->addMenu(tr("Table View count config"));
 	PONAM(tvCountMenu)->addActions(actGrTvCount->actions());
 
+
 	return browsMenu;
 }
 void Browser::createUi(QWidget *passParent) {

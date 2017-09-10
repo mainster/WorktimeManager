@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <QCompleter>
 #include <QLineEdit>
+#include <QInputDialog>
 
 #include "globals.h"
 #include "debug.h"
@@ -34,20 +35,15 @@ class MdComboBox : public QComboBox {
 public:
 
 #ifdef USE_COMPLETER
-
 	explicit MdComboBox(QWidget *parent = 0);
-
 #else
-
 	explicit MdComboBox(QWidget *parent = 0)
 		: QComboBox(parent), listMdl(new QStringListModel()) { }
-
 #endif
 
 	~MdComboBox() { }
 
 	virtual void setModel(QAbstractItemModel *inputModel);
-
 	void setModelColumns(QList<short> columns);
 	QCompleter *getCompleter() const;
 
@@ -57,8 +53,12 @@ public slots:
 protected:
 	virtual void timerEvent(QTimerEvent *e) override;
 	virtual void focusInEvent(QFocusEvent *e) override;
+//	virtual void changeEvent(QEvent *) override;
 
 protected slots:
+
+signals:
+//	void onCfgCbxViewItemCount();
 
 private:
 	int timerId;
@@ -67,6 +67,7 @@ private:
 	QList<short> mColCfg;
 	QCompleter *mCompleter;
 	QAbstractItemModel *inputMdl;
+
 };
 
 /*

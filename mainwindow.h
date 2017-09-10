@@ -195,7 +195,8 @@ private:
 	*actCyclicObjInfo, *actResizerDlg, *actShowSqlQuery, *actSetAlterRowCol,
 	*actSetGridColor, *actAutoFitTables, *actFilterTable, *actFilterTableWindow,
 	*actFilterForm, *actCfgInpFrmTabOrd, *actDoFiltWorktimeTbl,
-	*actDoFiltSelectedTbl, *actResetConfig;
+	*actDoFiltSelectedTbl, *actResetConfig,
+	*actCfgCbxViewItemCount;
 
 };
 

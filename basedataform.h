@@ -47,8 +47,7 @@ public:
 	Q_DECLARE_FLAGS(ActiveTasks, ActiveTask)
 
 	struct DataMap {
-		DataMap(QWidget *widget, const int column)
-			: w(widget), column(column) { }
+		DataMap(QWidget *widget, const int column) : w(widget), column(column) {}
 		QWidget *w;
 		int column;
 	};

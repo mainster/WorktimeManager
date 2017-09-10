@@ -780,6 +780,13 @@ void MainWindow::makeMenu() {
 		mdm->show();
 	}
 
+	/* ======================================================================== */
+	/*                        Modify MdComboBox...                              */
+	/* ======================================================================== */
+//	MdMenu *cbxsSetup = new MdMenu(this);
+//	cbxsSetup->setTitle(tr("&cbxsSetup"));
+//	cbxsSetup->addActions(QList<QAction *>() << actCfgCbxViewItemCount);
+
 }
 void MainWindow::onStyleSheetTrig() {
 

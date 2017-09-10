@@ -50,6 +50,8 @@ InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 		  << listObjectNames<QWidget *>(tabOrderList);
 	setFocusOrderSIMPLE(tabOrderList);
 
+
+
 //	baseProxy = NULL;
 
 	//	ui->gboxWorker->hide();
@@ -278,7 +280,7 @@ void InpFrm::onCbIndexChanged(const int index) {
 		return;
 	}
 	if (cbSender == ui->cbClient) {
-
+		INFO << ui->cbClient->itemText(index);
 		return;
 	}
 	if (cbSender == ui->cbWorker) {
