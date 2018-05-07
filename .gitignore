@@ -1,3 +1,4 @@
+release/
 *.cpp.autosave
 *.cpp.orig
 *.h.orig
@@ -6,5 +7,8 @@
 *.pro.user*
 *.db
 *.sql
+object_script.WorktimeManager.*
 !sqlite/delBassoInitialDb_sheme_template.sql
 olddb/
+ui_*.h
+worktimemanager_plugin_import.cpp   
