@@ -29,6 +29,8 @@ namespace Ui {
 class InpFrm;
 }
 namespace Qt {
+Q_NAMESPACE
+
 enum FocusOrderState {
 	FocusChange_none,
 	FocusChange_init,
