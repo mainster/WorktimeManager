@@ -20,7 +20,7 @@ class DbController : public QObject {
 	Q_OBJECT
 
 public:
-	explicit DbController(QObject *parent = 0);
+	explicit DbController(QObject *parent = nullptr);
 	static QSqlDatabase db() { return mDb; }
 	QList<bool> getConnectionState(bool beQuiet = false);
 

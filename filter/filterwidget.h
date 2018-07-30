@@ -127,7 +127,7 @@ class FilterEdit : public QLineEdit {
 	Q_PROPERTY(QRegExp::PatternSyntax patternSyntax READ patternSyntax WRITE
 				  setPatternSyntax)
  public:
-	explicit FilterEdit(QWidget *parent = 0);
+	explicit FilterEdit(QWidget *parent = nullptr);
 
 	Qt::CaseSensitivity caseSensitivity() const;
 	void setCaseSensitivity(Qt::CaseSensitivity);

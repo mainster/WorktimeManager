@@ -10,7 +10,7 @@ class DbConnDlg: public QDialog
 {
     Q_OBJECT
 public:
-    DbConnDlg(QWidget *parent = 0);
+    DbConnDlg(QWidget *parent = nullptr);
     ~DbConnDlg();
 
     QString driverName() const;

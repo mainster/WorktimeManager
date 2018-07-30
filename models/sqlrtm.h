@@ -45,7 +45,7 @@ public:
 	 * \param parent
 	 * \param db
 	 */
-	explicit SqlRtm(QSqlDatabase db = QSqlDatabase(), QObject *parent = 0)
+	explicit SqlRtm(QSqlDatabase db = QSqlDatabase(), QObject *parent = nullptr)
 		: QSqlRelationalTableModel(parent, db) {
 
 		connect (this, &SqlRtm::srcChanged, this, &SqlRtm::onSrcChanged);

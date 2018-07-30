@@ -14,8 +14,8 @@ class MdMenu : public QMenu {
 	Q_OBJECT
 
 public:
-	explicit MdMenu(QWidget *parent = 0);
-	explicit MdMenu(const QString &title, QWidget *parent = 0);
+	explicit MdMenu(QWidget *parent = nullptr);
+	explicit MdMenu(const QString &title, QWidget *parent = nullptr);
 
 	~MdMenu();
 

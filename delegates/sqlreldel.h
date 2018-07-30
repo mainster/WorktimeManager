@@ -11,7 +11,7 @@ class SqlRelDel : public QSqlRelationalDelegate {
 	Q_OBJECT
 
 public:
-	explicit SqlRelDel(QObject *parent = 0);
+	explicit SqlRelDel(QObject *parent = nullptr);
 
 
 signals:

@@ -10,7 +10,7 @@ class HeaderAlias : public QObject {
 	Q_OBJECT
 
 public:
-	HeaderAlias(QObject *parent = 0) : QObject(parent) { }
+	HeaderAlias(QObject *parent = nullptr) : QObject(parent) { }
 	HeaderAlias(const HeaderAlias *others, QObject *parent) : QObject(parent) {
 		map = others->map;
 	}

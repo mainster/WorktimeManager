@@ -15,7 +15,7 @@ class NullDelegate : public QSqlRelationalDelegate {
 
 public:
 
-	NullDelegate (QObject *parent = 0)
+	NullDelegate (QObject *parent = nullptr)
 		: QSqlRelationalDelegate(parent) { }
 
 	void setEditorData(QWidget *editor, const QModelIndex &index) const {
@@ -48,7 +48,7 @@ public:
 //			}
 //		}
 //		else {
-		if (editor->property("primaryKey").isValid())
+		if (editor->property("primaryKey").isValid()) {
 			if (editor->property("primaryKey").toBool())
 				return;
 
@@ -56,7 +56,7 @@ public:
 				model->setData(index, QVariant());
 			else
 				QSqlRelationalDelegate::setModelData(editor, model, index);
-//		}
+		}
 	}
 };
 

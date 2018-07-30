@@ -22,7 +22,7 @@ class BasicSortFilt : public QWidget {
 	Q_OBJECT
 
 public:
-	BasicSortFilt(QWidget *parent = 0);
+	BasicSortFilt(QWidget *parent = nullptr);
 
 	void setSourceModel(QAbstractItemModel *model);
 

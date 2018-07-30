@@ -141,7 +141,7 @@ public:
 			 * currently no model loaded.
 			 */
 			foreach (MdTable *tbl, tblsNoPtr())
-				if (tbl->tv()->model() == 0)
+				if (tbl->tv()->model() == nullptr)
 					return tbl;
 
 			/*!
@@ -155,7 +155,7 @@ public:
 				if (mdt->sqlTableName().contains(tableName, sensitivity))
 					return mdt;
 
-			return NULL;
+			return nullptr;
 		}
 
 		/*!
@@ -182,13 +182,13 @@ public:
 	ConnectionWidget *connectionWidget() const { return mConnectionWidget; }
 	void setFont(const QFont f);
 
-	explicit Browser(QWidget *parent = 0);
-	static Browser *instance(QWidget *parent = 0x00) {
-		if(inst == 0)
+	explicit Browser(QWidget *parent = nullptr);
+	static Browser *instance(QWidget *parent = nullptr) {
+		if(inst == nullptr)
 			inst = new Browser(parent);
 		return inst;
 	}
-	virtual ~Browser();
+	virtual ~Browser() override;
 
 	//    void insertRow(QTableView *tv);
 	void deleteRow(QTableView *tv);
@@ -258,7 +258,7 @@ public slots:
 	void loadClipboard(const QString &buff);
 
 protected:
-	void createUi(QWidget *passParent = 0);
+	void createUi(QWidget *passParent = nullptr);
 	void createActions();
 	bool restoreColumnOrderAndVisability(MdTable *tv);
 
@@ -266,8 +266,8 @@ protected slots:
 	bool restoreUi();
 	void showEvent(QShowEvent *e) override;
 	void hideEvent(QHideEvent *e) override;
-	bool eventFilter(QObject *obj, QEvent *e);
-	void closeEvent(QCloseEvent *e);
+	bool eventFilter(QObject *obj, QEvent *e) override;
+	void closeEvent(QCloseEvent *e) override;
 	void onTvSelectorChanged();
 	void onActGroupTrigd(QAction *action);
 	void storeActionState(QAction *sender);

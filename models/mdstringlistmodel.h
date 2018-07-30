@@ -9,7 +9,7 @@ class MdStringListModel : public QAbstractListModel {
 	Q_OBJECT
 
 public:
-	explicit MdStringListModel(QObject *parent = 0)
+	explicit MdStringListModel(QObject *parent = nullptr)
 		: QAbstractListModel(parent), mColCfg(QList<short>() << 1 << 2) {}
 
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override {

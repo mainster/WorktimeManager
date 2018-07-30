@@ -53,7 +53,7 @@ public:
 		int column;
 	};
 
-	BaseDataForm(int id, QTableView *tableView, QWidget *parent = 0);
+	BaseDataForm(int id, QTableView *tableView, QWidget *parent = nullptr);
 	~BaseDataForm() {
 		INFO << tr("close");
 	}

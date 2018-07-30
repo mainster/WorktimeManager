@@ -11,7 +11,7 @@ class MdComboBox;
 /* ======================================================================== */
 /*                              InpFrm::InpFrm                              */
 /* ======================================================================== */
-InpFrm* InpFrm::inst = 0;
+InpFrm* InpFrm::inst = nullptr;
 InpFrm::InpFrm(QWidget *parent) : QDockWidget(parent),
 	ui(new Ui::InpFrm), mEscapeTrigger(false) {
 	ui->setupUi(this);

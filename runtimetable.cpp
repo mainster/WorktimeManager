@@ -6,7 +6,7 @@ const QString RuntimeTable::OVERTIME_TABLE_NAME = QString("runtime");
 /*                        RuntimeTable::RuntimeTable                        */
 /* ======================================================================== */
 bool RuntimeTable::recalcOvertime() {
-	bool ok;
+	bool ok = false;
 	/*!
 	 * Query a ColumnSchema list.
 	 */

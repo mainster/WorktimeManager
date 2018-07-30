@@ -58,8 +58,8 @@ public:
 
 	Button_t *pbSave, *pbDeleteLast, *pbStrikeOut;
 
-	MDNotes(const QString settingsKey, QWidget *parent = 0);
-	MDNotes(const MDNotes &other, QWidget *parent = 0) : QFrame(parent){
+	MDNotes(const QString settingsKey, QWidget *parent = nullptr);
+	MDNotes(const MDNotes &other, QWidget *parent = nullptr) : QFrame(parent){
 		mSettingsKey = other.mSettingsKey;
 	}
 	~MDNotes();

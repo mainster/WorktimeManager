@@ -36,8 +36,8 @@ class InpFrm4 : public QWidget {
 
 public:
 	explicit InpFrm4(const QList<MdTable *> tables = QList<MdTable *>(),
-						  QWidget *parent = 0);
-	static InpFrm4 *instance(QWidget *parent = 0) {
+						  QWidget *parent = nullptr);
+	static InpFrm4 *instance(QWidget *parent = nullptr) {
 		if (! mInst)
 			mInst = new InpFrm4(QList<MdTable *>(), parent);
 		return mInst;
@@ -85,7 +85,7 @@ class InpBoxWdg : public QGroupBox {
 public:
 	static const QString mStylesheetInp4;
 
-	explicit InpBoxWdg(const QString &title = QString(), QWidget *parent = 0);
+	explicit InpBoxWdg(const QString &title = QString(), QWidget *parent = nullptr);
 	MdComboBox *cbx() const { return mCbx; }
 	MdTabView *tv() const { return mTv; }
 	void setTable(MdTable *table);

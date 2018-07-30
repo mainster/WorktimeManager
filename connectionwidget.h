@@ -20,8 +20,8 @@ class ConnectionWidget: public QWidget {
 	Q_OBJECT
 
 public:
-	ConnectionWidget(QWidget *parent = 0);
-	static ConnectionWidget *instance(QWidget *parent = 0) {
+	ConnectionWidget(QWidget *parent = nullptr);
+	static ConnectionWidget *instance(QWidget *parent = nullptr) {
 		if (inst == 0)
 			inst = new ConnectionWidget(parent);
 

@@ -35,11 +35,11 @@ public:
 
 #ifdef USE_COMPLETER
 
-	explicit MdComboBox(QWidget *parent = 0);
+	explicit MdComboBox(QWidget *parent = nullptr);
 
 #else
 
-	explicit MdComboBox(QWidget *parent = 0)
+	explicit MdComboBox(QWidget *parent = nullptr)
 		: QComboBox(parent), listMdl(new QStringListModel()) { }
 
 #endif

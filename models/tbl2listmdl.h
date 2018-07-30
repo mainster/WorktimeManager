@@ -10,7 +10,7 @@ class Tbl2ListMdl : public QAbstractListModel {
 	Q_OBJECT
 
 public:
-	Tbl2ListMdl(QAbstractItemModel *sourceModel, QObject *parent = 0)
+	Tbl2ListMdl(QAbstractItemModel *sourceModel, QObject *parent = nullptr)
 		: QAbstractListModel(parent), mSrcMdl(sourceModel) {
 
 	}

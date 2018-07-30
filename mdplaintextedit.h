@@ -11,7 +11,7 @@ class MdPlainTextEdit : public QPlainTextEdit {
 	Q_OBJECT
 
 public:
-	explicit MdPlainTextEdit(QWidget *parent = 0)
+	explicit MdPlainTextEdit(QWidget *parent = nullptr)
 		: QPlainTextEdit(parent) {
 		connect(this, &MdPlainTextEdit::textChanged, this, &MdPlainTextEdit::onTextChanged);
 	}

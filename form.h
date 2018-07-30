@@ -20,7 +20,7 @@ class Form : public QWidget {
 	Q_OBJECT
 
 public:
-	explicit Form(QWidget *parent = 0);
+	explicit Form(QWidget *parent = nullptr);
 	~Form() { /*delete ui;*/ }
 
 private slots:

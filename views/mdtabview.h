@@ -56,7 +56,7 @@ public:
 	/*                           MdTabView::MdTabView                           */
 	/* ======================================================================== */
 	explicit MdTabView(SfiltMdl *proxyModel, QWidget *parent);
-	explicit MdTabView(const QString &tableName/* = QString()*/, QWidget *parent = 0);
+	explicit MdTabView(const QString &tableName/* = QString()*/, QWidget *parent = nullptr);
 	~MdTabView() {}
 
 	ModelType mModelType;

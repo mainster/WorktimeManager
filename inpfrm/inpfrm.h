@@ -63,7 +63,7 @@ class InpFrm : public QDockWidget {
 public:
 	struct fieldGroup_t {
 
-		fieldGroup_t(const QString &tableName, MdComboBox *comboBox, QObject *parent = 0)
+		fieldGroup_t(const QString &tableName, MdComboBox *comboBox, QObject *parent = nullptr)
 			: tableModel( new QSqlRelationalTableModel(parent) ),
 			  proxyModel( new QSortFilterProxyModel(parent) ),
 			  listModel( new QStringListModel(parent) ),
@@ -96,13 +96,13 @@ public:
 		QList<QWidget *> mNext;
 	} mTabOrder;
 
-	explicit InpFrm(QWidget *parent = 0);
-	static InpFrm *instance(QWidget *parent = 0x00) {
-		if(inst == 0)
+	explicit InpFrm(QWidget *parent = nullptr);
+	static InpFrm *instance(QWidget *parent = nullptr) {
+		if(inst == nullptr)
 			inst = new InpFrm(parent);
 		return inst;
 	}
-	~InpFrm();
+	~InpFrm() override;
 
 	void setQueryBoxVisible(bool visible);
 	Qt::FocusOrderState getChangeFocusFlag() const;

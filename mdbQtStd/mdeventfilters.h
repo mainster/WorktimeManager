@@ -44,7 +44,7 @@ class GlobalEventFilter : public QObject {
 	Q_OBJECT
 
 public:
-	explicit GlobalEventFilter(bool printDebug = false, QObject *parent = 0)
+	explicit GlobalEventFilter(bool printDebug = false, QObject *parent = nullptr)
 		: QObject(parent), mPrintDebug(printDebug) {}
 
 protected:
@@ -65,7 +65,7 @@ class SqlEventFilter : public QObject {
 	Q_OBJECT
 
 public:
-	explicit SqlEventFilter(QObject *parent = 0)
+	explicit SqlEventFilter(QObject *parent = nullptr)
 		: QObject(parent) {}
 
 protected:

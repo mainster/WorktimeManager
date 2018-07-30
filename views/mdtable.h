@@ -20,7 +20,7 @@ public:
 
 	explicit MdTable(const QString &tvObjName,
 						  const QString &tableName = QString(),
-						  QWidget *parent = 0);
+						  QWidget *parent = nullptr);
 	~MdTable() { }
 
 	bool isSelected()	{ return m_selected; }

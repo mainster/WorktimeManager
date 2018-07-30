@@ -25,9 +25,9 @@ class SfiltMdl : public QSortFilterProxyModel {
 	Q_OBJECT
 
  public:
-	explicit SfiltMdl(QObject *parent = 0)
+	explicit SfiltMdl(QObject *parent = nullptr)
 		: QSortFilterProxyModel(parent), mID(-1), mHeadIdxs(new HeaderAlias()) {	}
-	explicit SfiltMdl(const SfiltMdl &others, QObject *parent = 0)
+	explicit SfiltMdl(const SfiltMdl &others, QObject *parent = nullptr)
 		: QSortFilterProxyModel(parent) {
 		m_minDate = others.m_minDate;
 		m_maxDate = others.m_maxDate;
@@ -83,7 +83,7 @@ class MySortFilterProxyModel : public QSortFilterProxyModel {
 	Q_OBJECT
 
  public:
-	MySortFilterProxyModel(QObject *parent = 0);
+	MySortFilterProxyModel(QObject *parent = nullptr);
 
 	QDate filterMinimumDate() const {
 		return minDate;

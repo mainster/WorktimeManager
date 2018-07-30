@@ -66,8 +66,8 @@ public:
 	Q_DECLARE_FLAGS(ConnectReceivers, ConnectReceiver)
 	Q_FLAG(ConnectReceivers)
 
-	explicit MainWindow(QWidget *parent = 0);
-	~MainWindow();
+	explicit MainWindow(QWidget *parent = nullptr);
+	~MainWindow() override;
 
 signals:
 
@@ -208,7 +208,7 @@ class StaticSignal : public QObject {
 	Q_OBJECT
 
 public:
-	static StaticSignal *instance(QObject *parent = 0) {
+	static StaticSignal *instance(QObject *parent = nullptr) {
 		if (inst == 0)
 			return new StaticSignal(parent);
 		return inst;

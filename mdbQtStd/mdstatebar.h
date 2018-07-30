@@ -87,8 +87,8 @@ public:
 	};
 	QMap<QString, struct Slot_t> m_slotMap;
 
-	explicit MDStateBar(QWidget *parent = 0);
-	static MDStateBar *instance(QWidget *parent = 0) {
+	explicit MDStateBar(QWidget *parent = nullptr);
+	static MDStateBar *instance(QWidget *parent = nullptr) {
 		if (inst == 0)
 			inst = new MDStateBar(parent);
 		return inst;

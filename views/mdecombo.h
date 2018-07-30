@@ -19,7 +19,7 @@ class QTextEdit;
 class MdECombo : public QWidget {
 	Q_OBJECT
 public:
-	explicit MdECombo(QWidget *parent = 0);
+	explicit MdECombo(QWidget *parent = nullptr);
 
 signals:
 
